@@ -1,43 +1,36 @@
 <?php
 
-namespace SportsPlanning\Tests\Planning\Batch;
+namespace SportsPlanning\Tests\Batch;
 
-use Voetbal\Output\Planning as PlanningOutput;
-use Voetbal\Output\Planning\Batch as PlanningBatchOutput;
+use SportsPlanning\Output\Planning as PlanningOutput;
+use SportsPlanning\Output\Planning\Batch as PlanningBatchOutput;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\RefereePlacePredicter;
-use Voetbal\Field;
+use SportsPlanning\Field;
 use SportsPlanning;
 use SportsPlanning\Input;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
-use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\PlanningCreator;
-use Voetbal\TestHelper\PlanningReplacer;
-use Voetbal\Structure\Service as StructureService;
+use SportsPlanning\TestHelper\PlanningCreator;
+use SportsPlanning\TestHelper\PlanningReplacer;
+use SportsPlanning\Structure\Service as StructureService;
 use SportsPlanning\Validator as PlanningValidator;
 use SportsPlanning\Game;
-use Voetbal\Game as GameBase;
+use SportsPlanning\Game as GameBase;
 use SportsPlanning\Referee as PlanningReferee;
 use SportsPlanning\Place as PlanningPlace;
 use SportsPlanning\Field as PlanningField;
-use Voetbal\Referee;
+use SportsPlanning\Referee;
 use Exception;
 
 class RefereePlacePredicterTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, PlanningCreator, PlanningReplacer;
+    use PlanningCreator, PlanningReplacer;
 
     public function testSamePouleEnoughRefereePlaces()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 3);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [3] )
+        );
 
         $predicter = new RefereePlacePredicter($planning->getPoules());
         $canStillAssign = $predicter->canStillAssign($planning->createFirstBatch(), Input::SELFREFEREE_SAMEPOULE);
@@ -46,15 +39,9 @@ class RefereePlacePredicterTest extends \PHPUnit\Framework\TestCase
 
     public function testSamePouleNotEnoughRefereePlaces()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 2);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [2] )
+        );
 
         $predicter = new RefereePlacePredicter($planning->getPoules());
         $canStillAssign = $predicter->canStillAssign($planning->createFirstBatch(), Input::SELFREFEREE_SAMEPOULE);
@@ -63,15 +50,9 @@ class RefereePlacePredicterTest extends \PHPUnit\Framework\TestCase
 
     public function testOtherPoulesEnoughRefereePlaces()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 6, 2);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [3,3] )
+        );
 
         $predicter = new RefereePlacePredicter($planning->getPoules());
         $canStillAssign = $predicter->canStillAssign($planning->createFirstBatch(), Input::SELFREFEREE_OTHERPOULES);
@@ -80,15 +61,9 @@ class RefereePlacePredicterTest extends \PHPUnit\Framework\TestCase
 
     public function testOtherPoulesNotEnoughRefereePlaces()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 4, 2);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [2,2] )
+        );
 
         $predicter = new RefereePlacePredicter($planning->getPoules());
         $canStillAssign = $predicter->canStillAssign($planning->createFirstBatch(), Input::SELFREFEREE_OTHERPOULES);

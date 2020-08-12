@@ -1,8 +1,8 @@
 <?php
 
-namespace SportsPlanning\Tests\Planning\Variations;
+namespace SportsPlanning\Tests\Variations;
 
-use SportsPlanning\Tests\Planning\AssertConfig;
+use SportsPlanning\Tests\AssertConfig;
 
 class Config5
 {

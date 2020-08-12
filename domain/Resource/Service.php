@@ -12,28 +12,22 @@ use DateTimeImmutable;
 use Monolog\Handler\StreamHandler;
 use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
+use Monolog\Logger;
 
 use SportsPlanning\HelperTmp;
 use SportsPlanning\Planning;
 use SportsPlanning\Game;
-use SportsPlanning\Game\Place as GamePlace;
 use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Place;
-use SportsPlanning\Field;
 use SportsPlanning\Sport;
 use SportsPlanning\Resources as Resources;
 use SportsPlanning\Input;
 use SportsPlanning\Sport\Counter as SportCounter;
-use SportsPlanning\Sport\NrFields;
 use SportsPlanning\Sport\NrFields as SportNrFields;
-use SportsPlanning\Sport\NrFieldsGames as SportNrFieldsGames;
-use Voetbal\Sport\Service as SportService;
 use SportsPlanning\Batch;
 use SportsPlanning\Output\Batch as BatchOutput;
 use SportsPlanning\Batch\RefereePlacePredicter;
-use Voetbal\Game as GameBase;
 use SportsPlanning\TimeoutException;
-use Monolog\Logger;
 
 class Service
 {

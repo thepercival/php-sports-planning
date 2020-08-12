@@ -1,34 +1,26 @@
 <?php
 
-namespace SportsPlanning\Tests\Planning\Validator;
+namespace SportsPlanning\Tests\Validator;
 
 use \Exception;
 use SportsPlanning\Input;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Validator\GameAssignments as GameAssignmentValidator;
-use Voetbal\Referee;
-use Voetbal\Structure\Service as StructureService;
-use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\PlanningCreator;
-use Voetbal\TestHelper\PlanningReplacer;
-use Voetbal\Output\Planning as PlanningOutput;
-use Voetbal\Field;
+use SportsPlanning\Referee;
+use SportsPlanning\TestHelper\PlanningCreator;
+use SportsPlanning\TestHelper\PlanningReplacer;
+use SportsPlanning\Output\Planning as PlanningOutput;
+use SportsPlanning\Field;
 
 class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
 {
-
-    use CompetitionCreator, PlanningCreator, PlanningReplacer;
+    use PlanningCreator, PlanningReplacer;
 
     public function testGetCountersFields()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 5);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [5] )
+        );
 
         $validator = new GameAssignmentValidator($planning);
         $gameCounters = $validator->getCounters(GameAssignmentValidator::FIELDS);
@@ -43,14 +35,9 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
 
     public function testGetCountersReferees()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 5);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [5] )
+        );
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -68,15 +55,9 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
 
     public function testGetCountersRefereePlaces()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 5);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [5], null, null, null, Input::SELFREFEREE_SAMEPOULE )
+        );
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -94,15 +75,9 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
 
     public function testGetUnequalRefereePlaces()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 5);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [5], null, null, null, Input::SELFREFEREE_SAMEPOULE )
+        );
 
         $firstPoule = $planning->getPoule(1);
         $replacedPlace = $firstPoule->getPlace(5);
@@ -141,15 +116,9 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
 
     public function testValidateRefereePlacesTwoPoulesNotEqualySized()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 9, 2);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [5,4], null, null, null, Input::SELFREFEREE_OTHERPOULES )
+        );
 
         $secondPoule = $planning->getPoule(2);
         $replacedPlace = $secondPoule->getPlace(3);
@@ -169,15 +138,9 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
 
     public function testValidateUnequalFields()
     {
-        $competition = $this->createCompetition();
-        new Field($competition->getFirstSportConfig());
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 5);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [5], $this->createSportConfig(3) )
+        );
 
         $planningGames = $planning->getPoule(1)->getGames();
         $replacedField = $planning->getField(2);
@@ -194,15 +157,9 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
 
     public function testValidateUnequalReferees()
     {
-        $competition = $this->createCompetition();
-        new Referee($competition);
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 5);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [5], null, 3 )
+        );
 
         $planningGames = $planning->getPoule(1)->getGames();
         $replacedReferee = $planning->getReferee(2);
@@ -219,15 +176,9 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
 
     public function testValidateUnequalRefereePlaces()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 5);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [5], null, null, null, Input::SELFREFEREE_SAMEPOULE )
+        );
 
         $firstPoule = $planning->getPoule(1);
         $replacedPlace = $firstPoule->getPlace(5);
@@ -249,15 +200,9 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
 
     public function testValidate()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 5);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [5], null, null, null, Input::SELFREFEREE_SAMEPOULE )
+        );
 
         $validator = new GameAssignmentValidator($planning);
         self::assertNull($validator->validate());

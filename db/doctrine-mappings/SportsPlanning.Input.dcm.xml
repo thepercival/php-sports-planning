@@ -5,14 +5,14 @@
       <generator strategy="AUTO"/>
     </id>
     <field name="structureConfig" column="structureConfig" type="json" nullable="false" unique="false"/>
-    <field name="sportConfig" column="sportConfig" type="json" nullable="false" unique="false"/>
+    <field name="sportConfigDb" column="sportConfig" type="json" nullable="false" unique="false"/>
     <field name="nrOfReferees" column="nrOfReferees" type="smallint" nullable="false" unique="false"/>
     <field name="nrOfHeadtohead" column="nrOfHeadtohead" type="smallint" nullable="false" unique="false"/>
     <field name="teamup" column="teamup" type="boolean" nullable="false" unique="false"/>
     <field name="selfReferee" column="selfReferee" type="smallint" nullable="false" unique="false"/>
     <field name="state" column="state" type="smallint" nullable="false" unique="false"/>
     <field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
-    <one-to-many field="plannings" target-entity="SportsPlanning" mapped-by="input" fetch="EXTRA_LAZY">
+    <one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="input" fetch="EXTRA_LAZY">
       <cascade>
         <cascade-remove/>
       </cascade>

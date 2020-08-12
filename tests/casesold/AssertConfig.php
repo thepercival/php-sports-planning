@@ -1,8 +1,8 @@
 <?php
 
-namespace SportsPlanning\Tests\Planning;
+namespace SportsPlanning\Tests;
 
-use Voetbal\Association;
+use SportsPlanning\Association;
 
 class AssertConfig
 {

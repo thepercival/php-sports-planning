@@ -10,6 +10,7 @@ namespace SportsPlanning;
 
 use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\Range;
+use SportsHelpers\SportConfig as SportConfigHelper;
 
 class Repository extends BaseRepository
 {
@@ -27,7 +28,7 @@ class Repository extends BaseRepository
         ;
 
         $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()));
-        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()));
+        $query = $query->setParameter('sportConfig', $this->sportConfigHelpersToString($input));
         $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
         $query = $query->setParameter('teamup', $input->getTeamup());
         $query = $query->setParameter('selfReferee', $input->getSelfReferee());
@@ -56,7 +57,7 @@ class Repository extends BaseRepository
         ;
 
         $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()));
-        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()));
+        $query = $query->setParameter('sportConfig', $this->sportConfigHelpersToString($input));
         $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
         $query = $query->setParameter('teamup', $input->getTeamup());
         $query = $query->setParameter('selfReferee', $input->getSelfReferee());
@@ -87,7 +88,7 @@ class Repository extends BaseRepository
         ;
 
         $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()));
-        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()));
+        $query = $query->setParameter('sportConfig', $this->sportConfigHelpersToString($input));
         $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
         $query = $query->setParameter('teamup', $input->getTeamup());
         $query = $query->setParameter('selfReferee', $input->getSelfReferee());
@@ -131,5 +132,15 @@ class Repository extends BaseRepository
     public function isProcessing(int $state): bool
     {
         return $this->count(["state" => $state ]) > 0;
+    }
+
+    /**
+     * @param Input $input
+     * @return string
+     */
+    protected function sportConfigHelpersToString(Input $input): string {
+        return json_encode( array_map( function(SportConfigHelper $sportConfigHelper): array {
+            return $sportConfigHelper->toArray();
+        }, $input->getSportConfigHelpers() ) );
     }
 }

@@ -6,7 +6,7 @@
  * Time: 11:10
  */
 
-namespace Voetbal\TestHelper;
+namespace SportsPlanning\TestHelper;
 
 use SportsPlanning\Batch;
 use SportsPlanning\Place as PlanningPlace;

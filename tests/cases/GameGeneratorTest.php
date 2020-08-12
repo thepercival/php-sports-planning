@@ -1,34 +1,19 @@
 <?php
 
-namespace SportsPlanning\Tests\Planning;
+namespace SportsPlanning\Tests;
 
 use SportsPlanning\GameGenerator;
-use SportsPlanning\Input;
-use SportsPlanning\Input\Service as PlanningInputService;
-use SportsPlanning\Poule;
-use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
-use Voetbal\Qualify\Group as QualifyGroup;
-use Voetbal\Round\Number\GamesValidator;
-use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\PlanningCreator;
-use Voetbal\Structure\Service as StructureService;
-use SportsPlanning\Assigner as PlanningConvertService;
-use SportsPlanning\ScheduleService;
+use SportsPlanning\TestHelper\PlanningCreator;
 
 class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, PlanningCreator;
+    use PlanningCreator;
 
     public function testWithRefereePlaces()
     {
-        $competition = $this->createCompetition();
-        $competition->getReferees()->clear();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 4);
-
-        $firstRoundNumber = $structure->getFirstRoundNumber();
-        $planning = $this->createPlanning($firstRoundNumber, []);
+        $planning = $this->createPlanning(
+            $this->createInput( [ 4 ], $this->getDefaultSportConfig(), 0  )
+        );
 
         $gameGenerator = new GameGenerator($planning->getInput());
 

@@ -2,8 +2,6 @@
 
 namespace SportsPlanning;
 
-use Voetbal\Referee as RefereeBase;
-
 class Referee implements Resource
 {
     /**

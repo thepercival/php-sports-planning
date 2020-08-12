@@ -108,15 +108,14 @@ class Service
     public function getGCDInput(Input $input): Input
     {
         $gcd = $this->getGCDRaw($input->getStructureConfig(), $input->getSportConfigHelpers(), $input->getNrOfReferees());
-        list($structureConfig, $sportConfig, $nrOfReferees) = $this->modifyByGCD(
-            $gcd,
-            $input->getStructureConfig(),
-            $input->getSportConfig(),
-            $input->getNrOfReferees()
-        );
+
+        $structureConfig = $this->createGCDStructureConfig( $gcd, $input->getStructureConfig() );
+        $sportConfigHelpers = $this->createGCDSportConfigHelpers( $gcd, $input->getSportConfigHelpers() );
+        $nrOfReferees = $this->getGCDNrOfReferees( $gcd, $input->getNrOfReferees() );
+
         return new Input(
             $structureConfig,
-            $sportConfig,
+            $sportConfigHelpers,
             $nrOfReferees,
             $input->getTeamup(),
             $input->getSelfReferee(),
@@ -126,15 +125,13 @@ class Service
 
     public function getReverseGCDInput(Input $input, int $reverseGCD): Input
     {
-        list($structureConfig, $sportConfig, $nrOfReferees) = $this->modifyByGCD(
-            1 / $reverseGCD,
-            $input->getStructureConfig(),
-            $input->getSportConfig(),
-            $input->getNrOfReferees()
-        );
+        $structureConfig = $this->createGCDStructureConfig( 1 / $reverseGCD, $input->getStructureConfig() );
+        $sportConfigHelpers = $this->createGCDSportConfigHelpers( 1 / $reverseGCD, $input->getSportConfigHelpers() );
+        $nrOfReferees = $this->getGCDNrOfReferees( 1 / $reverseGCD, $input->getNrOfReferees() );
+
         return new Input(
             $structureConfig,
-            $sportConfig,
+            $sportConfigHelpers,
             $nrOfReferees,
             $input->getTeamup(),
             $input->getSelfReferee(),
@@ -145,33 +142,45 @@ class Service
     /**
      * @param float $gcd
      * @param array|int[] $structureConfig
-     * @param array|array[] $sportConfig
-     * @param int $nrOfReferees
-     * @return array
+     * @return array|int[]
      */
-    public function modifyByGCD(float $gcd, array $structureConfig, array $sportConfig, int $nrOfReferees)
+    public function createGCDStructureConfig(float $gcd, array $structureConfig ): array
     {
         $nrOfPoulesByNrOfPlaces = $this->getNrOfPoulesByNrOfPlaces($structureConfig);
         // divide with gcd
         foreach ($nrOfPoulesByNrOfPlaces as $nrOfPlaces => $nrOfPoules) {
             $nrOfPoulesByNrOfPlaces[$nrOfPlaces] = (int)($nrOfPoules / $gcd);
         }
-        $retStrucureConfig = [];
+        $newStrucureConfig = [];
         // create structure
         foreach ($nrOfPoulesByNrOfPlaces as $nrOfPlaces => $nrOfPoules) {
             for ($pouleNr = 1; $pouleNr <= $nrOfPoules; $pouleNr++) {
-                $retStrucureConfig[] = $nrOfPlaces;
+                $newStrucureConfig[] = $nrOfPlaces;
             }
         }
-
-        for ($i = 0; $i < count($sportConfig); $i++) {
-            $sportConfig[$i]["nrOfFields"] = (int)($sportConfig[$i]["nrOfFields"] / $gcd);
-        }
-        $nrOfReferees = (int)($nrOfReferees / $gcd);
-
-        return [$retStrucureConfig, $sportConfig, $nrOfReferees];
+        return $newStrucureConfig;
     }
-//
+
+    /**
+     * @param float $gcd
+     * @param array|SportConfigHelper[] $sportConfigHelpers
+     * @return array|SportConfigHelper[]
+     */
+    public function createGCDSportConfigHelpers(float $gcd, array $sportConfigHelpers): array
+    {
+        $newSportConfigHelpers = [];
+        foreach ( $sportConfigHelpers as $sportConfigHelper) {
+            $newSportConfigHelpers[] = new SportConfigHelper(
+                (int)($sportConfigHelper->getNrOfFields() / $gcd), $sportConfigHelper->getNrOfGamePlaces() );
+        }
+        return $newSportConfigHelpers;
+    }
+
+    public function getGCDNrOfReferees(float $gcd, int $nrOfReferees ): int
+    {
+        return (int)($nrOfReferees / $gcd);
+    }
+
     public function getGCD(Input $input): int
     {
         return $this->getGCDRaw(
@@ -266,7 +275,7 @@ class Service
 //    {
 //        $sportService = new SportService();
 //        $nrOfGames = 0;
-//        /** @var \Voetbal\Poule $poule */
+//        /** @var \SportsPlanning\Poule $poule */
 //        foreach ($roundNumber->getPoules() as $poule) {
 //            $nrOfGames += $sportService->getNrOfGamesPerPoule($poule->getPlaces()->count(), $teamup, $nrOfHeadtohead);
 //        }

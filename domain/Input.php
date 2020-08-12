@@ -5,11 +5,8 @@ namespace SportsPlanning;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\PersistentCollection;
 use SportsHelpers\Range;
 use SportsHelpers\SportConfig as SportConfigHelper;
-use Voetbal\Sport\Config\Service as SportConfigService;
-use Voetbal\Sport\Service as SportService;
 
 class Input
 {
@@ -18,13 +15,17 @@ class Input
      */
     private $id;
     /**
-     * @var array
+     * @var array|int[]
      */
     protected $structureConfig;
     /**
-     * @var array
+     * @var array[]
      */
-    protected $sportConfig;
+    protected $sportConfigDb;
+    /**
+     * @var array|SportConfigHelper[]
+     */
+    protected $sportConfigHelpers;
     /**
      * @var int
      */
@@ -70,9 +71,18 @@ class Input
     const TEAMUP_MIN = 4;
     const TEAMUP_MAX = 6;
 
+    /**
+     * Input constructor.
+     * @param array|int[] $structureConfig
+     * @param array|SportConfigHelper[] $sportConfigHelpers
+     * @param int $nrOfReferees
+     * @param bool $teamup
+     * @param int $selfReferee
+     * @param int $nrOfHeadtohead
+     */
     public function __construct(
         array $structureConfig,
-        array $sportConfig,
+        array $sportConfigHelpers,
         int $nrOfReferees,
         bool $teamup,
         int $selfReferee,
@@ -80,7 +90,7 @@ class Input
     ) {
         $this->structureConfig = $structureConfig;
         // $this->structure = $this->convertToStructure( $structureConfig );
-        $this->sportConfig = $sportConfig;
+        $this->sportConfigHelpers = $this->setSportConfigHelpers($sportConfigHelpers);
         // $this->sports = $this->convertToSports( $sportConfig );
         $this->nrOfReferees = $nrOfReferees;
         $this->teamup = $teamup;
@@ -99,7 +109,7 @@ class Input
     /**
      * $structure = [ 6, 6, 5 ];
      *
-     * @return array
+     * @return array|int[]
      */
     public function getStructureConfig(): array
     {
@@ -121,37 +131,42 @@ class Input
     }
 
     /**
-     * $sportConfig = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ] ];
-     *
-     * @return array
-     */
-    public function getSportConfig(): array
-    {
-        return $this->sportConfig;
-    }
-
-    /**
      * @return array|SportConfigHelper[]
      */
     public function getSportConfigHelpers(): array
     {
-        $sportConfigs = [];
-        foreach ($this->getSportConfig() as $sportConfig) {
-            $sportConfigs[] = new SportConfigHelper($sportConfig["nrOfFields"], $sportConfig["nrOfGamePlaces"]);
+        if( $this->sportConfigHelpers === null && $this->sportConfigDb !== null ) {
+            $this->sportConfigHelpers = [];
+            foreach ($this->sportConfigDb as $sportConfig) {
+                $this->sportConfigHelpers[] = new SportConfigHelper($sportConfig["nrOfFields"], $sportConfig["nrOfGamePlaces"]);
+            }
         }
-        return $sportConfigs;
+        return $this->sportConfigHelpers;
+
+    }
+
+    /**
+     * @param array $sportConfigHelpers | SportConfigHelper[]
+     */
+    public function setSportConfigHelpers(array $sportConfigHelpers)
+    {
+        $this->sportConfigHelpers = $sportConfigHelpers;
+        $this->sportConfigDb = [];
+        foreach ($this->sportConfigHelpers as $sportConfigHelper) {
+            $this->sportConfigDb[] = $sportConfigHelper->toArray();
+        }
     }
 
     public function hasMultipleSports(): bool
     {
-        return count($this->sportConfig) > 1;
+        return count($this->sportConfigDb) > 1;
     }
 
     public function getNrOfFields(): int
     {
         $nrOfFields = 0;
-        foreach ($this->getSportConfig() as $sport) {
-            $nrOfFields += $sport["nrOfFields"];
+        foreach ($this->getSportConfigHelpers() as $sportConfigHelper) {
+            $nrOfFields += $sportConfigHelper->getNrOfFields();
         }
         return $nrOfFields;
     }
@@ -232,9 +247,9 @@ class Input
         // $sportConfig = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ], ];
 
         $fieldsNrOfGamePlaces = [];
-        foreach ($this->getSportConfig() as $sport) {
-            for ($fieldNr = 1; $fieldNr <= $sport["nrOfFields"]; $fieldNr++) {
-                $fieldsNrOfGamePlaces[] = $sport["nrOfGamePlaces"];
+        foreach ($this->getSportConfigHelpers() as $sportConfigHelper) {
+            for ($fieldNr = 1; $fieldNr <= $sportConfigHelper->getNrOfFields(); $fieldNr++) {
+                $fieldsNrOfGamePlaces[] = $sportConfigHelper->getNrOfGamePlaces();
             }
         }
 

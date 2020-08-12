@@ -1,30 +1,22 @@
 <?php
 
 
-namespace SportsPlanning\Tests\Planning\Resource\GameCounter;
+namespace SportsPlanning\Tests\Resource\GameCounter;
 
 use SportsPlanning\Resource\GameCounter\Place as PlaceCounter;
 use SportsPlanning\Resource\GameCounter\Unequal;
-use Voetbal\Structure\Service as StructureService;
-use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\PlanningCreator;
-use Voetbal\TestHelper\PlanningReplacer;
+use SportsPlanning\TestHelper\PlanningCreator;
+use SportsPlanning\TestHelper\PlanningReplacer;
 
 class UnequalTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, PlanningCreator, PlanningReplacer;
+    use PlanningCreator, PlanningReplacer;
 
     public function testCalculations()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 3);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [3] )
+        );
 
         $placeOne = $planning->getPoule(1)->getPlace(1);
         $placeTwo = $planning->getPoule(1)->getPlace(2);

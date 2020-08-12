@@ -12,6 +12,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use SportsHelpers\Range;
+use SportsHelpers\SportConfig as SportConfigHelper;
 
 class Planning
 {
@@ -81,7 +82,7 @@ class Planning
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
         $this->input->addPlanning($this);
         $this->initPoules($this->getInput()->getStructureConfig());
-        $this->initSports($this->getInput()->getSportConfig());
+        $this->initSports($this->getInput()->getSportConfigHelpers());
         $this->initReferees($this->getInput()->getNrOfReferees());
 
         $this->createdDateTime = new DateTimeImmutable();
@@ -229,14 +230,17 @@ class Planning
         return $this->sports;
     }
 
-    protected function initSports(array $sportConfig)
+    /**
+     * @param array|SportConfigHelper[] $sportConfigHelpers
+     */
+    protected function initSports(array $sportConfigHelpers)
     {
         $fieldNr = 1;
         $this->sports = new ArrayCollection();
-        foreach ($sportConfig as $sportIt) {
-            $sport = new Sport($this, $this->sports->count() + 1, $sportIt["nrOfGamePlaces"]);
+        foreach ($sportConfigHelpers as $sportConfigHelper) {
+            $sport = new Sport($this, $this->sports->count() + 1, $sportConfigHelper->getNrOfGamePlaces() );
             $this->sports->add($sport);
-            for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportIt["nrOfFields"] ; $fieldNrDelta++) {
+            for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportConfigHelper->getNrOfFields() ; $fieldNrDelta++) {
                 new Field($fieldNr + $fieldNrDelta, $sport);
             }
             $fieldNr += $sport->getFields()->count();

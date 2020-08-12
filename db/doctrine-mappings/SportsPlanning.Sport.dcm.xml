@@ -6,7 +6,7 @@
     </id>
     <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
     <field name="nrOfGamePlaces" column="nrOfGamePlaces" type="smallint" nullable="false" unique="false"/>
-    <many-to-one field="planning" target-entity="SportsPlanning" inversed-by="sports">
+    <many-to-one field="planning" target-entity="SportsPlanning\Planning" inversed-by="sports">
       <join-columns>
         <join-column name="planningId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>

@@ -8,8 +8,7 @@
 
 namespace SportsPlanning;
 
-use \Doctrine\Common\Collections\ArrayCollection;
-use Exception;
+use \Exception;
 use SportsPlanning\Place\Combination as PlaceCombination;
 use SportsPlanning\Place\Combination\Number as PlaceCombinationNumber;
 use SportsHelpers\Math;

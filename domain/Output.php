@@ -4,6 +4,7 @@ namespace SportsPlanning;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
+use SportsHelpers\SportConfig as SportConfigHelper;
 use SportsPlanning\Output\Batch as BatchOutput;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Validator\GameAssignments as GameAssignmentsValidator;
@@ -71,11 +72,9 @@ class Output extends OutputHelper
 
     protected function getInputAsString(Input $input, string $prefix = null, string $suffix = null): string
     {
-        $sports = array_map(function (array $sportConfig): string {
-            return '' . $sportConfig["nrOfFields"];
-        },
-            $input->getSportConfig()
-        );
+        $sports = array_map(function (SportConfigHelper $sportConfigHelper): string {
+            return '' . $sportConfigHelper->getNrOfFields();
+        }, $input->getSportConfigHelpers() );
         $output = 'id ' . $input->getId() . ' => structure [' . implode(
                 '|',
                 $input->getStructureConfig()

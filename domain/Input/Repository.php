@@ -9,6 +9,7 @@
 namespace SportsPlanning\Input;
 
 use SportsHelpers\Repository as BaseRepository;
+use SportsHelpers\SportConfig as SportConfigHelper;
 use SportsPlanning\Planning;
 use SportsPlanning\Input;
 use SportsPlanning\Validator;
@@ -50,7 +51,9 @@ class Repository extends BaseRepository
     {
         return $this->get(
             $input->getStructureConfig(),
-            $input->getSportConfig(),
+            array_map( function(SportConfigHelper $sportConfigHelper): array {
+                return $sportConfigHelper->toArray();
+            }, $input->getSportConfigHelpers() ),
             $input->getNrOfReferees(),
             $input->getTeamup(),
             $input->getSelfReferee(),

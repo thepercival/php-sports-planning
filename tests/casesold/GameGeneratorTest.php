@@ -1,6 +1,6 @@
 <?php
 
-namespace SportsPlanning\Tests\Planning;
+namespace SportsPlanning\Tests;
 
 include_once __DIR__ . '/../../data/CompetitionCreator.php';
 
@@ -8,14 +8,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use SportsPlanning\Place as PlanningPlace;
 use SportsPlanning\GameRound;
 use SportsPlanning\GameGenerator;
-use Voetbal\Game as GameBase;
-use Voetbal\Qualify\Service as QualifyService;
-use Voetbal\Ranking\Service as RankingService;
+use SportsPlanning\Game as GameBase;
+use SportsPlanning\Qualify\Service as QualifyService;
+use SportsPlanning\Ranking\Service as RankingService;
 use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Input\Service as PlanningInputService;
-use Voetbal\Structure\Service as StructureService;
+use SportsPlanning\Structure\Service as StructureService;
 use SportsPlanning\Service as PlanningService;
-use Voetbal\Qualify\Group as QualifyGroup;
+use SportsPlanning\Qualify\Group as QualifyGroup;
 
 class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 {

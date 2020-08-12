@@ -1,19 +1,19 @@
 <?php
 
-namespace SportsPlanning\Tests\Planning;
+namespace SportsPlanning\Tests;
 
 include_once __DIR__ . '/../../data/CompetitionCreator.php';
 include_once __DIR__ . '/../../helpers/Console.php';
 
-use Voetbal\Field;
-use Voetbal\Game;
-use Voetbal\Place;
+use SportsPlanning\Field;
+use SportsPlanning\Game;
+use SportsPlanning\Place;
 use SportsPlanning\Config\Optimalization\Service as OptimalizationService;
-use Voetbal\Sport;
-use Voetbal\Structure\Service as StructureService;
-use Voetbal\Competition;
+use SportsPlanning\Sport;
+use SportsPlanning\Structure\Service as StructureService;
+use SportsPlanning\Competition;
 use SportsPlanning\Service as PlanningService;
-use Voetbal\Sport\Config\Service as SportConfigService;
+use SportsPlanning\Sport\Config\Service as SportConfigService;
 
 /**
  * Created by PhpStorm.

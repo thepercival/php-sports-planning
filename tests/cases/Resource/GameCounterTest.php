@@ -1,29 +1,21 @@
 <?php
 
 
-namespace SportsPlanning\Tests\Planning\Resource;
+namespace SportsPlanning\Tests\Resource;
 
 use SportsPlanning\Resource\GameCounter;
-use Voetbal\Structure\Service as StructureService;
-use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\PlanningCreator;
-use Voetbal\TestHelper\PlanningReplacer;
+use SportsPlanning\TestHelper\PlanningCreator;
+use SportsPlanning\TestHelper\PlanningReplacer;
 
 class GameCounterTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, PlanningCreator, PlanningReplacer;
+    use PlanningCreator, PlanningReplacer;
 
     public function testCalculations()
     {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService([]);
-        $structure = $structureService->create($competition, 3);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning(
+            $this->createInput( [3] )
+        );
 
         $referee = $planning->getReferee(1);
         $gameCounter = new GameCounter($referee);

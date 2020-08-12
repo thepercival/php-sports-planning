@@ -6,13 +6,13 @@
  * Time: 9:44
  */
 
-namespace SportsPlanning\Tests\Planning;
+namespace SportsPlanning\Tests;
 
 include_once __DIR__ . '/../../helpers/Serializer.php';
 include_once __DIR__ . '/../../helpers/PostSerialize.php';
 
 use SportsPlanning\GameGenerator;
-use Voetbal\Game;
+use SportsPlanning\Game;
 
 class GenerateGamesTest extends \PHPUnit\Framework\TestCase
 {
@@ -22,11 +22,11 @@ class GenerateGamesTest extends \PHPUnit\Framework\TestCase
 
         $json_raw = file_get_contents(__DIR__ . "/../../data/competition.json");
         $json = json_decode($json_raw, true);
-        $competition = $serializer->deserialize(json_encode($json), 'Voetbal\Competition', 'json');
+        $competition = $serializer->deserialize(json_encode($json), 'SportsPlanning\Competition', 'json');
 
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure-gamegenerator.json");
         $json = json_decode($json_raw, true);
-        $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
+        $structure = $serializer->deserialize(json_encode($json), 'SportsPlanning\Structure', 'json');
         postSerialize($structure, $competition);
         $structure->setQualifyRules();
 
@@ -62,11 +62,11 @@ class GenerateGamesTest extends \PHPUnit\Framework\TestCase
 
         $json_raw = file_get_contents(__DIR__ . "/../../data/competition.json");
         $json = json_decode($json_raw, true);
-        $competition = $serializer->deserialize(json_encode($json), 'Voetbal\Competition', 'json');
+        $competition = $serializer->deserialize(json_encode($json), 'SportsPlanning\Competition', 'json');
 
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure-gamegenerator.json");
         $json = json_decode($json_raw, true);
-        $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
+        $structure = $serializer->deserialize(json_encode($json), 'SportsPlanning\Structure', 'json');
         postSerialize($structure, $competition);
         $structure->setQualifyRules();
 
