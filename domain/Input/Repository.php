@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: coen
- * Date: 28-3-17
- * Time: 20:18
- */
 
 namespace SportsPlanning\Input;
 
@@ -26,7 +20,7 @@ class Repository extends BaseRepository
     ): ?Input {
         $query = $this->createQueryBuilder('pi')
             ->where('pi.structureConfig = :structureConfig')
-            ->andWhere('pi.sportConfig = :sportConfig')
+            ->andWhere('pi.sportConfigDb = :sportConfig')
             ->andWhere('pi.nrOfReferees = :nrOfReferees')
             ->andWhere('pi.teamup = :teamup')
             ->andWhere('pi.selfReferee = :selfReferee')

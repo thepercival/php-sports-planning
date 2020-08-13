@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: coen
- * Date: 1-2-19
- * Time: 12:43
- */
 
 namespace SportsPlanning\Place\Combination;
 

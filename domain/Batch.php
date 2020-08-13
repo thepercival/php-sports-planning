@@ -1,12 +1,5 @@
 <?php
 
-/**
- * Created by PhpStorm->
- * User: coen
- * Date: 9-3-18
- * Time: 11:55
- */
-
 namespace SportsPlanning;
 
 class Batch

@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: coen
- * Date: 28-3-17
- * Time: 20:18
- */
 
 namespace SportsPlanning;
 
@@ -19,7 +13,7 @@ class Repository extends BaseRepository
         $query = $this->createQueryBuilder('p')
             ->join("p.input", "pi")
             ->where('pi.structureConfig = :structureConfig')
-            ->andWhere('pi.sportConfig = :sportConfig')
+            ->andWhere('pi.sportConfigDb = :sportConfig')
             ->andWhere('pi.nrOfReferees = :nrOfReferees')
             ->andWhere('pi.teamup = :teamup')
             ->andWhere('pi.selfReferee = :selfReferee')
@@ -47,7 +41,7 @@ class Repository extends BaseRepository
         $query = $this->createQueryBuilder('p')
             ->join("p.input", "pi")
             ->where('pi.structureConfig = :structureConfig')
-            ->andWhere('pi.sportConfig = :sportConfig')
+            ->andWhere('pi.sportConfigDb = :sportConfig')
             ->andWhere('pi.nrOfReferees = :nrOfReferees')
             ->andWhere('pi.teamup = :teamup')
             ->andWhere('pi.selfReferee = :selfReferee')
@@ -77,7 +71,7 @@ class Repository extends BaseRepository
         $query = $this->createQueryBuilder('p')
             ->join("p.input", "pi")
             ->where('pi.structureConfig = :structureConfig')
-            ->andWhere('pi.sportConfig = :sportConfig')
+            ->andWhere('pi.sportConfigDb = :sportConfig')
             ->andWhere('pi.nrOfReferees = :nrOfReferees')
             ->andWhere('pi.teamup = :teamup')
             ->andWhere('pi.selfReferee = :selfReferee')

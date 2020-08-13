@@ -146,7 +146,7 @@ class Input
     }
 
     /**
-     * @param array $sportConfigHelpers | SportConfigHelper[]
+     * @param array| SportConfigHelper[] $sportConfigHelpers
      */
     public function setSportConfigHelpers(array $sportConfigHelpers)
     {

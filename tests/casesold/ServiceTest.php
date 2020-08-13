@@ -15,12 +15,6 @@ use SportsPlanning\Competition;
 use SportsPlanning\Service as PlanningService;
 use SportsPlanning\Sport\Config\Service as SportConfigService;
 
-/**
- * Created by PhpStorm.
- * User: coen
- * Date: 10-6-19
- * Time: 20:25
- */
 
 class ServiceTest extends \PHPUnit\Framework\TestCase
 {
