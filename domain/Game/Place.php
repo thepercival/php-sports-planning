@@ -2,8 +2,8 @@
 
 namespace SportsPlanning\Game;
 
-use SportsPlanning\Game as PlanningGame;
-use SportsPlanning\Place as PlanningPlace;
+use SportsPlanning\Game;
+use SportsPlanning\Place as PoulePlace;
 
 class Place
 {
@@ -12,7 +12,7 @@ class Place
      */
     protected $id;
     /**
-     * @var PlanningGame
+     * @var Game
      */
     private $game;
     /**
@@ -20,11 +20,11 @@ class Place
      */
     private $homeaway;
     /**
-     * @var PlanningPlace
+     * @var PoulePlace
      */
     private $place;
 
-    public function __construct(PlanningGame $game, PlanningPlace $place, bool $homeaway)
+    public function __construct(Game $game, PoulePlace $place, bool $homeaway)
     {
         $this->setGame($game);
         $this->setPlace($place);
@@ -50,17 +50,14 @@ class Place
     }
 
     /**
-     * @return PlanningGame
+     * @return Game
      */
     public function getGame()
     {
         return $this->game;
     }
 
-    /**
-     * @param PlanningGame $game
-     */
-    public function setGame(PlanningGame $game)
+    public function setGame(Game $game)
     {
         if ($this->game === null and !$game->getPlaces()->contains($this)) {
             $game->getPlaces()->add($this) ;
@@ -84,23 +81,12 @@ class Place
         $this->homeaway = $homeaway;
     }
 
-//    public function setPlaceNr( int $placeNr )
-//    {
-//        $this->placeNr = $placeNr;
-//    }
-
-    /**
-     * @return PlanningPlace
-     */
-    public function getPlace(): PlanningPlace
+    public function getPlace(): PoulePlace
     {
         return $this->place;
     }
 
-    /**
-     * @param PlanningPlace $place
-     */
-    public function setPlace(PlanningPlace $place)
+    public function setPlace(PoulePlace $place)
     {
         $this->place = $place;
     }

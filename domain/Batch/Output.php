@@ -1,18 +1,19 @@
 <?php
 
-namespace SportsPlanning\Output;
+namespace SportsPlanning\Batch;
 
 use Psr\Log\LoggerInterface;
 
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Batch as BatchBase;
-use SportsPlanning\Output\Game as GameOutput;
 use SportsPlanning\Game as GameBase;
+use SportsPlanning\Game\Output as GameOutput;
+use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 
-class Batch extends OutputHelper
+class Output extends OutputHelper
 {
     /**
-     * @var Game
+     * @var GameOutput
      */
     private $gameOutput;
 
@@ -22,7 +23,12 @@ class Batch extends OutputHelper
         parent::__construct( $logger );
     }
 
-    public function output(BatchBase $batch, string $title = null, int $max = null)
+    /**
+     * @param BatchBase|SelfRefereeBatch $batch
+     * @param string|null $title
+     * @param int|null $max
+     */
+    public function output($batch, string $title = null, int $max = null)
     {
         if ($title === null) {
             $title = '';
@@ -34,7 +40,11 @@ class Batch extends OutputHelper
         $this->outputHelper($batch->getFirst(), $max);
     }
 
-    protected function outputHelper(BatchBase $batch, int $max = null)
+    /**
+     * @param BatchBase|SelfRefereeBatch $batch
+     * @param int|null $max
+     */
+    protected function outputHelper($batch, int $max = null)
     {
         if ($max !== null && $batch->getNumber() > $max) {
             return;
@@ -48,9 +58,9 @@ class Batch extends OutputHelper
 
     /**
      * @param array|GameBase[] $games
-     * @param BatchBase|null $batch
+     * @param BatchBase|SelfRefereeBatch|null $batch
      */
-    public function outputGames(array $games, BatchBase $batch = null)
+    public function outputGames(array $games, $batch = null)
     {
         foreach ($games as $game) {
             $this->gameOutput->output($game, $batch);

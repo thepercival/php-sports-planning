@@ -2,6 +2,7 @@
 
 namespace SportsPlanning\TestHelper;
 
+use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Batch;
 use SportsPlanning\Place as PlanningPlace;
 use SportsPlanning\Game as PlanningGame;
@@ -13,15 +14,22 @@ trait PlanningReplacer
 {
     protected function replaceRefereePlace(
         bool $samePoule,
-        Batch $firstBatch,
+        SelfRefereeBatch $firstBatch,
         PlanningPlace $replaced,
         PlanningPlace $replacement
     ) {
         (new RefereePlaceReplacer($samePoule))->replace($firstBatch, $replaced, $replacement);
     }
 
+    /**
+     * @param SelfRefereeBatch|Batch $batch
+     * @param PlanningField $replacedField
+     * @param PlanningField $replacedByField
+     * @param int $amount
+     * @return bool
+     */
     protected function replaceField(
-        Batch $batch,
+        $batch,
         PlanningField $replacedField,
         PlanningField $replacedByField,
         int $amount = 1
@@ -29,8 +37,16 @@ trait PlanningReplacer
         return $this->replaceFieldHelper($batch->getNext(), $replacedField, $replacedByField, 0, $amount);
     }
 
-    protected function replaceFieldHelper(
-        Batch $batch,
+    /**
+     * @param SelfRefereeBatch|Batch $batch
+     * @param PlanningField $fromField
+     * @param PlanningField $toField
+     * @param int $amountReplaced
+     * @param int $maxAmount
+     * @return bool
+     */
+    private function replaceFieldHelper(
+        $batch,
         PlanningField $fromField,
         PlanningField $toField,
         int $amountReplaced,
@@ -53,7 +69,12 @@ trait PlanningReplacer
         return false;
     }
 
-    protected function hasBatchField(Batch $batch, PlanningField $field): bool
+    /**
+     * @param SelfRefereeBatch|Batch $batch
+     * @param PlanningField $field
+     * @return bool
+     */
+    protected function hasBatchField($batch, PlanningField $field): bool
     {
         foreach ($batch->getGames() as $game) {
             if ($game->getField() === $field) {
@@ -63,8 +84,15 @@ trait PlanningReplacer
         return false;
     }
 
+    /**
+     * @param SelfRefereeBatch|Batch $batch
+     * @param PlanningReferee $replacedReferee
+     * @param PlanningReferee $replacedByReferee
+     * @param int $amount
+     * @return bool
+     */
     protected function replaceReferee(
-        Batch $batch,
+        $batch,
         PlanningReferee $replacedReferee,
         PlanningReferee $replacedByReferee,
         int $amount = 1
@@ -72,8 +100,16 @@ trait PlanningReplacer
         return $this->replaceRefereeHelper($batch->getNext(), $replacedReferee, $replacedByReferee, 0, $amount);
     }
 
-    protected function replaceRefereeHelper(
-        Batch $batch,
+    /**
+     * @param SelfRefereeBatch|Batch $batch
+     * @param PlanningReferee $fromReferee
+     * @param PlanningReferee $toReferee
+     * @param int $amountReplaced
+     * @param int $maxAmount
+     * @return bool
+     */
+    private function replaceRefereeHelper(
+        $batch,
         PlanningReferee $fromReferee,
         PlanningReferee $toReferee,
         int $amountReplaced,
@@ -102,7 +138,12 @@ trait PlanningReplacer
         return false;
     }
 
-    protected function hasBatchReferee(Batch $batch, PlanningReferee $referee): bool
+    /**
+     * @param SelfRefereeBatch|Batch $batch
+     * @param PlanningReferee $referee
+     * @return bool
+     */
+    protected function hasBatchReferee($batch, PlanningReferee $referee): bool
     {
         foreach ($batch->getGames() as $game) {
             if ($game->getReferee() === $referee) {

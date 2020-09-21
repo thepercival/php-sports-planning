@@ -9,7 +9,7 @@ use SportsPlanning\Validator\GameAssignments as GameAssignmentValidator;
 use SportsPlanning\Referee;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
-use SportsPlanning\Output\Planning as PlanningOutput;
+use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Field;
 
 class GameAssignmentsTest extends \PHPUnit\Framework\TestCase

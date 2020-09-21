@@ -1,22 +1,39 @@
 <?php
 
 
-namespace SportsPlanning\Output;
+namespace SportsPlanning\Game;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Batch;
+use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Game as GameBase;
 use SportsPlanning\Game\Place as GamePlace;
 
-class Game extends OutputHelper
+class Output extends OutputHelper
 {
     public function __construct(LoggerInterface $logger = null)
     {
         parent::__construct($logger);
     }
 
-    public function output(GameBase $game, Batch $batch = null, string $prefix = null)
+    /**
+     * @param array|GameBase[] $games
+     * @param string|null $prefix
+     */
+    public function outputGames(array $games, string $prefix = null)
+    {
+       foreach( $games as $game ) {
+           $this->output( $game, null, $prefix );
+       }
+    }
+
+    /**
+     * @param GameBase $game
+     * @param SelfRefereeBatch|Batch|null $batch
+     * @param string|null $prefix
+     */
+    public function output(GameBase $game, $batch = null, string $prefix = null)
     {
         $useColors = $this->useColors();
         $refDescr = ($game->getRefereePlace() !== null ? $game->getRefereePlace()->getLocation() : ($game->getReferee(
@@ -40,7 +57,13 @@ class Game extends OutputHelper
         );
     }
 
-    protected function outputPlaces(GameBase $game, bool $homeAway, Batch $batch = null): string
+    /**
+     * @param GameBase $game
+     * @param bool $homeAway
+     * @param SelfRefereeBatch|Batch|null $batch
+     * @return string
+     */
+    protected function outputPlaces(GameBase $game, bool $homeAway, $batch = null): string
     {
         $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
         $placesAsArrayOfStrings = $game->getPlaces($homeAway)->map(

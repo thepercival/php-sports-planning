@@ -4,13 +4,14 @@ namespace SportsPlanning\Tests;
 
 use SportsPlanning\Batch;
 use SportsPlanning\Field;
+use SportsHelpers\Range;
 use SportsPlanning;
 use SportsPlanning\Input;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
-use SportsPlanning\Structure\Service as StructureService;
-use SportsPlanning\Validator as PlanningValidator;
+use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Game;
 use SportsPlanning\Game as GameBase;
 use SportsPlanning\Referee as PlanningReferee;
@@ -59,9 +60,6 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $planning = $this->createPlanning(
             $this->createInput( [5], null, null, null, Input::SELFREFEREE_SAMEPOULE )
         );
-
-        $refereePlaceService = new RefereePlaceService($planning);
-        $refereePlaceService->assign($planning->createFirstBatch());
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
@@ -118,7 +116,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $validity = $planningValidator->validate($planning);
         self::assertSame(PlanningValidator::VALID, $validity);
 
-        $planning->setMaxNrOfGamesInARow(3);
+        $planning->setMaxNrOfGamesInARow(1);
         $validity = $planningValidator->validate($planning);
         self::assertSame(
             PlanningValidator::TOO_MANY_GAMES_IN_A_ROW,
@@ -150,7 +148,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     public function testBatchMultipleFields()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5] )
+            $this->createInput( [5] ), new Range(2, 2)
         );
 
         /** @var Game $planningGame */
@@ -158,8 +156,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $newFieldNr = $planningGame->getField()->getNumber() === 1 ? 2 : 1;
         $planningGame->setField($planning->getField($newFieldNr));
 
-//        $planningOutput = new PlanningOutput();
-//        $planningOutput->outputWithGames($planning, true);
+        // (new PlanningOutput())->outputWithGames($planning, true);
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
@@ -173,7 +170,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     public function testBatchMultipleReferees()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5] )
+            $this->createInput( [5] ), new Range(2, 2)
         );
 
         /** @var Game $planningGame */

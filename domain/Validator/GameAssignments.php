@@ -158,7 +158,7 @@ class GameAssignments
                     $unequals[] = $unequal;
                 }
             }
-        } else {
+        } else if( $this->planning->getPouleStructure()->isAlmostBalanced() ){
             $unequal = $this->getMaxUnequal($this->refereePlaces);
             if ($unequal !== null) {
                 $unequals[] = $unequal;

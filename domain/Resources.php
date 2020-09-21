@@ -143,8 +143,8 @@ class Resources
     public function getGameNrOfSportsToGo(Game $game): int
     {
         $gameNrToGo = 0;
-        foreach ($this->getPlaces($game) as $place) {
-            $gameNrToGo += $this->getSportCounter($place)->getNrOfSportsToGo();
+        foreach ($game->getPlaces() as $gamePlace) {
+            $gameNrToGo += $this->getSportCounter($gamePlace->getPlace())->getNrOfSportsToGo();
         }
         return $gameNrToGo;
     }
@@ -195,8 +195,8 @@ class Resources
             return;
         }
         $this->sportTimes[$sport->getNumber()]++;
-        foreach ($this->getPlaces($game) as $placeIt) {
-            $this->getSportCounter($placeIt)->addGame($sport);
+        foreach ($game->getPlaces() as $gamePlace) {
+            $this->getSportCounter($gamePlace->getPlace())->addGame($sport);
         }
     }
 
@@ -205,8 +205,8 @@ class Resources
         if ($this->sportCounters === null) {
             return true;
         }
-        foreach ($this->getPlaces($game) as $placeIt) {
-            if (!$this->getSportCounter($placeIt)->isAssignable($sport)) {
+        foreach ($game->getPlaces() as $gamePlace) {
+            if (!$this->getSportCounter($gamePlace->getPlace())->isAssignable($sport)) {
                 return false;
             };
         }
@@ -216,17 +216,6 @@ class Resources
     public function getSportCounter(Place $place): SportCounter
     {
         return $this->sportCounters[$place->getLocation()];
-    }
-
-    /**
-     * @param Game $game
-     * @return array|Place[]
-     */
-    protected function getPlaces(Game $game): array
-    {
-        return array_map(function ($gamePlace) {
-            return $gamePlace->getPlace();
-        }, $game->getPlaces()->toArray());
     }
 
     public function copy(): Resources

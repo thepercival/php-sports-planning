@@ -48,6 +48,10 @@ class Game
      * @var Referee|null
      */
     protected $referee;
+    /**
+     * @var Collection|Place[]|null
+     */
+    protected $poulePlaces;
 
     public const HOME = true;
     public const AWAY = false;
@@ -155,13 +159,11 @@ class Game
         if ($homeaway === null) {
             return $this->places;
         }
-        return new ArrayCollection(
-            $this->places->filter(
+        return $this->places->filter(
                 function (GamePlace $gamePlace) use ($homeaway): bool {
                     return $gamePlace->getHomeaway() === $homeaway;
                 }
-            )->toArray()
-        );
+            );
     }
 
 //    /**
@@ -204,5 +206,18 @@ class Game
             return Game::AWAY;
         }
         return null;
+    }
+
+    /**
+     * @return Collection|Place[]
+     */
+    public function getPoulePlaces(): Collection
+    {
+        if( $this->poulePlaces === null ) {
+            $this->poulePlaces = $this->getPlaces()->map( function ( GamePlace $gamePlace): Place {
+                return $gamePlace->getPlace();
+            });
+        }
+        return $this->poulePlaces;
     }
 }

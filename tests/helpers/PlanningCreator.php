@@ -2,12 +2,19 @@
 
 namespace SportsPlanning\TestHelper;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Monolog\Processor\UidProcessor;
+use Psr\Log\LoggerInterface;
+use SportsHelpers\Range;
 use SportsHelpers\SportConfig as SportConfigHelper;
 use SportsPlanning\Planning;
+use SportsPlanning\Planning\GameCreator;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
 use SportsPlanning\Service as PlanningService;
 use SportsPlanning\Input;
 use SportsPlanning\Input\Service as PlanningInputService;
+use SportsHelpers\PouleStructure;
 
 trait PlanningCreator {
 
@@ -17,6 +24,18 @@ trait PlanningCreator {
     protected function getDefaultSportConfig(): array {
         return $this->createSportConfig( 2 );
     }
+
+    protected function getLogger(): LoggerInterface {
+        $logger = new Logger("test-logger");
+        $processor = new UidProcessor();
+        $logger->pushProcessor($processor);
+
+        $handler = new StreamHandler('php://stdout', LOG_INFO);
+        $logger->pushHandler($handler);
+        return $logger;
+    }
+
+
 
     /**
      * @return array|SportConfigHelper[]
@@ -62,7 +81,7 @@ trait PlanningCreator {
             $nrOfHeadtohead = 1;
         }
         return new Input(
-            $structureConfig,
+            new PouleStructure($structureConfig),
             $sportConfig,
             $nrOfReferees,
             $teamup,
@@ -71,16 +90,15 @@ trait PlanningCreator {
         );
     }
 
-    protected function createPlanning( Input $input ): Planning
+    protected function createPlanning( Input $input, Range $range = null ): Planning
     {
-        $planningService = new PlanningService();
-        $planning = $planningService->createNextMinIsMaxPlanning($input);
-        if (Planning::STATE_SUCCESS !== $planningService->createGames($planning)) {
-            throw new \Exception("planning could not be created", E_ERROR);
+        if( $range === null ){
+            $range = new Range(1,1);
         }
-        if ($input->selfRefereeEnabled()) {
-            $refereePlaceService = new RefereePlaceService($planning);
-            $refereePlaceService->assign($planning->createFirstBatch());
+        $planning = new Planning( $input, $range, 0 );
+        $gameCreator = new GameCreator( $this->getLogger() );
+        if (Planning::STATE_SUCCEEDED !== $gameCreator->createGames($planning) ) {
+            throw new \Exception("planning could not be created", E_ERROR);
         }
         return $planning;
     }

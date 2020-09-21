@@ -3,6 +3,7 @@
 namespace SportsPlanning;
 
 use \Exception;
+use SportsHelpers\GameCalculator;
 use SportsPlanning\Place\Combination as PlaceCombination;
 use SportsPlanning\Place\Combination\Number as PlaceCombinationNumber;
 use SportsHelpers\Math;
@@ -29,7 +30,7 @@ class GameGenerator
         // $config = $roundNumber->getValidPlanningConfig();
         // $nrOfHeadtohead = $this->getSufficientNrOfHeadtohead($roundNumber, $config);
         for ($headtohead = 1; $headtohead <= $this->input->getNrOfHeadtohead(); $headtohead++) {
-            foreach ($planning->getStructure()->getPoules() as $poule) {
+            foreach ($planning->getPoules() as $poule) {
                 $this->createPoule($planning, $poule, $headtohead);
             }
         }
@@ -134,7 +135,8 @@ class GameGenerator
         $gameRounds[] = $gameRound;
         $nrOfGames = 0;
         $uniqueFiltered = [];
-        $nrOfGamePlaces = (new \SportsPlanning\HelperTmp())->getMaxNrOfGamePlaces(
+        $gameCalculator = new GameCalculator();
+        $nrOfGamePlaces = $gameCalculator->getMaxNrOfGamePlaces(
             $this->input->getSportConfigHelpers(),
             true,
             $this->input->selfRefereeEnabled()
@@ -211,9 +213,6 @@ class GameGenerator
         return false;
     }
 
-
-    // kijk voor een planning van 4 hoe deze gevuld wordt!
-    // STAP VOOR STAP ANALYSE!!
     /**
      * @param array | Place[] $places
      * @return array | GameRound[]

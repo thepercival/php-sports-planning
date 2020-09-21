@@ -7,34 +7,32 @@ class Batch
     /**
      * @var int
      */
-    private $number;
+    protected $number;
     /**
      * @var Batch
      */
-    private $previous;
+    protected $previous;
     /**
      * @var Batch
      */
-    private $next;
+    protected $next;
     /**
      * @var array | Game[]
      */
-    private $games = [];
+    protected $games = [];
     /**
      * @var array | Place[]
      */
-    private $places = [];
+    protected $places = [];
     /**
-     * @var array | Place[]
+     * @var array | int[]
      */
-    private $placesAsReferee = [];
+    protected $previousGamesInARowMap = [];
 
     public function __construct(Batch $previous = null)
     {
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
-        ;
-        $this->placesAsReferee = [];
     }
 
     public function getNumber(): int
@@ -47,6 +45,9 @@ class Batch
         return $this->next !== null;
     }
 
+    /**
+     * @return Batch
+     */
     public function getNext(): Batch
     {
         return $this->next;
@@ -55,8 +56,22 @@ class Batch
     public function createNext(): Batch
     {
         $this->next = new Batch($this);
+        $this->getNext()->setPreviousGamesInARow($this->previousGamesInARowMap, $this->createMapGamesInARowMap() );
         return $this->getNext();
     }
+
+    /**
+     * @return array|int[]
+     */
+    protected function createMapGamesInARowMap(): array
+    {
+        $map = [];
+        foreach( $this->places as $place ) {
+            $map[$place->getLocation()] = 1;
+        }
+        return $map;
+    }
+
 
     /*public function removeNext() {
         $this->next = null;
@@ -91,13 +106,34 @@ class Batch
         if (!$this->hasPrevious()) {
             return 1;
         }
-        return $this->getPrevious()->getGamesInARow($place) + 1;
+        return $this->getPreviousGamesInARow($place) + 1;
+    }
+
+    /**
+     * @param array|int[] $previousPreviousGamesInARowMap
+     * @param array|int[] $previousGamesInARowMap
+     */
+    public function setPreviousGamesInARow( array $previousPreviousGamesInARowMap, array $previousGamesInARowMap )
+    {
+        $this->previousGamesInARowMap = $previousGamesInARowMap;
+        foreach( $this->previousGamesInARowMap as $placeLocation => $nrOfGamesInARow ) {
+            if( !array_key_exists( $placeLocation, $previousPreviousGamesInARowMap) ) {
+                continue;
+            }
+            $this->previousGamesInARowMap[$placeLocation] += $previousPreviousGamesInARowMap[$placeLocation];
+        }
+    }
+
+    public function getPreviousGamesInARow( Place $place ): int {
+        if( !array_key_exists( $place->getLocation(), $this->previousGamesInARowMap ) ) {
+            return 0;
+        }
+        return $this->previousGamesInARowMap[$place->getLocation()];
     }
 
     public function add(Game $game)
     {
         $this->games[] = $game;
-        /** @var Game\Place $gamePlace */
         foreach ($game->getPlaces() as $gamePlace) {
             $this->places[$gamePlace->getPlace()->getLocation()] = $gamePlace->getPlace();
         }
@@ -109,20 +145,29 @@ class Batch
         if ($index !== false) {
             unset($this->games[$index]);
         }
-        /** @var Game\Place $gamePlace */
         foreach ($game->getPlaces() as $gamePlace) {
             unset($this->places[$gamePlace->getPlace()->getLocation()]);
         }
     }
 
+    /**
+     * @return array|Place[]
+     */
     protected function getPlaces(): array
     {
         return $this->places;
     }
 
-    public function getGames(): array
+    /**
+     * @param Poule|null $poule
+     * @return array|Game[]
+     */
+    public function getGames( Poule $poule = null ): array
     {
-        return $this->games;
+        if( $poule === null ) {
+            return $this->games;
+        }
+        return array_filter( $this->games, function( Game $game) use ($poule ): bool { return $game->getPoule() === $poule; } );
     }
 
     public function isParticipating(Place $place): bool
@@ -141,31 +186,18 @@ class Batch
         return array_merge($this->getGames(), $this->getNext()->getAllGames());
     }
 
-    public function addAsReferee(Place $placeReferee)
-    {
-        $this->placesAsReferee[$placeReferee->getLocation()] = $placeReferee;
-    }
+
 
     /**
-     * @return array|Place[]
+     * @return array|Poule[]
      */
-    public function getPlacesAsReferees(): array
-    {
-        return $this->placesAsReferee;
-    }
-
-    public function removeAsReferee(Place $placeReferee)
-    {
-        unset($this->placesAsReferee[$placeReferee->getLocation()]);
-    }
-
-    public function emptyPlacesAsReferees()
-    {
-        $this->placesAsReferee = [];
-    }
-
-    public function isParticipatingAsReferee(Place $placeReferee): bool
-    {
-        return array_key_exists($placeReferee->getLocation(), $this->placesAsReferee);
+    public function getPoules(): array {
+        $poules = [];
+        foreach( $this->getGames() as $game ) {
+            if( array_search( $game->getPoule(), $poules, true ) === false ) {
+                $poules[] = $game->getPoule();
+            }
+        }
+        return $poules;
     }
 }

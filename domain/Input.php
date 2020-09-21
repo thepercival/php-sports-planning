@@ -5,8 +5,10 @@ namespace SportsPlanning;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use SportsHelpers\GameCalculator;
 use SportsHelpers\Range;
 use SportsHelpers\SportConfig as SportConfigHelper;
+use SportsHelpers\PouleStructure;
 
 class Input
 {
@@ -17,7 +19,11 @@ class Input
     /**
      * @var array|int[]
      */
-    protected $structureConfig;
+    protected $pouleStructureDb;
+    /**
+     * @var PouleStructure
+     */
+    protected $pouleStructure;
     /**
      * @var array[]
      */
@@ -43,10 +49,6 @@ class Input
      */
     protected $selfReferee;
     /**
-     * @var int
-     */
-    protected $state;
-    /**
      * @var int|null
      */
     protected $maxNrOfGamesInARow;
@@ -59,11 +61,6 @@ class Input
      */
     protected $plannings;
 
-    public const STATE_CREATED = 1;
-    public const STATE_TRYING_PLANNINGS = 2;
-    public const STATE_UPDATING_BESTPLANNING_SELFREFEE = 4;
-    public const STATE_ALL_PLANNINGS_TRIED = 8;
-
     public const SELFREFEREE_DISABLED = 0;
     public const SELFREFEREE_OTHERPOULES = 1;
     public const SELFREFEREE_SAMEPOULE = 2;
@@ -72,8 +69,7 @@ class Input
     const TEAMUP_MAX = 6;
 
     /**
-     * Input constructor.
-     * @param array|int[] $structureConfig
+     * @param PouleStructure $pouleStructure
      * @param array|SportConfigHelper[] $sportConfigHelpers
      * @param int $nrOfReferees
      * @param bool $teamup
@@ -81,22 +77,22 @@ class Input
      * @param int $nrOfHeadtohead
      */
     public function __construct(
-        array $structureConfig,
+        PouleStructure $pouleStructure,
         array $sportConfigHelpers,
         int $nrOfReferees,
         bool $teamup,
         int $selfReferee,
         int $nrOfHeadtohead
     ) {
-        $this->structureConfig = $structureConfig;
+        $this->setPouleStructure($pouleStructure);
         // $this->structure = $this->convertToStructure( $structureConfig );
-        $this->sportConfigHelpers = $this->setSportConfigHelpers($sportConfigHelpers);
+        $this->setSportConfigHelpers($sportConfigHelpers);
         // $this->sports = $this->convertToSports( $sportConfig );
+        $nrOfReferees = $selfReferee === self::SELFREFEREE_DISABLED ? $nrOfReferees : 0;
         $this->nrOfReferees = $nrOfReferees;
         $this->teamup = $teamup;
         $this->selfReferee = $selfReferee;
         $this->nrOfHeadtohead = $nrOfHeadtohead;
-        $this->state = Input::STATE_CREATED;
         $this->plannings = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
     }
@@ -106,28 +102,29 @@ class Input
         return $this->id;
     }
 
-    /**
-     * $structure = [ 6, 6, 5 ];
-     *
-     * @return array|int[]
-     */
-    public function getStructureConfig(): array
+    public function getPouleStructure(): PouleStructure
     {
-        return $this->structureConfig;
+        if( $this->pouleStructure === null && $this->pouleStructureDb !== null ) {
+            $this->pouleStructure = new PouleStructure( $this->pouleStructureDb );
+        }
+        return $this->pouleStructure;
+
+    }
+
+    public function setPouleStructure(PouleStructure $pouleStructure)
+    {
+        $this->pouleStructure = $pouleStructure;
+        $this->pouleStructureDb = $this->pouleStructure->toArray();
     }
 
     public function getNrOfPoules(): int
     {
-        return count($this->getStructureConfig());
+        return $this->getPouleStructure()->getNrOfPoules();
     }
 
     public function getNrOfPlaces(): int
     {
-        $nrOfPlaces = 0;
-        foreach ($this->getStructureConfig() as $nrOfPlacesIt) {
-            $nrOfPlaces += $nrOfPlacesIt;
-        }
-        return $nrOfPlaces;
+        return $this->getPouleStructure()->getNrOfPlaces();
     }
 
     /**
@@ -196,16 +193,6 @@ class Input
         return $this->selfReferee !== self::SELFREFEREE_DISABLED;
     }
 
-    public function getState(): int
-    {
-        return $this->state;
-    }
-
-    public function setState(int $state)
-    {
-        $this->state = $state;
-    }
-
     public function getMaxNrOfBatchGames(int $resources = null): int
     {
         $maxNrOfBatchGames = null;
@@ -237,7 +224,7 @@ class Input
      */
     protected function getNrOfGamesSimultaneously(): int
     {
-        $helper = new \SportsPlanning\HelperTmp();
+        $gameCalculator = new GameCalculator();
 
         // default sort, sportconfig shoud not be altered
 //        uasort( $sports, function ( $sportA, $sportB ) {
@@ -259,7 +246,7 @@ class Input
         $nrOfGamesSimultaneously = 0;
         while ($nrOfPlaces > 0 && count($fieldsNrOfGamePlaces) > 0) {
             $nrOfGamePlaces = array_shift($fieldsNrOfGamePlaces);
-            $nrOfPlaces -= $helper->getNrOfGamePlaces(
+            $nrOfPlaces -= $gameCalculator->getNrOfGamePlaces(
                 $nrOfGamePlaces,
                 $this->teamup,
                 $this->selfRefereeEnabled()
@@ -277,13 +264,12 @@ class Input
     public function getMaxNrOfGamesInARow(): int
     {
         if ($this->maxNrOfGamesInARow === null) {
-            $structureConfig = $this->getStructureConfig();
-            $nrOfPlaces = reset($structureConfig);
+            $nrOfPlaces = $this->pouleStructure->getBiggestPoule();
 
-            $this->maxNrOfGamesInARow = (new HelperTmp())->getNrOfGamesPerPlace(
+            $this->maxNrOfGamesInARow = (new GameCalculator())->getNrOfGamesPerPlace(
                 $nrOfPlaces,
                 $this->getTeamup(),
-                $this->getSelfReferee(),
+                $this->getSelfReferee() !== self::SELFREFEREE_DISABLED,
                 $this->getNrOfHeadtohead()
             );
             if (!$this->getTeamup() && $this->maxNrOfGamesInARow > ($nrOfPlaces * $this->getNrOfHeadtohead())) {
@@ -319,12 +305,65 @@ class Input
         return $this->plannings;
     }
 
+    /**
+     * @param int|null $state
+     * @return array|Planning[]
+     */
+    public function getBatchGamesPlannings( int $state = null ): array {
+        $batchGamesPlannings = $this->getPlannings()->filter( function( Planning $planning ) use ($state): bool {
+            return $planning->getMaxNrOfGamesInARow() === 0
+                && ($state === null || (($planning->getState() & $state) > 0) );
+        });
+        return $this->orderBatchGamesPlannings( $batchGamesPlannings );
+    }
+
+    /**
+     * from most most efficient to less efficient
+     *
+     * @return array|Planning[]
+     */
+    public function orderBatchGamesPlannings( Collection $batchGamesPlannings ): array
+    {
+        $plannings = $batchGamesPlannings->toArray();
+        uasort($plannings, function (Planning $first, Planning $second) {
+            if ($first->getMaxNrOfBatchGames() === $second->getMaxNrOfBatchGames()) {
+                if ($first->getMinNrOfBatchGames() === $second->getMinNrOfBatchGames()) {
+                    $firstMaxBatchNr = $first->createFirstBatch()->getLeaf()->getNumber();
+                    $secondMaxBatchNr = $second->createFirstBatch()->getLeaf()->getNumber();
+                    return $firstMaxBatchNr < $secondMaxBatchNr ? -1 : 1;
+                }
+                return $first->getMinNrOfBatchGames() < $second->getMinNrOfBatchGames() ? -1 : 1;
+            }
+            return $first->getMaxNrOfBatchGames() < $second->getMaxNrOfBatchGames() ? -1 : 1;
+        });
+        return array_values($plannings);
+    }
+
     public function getPlanning(Range $range, int $maxNrOfGamesInARow): ?Planning
     {
         foreach ($this->getPlannings() as $planning) {
             if ($planning->getMinNrOfBatchGames() === $range->min
                 && $planning->getMaxNrOfBatchGames() === $range->max
                 && $planning->getMaxNrOfGamesInARow() === $maxNrOfGamesInARow) {
+                return $planning;
+            }
+        }
+        return null;
+    }
+
+    public function getBestPlanning(): ?Planning
+    {
+        $bestBatchGamesPlanning = $this->getBestBatchGamesPlanning();
+        if( $bestBatchGamesPlanning === null ) {
+            return null;
+        }
+        return $bestBatchGamesPlanning->getBestGamesInARowPlanning();
+    }
+
+    public function getBestBatchGamesPlanning(): ?Planning
+    {
+        foreach ($this->getPlannings() as $planning) {
+            if ($planning->getState() === Planning::STATE_SUCCEEDED) {
                 return $planning;
             }
         }

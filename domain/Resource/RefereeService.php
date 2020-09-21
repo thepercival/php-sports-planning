@@ -27,9 +27,6 @@ class RefereeService
 
     public function assign(Batch $batch)
     {
-        if ($this->refereesEnabled() === false) {
-            return;
-        }
         $this->assignBatch($batch->getFirst(), $this->planning->getReferees()->toArray());
     }
 

@@ -3,7 +3,7 @@
 
 namespace SportsPlanning\Resource\RefereePlace;
 
-use SportsPlanning\Batch;
+use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Planning;
 use SportsPlanning\Game as PlanningGame;
 use SportsPlanning\Place as PlanningPlace;
@@ -30,10 +30,10 @@ class Replacer
 
     /**
      * @param Planning $planning
-     * @param Batch $firstBatch
+     * @param SelfRefereeBatch $firstBatch
      * @return bool
      */
-    public function replaceUnequals(Planning $planning, Batch $firstBatch): bool
+    public function replaceUnequals(Planning $planning, SelfRefereeBatch $firstBatch): bool
     {
         $gameAssignmentValidator = new GameAssignmentValidator($planning);
         /** @var array|UnequalGameCounter[] $unequals */
@@ -50,18 +50,18 @@ class Replacer
         return $this->replaceUnequals($planning, $firstBatch);
     }
 
-    protected function replaceUnequal(Batch $firstBatch, UnequalResource $unequal): bool
+    protected function replaceUnequal(SelfRefereeBatch $firstBatch, UnequalResource $unequal): bool
     {
         return $this->replaceUnequalHelper($firstBatch, $unequal->getMinGameCounters(), $unequal->getMaxGameCounters());
     }
 
     /**
-     * @param Batch $firstBatch
+     * @param SelfRefereeBatch $firstBatch
      * @param array|GameCounter[] $minGameCounters
      * @param array|GameCounter[] $maxGameCounters
      * @return bool
      */
-    protected function replaceUnequalHelper(Batch $firstBatch, array $minGameCounters, array $maxGameCounters): bool
+    protected function replaceUnequalHelper(SelfRefereeBatch $firstBatch, array $minGameCounters, array $maxGameCounters): bool
     {
         if (count($minGameCounters) === 0 || count($maxGameCounters) === 0) {
             return true;
@@ -87,13 +87,13 @@ class Replacer
     }
 
     public function replace(
-        Batch $batch,
+        SelfRefereeBatch $batch,
         PlanningPlace $replaced,
         PlanningPlace $replacement
     ): bool {
-        $batchHasReplacement = $batch->isParticipating($replacement) || $batch->isParticipatingAsReferee($replacement);
+        $batchHasReplacement = $batch->getBase()->isParticipating($replacement) || $batch->isParticipatingAsReferee($replacement);
         /** @var PlanningGame $game */
-        foreach ($batch->getGames() as $game) {
+        foreach ($batch->getBase()->getGames() as $game) {
             if ($game->getRefereePlace() !== $replaced || $batchHasReplacement) {
                 continue;
             }

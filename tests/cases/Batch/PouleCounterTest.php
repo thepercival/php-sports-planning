@@ -3,8 +3,8 @@
 
 namespace SportsPlanning\Tests\Batch;
 
-use SportsPlanning\Batch\PouleCounter;
-use SportsPlanning\Batch\RefereePlacePredicter;
+use SportsPlanning\PouleCounter;
+use SportsPlanning\Batch\Predicter;
 use SportsPlanning\Input;
 use SportsPlanning\Structure\Service as StructureService;
 use SportsPlanning\TestHelper\PlanningCreator;

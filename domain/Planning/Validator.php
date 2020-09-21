@@ -1,16 +1,15 @@
 <?php
 
-namespace SportsPlanning;
+namespace SportsPlanning\Planning;
 
 use \Exception;
 use SportsPlanning\Game\Place as GamePlace;
-use SportsPlanning as PlanningBase;
-use SportsPlanning\Field as PlanningField;
-use SportsPlanning\Referee as PlanningReferee;
-use SportsPlanning\Place as PlanningPlace;
-use SportsPlanning\Poule as PlanningPoule;
+use SportsPlanning\Poule;
+use SportsPlanning\Input;
+use SportsPlanning\Game;
+use SportsPlanning\Place;
 use SportsPlanning\Validator\GameAssignments;
-
+use SportsPlanning\Planning;
 use SportsPlanning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
 use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
 use SportsPlanning\Exception\UnequalAssignedRefereePlaces as UnequalAssignedRefereePlacesException;
@@ -193,6 +192,9 @@ class Validator
 
     protected function validateGamesInARow(): int
     {
+        if( $this->planning->getMaxNrOfGamesInARow() === 0 ) {
+            return self::VALID;
+        }
         /** @var Poule $poule */
         foreach ($this->planning->getPoules() as $poule) {
             foreach ($poule->getPlaces() as $place) {
@@ -208,12 +210,11 @@ class Validator
     {
         /**
          * @param Place $place
-         * @return array
+         * @return array|bool[]
          */
         $getBatchParticipations = function (Place $place): array {
             $games = $this->planning->getGames(Game::ORDER_BY_BATCH);
             $batches = [];
-            /** @var Game $game */
             foreach ($games as $game) {
                 if (array_key_exists($game->getBatchNr(), $batches) === false) {
                     $batches[$game->getBatchNr()] = false;
@@ -225,7 +226,10 @@ class Validator
             }
             return $batches;
         };
-
+        /**
+         * @param array|bool[] $batchParticipations
+         * @return int
+         */
         $getMaxInARow = function (array $batchParticipations): int {
             $maxNrOfGamesInRow = 0;
             $currentMaxNrOfGamesInRow = 0;

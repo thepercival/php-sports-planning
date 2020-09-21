@@ -26,7 +26,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure-gamegenerator.json");
         $json = json_decode($json_raw, true);
-        $structure = $serializer->deserialize(json_encode($json), 'SportsPlanning\Structure', 'json');
+        $structure = $serializer->deserialize(json_encode($json), 'SportsPlanning\StructureDep', 'json');
         postSerialize($structure, $competition);
         $structure->setQualifyRules();
 
@@ -82,7 +82,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure-gamegenerator.json");
         $json = json_decode($json_raw, true);
-        $structure = $serializer->deserialize(json_encode($json), 'SportsPlanning\Structure', 'json');
+        $structure = $serializer->deserialize(json_encode($json), 'SportsPlanning\StructureDep', 'json');
         postSerialize($structure, $competition);
         $structure->setQualifyRules();
 
@@ -120,7 +120,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure-gamegenerator-five.json");
         $json = json_decode($json_raw, true);
-        $structure = $serializer->deserialize(json_encode($json), 'SportsPlanning\Structure', 'json');
+        $structure = $serializer->deserialize(json_encode($json), 'SportsPlanning\StructureDep', 'json');
         postSerialize($structure, $competition);
         $structure->setQualifyRules();
 

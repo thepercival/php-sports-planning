@@ -1,12 +1,14 @@
 <?php
 
-namespace SportsPlanning;
+namespace SportsPlanning\Planning;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\SportConfig as SportConfigHelper;
-use SportsPlanning\Output\Batch as BatchOutput;
+use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Resource\GameCounter;
+use SportsPlanning\Planning;
+use SportsPlanning\Input;
 use SportsPlanning\Validator\GameAssignments as GameAssignmentsValidator;
 
 class Output extends OutputHelper
@@ -70,14 +72,14 @@ class Output extends OutputHelper
         $this->logger->info($output);
     }
 
-    protected function getInputAsString(Input $input, string $prefix = null, string $suffix = null): string
+    public function getInputAsString(Input $input, string $prefix = null, string $suffix = null): string
     {
         $sports = array_map(function (SportConfigHelper $sportConfigHelper): string {
             return '' . $sportConfigHelper->getNrOfFields();
         }, $input->getSportConfigHelpers() );
         $output = 'id ' . $input->getId() . ' => structure [' . implode(
                 '|',
-                $input->getStructureConfig()
+                $input->getPouleStructure()->toArray()
             ) . ']'
             . ', sports [' . implode(',', $sports) . ']'
             . ', referees ' . $input->getNrOfReferees()

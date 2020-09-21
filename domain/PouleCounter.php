@@ -1,7 +1,7 @@
 <?php
 
 
-namespace SportsPlanning\Batch;
+namespace SportsPlanning;
 
 use SportsPlanning\Poule;
 
@@ -38,14 +38,33 @@ class PouleCounter
         $this->nrOfPlacesAssigned = 0;
     }
 
-    public function add(int $nrOfPlacesAssigned)
+    public function add(int $nrOfPlacesToAssign)
     {
-        $this->nrOfGames++;
-        $this->nrOfPlacesAssigned += $nrOfPlacesAssigned;
+        $this->addNrOfGames(1);
+        $this->addNrOfAssignedPlaces($nrOfPlacesToAssign);
     }
 
-    public function getNrOfPlacesAssigned(): int
+    public function addNrOfGames(int $nrOfGames)
     {
+        $this->nrOfGames += $nrOfGames;
+    }
+
+    public function addNrOfAssignedPlaces(int $nrOfAssignedPlaces)
+    {
+        $this->nrOfPlacesAssigned += $nrOfAssignedPlaces;
+    }
+
+    public function remove(int $nrOfPlacesToUnassign)
+    {
+        $this->nrOfGames--;
+        $this->nrOfPlacesAssigned -= $nrOfPlacesToUnassign;
+    }
+
+    public function getNrOfPlacesAssigned( bool $addRefereePlace = null ): int
+    {
+        if( $addRefereePlace ) {
+            return $this->nrOfPlacesAssigned + $this->nrOfGames;
+        }
         return $this->nrOfPlacesAssigned;
     }
 
