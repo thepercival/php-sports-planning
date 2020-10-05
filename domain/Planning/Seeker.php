@@ -70,7 +70,7 @@ class Seeker
         try {
             $this->planningOutput->outputInput($input, 'processing input: ', " ..");
 
-            if ($this->inputGCDService->hasGCD($input)) {
+            if ($this->inputGCDService->isPolynomial($input)) {
                 $this->gcdProcessor->process($input);
                 return;
             }

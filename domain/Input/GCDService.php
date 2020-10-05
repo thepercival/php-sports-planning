@@ -13,7 +13,7 @@ class GCDService
     {
     }
 
-    public function hasGCD(Input $input): bool
+    public function isPolynomial(Input $input): bool
     {
         if ($input->selfRefereeEnabled()) {
             return false;

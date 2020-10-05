@@ -316,7 +316,7 @@ class Input
      */
     public function getBatchGamesPlannings( int $state = null ): array {
         $batchGamesPlannings = $this->getPlannings( $state )->filter( function( Planning $planning ): bool {
-            return $planning->getMaxNrOfGamesInARow() === 0;
+            return $planning->isBatchGames();
         });
         return $this->orderBatchGamesPlannings( $batchGamesPlannings );
     }

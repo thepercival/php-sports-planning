@@ -137,6 +137,11 @@ class Planning
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
     }
 
+    public function isBatchGames(): bool {
+        return $this->maxNrOfGamesInARow === 0;
+    }
+
+
     public function getCreatedDateTime(): DateTimeImmutable
     {
         return $this->createdDateTime;
@@ -367,10 +372,6 @@ class Planning
         $pouleNr = (int)substr($location, 0, strpos($location, "."));
         $placeNr = (int)substr($location, strpos($location, ".") + 1);
         return $this->getPoule($pouleNr)->getPlace($placeNr);
-    }
-
-    public function isBatchGamesPlanning(): bool {
-        return $this->getMaxNrOfGamesInARow() === 0;
     }
 
     public function getGamesInARowPlannings( int $state = null ): array {

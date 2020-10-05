@@ -378,9 +378,6 @@ class Service
                 unset($games[$foundGameIndex]);
             }
         }
-        if( $this->planning->getMaxNrOfGamesInARow() === 2 ) {
-            $e = 12;
-        }
         $nextBatch = $batch->createNext();
 
         return $nextBatch;

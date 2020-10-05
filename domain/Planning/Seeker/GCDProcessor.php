@@ -48,18 +48,15 @@ class GCDProcessor
     protected function processByGCD(Input $input, Input $gcdInput)
     {
         $gcdPlanning = $gcdInput->getBestPlanning();
-        $planning = $this->createPlanningFromGcd($input, $gcdPlanning);
-
-        $this->planningRepos->save($planning);
-
+        $this->createPlanningFromGcd($input, $gcdPlanning);
         $this->inputRepos->save($input);
     }
 
-    protected function createPlanningFromGcd(Input $input, Planning $gcdPlanning): Planning
+    protected function createPlanningFromGcd(Input $input, Planning $gcdPlanning)
     {
         $gcd = $this->inputGCDService->getGCD($input);
 
-        $planning = new Planning($input, $gcdPlanning->getNrOfBatchGames(), $gcdPlanning->getMaxNrOfGamesInARow());
+        $planning = new Planning($input, $gcdPlanning->getNrOfBatchGames(), 0 );
 
         // 5, 4     => (2) => 5, 5, 4, 4
         // 2, 2     => (2) => 2, 2, 2, 2
@@ -99,7 +96,6 @@ class GCDProcessor
         // $this->logger->info( '   ' . $this->planningToString( $planning, $timeout ) . " timeout => " . $planning->getTimeoutSeconds() * Planning::TIMEOUT_MULTIPLIER  );
         $planning->setState($gcdPlanning->getState());
         $planning->setTimeoutSeconds(-1);
-
-        return $planning;
+        $this->planningRepos->save($planning);
     }
 }
