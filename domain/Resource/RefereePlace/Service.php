@@ -3,7 +3,7 @@
 namespace SportsPlanning\Resource\RefereePlace;
 
 use DateTimeImmutable;
-use SportsPlanning\Output\Batch as BatchOutput;
+use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Planning;
 use SportsPlanning\Game;
 use SportsPlanning\Place;
@@ -31,8 +31,6 @@ class Service
      */
     private $replacer;
 
-    protected const TIMEOUTSECONDS = 60;
-
     public function __construct(Planning $planning)
     {
         $this->planning = $planning;
@@ -45,28 +43,27 @@ class Service
         return $this->planning->getInput();
     }
 
-    public function assign(SelfRefereeBatch $batch): bool
+    public function assign(SelfRefereeBatch $batch ): int
     {
         if (!$this->getInput()->selfRefereeEnabled()) {
-            return true;
+            return Planning::STATE_SUCCEEDED;
         }
-        if ($this->assignHelper($batch)) {
-            return true;
-        }
-        return false;
+        return $this->assignHelper( $batch );
     }
 
-    public function assignHelper(SelfRefereeBatch $batch): bool
+    public function assignHelper(SelfRefereeBatch $batch): int
     {
-        $timeoutDateTime = (new DateTimeImmutable())->modify("+" . static::TIMEOUTSECONDS . " seconds");
+        $timeoutDateTime = (new DateTimeImmutable())->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
+        $this->replacer->setTimeoutDateTime( $timeoutDateTime );
         $refereePlaces = $this->getRefereePlaces();
         try {
             if ($this->assignBatch($batch, $batch->getBase()->getGames(), $refereePlaces, $timeoutDateTime)) {
-                return true;
+                return Planning::STATE_SUCCEEDED;
             };
         } catch (TimeoutException $timeoutExc) {
+            return Planning::STATE_TIMEDOUT;
         }
-        return false;
+        return Planning::STATE_FAILED;
     }
 
     /**
@@ -98,11 +95,12 @@ class Service
     ): bool {
         if (count($batchGames) === 0) { // batchsuccess
             if ($batch->hasNext() === false) { // endsuccess
+                // (new BatchOutput())->output($batch);
                 return $this->equallyAssign($batch);
             }
-            if ((new DateTimeImmutable()) > $timeoutDateTime) { // @FREDDY
+            if ( (new DateTimeImmutable()) > $timeoutDateTime) {
                 throw new TimeoutException(
-                    "exceeded maximum duration of " . static::TIMEOUTSECONDS . " seconds",
+                    "exceeded maximum duration",
                     E_ERROR
                 );
             }

@@ -3,7 +3,7 @@
 namespace SportsPlanning\Planning\Seeker;
 
 use Psr\Log\LoggerInterface;
-use SportsPlanning\Input\Service as InputService;
+use SportsPlanning\Input\GCDService as InputGCDService;
 use SportsPlanning\Input\Repository as InputRepository;
 use SportsPlanning\Planning\Repository as PlanningRepository;
 use SportsPlanning\Planning;
@@ -17,7 +17,7 @@ class GCDProcessor
     protected LoggerInterface $logger;
     protected InputRepository $inputRepos;
     protected PlanningRepository $planningRepos;
-    protected InputService $inputService;
+    protected InputGCDService $inputGCDService;
     protected PlanningOutput $planningOutput;
     protected PlanningSeeker $seeker;
 
@@ -25,7 +25,7 @@ class GCDProcessor
     {
         $this->logger = $logger;
         $this->planningOutput = new PlanningOutput($this->logger);
-        $this->inputService = new InputService();
+        $this->inputGCDService = new InputGCDService();
         $this->inputRepos = $inputRepos;
         $this->planningRepos = $planningRepos;
         $this->seeker = $seeker;
@@ -34,7 +34,7 @@ class GCDProcessor
     public function process(Input $input)
     {
         $this->logger->info('   processing as gcd..');
-        $gcdInput = $this->inputService->getGCDInput($input);
+        $gcdInput = $this->inputGCDService->getGCDInput($input);
         $gcdDbInput = $this->inputRepos->getFromInput($gcdInput);
         if ($gcdDbInput === null) {
             $gcdDbInput = $this->inputRepos->save($gcdInput);
@@ -57,7 +57,7 @@ class GCDProcessor
 
     protected function createPlanningFromGcd(Input $input, Planning $gcdPlanning): Planning
     {
-        $gcd = $this->inputService->getGCD($input);
+        $gcd = $this->inputGCDService->getGCD($input);
 
         $planning = new Planning($input, $gcdPlanning->getNrOfBatchGames(), $gcdPlanning->getMaxNrOfGamesInARow());
 

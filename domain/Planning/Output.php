@@ -118,7 +118,7 @@ class Output extends OutputHelper
     {
         $retVal = "";
         foreach ($gameCounters as $gameCounter) {
-            $retVal .= $gameCounter->getIndex() . ":" . $gameCounter->getNrOfGames() . ",";
+            $retVal .= $gameCounter->getIndex() . ":" . $gameCounter->getNrOfGames() . ", ";
         }
         return $name . " => " . $retVal;
     }

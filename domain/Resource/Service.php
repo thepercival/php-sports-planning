@@ -10,6 +10,8 @@ use Monolog\Logger;
 
 use SportsHelpers\GameCalculator;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
+use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
+use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Planning;
 use SportsPlanning\Game;
 use SportsPlanning\Input as PlanningInput;
@@ -164,7 +166,11 @@ class Service
         $this->init();
         $batch = new Batch();
         if( $this->getInput()->selfRefereeEnabled() ) {
-            $batch = new SelfRefereeBatch( $batch );
+            if( $this->getInput()->getSelfReferee() === PlanningInput::SELFREFEREE_SAMEPOULE) {
+                $batch = new SelfRefereeSamePouleBatch( $batch );
+            } else {
+                $batch = new SelfRefereeOtherPouleBatch( $this->planning->getPoules()->toArray(), $batch );
+            }
         }
 
         try {
@@ -198,10 +204,6 @@ class Service
      */
     protected function assignBatch(array $games, Resources $resources, $batch)
     {
-
-//        $this->batchOutput->outputGames( $games ); die();
-
-
         if ($this->assignBatchHelper($games, $games, $resources, $batch, $this->planning->getMaxNrOfBatchGames())) {
             return $this->getActiveLeaf($batch->getLeaf());
         }
@@ -273,7 +275,7 @@ class Service
             );
 //            $this->logger->info(' nr of games to process after gamesinarow-filter(max '.$this->planning->getMaxNrOfGamesInARow().') : '  . count($gamesForBatchTmp) );
 //            $this->gameOutput->outputGames($gamesForBatchTmp);
-            return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $maxNrOfBatchGames, 0);
+            return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $this->planning->getMaxNrOfBatchGames(), 0);
         }
         if ((new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
             throw new TimeoutException(
@@ -502,6 +504,8 @@ class Service
      */
     protected function refereePlacesCanBeAssigned($batch): bool
     {
+        // naast forced refereeplaces and teveel
+
         if( $batch instanceof Batch\SelfReferee ) {
             return $this->refereePlacePredicter->canStillAssign($batch, $this->getInput()->getSelfReferee());
         }

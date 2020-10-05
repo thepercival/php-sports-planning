@@ -300,9 +300,14 @@ class Input
     /**
      * @return Collection|Planning[]
      */
-    public function getPlannings(): Collection
+    public function getPlannings( int $state = null ): Collection
     {
-        return $this->plannings;
+        if( $state === null ) {
+            return $this->plannings;
+        }
+        return $this->plannings->filter( function( Planning $planning ) use ($state): bool {
+            return ($planning->getState() & $state) > 0;
+        });
     }
 
     /**
@@ -310,9 +315,8 @@ class Input
      * @return array|Planning[]
      */
     public function getBatchGamesPlannings( int $state = null ): array {
-        $batchGamesPlannings = $this->getPlannings()->filter( function( Planning $planning ) use ($state): bool {
-            return $planning->getMaxNrOfGamesInARow() === 0
-                && ($state === null || (($planning->getState() & $state) > 0) );
+        $batchGamesPlannings = $this->getPlannings( $state )->filter( function( Planning $planning ): bool {
+            return $planning->getMaxNrOfGamesInARow() === 0;
         });
         return $this->orderBatchGamesPlannings( $batchGamesPlannings );
     }
@@ -362,16 +366,9 @@ class Input
 
     public function getBestBatchGamesPlanning(): ?Planning
     {
-        foreach ($this->getPlannings() as $planning) {
-            if ($planning->getState() === Planning::STATE_SUCCEEDED) {
-                return $planning;
-            }
+        foreach ($this->getBatchGamesPlannings( Planning::STATE_SUCCEEDED ) as $planning) {
+            return $planning;
         }
         return null;
-    }
-
-    public function addPlanning(Planning $planning)
-    {
-        $this->getPlannings()->add($planning);
     }
 }

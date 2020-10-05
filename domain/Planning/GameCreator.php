@@ -51,12 +51,6 @@ class GameCreator
         }
         $firstBatch = $planning->createFirstBatch();
         $refereePlaceService = new RefereePlaceService($planning);
-        if (!$refereePlaceService->assign($firstBatch)) {
-            $this->logger->info("refereeplaces could not be equally assigned");
-            $planning->setValidity(PlanningValidator::UNEQUALLY_ASSIGNED_REFEREEPLACES);
-            return Planning::STATE_FAILED;
-        }
-        return Planning::STATE_SUCCEEDED;
+        return $refereePlaceService->assign($firstBatch);
     }
 }
-

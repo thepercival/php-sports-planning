@@ -190,16 +190,11 @@ class GameAssignments
     protected function getMaxUnequal(array $gameCounters): ?UnequalGameCounter
     {
         $minNrOfGames = null;
-        $minGameCounters = [];
         $maxNrOfGames = null;
         $maxGameCounters = [];
         foreach ($gameCounters as $gameCounter) {
             $nrOfGames = $gameCounter->getNrOfGames();
-            if ($minNrOfGames === null || $nrOfGames <= $minNrOfGames) {
-                if ($nrOfGames < $minNrOfGames) {
-                    $minGameCounters = [];
-                }
-                $minGameCounters[] = $gameCounter;
+            if ($minNrOfGames === null || $nrOfGames < $minNrOfGames) {
                 $minNrOfGames = $nrOfGames;
             }
             if ($maxNrOfGames === null || $nrOfGames >= $maxNrOfGames) {
@@ -213,9 +208,15 @@ class GameAssignments
         if ($maxNrOfGames - $minNrOfGames <= 1) {
             return null;
         }
+        $otherGameCounters = array_filter( $gameCounters, function( GameCounter $gameCounterIt ) use ($maxNrOfGames): bool {
+            return ($gameCounterIt->getNrOfGames() + 1 ) < $maxNrOfGames;
+        });
+        uasort( $otherGameCounters, function( GameCounter $a, GameCounter $b ): int {
+            return $a->getNrOfGames() < $b->getNrOfGames() ? -1 : 1;
+        });
         return new UnequalGameCounter(
             $minNrOfGames,
-            $minGameCounters,
+            $otherGameCounters,
             $maxNrOfGames,
             $maxGameCounters
         );

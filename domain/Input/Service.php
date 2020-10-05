@@ -3,7 +3,6 @@
 namespace SportsPlanning\Input;
 
 use SportsPlanning\Input;
-use SportsHelpers\Math;
 use SportsHelpers\SportConfig as SportConfigHelper;
 use SportsHelpers\PouleStructure;
 
@@ -11,192 +10,6 @@ class Service
 {
     public function __construct()
     {
-    }
-
-//    public function get(RoundNumber $roundNumber, int $nrOfReferees): PlanningInput
-//    {
-//        $config = $roundNumber->getValidPlanningConfig();
-//        $planningConfigService = new PlanningConfigService();
-//        $teamup = $config->getTeamup() ? $planningConfigService->isTeamupAvailable($roundNumber) : $config->getTeamup();
-//
-//        $sportConfigBases = array_map(
-//            function (SportConfig $sportConfig): SportConfigBase {
-//                return $sportConfig->getBase();
-//            },
-//            $roundNumber->getSportConfigs()
-//        );
-//        $selfReferee = $this->getSelfReferee(
-//            $config,
-//            $sportConfigBases,
-//            $roundNumber->getNrOfPlaces(),
-//            count($roundNumber->getPoules())
-//        );
-//        $nrOfReferees = $selfReferee === PlanningInput::SELFREFEREE_DISABLED ? $nrOfReferees : 0;
-//        /*
-//                pas hier gcd toe op poules/aantaldeelnemers(structureconfig), aantal scheidsrechters en aantal velden/sport(sportconfig)
-//                zorg dat deze functie ook kan worden toegepast vanuit fctoernooi->create_default_planning_input
-//                dus bijv. [8](8 poules van x deelnemers), 4 refs en [2] kan worden herleid naar een planninginput van [4], 2 refs en [1]
-//
-//                en bijv. [8,2](8 poules van x aantal deelnemers en 2 poules van y aantal deelnemers ), 4 refs en [2] kan worden herleid naar een planninginput van [4,1], 1 refs en [1]
-//
-//
-//        */
-//        $nrOfHeadtohead = $config->getNrOfHeadtohead();
-//        $pouleStructure = $roundNumber->getPouleStructure();
-//        $sportConfig = $this->getSportConfig($roundNumber, $nrOfHeadtohead, $teamup);
-//
-//        // $multipleSports = count($sportConfig) > 1;
-////        if ($multipleSports) {
-////            $nrOfHeadtohead = $this->getSufficientNrOfHeadtoheadByRoundNumber($roundNumber, $sportConfig);
-////        }
-//        return new PlanningInput(
-//            $pouleStructure,
-//            $sportConfig,
-//            $nrOfReferees,
-//            $teamup,
-//            $selfReferee,
-//            $nrOfHeadtohead
-//        );
-//    }
-//
-//    /**
-//     * @param Config $config
-//     * @param array|SportConfigBase[] $sportConfigs
-//     * @param int $nrOfPlaces
-//     * @param int $nrOfPoules
-//     * @return int
-//     */
-//    protected function getSelfReferee(Config $config, array $sportConfigs, int $nrOfPlaces, int $nrOfPoules): int
-//    {
-//        $sportConfigService = new SportConfigService();
-//        $maxNrOfGamePlaces = $sportConfigService->getMaxNrOfGamePlaces($sportConfigs, $config->getTeamup(), false);
-//
-//        $planningConfigService = new PlanningConfigService();
-//
-//        $otherPoulesAvailable = $planningConfigService->canSelfRefereeOtherPoulesBeAvailable($nrOfPoules);
-//        $samePouleAvailable = $planningConfigService->canSelfRefereeSamePouleBeAvailable(
-//            $nrOfPoules,
-//            $nrOfPlaces,
-//            $maxNrOfGamePlaces
-//        );
-//        if (!$otherPoulesAvailable && !$samePouleAvailable) {
-//            return PlanningInput::SELFREFEREE_DISABLED;
-//        }
-//        if ($config->getSelfReferee() === PlanningInput::SELFREFEREE_OTHERPOULES && !$otherPoulesAvailable) {
-//            return PlanningInput::SELFREFEREE_SAMEPOULE;
-//        }
-//        if ($config->getSelfReferee() === PlanningInput::SELFREFEREE_SAMEPOULE && !$samePouleAvailable) {
-//            return PlanningInput::SELFREFEREE_OTHERPOULES;
-//        }
-//        return $config->getSelfReferee();
-//    }
-//
-    public function hasGCD(Input $input): bool
-    {
-        if ($input->selfRefereeEnabled()) {
-            return false;
-        }
-        $gcd = $this->getGCDRaw($input->getPouleStructure(), $input->getSportConfigHelpers(), $input->getNrOfReferees());
-        return $gcd > 1;
-    }
-
-    public function getGCDInput(Input $input): Input
-    {
-        $gcd = $this->getGCDRaw($input->getPouleStructure(), $input->getSportConfigHelpers(), $input->getNrOfReferees());
-
-        $structureConfig = $this->createGCDPouleStructure( $gcd, $input->getPouleStructure() );
-        $sportConfigHelpers = $this->createGCDSportConfigHelpers( $gcd, $input->getSportConfigHelpers() );
-        $nrOfReferees = $this->getGCDNrOfReferees( $gcd, $input->getNrOfReferees() );
-
-        return new Input(
-            $structureConfig,
-            $sportConfigHelpers,
-            $nrOfReferees,
-            $input->getTeamup(),
-            $input->getSelfReferee(),
-            $input->getNrOfHeadtohead()
-        );
-    }
-
-    public function getPolynomial(Input $input, int $polynomial): Input
-    {
-        $structureConfig = $this->createGCDPouleStructure( 1 / $polynomial, $input->getPouleStructure() );
-        $sportConfigHelpers = $this->createGCDSportConfigHelpers( 1 / $polynomial, $input->getSportConfigHelpers() );
-        $nrOfReferees = $this->getGCDNrOfReferees( 1 / $polynomial, $input->getNrOfReferees() );
-
-        return new Input(
-            $structureConfig,
-            $sportConfigHelpers,
-            $nrOfReferees,
-            $input->getTeamup(),
-            $input->getSelfReferee(),
-            $input->getNrOfHeadtohead()
-        );
-    }
-
-    public function createGCDPouleStructure(float $gcd, PouleStructure $pouleStructure ): PouleStructure
-    {
-        $nrOfPoulesByNrOfPlaces = $pouleStructure->getNrOfPoulesByNrOfPlaces();
-        // divide with gcd
-        foreach ($nrOfPoulesByNrOfPlaces as $nrOfPlaces => $nrOfPoules) {
-            $nrOfPoulesByNrOfPlaces[$nrOfPlaces] = (int)($nrOfPoules / $gcd);
-        }
-        $newStrucureConfig = [];
-        // create structure
-        foreach ($nrOfPoulesByNrOfPlaces as $nrOfPlaces => $nrOfPoules) {
-            for ($pouleNr = 1; $pouleNr <= $nrOfPoules; $pouleNr++) {
-                $newStrucureConfig[] = $nrOfPlaces;
-            }
-        }
-        return new PouleStructure($newStrucureConfig);
-    }
-
-    /**
-     * @param float $gcd
-     * @param array|SportConfigHelper[] $sportConfigHelpers
-     * @return array|SportConfigHelper[]
-     */
-    public function createGCDSportConfigHelpers(float $gcd, array $sportConfigHelpers): array
-    {
-        $newSportConfigHelpers = [];
-        foreach ( $sportConfigHelpers as $sportConfigHelper) {
-            $newSportConfigHelpers[] = new SportConfigHelper(
-                (int)($sportConfigHelper->getNrOfFields() / $gcd), $sportConfigHelper->getNrOfGamePlaces() );
-        }
-        return $newSportConfigHelpers;
-    }
-
-    public function getGCDNrOfReferees(float $gcd, int $nrOfReferees ): int
-    {
-        return (int)($nrOfReferees / $gcd);
-    }
-
-    public function getGCD(Input $input): int
-    {
-        return $this->getGCDRaw(
-            $input->getPouleStructure(),
-            $input->getSportConfigHelpers(),
-            $input->getNrOfReferees()
-        );
-    }
-
-    /**
-     * @param PouleStructure $pouleStructure
-     * @param array|SportConfigHelper[] $sportConfigs
-     * @param int $nrOfReferees
-     * @return int
-     */
-    protected function getGCDRaw(PouleStructure $pouleStructure, array $sportConfigs, int $nrOfReferees): int
-    {
-        $math = new Math();
-        $gcdStructure = $math->getGreatestCommonDivisor($pouleStructure->getNrOfPoulesByNrOfPlaces());
-        $gcdSports = $sportConfigs[0]->getNrOfFields();
-
-//        $gcds = [$gcdStructure, $gcdSports];
-//        if ($nrOfReferees > 0) {
-//            $gcd[] = $nrOfReferees;
-//        }
-        return $math->getGreatestCommonDivisor([$gcdStructure, $nrOfReferees, $gcdSports]);
     }
 
     /**
@@ -272,16 +85,7 @@ class Service
 //        return $nrOfGames;
 //    }
 //
-//
-//    public function areEqual(PlanningInput $inputA, PlanningInput $inputB): bool
-//    {
-//        return $inputA->getPouleStructure() == $inputB->getPouleStructure()
-//            && $inputA->getSportConfigHelpers() == $inputB->getSportConfigHelpers()
-//            && $inputA->getNrOfReferees() === $inputB->getNrOfReferees()
-//            && $inputA->getTeamup() === $inputB->getTeamup()
-//            && $inputA->getSelfReferee() === $inputB->getSelfReferee()
-//            && $inputA->getNrOfHeadtohead() === $inputB->getNrOfHeadtohead();
-//    }
+
 
 
 //    public function getSufficientNrOfHeadtoheadByRoundNumber(RoundNumber $roundNumber, array $sportConfig): int
@@ -357,29 +161,5 @@ class Service
 //        return $nrOfHeadtohead;
 //    }
 //
-//    protected function getSmallestPoule(RoundNumber $roundNumber): Poule
-//    {
-//        $smallestPoule = null;
-//        foreach ($roundNumber->getPoules() as $poule) {
-//            if ($smallestPoule === null || $poule->getPlaces()->count() < $smallestPoule->getPlaces()->count()) {
-//                $smallestPoule = $poule;
-//            }
-//        }
-//        return $smallestPoule;
-//    }
-//
-//    /**
-//     * @param array $sportsConfigs
-//     * @return array|SportNrFields[]
-//     */
-//    protected function convertSportConfig(array $sportsConfigs): array
-//    {
-//        $sportNr = 1;
-//        return array_map(
-//            function ($sportConfig) use (&$sportNr) {
-//                return new SportNrFields($sportNr++, $sportConfig["nrOfFields"], $sportConfig["nrOfGamePlaces"]);
-//            },
-//            $sportsConfigs
-//        );
-//    }
+
 }

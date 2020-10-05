@@ -27,7 +27,7 @@ class Predicter
         $this->poules = $poules;
     }
 
-    public function canStillAssign(SelfRefereeBatch $batch, int $selfReferee)
+    public function canStillAssign(SelfRefereeBatch $batch, int $selfReferee): bool
     {
         if ($selfReferee === Input::SELFREFEREE_DISABLED) {
             return true;
@@ -35,7 +35,7 @@ class Predicter
         if ($selfReferee === Input::SELFREFEREE_SAMEPOULE) {
             return $this->validatePouleAssignmentsSamePoule($batch) && $this->validateTooMuchForcedAssignmentDiffernce($batch);
         }
-        return $this->validatePouleAssignmentsOtherPoules($batch);
+        return $this->validatePouleAssignmentsOtherPoules($batch) && $this->validateTooMuchForcedAssignmentDiffernce($batch);
     }
 
     protected function validatePouleAssignmentsSamePoule(SelfRefereeBatch $batch): bool
@@ -125,17 +125,33 @@ class Predicter
             if( count($totalNrOfForcedRefereePlaces) === 0 || !$pouleHasForcedRefereePlaces($poule) ) {
                 continue;
             }
+            $maxNrOfForcedRefereePlaces = null;
+            $minNrOfForcedRefereePlaces = null;
             $avgNrOfGamesForRefereePlace = $totalPouleCounters[$poule->getNumber()]->getNrOfGames() / $poule->getPlaces()->count();
             $pouleMax = $avgNrOfGamesForRefereePlace + self::SAME_POULE_MAX_DELTA;
-            $pouleMin = $avgNrOfGamesForRefereePlace - ( self::SAME_POULE_MAX_DELTA * 3 );
+            // $pouleMin = $avgNrOfGamesForRefereePlace - self::SAME_POULE_MAX_DELTA;
+
+            // naast de forced referee assignments heb je ook dat
+            // places niet beschikbaar zijn, omdat ze zelf moeten
+
+            // place met laagste nrOfForcedAssignment moet minimaal 1x beschikbaar zijn
             foreach( $poule->getPlaces() as $place ) {
                 $nrOfForcedRefereePlaces = 0;
                 if( array_key_exists( $place->getLocation(), $totalNrOfForcedRefereePlaces ) ) {
                     $nrOfForcedRefereePlaces = $totalNrOfForcedRefereePlaces[$place->getLocation()];
                 }
-                if ( $nrOfForcedRefereePlaces > $pouleMax || $nrOfForcedRefereePlaces < $pouleMin ) {
+                if ( $nrOfForcedRefereePlaces >= $pouleMax /*|| $nrOfForcedRefereePlaces <= $pouleMin*/ ) {
                     return false;
                 }
+                if( $minNrOfForcedRefereePlaces === null || $nrOfForcedRefereePlaces < $minNrOfForcedRefereePlaces ) {
+                    $minNrOfForcedRefereePlaces = $nrOfForcedRefereePlaces;
+                }
+                if( $maxNrOfForcedRefereePlaces === null || $nrOfForcedRefereePlaces > $maxNrOfForcedRefereePlaces ) {
+                    $maxNrOfForcedRefereePlaces = $nrOfForcedRefereePlaces;
+                }
+            }
+            if( ($maxNrOfForcedRefereePlaces - $minNrOfForcedRefereePlaces) > 1 ) {
+                return false;
             }
         }
         return true;

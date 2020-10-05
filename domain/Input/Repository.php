@@ -104,25 +104,35 @@ class Repository extends BaseRepository
     }
 
 
-
-
     //-- planninginputs not validated
 //select 	count(*)
 //from 	planninginputs pi
 //where 	not exists( select * from plannings p where p.inputId = pi.Id and ( p.state = 2 or p.state = 8 or p.state = 16 ) )
 //and		exists( select * from plannings p where p.inputId = pi.Id and p.validity < 0 )
     /**
+     * alles zonder een succeeded
+     * of met succeeded en not valid or not validated
+     *
+     * @param bool $validateInvalid
      * @param int $limit
-     * @param PouleStructure $pouleStructure
+     * @param PouleStructure|null $pouleStructure
+     * @param int|null $selfReferee
      * @return array|Input[]
      */
-    public function findNotValidated(int $limit, PouleStructure $pouleStructure = null, int $selfReferee = null): array
+    public function findNotValidated(
+        bool $validateInvalid, int $limit,
+        PouleStructure $pouleStructure = null, int $selfReferee = null): array
     {
         $exprNot = $this->getEM()->getExpressionBuilder();
         $exprInvalidStates = $this->getEM()->getExpressionBuilder();
         $exprNotValidated = $this->getEM()->getExpressionBuilder();
+        $validOperator = '<';
+        if( $validateInvalid ) {
+            $validOperator = '<>';
+        }
 
         $query = $this->createQueryBuilder('pi')
+            // zonder succeeded
             ->andWhere(
                 $exprNot->not(
                     $exprInvalidStates->exists(
@@ -130,24 +140,25 @@ class Repository extends BaseRepository
                             ->select('p1.id')
                             ->from('SportsPlanning\Planning', 'p1')
                             ->where('p1.input = pi')
-                            ->andWhere('BIT_AND(p1.state, :states) > 0')
+                            ->andWhere('p1.state = :stateSuccess')
                             ->getDQL()
                     )
                 )
             )
-            ->andWhere(
+            ->orWhere(
                 $exprNotValidated->exists(
                     $this->getEM()->createQueryBuilder()
                         ->select('p2.id')
                         ->from('SportsPlanning\Planning', 'p2')
                         ->where('p2.input = pi')
-                        ->andWhere('p2.validity = :notvalidated')
+                        ->andWhere('p2.state = :stateSuccess')
+                        ->andWhere('p2.validity ' . $validOperator . ' :valid')
                         ->getDQL()
                 )
             )
             ->setMaxResults($limit)
-            ->setParameter('states', Planning::STATE_SUCCEEDED)
-            ->setParameter('notvalidated', Validator::NOT_VALIDATED);
+            ->setParameter('stateSuccess', Planning::STATE_SUCCEEDED)
+            ->setParameter('valid', Validator::VALID);
 
         if ($pouleStructure !== null) {
             $query = $query

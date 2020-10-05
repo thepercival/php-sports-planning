@@ -3,6 +3,7 @@
 
 namespace SportsPlanning\Resource\RefereePlace;
 
+use DateTimeImmutable;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Planning;
 use SportsPlanning\Game as PlanningGame;
@@ -11,12 +12,16 @@ use SportsPlanning\Resource\GameCounter\Unequal as UnequalGameCounter;
 use SportsPlanning\Resource\GameCounter\Unequal as UnequalResource;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
+use SportsPlanning\TimeoutException;
 use SportsPlanning\Validator\GameAssignments as GameAssignmentValidator;
 
 class Replacer
 {
     protected bool $samePoule;
-
+    /**
+     * @var \DateTimeImmutable|null
+     */
+    protected $timeoutDateTime;
     /**
      * @var array | Replace[]
      */
@@ -26,6 +31,10 @@ class Replacer
     {
         $this->samePoule = $samePoule;
         $this->revertableReplaces = [];
+    }
+
+    public function setTimeoutDateTime( \DateTimeImmutable $timeoutDateTime ) {
+        $this->timeoutDateTime = $timeoutDateTime;
     }
 
     /**
@@ -71,6 +80,12 @@ class Replacer
         foreach ($maxGameCounters as $replacedGameCounter) {
             /** @var PlaceGameCounter $replacementGameCounter */
             foreach ($minGameCounters as $replacementGameCounter) {
+                if ( $this->timeoutDateTime !== null && (new DateTimeImmutable()) > $this->timeoutDateTime) {
+                    throw new TimeoutException(
+                        "exceeded timeout while replacing selfreferee",
+                        E_ERROR
+                    );
+                }
                 if (!$this->replace(
                     $firstBatch,
                     $replacedGameCounter->getPlace(),

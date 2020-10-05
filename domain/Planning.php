@@ -9,6 +9,9 @@ use SportsHelpers\Range;
 use SportsHelpers\SportConfig as SportConfigHelper;
 use SportsHelpers\PouleStructure;
 use SportsPlanning\Batch\SelfReferee;
+use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
+use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
+use SportsPlanning\Input as PlanningInput;
 
 class Planning
 {
@@ -81,7 +84,7 @@ class Planning
         $this->minNrOfBatchGames = $nrOfBatchGames->min;
         $this->maxNrOfBatchGames = $nrOfBatchGames->max;
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
-        $this->input->addPlanning($this);
+        $this->input->getPlannings()->add($this);
         $this->initPoules($this->getInput()->getPouleStructure());
         $this->initSports($this->getInput()->getSportConfigHelpers());
         $this->initReferees($this->getInput()->getNrOfReferees());
@@ -302,7 +305,11 @@ class Planning
         $games = $this->getGames(Game::ORDER_BY_BATCH);
         $batch = new Batch();
         if( $this->getInput()->selfRefereeEnabled() ) {
-            $batch = new Batch\SelfReferee( $batch );
+            if( $this->getInput()->getSelfReferee() === PlanningInput::SELFREFEREE_SAMEPOULE) {
+                $batch = new SelfRefereeSamePouleBatch( $batch );
+            } else {
+                $batch = new SelfRefereeOtherPouleBatch( $this->getPoules()->toArray(), $batch );
+            }
         }
         foreach ($games as $game) {
             if ($game->getBatchNr() === ($batch->getNumber() + 1)) {

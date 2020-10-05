@@ -121,11 +121,8 @@ class BatchGamesPostProcessor
                 if( $planningToBeProcessed === $planningProcessed ) {
                     return false;
                 }
-                return ($planningToBeProcessed->getMaxNrOfBatchGames() <= $planningProcessed->getMinNrOfBatchGames()
-                    ||
-                    ($planningToBeProcessed->getMinNrOfBatchGames() === $planningProcessed->getMinNrOfBatchGames()
-                        && $planningToBeProcessed->getMaxNrOfBatchGames() < $planningProcessed->getMaxNrOfBatchGames()
-                    ));
+                return $planningToBeProcessed->getMinNrOfBatchGames() <= $planningProcessed->getMinNrOfBatchGames()
+                        && $planningToBeProcessed->getMaxNrOfBatchGames() <= $planningProcessed->getMaxNrOfBatchGames();
             }
         );
     }
@@ -144,11 +141,8 @@ class BatchGamesPostProcessor
                 if( $planningToBeProcessed === $planningProcessed ) {
                     return false;
                 }
-                return ($planningToBeProcessed->getMaxNrOfBatchGames() > $planningProcessed->getMinNrOfBatchGames()
-                    ||
-                    ($planningToBeProcessed->getMaxNrOfBatchGames() === $planningProcessed->getMaxNrOfBatchGames()
-                        && $planningToBeProcessed->getMinNrOfBatchGames() > $planningProcessed->getMinNrOfBatchGames()
-                    ));
+                return $planningToBeProcessed->getMaxNrOfBatchGames() >= $planningProcessed->getMaxNrOfBatchGames()
+                        && $planningToBeProcessed->getMinNrOfBatchGames() >= $planningProcessed->getMinNrOfBatchGames();
             }
         );
     }

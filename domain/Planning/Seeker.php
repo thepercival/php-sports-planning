@@ -6,6 +6,7 @@ use Psr\Log\LoggerInterface;
 use SportsPlanning\Game;
 use SportsPlanning\GameGenerator;
 use SportsPlanning\Input\Service as InputService;
+use SportsPlanning\Input\GCDService as InputGCDService;
 use SportsPlanning\Input\Repository as InputRepository;
 use SportsPlanning\Planning\Repository as PlanningRepository;
 use SportsPlanning\Planning;
@@ -32,17 +33,12 @@ class Seeker
      */
     protected $planningRepos;
     /**
-     * @var InputService
-     */
-    protected $inputService;
-    /**
-     * @var Output
-     */
-    protected $planningOutput;
-    /**
      * @var int|null
      */
     protected $maxTimeoutSeconds;
+    protected InputService $inputService;
+    protected InputGCDService $inputGCDService;
+    protected Output $planningOutput;
     protected Seeker\GCDProcessor $gcdProcessor;
     protected Seeker\BatchGamesPostProcessor $batchGamesPostProcessor;
 
@@ -51,6 +47,7 @@ class Seeker
         $this->logger = $logger;
         $this->planningOutput = new Output($this->logger);
         $this->inputService = new InputService();
+        $this->inputGCDService = new InputGCDService();
         $this->inputRepos = $inputRepos;
         $this->planningRepos = $planningRepos;
         $this->maxTimeoutSeconds = 0;
@@ -73,7 +70,7 @@ class Seeker
         try {
             $this->planningOutput->outputInput($input, 'processing input: ', " ..");
 
-            if ($this->inputService->hasGCD($input)) {
+            if ($this->inputGCDService->hasGCD($input)) {
                 $this->gcdProcessor->process($input);
                 return;
             }
