@@ -36,8 +36,11 @@ class GCDProcessor
         $this->logger->info('   processing as gcd..');
         $gcdInput = $this->inputGCDService->getGCDInput($input);
         $gcdDbInput = $this->inputRepos->getFromInput($gcdInput);
+
         if ($gcdDbInput === null) {
             $gcdDbInput = $this->inputRepos->save($gcdInput);
+        }
+        if( $gcdDbInput->getPlannings()->count() === 0 ) {
             $this->inputRepos->createBatchGamesPlannings($gcdDbInput);
             $this->seeker->process($gcdDbInput);
         }
