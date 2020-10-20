@@ -110,14 +110,9 @@ class Game
         return $this->refereePlace;
     }
 
-    public function setRefereePlace(Place $refereePlace)
+    public function setRefereePlace(Place $refereePlace = null )
     {
         $this->refereePlace = $refereePlace;
-    }
-
-    public function emptyRefereePlace()
-    {
-        $this->refereePlace = null;
     }
 
     public function getReferee(): ?Referee

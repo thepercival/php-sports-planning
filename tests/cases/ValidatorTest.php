@@ -65,9 +65,10 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $validity = $planningValidator->validate($planning);
         self::assertSame(PlanningValidator::VALID, $validity);
 
-        /** @var Game $planningGame */
-        $planningGame = $planning->getPoule(1)->getGames()->first();
-        $planningGame->emptyRefereePlace();
+        /** @var Game $firstGame */
+        $firstGame = $planning->getPoule(1)->getGames()->first();
+        $firstBatch = $planning->createFirstBatch();
+        $firstBatch->removeAsReferee( $firstGame->getRefereePlace()/*, $firstGame*/ );
         $validity = $planningValidator->validate($planning);
         self::assertSame(
             PlanningValidator::EMPTY_REFEREEPLACE,

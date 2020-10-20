@@ -60,6 +60,7 @@ class Service
     protected PlanningOutput $planningOutput;
     protected GameOutput $gameOutput;
 
+    protected bool $throwOnTimeout;
     protected $debugIterations;
 
     public function __construct(Planning $planning, LoggerInterface $logger)
@@ -71,6 +72,7 @@ class Service
         $this->batchOutput = new BatchOutput($logger);
         $this->planningOutput = new PlanningOutput($logger);
         $this->gameOutput = new GameOutput($logger);
+        $this->throwOnTimeout = true;
     }
 
     protected function getInput(): Input
@@ -277,7 +279,7 @@ class Service
 //            $this->gameOutput->outputGames($gamesForBatchTmp);
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $this->planning->getMaxNrOfBatchGames(), 0);
         }
-        if ((new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
+        if ( $this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
             throw new TimeoutException(
                 "exceeded maximum duration of " . $this->planning->getTimeoutSeconds() . " seconds", E_ERROR
             );
@@ -507,5 +509,9 @@ class Service
             return $this->refereePlacePredicter->canStillAssign($batch, $this->getInput()->getSelfReferee());
         }
         return true;
+    }
+
+    public function disableThrowOnTimeout() {
+        $this->throwOnTimeout = false;
     }
 }

@@ -99,8 +99,9 @@ abstract class SelfReferee
         return $this->hasNext() ? $this->next->getLeaf() : $this;
     }
 
-    public function addAsReferee(Place $placeReferee)
+    public function addAsReferee(Game $game, Place $placeReferee)
     {
+        $game->setRefereePlace($placeReferee);
         $this->placesAsReferee[$placeReferee->getLocation()] = $placeReferee;
     }
 
@@ -112,9 +113,14 @@ abstract class SelfReferee
         return $this->placesAsReferee;
     }
 
-    public function removeAsReferee(Place $placeReferee)
+    public function removeAsReferee( Place $place = null, Game $game = null )
     {
-        unset($this->placesAsReferee[$placeReferee->getLocation()]);
+        if( $place !== null ) {
+            unset($this->placesAsReferee[$place->getLocation()]);
+        }
+        if( $game !== null ) {
+            $game->setRefereePlace( null );
+        }
     }
 
     public function emptyPlacesAsReferees()

@@ -30,12 +30,14 @@ class Service
      * @var Replacer
      */
     private $replacer;
+    private bool $throwOnTimeout;
 
     public function __construct(Planning $planning)
     {
         $this->planning = $planning;
         $this->nrOfPlaces = $this->planning->getPouleStructure()->getNrOfPlaces();
         $this->replacer = new Replacer($planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE);
+        $this->throwOnTimeout = true;
     }
 
     protected function getInput(): Input
@@ -98,7 +100,7 @@ class Service
                 // (new BatchOutput())->output($batch);
                 return $this->equallyAssign($batch);
             }
-            if ( (new DateTimeImmutable()) > $timeoutDateTime) {
+            if ( $this->throwOnTimeout && (new DateTimeImmutable()) > $timeoutDateTime) {
                 throw new TimeoutException(
                     "exceeded maximum duration",
                     E_ERROR
@@ -117,8 +119,8 @@ class Service
                     return true;
                 }
                 // statics
-                $game->emptyRefereePlace();
-                $batch->removeAsReferee($refereePlace->getPlace());
+                $game->setRefereePlace( null );
+                $batch->removeAsReferee($refereePlace->getPlace(), null );
             }
         }
         return false;
@@ -153,8 +155,7 @@ class Service
      */
     private function assignRefereePlace(SelfRefereeBatch $batch, Game $game, Place $assignPlace, array $refereePlaces): array
     {
-        $batch->addAsReferee($assignPlace);
-        $game->setRefereePlace($assignPlace);
+        $batch->addAsReferee($game, $assignPlace);
 
         $newRefereePlaces = [];
         foreach ($refereePlaces as $refereePlace) {
@@ -172,5 +173,10 @@ class Service
             }
         );
         return $newRefereePlaces;
+    }
+
+    public function disableThrowOnTimeout() {
+        $this->throwOnTimeout = false;
+        $this->replacer->disableThrowOnTimeout();
     }
 }

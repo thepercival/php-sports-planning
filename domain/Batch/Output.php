@@ -27,8 +27,9 @@ class Output extends OutputHelper
      * @param BatchBase|SelfRefereeBatch $batch
      * @param string|null $title
      * @param int|null $max
+     * @param int|null $min
      */
-    public function output($batch, string $title = null, int $max = null)
+    public function output($batch, string $title = null, int $max = null, int $min = null)
     {
         if ($title === null) {
             $title = '';
@@ -37,15 +38,22 @@ class Output extends OutputHelper
 //            return;
 //        }
         $this->logger->info('------batch ' . $batch->getNumber() . ' ' . $title . ' -------------');
-        $this->outputHelper($batch->getFirst(), $max);
+        $this->outputHelper($batch->getFirst(), $min, $max );
     }
 
     /**
      * @param BatchBase|SelfRefereeBatch $batch
+     * * @param int|null $min
      * @param int|null $max
      */
-    protected function outputHelper($batch, int $max = null)
+    protected function outputHelper($batch, int $min = null, int $max = null)
     {
+        if ($min !== null && $batch->getNumber() < $min ) {
+            if ($batch->hasNext()) {
+                $this->outputHelper($batch->getNext(), $max);
+            }
+            return;
+        }
         if ($max !== null && $batch->getNumber() > $max) {
             return;
         }

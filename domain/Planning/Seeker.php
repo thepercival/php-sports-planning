@@ -41,6 +41,7 @@ class Seeker
     protected Output $planningOutput;
     protected Seeker\GCDProcessor $gcdProcessor;
     protected Seeker\BatchGamesPostProcessor $batchGamesPostProcessor;
+    protected bool $throwOnTimeout;
 
     public function __construct(LoggerInterface $logger, InputRepository $inputRepos, PlanningRepository $planningRepos)
     {
@@ -53,6 +54,7 @@ class Seeker
         $this->maxTimeoutSeconds = 0;
         $this->gcdProcessor = new Seeker\GCDProcessor($this->logger, $this->inputRepos, $this->planningRepos, $this);
         $this->batchGamesPostProcessor = new Seeker\BatchGamesPostProcessor($this->logger, $this->planningRepos);
+        $this->throwOnTimeout = true;
     }
 
     public function enableTimedout( int $maxTimeoutSeconds)
@@ -129,6 +131,9 @@ class Seeker
         $this->planningOutput->output($planning, false, '   ', " trying .. ");
 
         $gameCreator = new GameCreator( $this->logger );
+        if( !$this->throwOnTimeout ) {
+            $gameCreator->disableThrowOnTimeout();
+        }
         $newState = $gameCreator->createGames($planning);
 
         $planning->setState($newState);
@@ -143,5 +148,10 @@ class Seeker
                 ) . ")" : "success");
 
         $this->logger->info('   ' . '   ' . " => " . $stateDescription);
+    }
+
+    public function disableThrowOnTimeout() {
+        $this->throwOnTimeout = false;
+
     }
 }

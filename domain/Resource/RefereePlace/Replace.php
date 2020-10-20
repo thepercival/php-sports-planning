@@ -3,29 +3,28 @@
 
 namespace SportsPlanning\Resource\RefereePlace;
 
+use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Game;
 use SportsPlanning\Place;
 
 class Replace
 {
-    /**
-     * @var Game
-     */
-    protected $game;
-    /**
-     * @var Place
-     */
-    protected $replaced;
-    /**
-     * @var Place
-     */
-    protected $replacement;
+    protected SelfRefereeBatch $batch;
+    protected Game $game;
+    protected Place $replaced;
+    protected ?Place $replacement;
 
-    public function __construct(Game $game, Place $replacement)
+    public function __construct(SelfRefereeBatch $batch, Game $game, Place $replacement)
     {
+        $this->batch = $batch;
         $this->game = $game;
         $this->replaced = $game->getRefereePlace();
         $this->replacement = $replacement;
+    }
+
+    public function getBatch(): SelfRefereeBatch
+    {
+        return $this->batch;
     }
 
     public function getGame(): Game

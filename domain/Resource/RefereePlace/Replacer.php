@@ -14,6 +14,7 @@ use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
 use SportsPlanning\TimeoutException;
 use SportsPlanning\Validator\GameAssignments as GameAssignmentValidator;
+use SportsPlanning\Batch\Output as BatchOutput;
 
 class Replacer
 {
@@ -26,11 +27,13 @@ class Replacer
      * @var array | Replace[]
      */
     protected array $revertableReplaces;
+    private bool $throwOnTimeout;
 
     public function __construct(bool $samePoule)
     {
         $this->samePoule = $samePoule;
         $this->revertableReplaces = [];
+        $this->throwOnTimeout = true;
     }
 
     public function setTimeoutDateTime( \DateTimeImmutable $timeoutDateTime ) {
@@ -80,7 +83,7 @@ class Replacer
         foreach ($maxGameCounters as $replacedGameCounter) {
             /** @var PlaceGameCounter $replacementGameCounter */
             foreach ($minGameCounters as $replacementGameCounter) {
-                if ( $this->timeoutDateTime !== null && (new DateTimeImmutable()) > $this->timeoutDateTime) {
+                if ( $this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) {
                     throw new TimeoutException(
                         "exceeded timeout while replacing selfreferee",
                         E_ERROR
@@ -116,12 +119,13 @@ class Replacer
                 || ($game->getPoule() !== $replacement->getPoule() && $this->samePoule)) {
                 continue;
             }
-            $replace = new Replace($game, $replacement);
+            $replace = new Replace($batch, $game, $replacement);
             if ($this->isAlreadyReplaced($replace)) {
                 return false;
             }
             $this->revertableReplaces[] = $replace;
-            $game->setRefereePlace($replacement);
+            $batch->removeAsReferee( $game->getRefereePlace(), $game );
+            $batch->addAsReferee( $game, $replacement );
             return true;
         }
         if ($batch->hasNext()) {
@@ -146,7 +150,12 @@ class Replacer
     {
         while (count($this->revertableReplaces) > 0) {
             $replace = array_pop($this->revertableReplaces);
-            $replace->getGame()->setRefereePlace($replace->getReplaced());
+            $replace->getBatch()->removeAsReferee( $replace->getReplacement(), $replace->getGame() );
+            $replace->getBatch()->addAsReferee( $replace->getGame(), $replace->getReplaced());
         }
+    }
+
+    public function disableThrowOnTimeout() {
+        $this->throwOnTimeout = false;
     }
 }
