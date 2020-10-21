@@ -53,6 +53,9 @@ class BatchGamesPostProcessor
 
     protected function makeLessEfficientBatchGamesPlanningSucceeded(Planning $planning)
     {
+        if( $planning->getState() === Planning::STATE_LESSER_NROFBATCHES_SUCCEEDED ) {
+            return;
+        }
         $this->planningRepos->resetBatchGamePlanning($planning, Planning::STATE_LESSER_NROFBATCHES_SUCCEEDED);
         $this->planningOutput->output(
             $planning,
@@ -75,8 +78,9 @@ class BatchGamesPostProcessor
     protected function makeLessNrOfBatchesPlanningsFailed(Planning $planning)
     {
         foreach( $this->getLessNrOfBatchesPlannings($planning) as $lessNrOfBatchesPlanning ) {
-            // als buiten statussen dan niets dan, als buiten statussen en succes dan alleen wedstrijden verwijderen
-
+            if( $lessNrOfBatchesPlanning->getState() === Planning::STATE_GREATER_NROFBATCHES_FAILED ) {
+                continue;
+            }
             $this->planningRepos->resetBatchGamePlanning($lessNrOfBatchesPlanning, Planning::STATE_GREATER_NROFBATCHES_FAILED);
             $this->planningOutput->output(
                 $lessNrOfBatchesPlanning,
