@@ -191,9 +191,22 @@ class Repository extends BaseRepository
     protected function findTimedout(bool $bBatchGames, int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?Input
     {
         $exprNot = $this->getEM()->getExpressionBuilder();
+        $exprInputWithToBeProcessedPlannings = $this->getEM()->getExpressionBuilder();
         $exprTimedoutPlannings = $this->getEM()->getExpressionBuilder();
 
         $query = $this->createQueryBuilder('pi')
+            ->andWhere(
+                $exprNot->not(
+                    $exprInputWithToBeProcessedPlannings->exists(
+                        $this->getEM()->createQueryBuilder()
+                            ->select('p1.id')
+                            ->from('SportsPlanning\Planning', 'p1')
+                            ->where('p1.input = pi')
+                            ->andWhere('p1.state = :stateCreated')
+                            ->getDQL()
+                    )
+                )
+            )
             ->andWhere(
                 $exprTimedoutPlannings->exists(
                     $this->getEM()->createQueryBuilder()
@@ -207,6 +220,7 @@ class Repository extends BaseRepository
                         ->getDQL()
                 )
             );
+        $query = $query->setParameter('stateCreated', Planning::STATE_TOBEPROCESSED);
         $query = $query->setParameter('state', Planning::STATE_TIMEDOUT);
         $query = $query->setParameter('maxTimeoutSeconds', $maxTimeoutSeconds);
 
