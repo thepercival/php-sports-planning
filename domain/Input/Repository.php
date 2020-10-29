@@ -202,7 +202,7 @@ class Repository extends BaseRepository
                             ->select('p1.id')
                             ->from('SportsPlanning\Planning', 'p1')
                             ->where('p1.input = pi')
-                            ->andWhere('p1.state = :stateCreated')
+                            ->andWhere('p1.state = :stateToBeProcessed')
                             ->getDQL()
                     )
                 )
@@ -220,7 +220,7 @@ class Repository extends BaseRepository
                         ->getDQL()
                 )
             );
-        $query = $query->setParameter('stateCreated', Planning::STATE_TOBEPROCESSED);
+        $query = $query->setParameter('stateToBeProcessed', Planning::STATE_TOBEPROCESSED);
         $query = $query->setParameter('state', Planning::STATE_TIMEDOUT);
         $query = $query->setParameter('maxTimeoutSeconds', $maxTimeoutSeconds);
 
@@ -235,50 +235,4 @@ class Repository extends BaseRepository
         $first = reset($results);
         return $first !== false ? $first : null;
     }
-
-//    -- obsolete planninginputs
-//    select 	count(*)
-//    from 	planninginputs pi
-//    where 	not exists( select * from plannings p where p.inputId = pi.Id and ( p.state = 2 or p.state = 8 or p.state = 16 ) )
-//    and		( select count(*) from plannings p where p.inputId = pi.Id and p.state = 4 ) > 1 --success
-//    and		pi.state = 8
-//    /**
-//     * @return array|Input[]
-//     */
-//    public function findWithObsoletePlannings(): array
-//    {
-//        $exprNot = $this->getEM()->getExpressionBuilder();
-//        $exprUnfinished = $this->getEM()->getExpressionBuilder();
-//
-//        $unfinishedStates = Planning::STATE_TIMEOUT + Planning::STATE_UPDATING_SELFREFEE + Planning::STATE_PROCESSING;
-//        $finishedStates = Planning::STATE_SUCCESS + Planning::STATE_FAILED;
-//
-//        $query = $this->createQueryBuilder('pi')
-//            ->andWhere(
-//                $exprNot->not(
-//                    $exprUnfinished->exists(
-//                        $this->getEM()->createQueryBuilder()
-//                            ->select('p1.id')
-//                            ->from('SportsPlanning', 'p1')
-//                            ->where('p1.input = pi')
-//                            ->andWhere('BIT_AND(p1.state, :unfinishedStates) > 0')
-//                            ->getDQL()
-//                    )
-//                )
-//            )
-//            ->andWhere(
-//                "(" . $this->getEM()->createQueryBuilder()
-//                    ->select('count(p2.id)')
-//                    ->from('SportsPlanning\Planning', 'p2')
-//                    ->where('p2.input = pi')
-//                    ->andWhere('BIT_AND(p2.state, :finishedStates) > 0')
-//                    ->getDQL()
-//                . ") > 1"
-//            )
-//            ->setParameter('unfinishedStates', $unfinishedStates)
-//            ->setParameter('finishedStates', $finishedStates);
-//        $inputs = $query->getQuery()->getResult();
-//
-//        return $inputs;
-//    }
 }
