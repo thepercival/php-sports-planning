@@ -2,27 +2,38 @@
 
 namespace SportsPlanning\Tests;
 
+use PHPUnit\Framework\TestCase;
+use SportsHelpers\SportConfig;
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\GameGenerator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class GameGeneratorTest extends \PHPUnit\Framework\TestCase
+class GameGeneratorTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testWithRefereePlaces()
+    public function testGameInstanceAgainstEachOther()
     {
+        $defaultSportConfig = $this->getDefaultSportConfig();
         $planning = $this->createPlanning(
-            $this->createInput( [ 4 ], $this->getDefaultSportConfig(), 0  )
+            $this->createInput( [ 2 ], SportConfig::GAMEMODE_AGAINSTEACHOTHER, [$defaultSportConfig], 0  )
         );
+        $gameGenerator = new GameGenerator();
+        $gameGenerator->createGames($planning);
+        $games = $planning->getGames();
+        self::assertInstanceOf(AgainstEachOtherGame::class, reset($games));
+    }
 
-        $gameGenerator = new GameGenerator($planning->getInput());
-
-        $gameRounds = $gameGenerator->createPouleGameRounds($planning->getPoule(1), false);
-
-        self::assertCount(3, $gameRounds);
-
-        // also test number home, away, difference home away
-        // also test for 5 and teamup
-        // also test nr of games per place and total, maybe some reduncancy with validators
+    public function testGameInstanceTogether()
+    {
+        $defaultSportConfig = $this->getDefaultSportConfig();
+        $planning = $this->createPlanning(
+            $this->createInput( [ 2 ], SportConfig::GAMEMODE_TOGETHER, [$defaultSportConfig], 0  )
+        );
+        $gameGenerator = new GameGenerator();
+        $gameGenerator->createGames($planning);
+        $games = $planning->getGames();
+        self::assertInstanceOf(TogetherGame::class, reset($games));
     }
 }

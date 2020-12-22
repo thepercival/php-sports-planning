@@ -5,9 +5,10 @@ namespace SportsPlanning;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use SportsHelpers\GameCalculator;
+use Exception;
 use SportsHelpers\Range;
-use SportsHelpers\SportConfig as SportConfigHelper;
+use SportsHelpers\SportConfig;
+use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsHelpers\PouleStructure;
 
 class Input
@@ -29,9 +30,10 @@ class Input
      */
     protected $sportConfigDb;
     /**
-     * @var array|SportConfigHelper[]
+     * @var array|SportConfig[]
      */
-    protected $sportConfigHelpers;
+    protected $sportConfigs;
+    protected int $gameMode;
     /**
      * @var int
      */
@@ -40,10 +42,6 @@ class Input
      * @var int
      */
     protected $nrOfHeadtohead;
-    /**
-     * @var bool
-     */
-    protected $teamup;
     /**
      * @var int
      */
@@ -65,34 +63,28 @@ class Input
     public const SELFREFEREE_OTHERPOULES = 1;
     public const SELFREFEREE_SAMEPOULE = 2;
 
-    const TEAMUP_MIN = 4;
-    const TEAMUP_MAX = 6;
+    const AGAINSTEACHOTHER_MAXNROFGAMEPLACES = 8;
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param array|SportConfigHelper[] $sportConfigHelpers
+     * @param array|SportConfig[] $sportConfigs
+     * @param int $gameMode
      * @param int $nrOfReferees
-     * @param bool $teamup
      * @param int $selfReferee
-     * @param int $nrOfHeadtohead
      */
     public function __construct(
         PouleStructure $pouleStructure,
-        array $sportConfigHelpers,
+        array $sportConfigs,
+        int $gameMode,
         int $nrOfReferees,
-        bool $teamup,
-        int $selfReferee,
-        int $nrOfHeadtohead
+        int $selfReferee
     ) {
         $this->setPouleStructure($pouleStructure);
-        // $this->structure = $this->convertToStructure( $structureConfig );
-        $this->setSportConfigHelpers($sportConfigHelpers);
-        // $this->sports = $this->convertToSports( $sportConfig );
+        $this->setSportConfigs($sportConfigs);
+        $this->gameMode = $gameMode;
         $nrOfReferees = $selfReferee === self::SELFREFEREE_DISABLED ? $nrOfReferees : 0;
         $this->nrOfReferees = $nrOfReferees;
-        $this->teamup = $teamup;
         $this->selfReferee = $selfReferee;
-        $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->plannings = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
     }
@@ -128,29 +120,33 @@ class Input
     }
 
     /**
-     * @return array|SportConfigHelper[]
+     * @return array|SportConfig[]
      */
-    public function getSportConfigHelpers(): array
+    public function getSportConfigs(): array
     {
-        if( $this->sportConfigHelpers === null && $this->sportConfigDb !== null ) {
-            $this->sportConfigHelpers = [];
+        if( $this->sportConfigs === null && $this->sportConfigDb !== null ) {
+            $this->sportConfigs = [];
             foreach ($this->sportConfigDb as $sportConfig) {
-                $this->sportConfigHelpers[] = new SportConfigHelper($sportConfig["nrOfFields"], $sportConfig["nrOfGamePlaces"]);
+                $this->sportConfigs[] = new SportConfig(
+                    $sportConfig["nrOfFields"],
+                    $sportConfig["nrOfGamePlaces"],
+                    $sportConfig["gameAmount"]
+                );
             }
         }
-        return $this->sportConfigHelpers;
+        return $this->sportConfigs;
 
     }
 
     /**
-     * @param array| SportConfigHelper[] $sportConfigHelpers
+     * @param array| SportConfig[] $sportConfigs
      */
-    public function setSportConfigHelpers(array $sportConfigHelpers)
+    public function setSportConfigs(array $sportConfigs)
     {
-        $this->sportConfigHelpers = $sportConfigHelpers;
+        $this->sportConfigs = $sportConfigs;
         $this->sportConfigDb = [];
-        foreach ($this->sportConfigHelpers as $sportConfigHelper) {
-            $this->sportConfigDb[] = $sportConfigHelper->toArray();
+        foreach ($this->sportConfigs as $sportConfig) {
+            $this->sportConfigDb[] = $sportConfig->toArray();
         }
     }
 
@@ -162,25 +158,20 @@ class Input
     public function getNrOfFields(): int
     {
         $nrOfFields = 0;
-        foreach ($this->getSportConfigHelpers() as $sportConfigHelper) {
-            $nrOfFields += $sportConfigHelper->getNrOfFields();
+        foreach ($this->getSportConfigs() as $sportConfig) {
+            $nrOfFields += $sportConfig->getNrOfFields();
         }
         return $nrOfFields;
+    }
+
+    public function getGameMode(): int
+    {
+        return $this->gameMode;
     }
 
     public function getNrOfReferees(): int
     {
         return $this->nrOfReferees;
-    }
-
-    public function getNrOfHeadtohead(): int
-    {
-        return $this->nrOfHeadtohead;
-    }
-
-    public function getTeamup(): bool
-    {
-        return $this->teamup;
     }
 
     public function getSelfReferee(): int
@@ -193,109 +184,50 @@ class Input
         return $this->selfReferee !== self::SELFREFEREE_DISABLED;
     }
 
-    public function getMaxNrOfBatchGames(int $resources = null): int
-    {
-        $maxNrOfBatchGames = null;
-        if ((Resources::FIELDS & $resources) === Resources::FIELDS || $resources === null) {
-            $maxNrOfBatchGames = $this->getNrOfFields();
-        }
-
-        if ((Resources::REFEREES & $resources) === Resources::REFEREES || $resources === null) {
-            if (!$this->selfRefereeEnabled() && $this->getNrOfReferees() > 0
-                && ($this->getNrOfReferees() < $maxNrOfBatchGames || $maxNrOfBatchGames === null)) {
-                $maxNrOfBatchGames = $this->getNrOfReferees();
-            }
-        }
-
-        if ((Resources::PLACES & $resources) === Resources::PLACES || $resources === null) {
-            $nrOfGamesSimultaneously = $this->getNrOfGamesSimultaneously();
-            if ($nrOfGamesSimultaneously < $maxNrOfBatchGames || $maxNrOfBatchGames === null) {
-                $maxNrOfBatchGames = $nrOfGamesSimultaneously;
-            }
-        }
-        return $maxNrOfBatchGames;
+    public function getMaxNrOfBatchGames(): int {
+        $inputCalculator = new InputCalculator();
+        return $inputCalculator->getMaxNrOfGamesPerBatch(
+            $this->getPouleStructure(),
+            $this->getSportConfigs(),
+            $this->selfRefereeEnabled() );
     }
 
-    /**
-     * sorteer de sporten van zo laag mogelijk NrOfGamePlaces naar zo hoog mogelijk
-     * zo wordt $nrOfGamesSimultaneously zo hoog mogelijk
-     *
-     * @return int
-     */
-    protected function getNrOfGamesSimultaneously(): int
-    {
-        $gameCalculator = new GameCalculator();
 
-        // default sort, sportconfig shoud not be altered
-//        uasort( $sports, function ( $sportA, $sportB ) {
-//            return ($sportA->getNrOfGamePlaces() < $sportB->getNrOfGamePlaces() ) ? -1 : 1;
-//        } );
-
-        // $sportConfig = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ], ];
-
-        $fieldsNrOfGamePlaces = [];
-        foreach ($this->getSportConfigHelpers() as $sportConfigHelper) {
-            for ($fieldNr = 1; $fieldNr <= $sportConfigHelper->getNrOfFields(); $fieldNr++) {
-                $fieldsNrOfGamePlaces[] = $sportConfigHelper->getNrOfGamePlaces();
-            }
-        }
-
-        // er zijn meerdere poules, dus hier valt ook nog in te verbeteren
-        $nrOfPlaces = $this->getNrOfPlaces();
-
-        $nrOfGamesSimultaneously = 0;
-        while ($nrOfPlaces > 0 && count($fieldsNrOfGamePlaces) > 0) {
-            $nrOfGamePlaces = array_shift($fieldsNrOfGamePlaces);
-            $nrOfPlaces -= $gameCalculator->getNrOfGamePlaces(
-                $nrOfGamePlaces,
-                $this->teamup,
-                $this->selfRefereeEnabled()
-            );
-            if ($nrOfPlaces >= 0) {
-                $nrOfGamesSimultaneously++;
-            }
-        }
-        if ($nrOfGamesSimultaneously === 0) {
-            $nrOfGamesSimultaneously = 1;
-        }
-        return $nrOfGamesSimultaneously;
-    }
+//    public function getMaxNrOfBatchGames(int $resources = null): int
+//    {
+//        $maxNrOfBatchGames = null;
+//        if ((Resources::FIELDS & $resources) === Resources::FIELDS || $resources === null) {
+//            // kijk als alle velden
+//            $maxNrOfBatchGames = $this->getNrOfFields();
+//        }
+//
+//        if ((Resources::REFEREES & $resources) === Resources::REFEREES || $resources === null) {
+//            if (!$this->selfRefereeEnabled() && $this->getNrOfReferees() > 0
+//                && ($this->getNrOfReferees() < $maxNrOfBatchGames || $maxNrOfBatchGames === null)) {
+//                $maxNrOfBatchGames = $this->getNrOfReferees();
+//            }
+//        }
+//
+//        if ((Resources::PLACES & $resources) === Resources::PLACES || $resources === null) {
+//            $calculator = new InputCalculator();
+//            $maxNrOfGamesSim = $calculator->getMaxNrOfGamesPerBatch( $this->getPouleStructure(), $this->getSportConfigs(), $this->selfRefereeEnabled() );
+//            if ($maxNrOfGamesSim < $maxNrOfBatchGames || $maxNrOfBatchGames === null) {
+//                $maxNrOfBatchGames = $maxNrOfGamesSim;
+//            }
+//        }
+//        return $maxNrOfBatchGames;
+//    }
 
     public function getMaxNrOfGamesInARow(): int
     {
         if ($this->maxNrOfGamesInARow === null) {
-            $nrOfPlaces = $this->pouleStructure->getBiggestPoule();
-
-            $this->maxNrOfGamesInARow = (new GameCalculator())->getNrOfGamesPerPlace(
-                $nrOfPlaces,
-                $this->getTeamup(),
-                $this->getSelfReferee() !== self::SELFREFEREE_DISABLED,
-                $this->getNrOfHeadtohead()
+            $calculator = new InputCalculator();
+            $this->maxNrOfGamesInARow = $calculator->getMaxNrOfGamesInARow(
+                $this->gameMode, $this->getPouleStructure(), $this->getSportConfigs(), $this->selfRefereeEnabled()
             );
-            if (!$this->getTeamup() && $this->maxNrOfGamesInARow > ($nrOfPlaces * $this->getNrOfHeadtohead())) {
-                $this->maxNrOfGamesInARow = $nrOfPlaces * $this->getNrOfHeadtohead();
-            }
         }
         return $this->maxNrOfGamesInARow;
-        //         const sportPlanningConfigService = new SportPlanningConfigService();
-        //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
-        //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;
-        //            $nrOfHeadtohead = 2;
-        //            if( $nrOfHeadtohead > 1 ) {
-        //                $maxNrOfGamesInARow *= 2;
-        //            }
     }
-
-    // should be known when creating input
-//    public function getFieldsUsable( RoundNumber $roundNumber, Input $inputPlanning ): array {
-//        $maxNrOfFieldsUsable = $inputPlanning->getMaxNrOfFieldsUsable();
-//        $fields = $roundNumber->getCompetition()->getFields()->toArray();
-//        if( count($fields) > $maxNrOfFieldsUsable ) {
-//            return array_splice( $fields, 0, $maxNrOfFieldsUsable);
-//        }
-//        return $fields;
-//    }
-
 
     /**
      * @return Collection|Planning[]

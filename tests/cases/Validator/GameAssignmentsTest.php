@@ -1,18 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SportsPlanning\Tests\Validator;
 
 use \Exception;
+use PHPUnit\Framework\TestCase;
+use SportsHelpers\SportBase;
+use SportsHelpers\SportConfig;
 use SportsPlanning\Input;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Validator\GameAssignments as GameAssignmentValidator;
-use SportsPlanning\Referee;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
 use SportsPlanning\Planning\Output as PlanningOutput;
-use SportsPlanning\Field;
 
-class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
+class GameAssignmentsTest extends TestCase
 {
     use PlanningCreator, PlanningReplacer;
 
@@ -56,7 +59,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
     public function testGetCountersRefereePlaces()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5], null, null, null, Input::SELFREFEREE_SAMEPOULE )
+            $this->createInput( [5], null, null, null,Input::SELFREFEREE_SAMEPOULE )
         );
 
 //        $planningOutput = new PlanningOutput();
@@ -121,14 +124,17 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         );
 
         $secondPoule = $planning->getPoule(2);
-        $replacedPlace = $secondPoule->getPlace(3);
-        $replacedByPlace = $secondPoule->getPlace(4);
+        $replacedPlace = $secondPoule->getPlace(4);
+        $replacedByPlace = $secondPoule->getPlace(3);
         $this->replaceRefereePlace(
             $planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE,
             $planning->createFirstBatch(),
             $replacedPlace,
             $replacedByPlace
         );
+
+//        $planningOutput = new PlanningOutput();
+//        $planningOutput->outputWithGames($planning, true);
 
         $validator = new GameAssignmentValidator($planning);
         $unequals = $validator->getRefereePlaceUnequals();
@@ -138,11 +144,12 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
 
     public function testValidateUnequalFields()
     {
+        $sportConfigs = [new SportConfig(new SportBase(2), 2, 1)];
         $planning = $this->createPlanning(
-            $this->createInput( [5], $this->createSportConfig(3) )
+            $this->createInput( [5], SportConfig::GAMEMODE_AGAINSTEACHOTHER, $sportConfigs )
         );
 
-        $planningGames = $planning->getPoule(1)->getGames();
+        // $planningGames = $planning->getPoule(1)->getGames();
         $replacedField = $planning->getField(2);
         $replacedByField = $planning->getField(1);
         $this->replaceField($planning->createFirstBatch(), $replacedField, $replacedByField);
@@ -158,10 +165,10 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
     public function testValidateUnequalReferees()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5], null, 3 )
+            $this->createInput( [5], SportConfig::GAMEMODE_AGAINSTEACHOTHER, null, 3 )
         );
 
-        $planningGames = $planning->getPoule(1)->getGames();
+        // $planningGames = $planning->getPoule(1)->getGames();
         $replacedReferee = $planning->getReferee(2);
         $replacedByReferee = $planning->getReferee(1);
         $this->replaceReferee($planning->createFirstBatch(), $replacedReferee, $replacedByReferee);
@@ -177,7 +184,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
     public function testValidateUnequalRefereePlaces()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5], null, null, null, Input::SELFREFEREE_SAMEPOULE )
+            $this->createInput( [5], SportConfig::GAMEMODE_AGAINSTEACHOTHER, null, null, Input::SELFREFEREE_SAMEPOULE )
         );
 
         $firstPoule = $planning->getPoule(1);
@@ -205,6 +212,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         );
 
         $validator = new GameAssignmentValidator($planning);
-        self::assertNull($validator->validate());
+        self::expectNotToPerformAssertions();
+        $validator->validate();
     }
 }

@@ -6,7 +6,8 @@ use Psr\Log\LoggerInterface;
 
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Batch as BatchBase;
-use SportsPlanning\Game as GameBase;
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Output as GameOutput;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 
@@ -43,7 +44,7 @@ class Output extends OutputHelper
 
     /**
      * @param BatchBase|SelfRefereeBatch $batch
-     * * @param int|null $min
+     * @param int|null $min
      * @param int|null $max
      */
     protected function outputHelper($batch, int $min = null, int $max = null)
@@ -65,7 +66,7 @@ class Output extends OutputHelper
     }
 
     /**
-     * @param array|GameBase[] $games
+     * @param array|AgainstEachOtherGame[]|TogetherGame[] $games
      * @param BatchBase|SelfRefereeBatch|null $batch
      */
     public function outputGames(array $games, $batch = null)

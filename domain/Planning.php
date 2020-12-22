@@ -1,17 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SportsPlanning;
 
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use SportsHelpers\Range;
-use SportsHelpers\SportConfig as SportConfigHelper;
+use SportsHelpers\SportConfig;
 use SportsHelpers\PouleStructure;
-use SportsPlanning\Batch\SelfReferee;
+
+use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Input as PlanningInput;
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Together as TogetherGame;
 
 class Planning
 {
@@ -86,7 +91,7 @@ class Planning
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
         $this->input->getPlannings()->add($this);
         $this->initPoules($this->getInput()->getPouleStructure());
-        $this->initSports($this->getInput()->getSportConfigHelpers());
+        $this->initSports($this->getInput()->getSportConfigs());
         $this->initReferees($this->getInput()->getNrOfReferees());
 
         $this->createdDateTime = new DateTimeImmutable();
@@ -164,7 +169,8 @@ class Planning
 
     public function getDefaultTimeoutSeconds(): int {
         $defaultTimeoutSecondds = Planning::DEFAULT_TIMEOUTSECONDS;
-        if( $this->input->getTeamup() && $this->input->getPouleStructure()->getNrOfPlaces() >= 20 /*|| $this->input->hasMultipleSports()*/ ) {
+        $gameMode = $this->getInput()->getGameMode();
+        if( $this->input->getPouleStructure()->getNrOfGames( $gameMode, $this->getInput()->getSportConfigs() ) > 50 ) {
             $defaultTimeoutSecondds *= 2;
         }
         return $defaultTimeoutSecondds;
@@ -233,22 +239,28 @@ class Planning
         return new PouleStructure($poules);
     }
 
+    /**
+     * @return Collection|Sport[]
+     */
     public function getSports(): Collection
     {
         return $this->sports;
     }
 
     /**
-     * @param array|SportConfigHelper[] $sportConfigHelpers
+     * @param array|SportConfig[] $sportConfigs
      */
-    protected function initSports(array $sportConfigHelpers)
+    protected function initSports(array $sportConfigs)
     {
         $fieldNr = 1;
         $this->sports = new ArrayCollection();
-        foreach ($sportConfigHelpers as $sportConfigHelper) {
-            $sport = new Sport($this, $this->sports->count() + 1, $sportConfigHelper->getNrOfGamePlaces() );
+        foreach ($sportConfigs as $sportConfig) {
+            $sport = new Sport(
+                $this,
+                $this->sports->count() + 1,
+                $sportConfig->getNrOfGamePlaces() );
             $this->sports->add($sport);
-            for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportConfigHelper->getNrOfFields() ; $fieldNrDelta++) {
+            for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportConfig->getNrOfFields() ; $fieldNrDelta++) {
                 new Field($fieldNr + $fieldNrDelta, $sport);
             }
             $fieldNr += $sport->getFields()->count();
@@ -303,7 +315,7 @@ class Planning
     }
 
     /**
-     * @return Batch|Batch\SelfReferee
+     * @return Batch|SelfRefereeBatch
      */
     public function createFirstBatch()
     {
@@ -327,7 +339,7 @@ class Planning
 
     /**
      * @param int|null $order
-     * @return array|Game[]
+     * @return array|AgainstEachOtherGame[]|TogetherGame[]
      */
     public function getGames(int $order = null): array
     {
@@ -342,7 +354,7 @@ class Planning
                 }
                 return $g1->getBatchNr() - $g2->getBatchNr();
             });
-        } elseif ($order === Game::ORDER_BY_GAMENUMBER) {
+        } /*elseif ($order === Game::ORDER_BY_GAMENUMBER) {
             uasort($games, function (Game $g1, Game $g2): int {
                 if ($g1->getRoundNr() !== $g2->getRoundNr()) {
                     return $g1->getRoundNr() - $g2->getRoundNr();
@@ -352,7 +364,7 @@ class Planning
                 }
                 return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
             });
-        }
+        }*/
         return $games;
     }
 

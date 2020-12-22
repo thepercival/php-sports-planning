@@ -137,7 +137,7 @@ class GameAssignments
             return true;
         }
         $input = $this->planning->getInput();
-        if ($nrOfPoules > 2 && $input->getTeamup() && $input->selfRefereeEnabled()) {
+        if ($nrOfPoules > 2 && $input->selfRefereeEnabled()) {
             return true;
         }
         return false;

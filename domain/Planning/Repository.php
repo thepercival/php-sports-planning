@@ -5,7 +5,7 @@ namespace SportsPlanning\Planning;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\Range;
-use SportsHelpers\SportConfig as SportConfigHelper;
+use SportsHelpers\SportConfig as SportConfig;
 use SportsPlanning\Planning;
 use SportsPlanning\Input;
 
@@ -58,7 +58,7 @@ class Repository extends BaseRepository
 //        ;
 //
 //        $query = $query->setParameter('pouleStructure', json_encode($input->getPouleStructure()->toArray()));
-//        $query = $query->setParameter('sportConfig', $this->sportConfigHelpersToString($input));
+//        $query = $query->setParameter('sportConfig', $this->sportConfigsToString($input));
 //        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
 //        $query = $query->setParameter('teamup', $input->getTeamup());
 //        $query = $query->setParameter('selfReferee', $input->getSelfReferee());
@@ -87,7 +87,7 @@ class Repository extends BaseRepository
 //        ;
 //
 //        $query = $query->setParameter('pouleStructure', json_encode($input->getPouleStructure()->toArray()));
-//        $query = $query->setParameter('sportConfig', $this->sportConfigHelpersToString($input));
+//        $query = $query->setParameter('sportConfig', $this->sportConfigsToString($input));
 //        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
 //        $query = $query->setParameter('teamup', $input->getTeamup());
 //        $query = $query->setParameter('selfReferee', $input->getSelfReferee());
@@ -118,7 +118,7 @@ class Repository extends BaseRepository
 //        ;
 //
 //        $query = $query->setParameter('pouleStructure', json_encode($input->getPouleStructure()->toArray()));
-//        $query = $query->setParameter('sportConfig', $this->sportConfigHelpersToString($input));
+//        $query = $query->setParameter('sportConfig', $this->sportConfigsToString($input));
 //        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
 //        $query = $query->setParameter('teamup', $input->getTeamup());
 //        $query = $query->setParameter('selfReferee', $input->getSelfReferee());
@@ -138,9 +138,9 @@ class Repository extends BaseRepository
 //     * @param Input $input
 //     * @return string
 //     */
-//    protected function sportConfigHelpersToString(Input $input): string {
-//        return json_encode( array_map( function(SportConfigHelper $sportConfigHelper): array {
-//            return $sportConfigHelper->toArray();
-//        }, $input->getSportConfigHelpers() ) );
+//    protected function sportConfigsToString(Input $input): string {
+//        return json_encode( array_map( function(SportConfig $sportConfig): array {
+//            return $sportConfig->toArray();
+//        }, $input->getSportConfigs() ) );
 //    }
 }

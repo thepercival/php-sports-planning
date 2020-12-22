@@ -3,12 +3,16 @@
 
 namespace SportsPlanning\Game;
 
+use Doctrine\Common\Collections\Collection;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
-use SportsPlanning\Game as GameBase;
-use SportsPlanning\Game\Place as GamePlace;
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Place\AgainstEachOther as AgainstEachOtherGamePlace;
+use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\Place\Together as TogetherGamePlace;
+
 
 class Output extends OutputHelper
 {
@@ -18,7 +22,7 @@ class Output extends OutputHelper
     }
 
     /**
-     * @param array|GameBase[] $games
+     * @param array|AgainstEachOtherGame[]|TogetherGame[] $games
      * @param string|null $prefix
      */
     public function outputGames(array $games, string $prefix = null)
@@ -29,11 +33,11 @@ class Output extends OutputHelper
     }
 
     /**
-     * @param GameBase $game
+     * @param AgainstEachOtherGame|TogetherGame $game
      * @param SelfRefereeBatch|Batch|null $batch
      * @param string|null $prefix
      */
-    public function output(GameBase $game, $batch = null, string $prefix = null)
+    public function output($game, $batch = null, string $prefix = null)
     {
         $useColors = $this->useColors();
         $refDescr = ($game->getRefereePlace() !== null ? $game->getRefereePlace()->getLocation() : ($game->getReferee(
@@ -44,13 +48,14 @@ class Output extends OutputHelper
         $field = $game->getField();
         $fieldNr = $field !== null ? $field->getNumber() : -1;
         $fieldColor = $useColors ? $fieldNr : -1;
+        $homeGamePlaces = $this->outputPlaces($game, $game->getPlaces(AgainstEachOtherGame::HOME), $batch);
+        $awayGamePlaces = $this->outputPlaces($game, $game->getPlaces(AgainstEachOtherGame::AWAY), $batch);
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
             $this->outputColor($batchColor, 'batch ' . $game->getBatchNr()) . " " .
             // . 'substr(' . $game->getRoundNumber(), 2 ) . substr( $game->getSubNumber(), 2 ) . ") "
             'poule ' . $game->getPoule()->getNumber()
-            . ', ' . $this->outputPlaces($game, GameBase::HOME, $batch)
-            . ' vs ' . $this->outputPlaces($game, GameBase::AWAY, $batch)
+            . ', ' . $homeGamePlaces . ' vs ' . $awayGamePlaces
             . ' , ' . $this->outputColor($refNumber, 'ref ' . $refDescr)
             . ', ' . $this->outputColor($fieldColor, 'field ' . $fieldNr)
             . ', sport ' . ($field !== null ? $game->getField()->getSport()->getNumber() : -1)
@@ -58,16 +63,15 @@ class Output extends OutputHelper
     }
 
     /**
-     * @param GameBase $game
-     * @param bool $homeAway
+     * @param AgainstEachOtherGame|TogetherGame $game
+     * @param Collection|AgainstEachOtherGamePlace[]|TogetherGamePlace[] $gamePlaces
      * @param SelfRefereeBatch|Batch|null $batch
      * @return string
      */
-    protected function outputPlaces(GameBase $game, bool $homeAway, $batch = null): string
+    protected function outputPlaces($game, $gamePlaces, $batch = null): string
     {
         $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
-        $placesAsArrayOfStrings = $game->getPlaces($homeAway)->map(
-            function (GamePlace $gamePlace) use ($useColors, $batch): string {
+        $placesAsArrayOfStrings = $gamePlaces->map( function ($gamePlace) use ($useColors, $batch): string {
                 $colorNumber = $useColors ? $gamePlace->getPlace()->getNumber() : -1;
                 $gamesInARow = $batch !== null ? ('(' . $batch->getGamesInARow($gamePlace->getPlace()) . ')') : '';
                 return $this->outputColor($colorNumber, $gamePlace->getPlace()->getLocation() . $gamesInARow);

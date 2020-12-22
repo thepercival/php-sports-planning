@@ -8,6 +8,8 @@
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">../domain</directory>
             <exclude>
+                <directory suffix="Repository.php">../domain</directory>
+                <directory suffix="Output.php">../domain</directory>
                 <file>../vendor/autoload.php</file>
             </exclude>
         </whitelist>

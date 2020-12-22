@@ -3,14 +3,19 @@
 namespace SportsPlanning\Planning\Seeker;
 
 use Psr\Log\LoggerInterface;
+use SportsHelpers\SportConfig;
+use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\Place\Together as TogetherGamePlace;
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Place\AgainstEachOther as AgainstEachOtherGamePlace;
 use SportsPlanning\Input\GCDService as InputGCDService;
 use SportsPlanning\Input\Repository as InputRepository;
 use SportsPlanning\Planning\Repository as PlanningRepository;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\Seeker as PlanningSeeker;
 use SportsPlanning\Input;
-use SportsPlanning\Game;
 use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Poule;
 
 class GCDProcessor
 {
@@ -77,7 +82,7 @@ class GCDProcessor
             for ($iteration = 0; $iteration < $gcd; $iteration++) {
                 $newPouleNr = $getNewPouleNr($iteration + 1, $gcdGame->getPoule()->getNumber());
                 $poule = $planning->getPoule($newPouleNr);
-                $game = new Game($poule, $gcdGame->getRoundNr(), $gcdGame->getSubNr(), $gcdGame->getNrOfHeadtohead());
+                $game = $this->createGame($poule, $gcdGame);
                 $game->setBatchNr($gcdGame->getBatchNr());
 
                 if ($gcdGame->getReferee() !== null) {
@@ -88,11 +93,6 @@ class GCDProcessor
                 // @TODO use also startindex as with poulenr when doing multiple sports
                 $fieldNr = ($iteration * $gcdInput->getNrOfFields()) + $gcdGame->getField()->getNumber();
                 $game->setField($planning->getField($fieldNr));
-
-                foreach ($gcdGame->getPlaces() as $gcdGamePlace) {
-                    $place = $poule->getPlace($gcdGamePlace->getPlace()->getNumber());
-                    $gamePlace = new Game\Place($game, $place, $gcdGamePlace->getHomeaway());
-                }
             }
         }
 
@@ -100,5 +100,27 @@ class GCDProcessor
         $planning->setState($gcdPlanning->getState());
         $planning->setTimeoutSeconds(-1);
         $this->planningRepos->save($planning);
+    }
+
+    /**
+     * @param Poule $poule
+     * @param TogetherGame|AgainstEachOtherGame $gcdGame
+     * @return TogetherGame|AgainstEachOtherGame
+     */
+    protected function createGame(Poule $poule, $gcdGame) {
+        if( $gcdGame instanceof AgainstEachOtherGame ) {
+            $game = new AgainstEachOtherGame($poule, $gcdGame->getNrOfHeadtohead() );
+            foreach ($gcdGame->getPlaces() as $gcdGamePlace) {
+                $place = $poule->getPlace($gcdGamePlace->getPlace()->getNumber());
+                new AgainstEachOtherGamePlace($game, $place, $gcdGamePlace->getHomeaway());
+            }
+            return $game;
+        }
+        $game = new TogetherGame($poule);
+        foreach ($gcdGame->getPlaces() as $gcdGamePlace) {
+            $place = $poule->getPlace($gcdGamePlace->getPlace()->getNumber());
+            new TogetherGamePlace($game, $place, $gcdGamePlace->getGameRoundNumber());
+        }
+        return $game;
     }
 }

@@ -2,6 +2,9 @@
 
 namespace SportsPlanning;
 
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Together as TogetherGame;
+
 class Batch
 {
     /**
@@ -17,7 +20,7 @@ class Batch
      */
     protected $next;
     /**
-     * @var array | Game[]
+     * @var array | TogetherGame|AgainstEachOtherGame[]
      */
     protected $games = [];
     /**
@@ -131,7 +134,10 @@ class Batch
         return $this->previousGamesInARowMap[$place->getLocation()];
     }
 
-    public function add(Game $game)
+    /**
+     * @param TogetherGame|AgainstEachOtherGame $game
+     */
+    public function add($game)
     {
         $this->games[] = $game;
         foreach ($game->getPlaces() as $gamePlace) {
@@ -139,7 +145,10 @@ class Batch
         }
     }
 
-    public function remove(Game $game)
+    /**
+     * @param TogetherGame|AgainstEachOtherGame $game
+     */
+    public function remove($game)
     {
         $index = array_search($game, $this->games, true);
         if ($index !== false) {
@@ -160,14 +169,14 @@ class Batch
 
     /**
      * @param Poule|null $poule
-     * @return array|Game[]
+     * @return array|TogetherGame[]|AgainstEachOtherGame[]
      */
     public function getGames( Poule $poule = null ): array
     {
         if( $poule === null ) {
             return $this->games;
         }
-        return array_filter( $this->games, function( Game $game) use ($poule ): bool { return $game->getPoule() === $poule; } );
+        return array_filter( $this->games, function( $game) use ($poule ): bool { return $game->getPoule() === $poule; } );
     }
 
     public function isParticipating(Place $place): bool
@@ -176,7 +185,7 @@ class Batch
     }
 
     /**
-     * @return array|Game[]
+     * @return array|TogetherGame[]|AgainstEachOtherGame[]
      */
     public function getAllGames(): array
     {
@@ -185,8 +194,6 @@ class Batch
         }
         return array_merge($this->getGames(), $this->getNext()->getAllGames());
     }
-
-
 
     /**
      * @return array|Poule[]

@@ -3,7 +3,8 @@
 namespace SportsPlanning\Batch;
 
 use SportsPlanning\Batch;
-use SportsPlanning\Game;
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 use SportsPlanning\PouleCounter;
@@ -99,7 +100,11 @@ abstract class SelfReferee
         return $this->hasNext() ? $this->next->getLeaf() : $this;
     }
 
-    public function addAsReferee(Game $game, Place $placeReferee)
+    /**
+     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param Place $placeReferee
+     */
+    public function addAsReferee( $game, Place $placeReferee)
     {
         $game->setRefereePlace($placeReferee);
         $this->placesAsReferee[$placeReferee->getLocation()] = $placeReferee;
@@ -113,7 +118,11 @@ abstract class SelfReferee
         return $this->placesAsReferee;
     }
 
-    public function removeAsReferee( Place $place = null, Game $game = null )
+    /**
+     * @param Place|null $place
+     * @param TogetherGame|AgainstEachOtherGame|null $game
+     */
+    public function removeAsReferee( Place $place = null, $game = null )
     {
         if( $place !== null ) {
             unset($this->placesAsReferee[$place->getLocation()]);
@@ -273,7 +282,10 @@ abstract class SelfReferee
         return $this->pouleCounterMap;
     }
 
-    public function add(Game $game)
+    /**
+     * @param TogetherGame|AgainstEachOtherGame $game
+     */
+    public function add($game)
     {
         $this->batch->add($game);
 
@@ -284,7 +296,10 @@ abstract class SelfReferee
         $this->pouleCounterMap[$poule->getNumber()]->add($game->getPlaces()->count());
     }
 
-    public function remove(Game $game)
+    /**
+     * @param TogetherGame|AgainstEachOtherGame $game
+     */
+    public function remove($game)
     {
         $this->batch->remove($game);
 
@@ -294,7 +309,7 @@ abstract class SelfReferee
 
     /**
      * @param Poule|null $poule
-     * @return array|Game[]
+     * @return array|AgainstEachOtherGame[]|TogetherGame[]
      */
     public function getGames(Poule $poule = null): array
     {

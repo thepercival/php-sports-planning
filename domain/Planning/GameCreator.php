@@ -34,9 +34,9 @@ class GameCreator
 
     public function createGames(Planning $planning): int
     {
-        $gameGenerator = new GameGenerator($planning->getInput());
-        $gameGenerator->create($planning);
-        $games = $planning->getGames(Game::ORDER_BY_GAMENUMBER);
+        $gameGenerator = new GameGenerator();
+        $gameGenerator->createGames($planning);
+        $games = $planning->getGames(/*Game::ORDER_BY_GAMENUMBER*/);
 
         $resourceService = new ResourceService($planning, $this->logger);
         if( !$this->throwOnTimeout ) {

@@ -5,7 +5,7 @@ namespace SportsPlanning\Input;
 use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\Range;
-use SportsHelpers\SportConfig as SportConfigHelper;
+use SportsHelpers\SportConfig;
 use SportsPlanning\Planning;
 use SportsPlanning\Input;
 use SportsPlanning\Planning\Validator;
@@ -14,20 +14,16 @@ class Repository extends BaseRepository
 {
     /**
      * @param PouleStructure $pouleStructure
-     * @param array|SportConfigHelper[] $sportConfigHelpers
+     * @param array|SportConfig[] $sportConfigs
      * @param int $nrOfReferees
-     * @param bool $teamup
      * @param int $selfReferee
-     * @param int $nrOfHeadtohead
      * @return Input|null
      */
     public function get(
         PouleStructure $pouleStructure,
-        array $sportConfigHelpers,
+        array $sportConfigs,
         int $nrOfReferees,
-        bool $teamup,
-        int $selfReferee,
-        int $nrOfHeadtohead
+        int $selfReferee
     ): ?Input {
         $query = $this->createQueryBuilder('pi')
             ->where('pi.pouleStructureDb = :pouleStructure')
@@ -39,11 +35,9 @@ class Repository extends BaseRepository
         ;
 
         $query = $query->setParameter('pouleStructure', json_encode($pouleStructure->toArray()));
-        $query = $query->setParameter('sportConfig', json_encode($this->sportConfigHelpersToArray($sportConfigHelpers)));
+        $query = $query->setParameter('sportConfig', json_encode($this->sportConfigsToArray($sportConfigs)));
         $query = $query->setParameter('nrOfReferees', $nrOfReferees);
-        $query = $query->setParameter('teamup', $teamup);
         $query = $query->setParameter('selfReferee', $selfReferee);
-        $query = $query->setParameter('nrOfHeadtohead', $nrOfHeadtohead);
 
         $query->setMaxResults(1);
 
@@ -53,24 +47,22 @@ class Repository extends BaseRepository
     }
 
     /**
-     * @param array|SportConfigHelper[] $sportConfigHelpers
+     * @param array|SportConfig[] $sportConfigs
      * @return array
      */
-    protected function sportConfigHelpersToArray(array $sportConfigHelpers): array {
-        return array_map( function(SportConfigHelper $sportConfigHelper): array {
-            return $sportConfigHelper->toArray();
-        }, $sportConfigHelpers );
+    protected function sportConfigsToArray(array $sportConfigs): array {
+        return array_map( function(SportConfig $sportConfig): array {
+            return $sportConfig->toArray();
+        }, $sportConfigs );
     }
 
     public function getFromInput(Input $input): ?Input
     {
         return $this->get(
             $input->getPouleStructure(),
-            $input->getSportConfigHelpers(),
+            $input->getSportConfigs(),
             $input->getNrOfReferees(),
-            $input->getTeamup(),
-            $input->getSelfReferee(),
-            $input->getNrOfHeadtohead()
+            $input->getSelfReferee()
         );
     }
 

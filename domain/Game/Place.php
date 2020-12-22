@@ -2,92 +2,22 @@
 
 namespace SportsPlanning\Game;
 
+use SportsHelpers\Identifiable;
 use SportsPlanning\Game;
 use SportsPlanning\Place as PoulePlace;
 
-class Place
+abstract class Place extends Identifiable
 {
-    /**
-     * @var int
-     */
-    protected $id;
-    /**
-     * @var Game
-     */
-    private $game;
-    /**
-     * @var bool
-     */
-    private $homeaway;
-    /**
-     * @var PoulePlace
-     */
-    private $place;
+    private PoulePlace $place;
 
-    public function __construct(Game $game, PoulePlace $place, bool $homeaway)
-    {
-        $this->setGame($game);
-        $this->setPlace($place);
-        $this->setHomeaway($homeaway);
-    }
 
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId(): int
+    public function __construct(PoulePlace $place)
     {
-        return $this->id;
-    }
-
-    /**
-     * @param int $id
-     */
-    public function setId(int $id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return Game
-     */
-    public function getGame()
-    {
-        return $this->game;
-    }
-
-    public function setGame(Game $game)
-    {
-        if ($this->game === null and !$game->getPlaces()->contains($this)) {
-            $game->getPlaces()->add($this) ;
-        }
-        $this->game = $game;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getHomeaway()
-    {
-        return $this->homeaway;
-    }
-
-    /**
-     * @param bool $homeaway
-     */
-    public function setHomeaway($homeaway)
-    {
-        $this->homeaway = $homeaway;
+        $this->place = $place;
     }
 
     public function getPlace(): PoulePlace
     {
         return $this->place;
-    }
-
-    public function setPlace(PoulePlace $place)
-    {
-        $this->place = $place;
     }
 }

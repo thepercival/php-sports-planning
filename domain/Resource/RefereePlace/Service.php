@@ -4,6 +4,8 @@ namespace SportsPlanning\Resource\RefereePlace;
 
 use DateTimeImmutable;
 use SportsPlanning\Batch\Output as BatchOutput;
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Planning;
 use SportsPlanning\Game;
 use SportsPlanning\Place;
@@ -83,7 +85,7 @@ class Service
 
     /**
      * @param SelfRefereeBatch $batch
-     * @param array|Game[] $batchGames
+     * @param array|TogetherGame[]|AgainstEachOtherGame[] $batchGames
      * @param array|PlaceGameCounter[] $refereePlaces
      * @param DateTimeImmutable $timeoutDateTime
      * @return bool
@@ -148,12 +150,12 @@ class Service
 
     /**
      * @param SelfRefereeBatch $batch
-     * @param Game $game
+     * @param TogetherGame|AgainstEachOtherGame $game
      * @param Place $assignPlace
      * @param array|PlaceGameCounter[] $refereePlaces
      * @return array|PlaceGameCounter[]
      */
-    private function assignRefereePlace(SelfRefereeBatch $batch, Game $game, Place $assignPlace, array $refereePlaces): array
+    private function assignRefereePlace(SelfRefereeBatch $batch, $game, Place $assignPlace, array $refereePlaces): array
     {
         $batch->addAsReferee($game, $assignPlace);
 

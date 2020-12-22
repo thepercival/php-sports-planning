@@ -3,7 +3,7 @@
 namespace SportsPlanning\Input;
 
 use SportsPlanning\Input;
-use SportsHelpers\SportConfig as SportConfigHelper;
+use SportsHelpers\SportConfig as SportConfig;
 use SportsHelpers\PouleStructure;
 
 class Service
@@ -12,23 +12,24 @@ class Service
     {
     }
 
-    /**
-     * @param PouleStructure $pouleStructure
-     * @param array|SportConfigHelper[] $portConfigHelpers
-     * @return bool
-     */
-    public function canTeamupBeAvailable(PouleStructure $pouleStructure, array $portConfigHelpers): bool
+
+    /*public function canTeamupBeAvailable(PouleStructure $pouleStructure, array $sportConfigs): bool
     {
-        if (count($portConfigHelpers) > 1) {
+        if (count($sportConfigs) > 1) {
             return false;
         }
         return $pouleStructure->getBiggestPoule() <= Input::TEAMUP_MAX
             && $pouleStructure->getSmallestPoule() >= Input::TEAMUP_MIN;
-    }
+    }*/
 
-    public function canSelfRefereeBeAvailable(PouleStructure $pouleStructure, int $nrOfGamePlaces): bool
+    /**
+     * @param PouleStructure $pouleStructure
+     * @param array|SportConfig[] $sportConfigs
+     * @return bool
+     */
+    public function canSelfRefereeBeAvailable(PouleStructure $pouleStructure, array $sportConfigs): bool
     {
-        return $this->canSelfRefereeSamePouleBeAvailable($pouleStructure, $nrOfGamePlaces)
+        return $this->canSelfRefereeSamePouleBeAvailable($pouleStructure, $sportConfigs)
             || $this->canSelfRefereeOtherPoulesBeAvailable($pouleStructure);
     }
 
@@ -37,9 +38,20 @@ class Service
         return $pouleStructure->getNrOfPoules() > 1;
     }
 
-    public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, int $nrOfGamePlaces): bool
+    /**
+     * @param PouleStructure $pouleStructure
+     * @param array|SportConfig[] $sportConfigs
+     * @return bool
+     */
+    public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, array $sportConfigs): bool
     {
-        return $pouleStructure->getSmallestPoule() > $nrOfGamePlaces;
+        $smallestNrOfPlaces = $pouleStructure->getSmallestPoule();
+        foreach ( $sportConfigs as $sportConfig ) {
+            if( $smallestNrOfPlaces < $sportConfig->getNrOfGamePlaces() ) {
+                return false;
+            }
+        }
+        return true;
     }
 
 //

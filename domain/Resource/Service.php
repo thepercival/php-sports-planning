@@ -13,7 +13,8 @@ use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Planning;
-use SportsPlanning\Game;
+use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
 use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Place;
 use SportsPlanning\Sport;
@@ -93,9 +94,9 @@ class Service
     protected function getSportCounters(): array
     {
         $sports = $this->planning->getSports()->toArray();
-        $teamup = $this->getInput()->getTeamup();
-        $selfReferee = $this->getInput()->getSelfReferee();
-        $nrOfHeadtohead = $this->getInput()->getNrOfHeadtohead();
+//        $sportConfigs = $this->getInput()->getSportConfigs();
+//        $selfReferee = $this->getInput()->getSelfReferee();
+//        $nrOfHeadtohead = $this->getInput()->getNrOfHeadtohead();
 
         $sportsNrFields = $this->convertSports($sports);
         $nrOfGamesDoneMap = [];
@@ -105,25 +106,26 @@ class Service
 
         $sportCounters = [];
         foreach ($this->planning->getPoules() as $poule) {
-            $pouleNrOfPlaces = $poule->getPlaces()->count();
-            $nrOfGamesToGo = (new GameCalculator())->getNrOfGamesPerPlace(
-                $pouleNrOfPlaces,
-                $teamup,
-                false,
-                $nrOfHeadtohead
-            );
-
-            // $sportsNrFieldsGames = $sportService->getPlanningMinNrOfGames($sportsNrFields, $pouleNrOfPlaces, $teamup, $selfReferee, $nrOfHeadtohead );
-            // hier moet de $sportsNrFieldsGames puur berekent worden op basis van aantal sporten
-            $minNrOfGamesMap = $this->convertToMap($sportsNrFields/*$sportsNrFieldsGames*/);
-            /** @var Place $placeIt */
-            foreach ($poule->getPlaces() as $placeIt) {
-                $sportCounters[$placeIt->getLocation()] = new SportCounter(
-                    $nrOfGamesToGo,
-                    $minNrOfGamesMap,
-                    $nrOfGamesDoneMap
-                );
-            }
+            throw new \Exception("TODO DEPRECATED", E_ERROR );
+//            $pouleNrOfPlaces = $poule->getPlaces()->count();
+//            $nrOfGamesToGo = (new GameCalculator())->getNrOfGamesPerPlace(
+//                $pouleNrOfPlaces,
+//                $sportConfigs,
+//                false,
+//                $nrOfHeadtohead
+//            );
+//
+//            // $sportsNrFieldsGames = $sportService->getPlanningMinNrOfGames($sportsNrFields, $pouleNrOfPlaces, $teamup, $selfReferee, $nrOfHeadtohead );
+//            // hier moet de $sportsNrFieldsGames puur berekent worden op basis van aantal sporten
+//            $minNrOfGamesMap = $this->convertToMap($sportsNrFields/*$sportsNrFieldsGames*/);
+//            /** @var Place $placeIt */
+//            foreach ($poule->getPlaces() as $placeIt) {
+//                $sportCounters[$placeIt->getLocation()] = new SportCounter(
+//                    $nrOfGamesToGo,
+//                    $minNrOfGamesMap,
+//                    $nrOfGamesDoneMap
+//                );
+//            }
         }
         return $sportCounters;
     }
@@ -160,6 +162,10 @@ class Service
         return $minNrOfGamesMap;
     }
 
+    /**
+     * @param array|TogetherGame[]|AgainstEachOtherGame[] $games
+     * @return int
+     */
     public function assign(array $games): int
     {
         $this->debugIterations = 0;
@@ -198,7 +204,7 @@ class Service
     }
 
     /**
-     * @param array $games
+     * @param array|TogetherGame[]|AgainstEachOtherGame[] $games
      * @param Resources $resources
      * @param Batch|SelfRefereeBatch $batch
      * @return Batch|SelfRefereeBatch|null
@@ -236,7 +242,7 @@ class Service
 //            });
 
     /**
-     * @param array $games
+     * @param array|TogetherGame[]|AgainstEachOtherGame[] $games
      * @param Resources $resources
      * @param Batch|SelfRefereeBatch $batch
      * @param int $nrOfGamesTried
@@ -271,7 +277,8 @@ class Service
 
             $gamesForBatchTmp = array_filter(
                 $games,
-                function (Game $game) use ($nextBatch): bool {
+                /** @var TogetherGame|AgainstEachOtherGame Game */
+                function ($game) use ($nextBatch): bool {
                     return $this->areAllPlacesAssignableByGamesInARow($nextBatch, $game);
                 }
             );
@@ -296,7 +303,8 @@ class Service
             $this->assignGame($batch, $game, $resourcesAssign);
             $gamesForBatchTmp = array_filter(
                 $gamesForBatch,
-                function (Game $game) use ($batch): bool {
+                /** @var TogetherGame|AgainstEachOtherGame $game */
+                function ($game) use ($batch): bool {
                     return $this->areAllPlacesAssignable($batch, $game);
                 }
             );
@@ -341,10 +349,10 @@ class Service
 
     /**
      * @param Batch|SelfRefereeBatch $batch
-     * @param Game $game
+     * @param TogetherGame|AgainstEachOtherGame $game
      * @param Resources $resources
      */
-    protected function assignGame($batch, Game $game, Resources $resources)
+    protected function assignGame($batch, $game, Resources $resources)
     {
         $this->assignField($game, $resources);
         $batch->add($game);
@@ -353,9 +361,9 @@ class Service
 
     /**
      * @param Batch|SelfRefereeBatch $batch
-     * @param Game $game
+     * @param TogetherGame|AgainstEachOtherGame $game
      */
-    protected function releaseGame($batch, Game $game)
+    protected function releaseGame($batch, $game)
     {
         $batch->remove($game);
         // $this->releaseSport($game, $game->getField()->getSport());
@@ -387,11 +395,11 @@ class Service
 
     /**
      * @param Batch|SelfRefereeBatch $batch
-     * @param Game $game
+     * @param TogetherGame|AgainstEachOtherGame $game
      * @param Resources $resources
      * @return bool
      */
-    private function isGameAssignable($batch, Game $game, Resources $resources): bool
+    private function isGameAssignable($batch, $game, Resources $resources): bool
     {
         if (!$this->isSomeFieldAssignable($game, $resources)) {
             return false;
@@ -405,10 +413,10 @@ class Service
      * 2 alle plekken, van een wedstrijd, de sport nog niet vaak genoeg gedaan heeft of alle sporten al gedaan
      *
      * @param Batch|SelfRefereeBatch $batch
-     * @param Game $game
+     * @param TogetherGame|AgainstEachOtherGame $game
      * @return bool
      */
-    private function areAllPlacesAssignable($batch, Game $game, bool $checkGamesInARow = true): bool
+    private function areAllPlacesAssignable($batch, $game, bool $checkGamesInARow = true): bool
     {
         $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
         foreach ($game->getPoulePlaces() as $place) {
@@ -444,10 +452,10 @@ class Service
 
     /**
      * @param Batch|SelfRefereeBatch $batch
-     * @param Game $game
+     * @param TogetherGame|AgainstEachOtherGame $game
      * @return bool
      */
-    private function areAllPlacesAssignableByGamesInARow($batch, Game $game): bool
+    private function areAllPlacesAssignableByGamesInARow($batch, $game): bool
     {
         foreach ($game->getPoulePlaces() as $place) {
             $nrOfGamesInARow = ($batch->hasPrevious() ? ($batch->getPrevious()->getGamesInARow($place)) : 0) + 1;
@@ -458,7 +466,12 @@ class Service
         return true;
     }
 
-    private function isSomeFieldAssignable(Game $game, Resources $resources): bool
+    /**
+     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param Resources $resources
+     * @return bool
+     */
+    private function isSomeFieldAssignable($game, Resources $resources): bool
     {
         foreach ($resources->getFields() as $fieldIt) {
             if ($resources->isSportAssignable($game, $fieldIt->getSport())) {
@@ -468,7 +481,10 @@ class Service
         return false;
     }
 
-    private function releaseField(Game $game/*, Resources $resources*/)
+    /**
+     * @param TogetherGame|AgainstEachOtherGame $game
+     */
+    private function releaseField($game/*, Resources $resources*/)
     {
 //        if ($resources->getFieldIndex() !== null) {
 //            $fieldIndex = array_search($game->getField(), $resources->getFields() );
@@ -480,7 +496,11 @@ class Service
         $game->emptyField();
     }
 
-    private function assignField(Game $game, Resources $resources)
+    /**
+     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param Resources $resources
+     */
+    private function assignField($game, Resources $resources)
     {
         $fields = array_filter(
             $resources->getFields(),

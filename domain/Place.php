@@ -2,14 +2,10 @@
 
 namespace SportsPlanning;
 
-use SportsPlanning\Sport\Counter as SportCounter;
+use SportsHelpers\Identifiable;
 
-class Place implements Resource
+class Place extends Identifiable implements Resource
 {
-    /**
-     * @var int
-     */
-    private $id;
     /**
      * @var Poule
      */

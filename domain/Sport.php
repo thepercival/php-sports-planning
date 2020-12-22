@@ -4,21 +4,14 @@ namespace SportsPlanning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 use \Doctrine\Common\Collections\Collection;
+use SportsHelpers\SportBase;
 
-class Sport
+class Sport extends SportBase
 {
     /**
      * @var int
      */
-    private $id;
-    /**
-     * @var int
-     */
     protected $number;
-    /**
-     * @var int
-     */
-    protected $nrOfGamePlaces;
     /**
      * @var Planning
      */
@@ -28,11 +21,11 @@ class Sport
      */
     protected $fields;
 
-    public function __construct(Planning $planning, int $number, int $nrOfGamePlaces)
+    public function __construct(Planning $planning, int $number, int $nrOfGamePlaces )
     {
+        parent::__construct($nrOfGamePlaces);
         $this->planning = $planning;
         $this->number = $number;
-        $this->nrOfGamePlaces = $nrOfGamePlaces;
         $this->fields = new ArrayCollection();
     }
 
@@ -41,17 +34,11 @@ class Sport
         return $this->planning;
     }
 
-    /**
-     * @return int
-     */
     public function getNumber(): int
     {
         return $this->number;
     }
 
-    /**
-     * @return int
-     */
     public function getNrOfGamePlaces(): int
     {
         return $this->nrOfGamePlaces;

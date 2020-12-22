@@ -2,24 +2,24 @@
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\GameCalculator;
-use SportsHelpers\SportConfig as SportConfigHelper;
+use Exception;
+use SportsHelpers\SportBase;
+use SportsHelpers\SportConfig;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Input as PlanningInput;
-use SportsPlanning\Resources;
 use SportsHelpers\Range;
-use SportsHelpers\PouleStructure\Balanced\Iterator as PouleStructureIterator;
+use SportsHelpers\PouleStructure\BalancedIterator as PouleStructureIterator;
 use SportsHelpers\Place\Range as PlaceRange;
 use SportsPlanning\Input\Service as PlanningInputService;
-use SportsPlanning\Sport;
 
 class Iterator implements \Iterator
 {
+    private const DEFAULTNROFGAMEPLACES = 2;
     protected PouleStructureIterator $structureIterator;
+    protected Range $rangeGameAmount;
     protected Range $rangeNrOfSports;
     protected Range $rangeNrOfReferees;
     protected Range $rangeNrOfFields;
-    protected Range $rangeNrOfHeadtohead;
     protected int $maxFieldsMultipleSports = 6;
     /**
      * @var PlanningInputService
@@ -29,10 +29,10 @@ class Iterator implements \Iterator
     protected int $nrOfSports;
     protected int $nrOfReferees;
     protected int $nrOfFields;
-    protected int $nrOfHeadtohead;
-    protected bool $teamup;
+    protected int $gameMode;
     protected int $selfReferee;
     protected int $nrOfGamesPlaces;
+    protected int $gameAmountNumber;
     /**
      * @var PlanningInput|null
      */
@@ -44,18 +44,19 @@ class Iterator implements \Iterator
         Range $rangeNrOfSports,
         Range $rangeNrOfFields,
         Range $rangeNrOfReferees,
-        Range $rangeNrOfHeadtohead
+        Range $rangeGameAmount
     ) {
         $this->structureIterator = new PouleStructureIterator( $rangePlaces, $rangePoules );
         $this->rangeNrOfSports = $rangeNrOfSports;
         $this->rangeNrOfFields = $rangeNrOfFields;
         $this->rangeNrOfReferees = $rangeNrOfReferees;
-        $this->rangeNrOfHeadtohead = $rangeNrOfHeadtohead;
+        $this->rangeGameAmount = $rangeGameAmount;
+        $this->gameMode = SportConfig::GAMEMODE_AGAINSTEACHOTHER;
         $this->maxFieldsMultipleSports = 6;
 
         $this->planningInputService = new PlanningInputService();
 
-        $this->nrOfGamesPlaces = GameCalculator::DEFAULTNROFGAMEPLACES; // @TODO SHOULD BE IN ITERATION
+        $this->nrOfGamesPlaces = self::DEFAULTNROFGAMEPLACES; // @TODO SHOULD BE IN ITERATION
 
         $this->init();
     }
@@ -63,14 +64,16 @@ class Iterator implements \Iterator
     /**
      * @param int $nrOfSports
      * @param int $nrOfFields
-     * @return array|SportConfigHelper[]]
+     * @param int $gameAmountNumber
+     * @return array|SportConfig[]]
      */
-    protected function createSportConfigHelpers(int $nrOfSports, int $nrOfFields): array
+    protected function createSportConfigs(int $nrOfSports, int $nrOfFields, int $gameAmountNumber): array
     {
         $sports = [];
         $nrOfFieldsPerSport = (int)ceil($nrOfFields / $nrOfSports);
         for ($sportNr = 1; $sportNr <= $nrOfSports; $sportNr++) {
-            $sports[] = new SportConfigHelper( $nrOfFieldsPerSport, GameCalculator::DEFAULTNROFGAMEPLACES );
+            $sport = new SportBase( self::DEFAULTNROFGAMEPLACES, );
+            $sports[] = new SportConfig( $sport, $nrOfFieldsPerSport, $gameAmountNumber );
             $nrOfFields -= $nrOfFieldsPerSport;
             if (($nrOfFieldsPerSport * ($nrOfSports - $sportNr)) > $nrOfFields) {
                 $nrOfFieldsPerSport--;
@@ -112,18 +115,13 @@ class Iterator implements \Iterator
     protected function initNrOfReferees()
     {
         $this->nrOfReferees = $this->rangeNrOfReferees->min;
-        $this->initNrOfHeadtohead();
+        $this->initGameAmount();
     }
 
-    protected function initNrOfHeadtohead()
+    protected function initGameAmount()
     {
-        $this->nrOfHeadtohead = $this->rangeNrOfHeadtohead->min;
-        $this->initTeamup();
-    }
+        $this->gameAmountNumber = $this->rangeGameAmount->min;
 
-    protected function initTeamup()
-    {
-        $this->teamup = false;
         $this->initSelfReferee();
     }
 
@@ -176,7 +174,7 @@ class Iterator implements \Iterator
     }
 
     public function rewind() {
-        throw new \Exception("rewind is not implemented", E_ERROR );
+        throw new Exception("rewind is not implemented", E_ERROR );
     }
 
     public function valid () : bool {
@@ -185,14 +183,13 @@ class Iterator implements \Iterator
 
     protected function createInput(): PlanningInput
     {
-        $sportConfigHelpers = $this->createSportConfigHelpers($this->nrOfSports, $this->nrOfFields);
+        $sportConfigs = $this->createSportConfigs($this->nrOfSports, $this->nrOfFields, $this->gameAmountNumber);
         return new PlanningInput(
             $this->structureIterator->current(),
-            $sportConfigHelpers,
+            $sportConfigs,
+            $this->gameMode,
             $this->nrOfReferees,
-            $this->teamup,
-            $this->selfReferee,
-            $this->nrOfHeadtohead
+            $this->selfReferee
         );
     }
 
@@ -204,14 +201,16 @@ class Iterator implements \Iterator
     protected function incrementSelfReferee(): bool
     {
         if ($this->nrOfReferees > 0 || $this->selfReferee === PlanningInput::SELFREFEREE_SAMEPOULE) {
-            return $this->incrementTeamup();
+            return $this->incrementGameAmount();
         }
 
-        $nrOfGamePlaces = (new GameCalculator())->getNrOfGamePlaces($this->nrOfGamesPlaces, $this->teamup, false);
+        // $nrOfGamePlaces = (new GameCalculator())->getNrOfGamePlaces($this->nrOfGamesPlaces, $this->teamup, false);
+        $nrOfGamePlaces = self::DEFAULTNROFGAMEPLACES;
         $pouleStructure = $this->structureIterator->current();
-        $selfRefereeIsAvailable = $this->planningInputService->canSelfRefereeBeAvailable( $pouleStructure, $nrOfGamePlaces );
+        $sportConfigs = $this->createSportConfigs($this->nrOfSports, $this->nrOfFields, $this->gameAmountNumber);
+        $selfRefereeIsAvailable = $this->planningInputService->canSelfRefereeBeAvailable( $pouleStructure, $sportConfigs );
         if ($selfRefereeIsAvailable === false) {
-            return $this->incrementTeamup();
+            return $this->incrementGameAmount();
         }
         if ($this->selfReferee === PlanningInput::SELFREFEREE_DISABLED) {
             if ($this->planningInputService->canSelfRefereeOtherPoulesBeAvailable($pouleStructure)) {
@@ -222,10 +221,10 @@ class Iterator implements \Iterator
         } else {
             $selfRefereeSamePouleAvailable = $this->planningInputService->canSelfRefereeSamePouleBeAvailable(
                 $pouleStructure,
-                $nrOfGamePlaces
+                $sportConfigs
             );
             if (!$selfRefereeSamePouleAvailable) {
-                return $this->incrementTeamup();
+                return $this->incrementGameAmount();
             }
             $this->selfReferee = PlanningInput::SELFREFEREE_SAMEPOULE;
         }
@@ -234,30 +233,29 @@ class Iterator implements \Iterator
 
 
 
-    protected function incrementTeamup(): bool
-    {
-        if ($this->teamup === true) {
-            return $this->incrementNrOfHeadtohead();
-        }
-        $pouleStructure = $this->structureIterator->current();
-        $sportConfigHelpers = $this->createSportConfigHelpers($this->nrOfSports, $this->nrOfFields);
-        $teamupAvailable = $this->planningInputService->canTeamupBeAvailable($pouleStructure, $sportConfigHelpers);
-        if ($teamupAvailable === false) {
-            return $this->incrementNrOfHeadtohead();
-        }
-        $this->teamup = true;
-        $this->initSelfReferee();
-        return true;
-    }
+//    protected function incrementTeamup(): bool
+//    {
+//        if ($this->teamup === true) {
+//            return $this->incrementNrOfHeadtohead();
+//        }
+//        $pouleStructure = $this->structureIterator->current();
+//        $sportConfigs = $this->createSportConfigs($this->nrOfSports, $this->nrOfFields);
+//        $teamupAvailable = $this->planningInputService->canTeamupBeAvailable($pouleStructure, $sportConfigs);
+//        if ($teamupAvailable === false) {
+//            return $this->incrementNrOfHeadtohead();
+//        }
+//        $this->teamup = true;
+//        $this->initSelfReferee();
+//        return true;
+//    }
 
-    protected function incrementNrOfHeadtohead(): bool
+    protected function incrementGameAmount(): bool
     {
-        if ($this->nrOfHeadtohead === $this->rangeNrOfHeadtohead->max) {
+        if ($this->gameAmountNumber === $this->rangeGameAmount->max) {
             return $this->incrementNrOfReferees();
-            ;
         }
-        $this->nrOfHeadtohead++;
-        $this->initTeamup();
+        $this->gameAmountNumber++;
+        $this->initSelfReferee();
         return true;
     }
 
@@ -268,10 +266,9 @@ class Iterator implements \Iterator
         $maxNrOfRefereesByPlaces = (int)(ceil($nrOfPlaces / 2));
         if ($this->nrOfReferees >= $maxNrOfReferees || $this->nrOfReferees >= $maxNrOfRefereesByPlaces) {
             return $this->incrementNrOfFields();
-            ;
         }
         $this->nrOfReferees++;
-        $this->initNrOfHeadtohead();
+        $this->initGameAmount();
         return true;
     }
 
@@ -282,7 +279,6 @@ class Iterator implements \Iterator
         $maxNrOfFieldsByPlaces = (int)(ceil($nrOfPlaces / 2));
         if ($this->nrOfFields >= $maxNrOfFields || $this->nrOfFields >= $maxNrOfFieldsByPlaces) {
             return $this->incrementNrOfSports();
-            ;
         }
         $this->nrOfFields++;
         $this->initNrOfReferees();

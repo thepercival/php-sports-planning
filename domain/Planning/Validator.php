@@ -3,10 +3,11 @@
 namespace SportsPlanning\Planning;
 
 use \Exception;
-use SportsPlanning\Game\Place as GamePlace;
+use SportsHelpers\SportConfig;
+use SportsPlanning\Game;
 use SportsPlanning\Poule;
 use SportsPlanning\Input;
-use SportsPlanning\Game;
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Validator\GameAssignments;
 use SportsPlanning\Planning;
@@ -48,6 +49,7 @@ class Validator
     public function validate(Planning $planning): int
     {
         $this->planning = $planning;
+
         $validity = $this->validateGamesAndGamePlaces();
         if (self::VALID !== $validity) {
             return $validity;
@@ -120,6 +122,20 @@ class Validator
         return $invalidations;
     }
 
+    protected function validateAgainstEachOtherGamesAndGamePlaces(): int
+    {
+        foreach ($this->planning->getPoules() as $poule) {
+            if (count($poule->getGames()) === 0) {
+                return self::NO_GAMES;
+            }
+            $validity = $this->allPlacesInPouleSameNrOfGames($poule);
+            if ($validity !== self::VALID) {
+                return $validity;
+            }
+        }
+        return self::VALID;
+    }
+
     protected function validateGamesAndGamePlaces(): int
     {
         foreach ($this->planning->getPoules() as $poule) {
@@ -134,17 +150,30 @@ class Validator
         return self::VALID;
     }
 
+
+
+
+
     protected function allPlacesInPouleSameNrOfGames(Poule $poule): int
     {
         $nrOfGames = [];
         foreach ($poule->getGames() as $game) {
-            /** @var array|Place[] $places */
-            $homePlaces = $this->getPlaces($game, Game::HOME);
-            $awayPlaces = $this->getPlaces($game, Game::AWAY);
-            if (count($homePlaces) === 0 || count($awayPlaces) === 0) {
+            if( $this->planning->getInput()->getGameMode() === SportConfig::GAMEMODE_AGAINSTEACHOTHER ) {
+                /** @var array|Place[] $places */
+                $homePlaces = $game->getPlaces(AgainstEachOtherGame::HOME);
+                $awayPlaces = $game->getPlaces(AgainstEachOtherGame::AWAY);
+                if (count($homePlaces) === 0 || count($awayPlaces) === 0) {
+                    return self::EMPTY_PLACE;
+                }
+                if (count($game->getPlaces(AgainstEachOtherGame::HOME))
+                    !== count($game->getPlaces(AgainstEachOtherGame::AWAY))) {
+                    return self::UNEQUAL_GAME_HOME_AWAY;
+                }
+            }
+            if ($game->getPlaces()->count() === 0) {
                 return self::EMPTY_PLACE;
             }
-            $places = $this->getPlaces($game);
+            $places = $game->getPoulePlaces();
             /** @var Place $place */
             foreach ($places as $place) {
                 if (array_key_exists($place->getLocation(), $nrOfGames) === false) {
@@ -174,10 +203,6 @@ class Validator
                         return self::EMPTY_REFEREE;
                     }
                 }
-            }
-            if (count($this->getPlaces($game, Game::HOME))
-                !== count($this->getPlaces($game, Game::AWAY))) {
-                return self::UNEQUAL_GAME_HOME_AWAY;
             }
         }
         $value = reset($nrOfGames);
@@ -249,19 +274,19 @@ class Validator
         return $getMaxInARow($getBatchParticipations($place)) <= $this->planning->getMaxNrOfGamesInARow();
     }
 
-    /**
-     * @param Game $game
-     * @param bool $homeAway
-     * @return array|Place[]
-     */
-    protected function getPlaces(Game $game, bool $homeAway = null): array
-    {
-        return $game->getPlaces($homeAway)->map(
-            function (GamePlace $gamePlace): Place {
-                return $gamePlace->getPlace();
-            }
-        )->toArray();
-    }
+//    /**
+//     * @param Game $game
+//     * @param bool $homeAway
+//     * @return array|Place[]
+//     */
+//    protected function getPlaces(Game $game, bool $homeAway = null): array
+//    {
+//        return $game->getPlaces($homeAway)->map(
+//            function (GamePlace $gamePlace): Place {
+//                return $gamePlace->getPlace();
+//            }
+//        )->toArray();
+//    }
 
     protected function validateResourcesPerBatch(): int
     {
@@ -273,9 +298,9 @@ class Validator
             }
             $batchResources = &$batchesResources[$game->getBatchNr()];
             /** @var array|Place[] $places */
-            $places = $this->getPlaces($game);
+            $places = $game->getPoulePlaces();
             if ($this->planning->getInput()->selfRefereeEnabled()) {
-                $places[] = $game->getRefereePlace();
+                $places = $game->getRefereePlace();
             }
             foreach ($places as $placeIt) {
                 if (array_search($placeIt, $batchResources["places"], true) !== false) {

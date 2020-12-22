@@ -4,7 +4,7 @@ namespace SportsPlanning\Planning;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
-use SportsHelpers\SportConfig as SportConfigHelper;
+use SportsHelpers\SportConfig as SportConfig;
 use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Planning;
@@ -74,18 +74,16 @@ class Output extends OutputHelper
 
     public function getInputAsString(Input $input, string $prefix = null, string $suffix = null): string
     {
-        $sports = array_map(function (SportConfigHelper $sportConfigHelper): string {
-            return '' . $sportConfigHelper->getNrOfFields();
-        }, $input->getSportConfigHelpers() );
+        $sports = array_map(function (SportConfig $sportConfig): string {
+            return '' . $sportConfig->getNrOfFields();
+        }, $input->getSportConfigs() );
         $output = 'id ' . $input->getId() . ' => structure [' . implode(
                 '|',
                 $input->getPouleStructure()->toArray()
             ) . ']'
             . ', sports [' . implode(',', $sports) . ']'
             . ', referees ' . $input->getNrOfReferees()
-            . ', teamup ' . ($input->getTeamup() ? '1' : '0')
-            . ', selfRef ' . $input->getSelfReferee()
-            . ', nrOfH2h ' . $input->getNrOfHeadtohead();
+            . ', selfRef ' . $input->getSelfReferee();
         return $prefix . $output . $suffix;
     }
 

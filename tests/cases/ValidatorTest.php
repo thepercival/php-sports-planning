@@ -2,30 +2,29 @@
 
 namespace SportsPlanning\Tests;
 
+use PHPUnit\Framework\TestCase;
+use SportsHelpers\SportBase;
+use SportsHelpers\SportConfig;
 use SportsPlanning\Batch;
 use SportsPlanning\Field;
 use SportsHelpers\Range;
-use SportsPlanning;
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
 use SportsPlanning\Input;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\Validator as PlanningValidator;
-use SportsPlanning\Game;
-use SportsPlanning\Game as GameBase;
 use SportsPlanning\Referee as PlanningReferee;
-use SportsPlanning\Referee;
-use \Exception;
 
-class ValidatorTest extends \PHPUnit\Framework\TestCase
+class ValidatorTest extends TestCase
 {
     use PlanningCreator, PlanningReplacer;
 
     public function testHasEnoughTotalNrOfGames()
     {
         $planning = $this->createPlanning($this->createInput( [3,3] ) );
-        $planning->getPoule(2)->getGames()->clear();
+        $planning->getPoule(2)->getAgainstEachOtherGames()->clear();
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
@@ -35,7 +34,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     public function testHasEmptyGamePlace()
     {
         $planning = $this->createPlanning($this->createInput( [5] ) );
-        $firstGame = $planning->getPoule(1)->getGames()->first();
+        $firstGame = $planning->getPoule(1)->getAgainstEachOtherGames()->first();
         $firstGame->getPlaces()->clear();
 
         $planningValidator = new PlanningValidator();
@@ -46,8 +45,8 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     public function testHasEmptyGameField()
     {
         $planning = $this->createPlanning($this->createInput( [5] ) );
-        /** @var Game $firstGame */
-        $firstGame = $planning->getPoule(1)->getGames()->first();
+        /** @var AgainstEachOtherGame $firstGame */
+        $firstGame = $planning->getPoule(1)->getAgainstEachOtherGames()->first();
         $firstGame->emptyField();
 
         $planningValidator = new PlanningValidator();
@@ -65,10 +64,15 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $validity = $planningValidator->validate($planning);
         self::assertSame(PlanningValidator::VALID, $validity);
 
-        /** @var Game $firstGame */
+        /** @var AgainstEachOtherGame $firstGame */
         $firstGame = $planning->getPoule(1)->getGames()->first();
-        $firstBatch = $planning->createFirstBatch();
-        $firstBatch->removeAsReferee( $firstGame->getRefereePlace()/*, $firstGame*/ );
+        $firstGame->setRefereePlace( null );
+//        $firstBatch = $planning->createFirstBatch();
+//        $firstBatch->removeAsReferee( $firstGame->getRefereePlace()/*, $firstGame*/ );
+
+//        $planningOutput = new PlanningOutput();
+//        $planningOutput->outputWithGames($planning, true);
+
         $validity = $planningValidator->validate($planning);
         self::assertSame(
             PlanningValidator::EMPTY_REFEREEPLACE,
@@ -82,8 +86,8 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             $this->createInput( [5] )
         );
 
-        /** @var Game $planningGame */
-        $planningGame = $planning->getPoule(1)->getGames()->first();
+        /** @var AgainstEachOtherGame $planningGame */
+        $planningGame = $planning->getPoule(1)->getAgainstEachOtherGames()->first();
         $planningGame->emptyReferee();
 
         $planningValidator = new PlanningValidator();
@@ -131,9 +135,9 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             $this->createInput( [2] )
         );
 
-        /** @var Game $planningGame */
+        /** @var AgainstEachOtherGame $planningGame */
         $planningGame = $planning->getPoule(1)->getGames()->first();
-        $firstHomeGamePlace = $planningGame->getPlaces(GameBase::HOME)->first();
+        $firstHomeGamePlace = $planningGame->getPlaces(AgainstEachOtherGame::HOME)->first();
         // $firstHomePlace = $firstHomeGamePlace->getPlace();
         // $firstAwayPlace = $planningGame->getPlaces(Game::AWAY)->first()->getPlace();
         $planningGame->getPlaces()->add($firstHomeGamePlace);
@@ -152,7 +156,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             $this->createInput( [5] ), new Range(2, 2)
         );
 
-        /** @var Game $planningGame */
+        /** @var AgainstEachOtherGame $planningGame */
         $planningGame = $planning->getPoule(1)->getGames()->first();
         $newFieldNr = $planningGame->getField()->getNumber() === 1 ? 2 : 1;
         $planningGame->setField($planning->getField($newFieldNr));
@@ -174,7 +178,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             $this->createInput( [5] ), new Range(2, 2)
         );
 
-        /** @var Game $planningGame */
+        /** @var AgainstEachOtherGame $planningGame */
         $planningGame = $planning->getPoule(1)->getGames()->first();
         $newRefereeNr = $planningGame->getReferee()->getNumber() === 1 ? 2 : 1;
         $planningGame->setReferee($planning->getReferee($newRefereeNr));
@@ -200,10 +204,12 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     public function testValidateNrOfGamesPerField()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [4], $this->createSportConfig(3) )
+                                $this->createInput( [4],
+                                SportConfig::GAMEMODE_AGAINSTEACHOTHER,
+                                [new SportConfig(new SportBase(2), 3, 1)] )
         );
 
-        /** @var Game $planningGame */
+        /** @var AgainstEachOtherGame $planningGame */
         $planningGame = $planning->getPoule(1)->getGames()->first();
         $newFieldNr = $planningGame->getField()->getNumber() === 3 ? 1 : 3;
         $planningGame->setField($planning->getField($newFieldNr));
@@ -219,7 +225,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     public function testValidResourcesPerReferee()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5], null, 3)
+            $this->createInput( [5], SportConfig::GAMEMODE_AGAINSTEACHOTHER, null, 3)
         );
 
 //        $planningOutput = new PlanningOutput();
@@ -245,7 +251,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         int $amount = 1
     ) {
         $amountReplaced = 0;
-        /** @var Game $game */
+        /** @var AgainstEachOtherGame $game */
         foreach ($batch->getGames() as $game) {
             if ($game->getReferee() !== $fromReferee || $this->batchHasReferee($batch, $toReferee)) {
                 continue;
@@ -273,7 +279,11 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     public function testInvalidAssignedRefereePlaceSamePoule()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [3,3], $this->createSportConfig(1), null, null, Input::SELFREFEREE_SAMEPOULE )
+            $this->createInput( [3,3],
+                                SportConfig::GAMEMODE_AGAINSTEACHOTHER,
+                                [new SportConfig(new SportBase(2), 1, 1)],
+                                null,
+                                Input::SELFREFEREE_SAMEPOULE )
         );
 
         $refereePlaceService = new RefereePlaceService($planning);
@@ -302,8 +312,9 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
     public function testValidResourcesPerRefereePlace()
     {
+        $sportConfigs = [new SportConfig(new SportBase(2), 1, 1)];
         $planning = $this->createPlanning(
-            $this->createInput( [5], $this->createSportConfig(1), null, null, Input::SELFREFEREE_SAMEPOULE )
+            $this->createInput( [5], SportConfig::GAMEMODE_AGAINSTEACHOTHER, $sportConfigs, null, Input::SELFREFEREE_SAMEPOULE )
         );
 
         $refereePlaceService = new RefereePlaceService($planning);
@@ -312,12 +323,15 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
 
-        $this->replaceRefereePlace(
-            $planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE,
-            $planning->createFirstBatch(),
-            $planning->getPoule(1)->getPlace(1),
-            $planning->getPoule(1)->getPlace(4)
-        );
+        $firstGame = $planning->getPoule(1)->getGames()[0];
+        $secondGame = $planning->getPoule(1)->getGames()[1];
+        $firstGame->setRefereePlace( $secondGame->getRefereePlace() );
+//        $this->replaceRefereePlace(
+//            $planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE,
+//            $planning->createFirstBatch(),
+//            $planning->getPoule(1)->getPlace(1),
+//            $planning->getPoule(1)->getPlace(4)
+//        );
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -332,8 +346,9 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
     public function testValidResourcesPerRefereePlaceDifferentPouleSizes()
     {
+        $sportConfigs = [new SportConfig(new SportBase(2), 1, 1)];
         $planning = $this->createPlanning(
-            $this->createInput( [5,4], $this->createSportConfig(1), null, null, Input::SELFREFEREE_OTHERPOULES )
+            $this->createInput( [5,4], SportConfig::GAMEMODE_AGAINSTEACHOTHER, $sportConfigs, null, Input::SELFREFEREE_OTHERPOULES )
         );
         $refereePlaceService = new RefereePlaceService($planning);
         $refereePlaceService->assign($planning->createFirstBatch());
@@ -346,11 +361,11 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     public function testValidityDescriptions()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5,4], null, 3 )
+            $this->createInput( [5,4], SportConfig::GAMEMODE_AGAINSTEACHOTHER, null, 3 )
         );
 
         $planningValidator = new PlanningValidator();
-        $validity = $planningValidator->validate($planning);
+        $planningValidator->validate($planning);
         $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID);
         self::assertCount(13, $descriptions);
 
@@ -363,7 +378,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 //        $planningOutput->outputWithGames($planning, true);
 
         $planningValidator = new PlanningValidator();
-        $validity = $planningValidator->validate($planning);
+        $planningValidator->validate($planning);
         $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID);
         self::assertCount(13, $descriptions);
     }

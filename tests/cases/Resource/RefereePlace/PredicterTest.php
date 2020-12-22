@@ -3,7 +3,7 @@
 namespace SportsPlanning\Tests\Resource\RefereePlace;
 
 use SportsPlanning\Resource\RefereePlace\Predicter;
-use SportsPlanning;
+use SportsPlanning\Planning;
 use SportsPlanning\Input;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;

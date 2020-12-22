@@ -1,4 +1,7 @@
 -- PRE PRE PRE doctrine-update =============================================================
+update planninginputs set sportConfig = replace(sportConfig, '2}]', '2,"versusMode": true}]');
+update planninginputs set sportConfig = replace(sportConfig, 'Places":2', 'Places":4') where teamup = true;
+update sports set customId = 15 where name = 'sjoelen';
 
 -- POST POST POST doctrine-update ===========================================================
 

@@ -2,6 +2,8 @@
 
 namespace SportsPlanning;
 
+use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Sport\Counter as SportCounter;
 
 class Resources
@@ -140,7 +142,11 @@ class Resources
 //        return $fieldCombinations;
     }
 
-    public function getGameNrOfSportsToGo(Game $game): int
+    /**
+     * @param AgainstEachOtherGame|TogetherGame $game
+     * @return int
+     */
+    public function getGameNrOfSportsToGo($game): int
     {
         $gameNrToGo = 0;
         foreach ($game->getPlaces() as $gamePlace) {
@@ -189,7 +195,11 @@ class Resources
         return $this->sportCounters;
     }
 
-    public function assignSport(Game $game, Sport $sport)
+    /**
+     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param Sport $sport
+     */
+    public function assignSport($game, Sport $sport)
     {
         if ($this->sportCounters === null) {
             return;
@@ -200,7 +210,12 @@ class Resources
         }
     }
 
-    public function isSportAssignable(Game $game, Sport $sport): bool
+    /**
+     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param Sport $sport
+     * @return bool
+     */
+    public function isSportAssignable($game, Sport $sport): bool
     {
         if ($this->sportCounters === null) {
             return true;

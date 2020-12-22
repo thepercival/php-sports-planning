@@ -3,8 +3,8 @@
 namespace SportsPlanning\Input;
 
 use SportsPlanning\Input;
-use SportsHelpers\Math;
-use SportsHelpers\SportConfig as SportConfigHelper;
+use SportsHelpers\SportMath;
+use SportsHelpers\SportConfig;
 use SportsHelpers\PouleStructure;
 
 class GCDService
@@ -18,41 +18,39 @@ class GCDService
         if ($input->selfRefereeEnabled()) {
             return false;
         }
-        $gcd = $this->getGCDRaw($input->getPouleStructure(), $input->getSportConfigHelpers(), $input->getNrOfReferees());
+        $gcd = $this->getGCDRaw($input->getPouleStructure(), $input->getSportConfigs(), $input->getNrOfReferees());
         return $gcd > 1;
     }
 
     public function getGCDInput(Input $input): Input
     {
-        $gcd = $this->getGCDRaw($input->getPouleStructure(), $input->getSportConfigHelpers(), $input->getNrOfReferees());
+        $gcd = $this->getGCDRaw($input->getPouleStructure(), $input->getSportConfigs(), $input->getNrOfReferees());
 
         $structureConfig = $this->createGCDPouleStructure( $gcd, $input->getPouleStructure() );
-        $sportConfigHelpers = $this->createGCDSportConfigHelpers( $gcd, $input->getSportConfigHelpers() );
+        $sportConfigs = $this->createGCDSportConfigs( $gcd, $input->getSportConfigs() );
         $nrOfReferees = $this->getGCDNrOfReferees( $gcd, $input->getNrOfReferees() );
 
         return new Input(
             $structureConfig,
-            $sportConfigHelpers,
+            $sportConfigs,
+            $input->getGameMode(),
             $nrOfReferees,
-            $input->getTeamup(),
-            $input->getSelfReferee(),
-            $input->getNrOfHeadtohead()
+            $input->getSelfReferee()
         );
     }
 
     public function getPolynomial(Input $input, int $polynomial): Input
     {
         $structureConfig = $this->createGCDPouleStructure( 1 / $polynomial, $input->getPouleStructure() );
-        $sportConfigHelpers = $this->createGCDSportConfigHelpers( 1 / $polynomial, $input->getSportConfigHelpers() );
+        $sportConfigs = $this->createGCDSportConfigs( 1 / $polynomial, $input->getSportConfigs() );
         $nrOfReferees = $this->getGCDNrOfReferees( 1 / $polynomial, $input->getNrOfReferees() );
 
         return new Input(
             $structureConfig,
-            $sportConfigHelpers,
+            $sportConfigs,
+            $input->getGameMode(),
             $nrOfReferees,
-            $input->getTeamup(),
-            $input->getSelfReferee(),
-            $input->getNrOfHeadtohead()
+            $input->getSelfReferee()
         );
     }
 
@@ -75,17 +73,20 @@ class GCDService
 
     /**
      * @param float $gcd
-     * @param array|SportConfigHelper[] $sportConfigHelpers
-     * @return array|SportConfigHelper[]
+     * @param array|SportConfig[] $sportConfigs
+     * @return array|SportConfig[]
      */
-    public function createGCDSportConfigHelpers(float $gcd, array $sportConfigHelpers): array
+    public function createGCDSportConfigs(float $gcd, array $sportConfigs): array
     {
-        $newSportConfigHelpers = [];
-        foreach ( $sportConfigHelpers as $sportConfigHelper) {
-            $newSportConfigHelpers[] = new SportConfigHelper(
-                (int)($sportConfigHelper->getNrOfFields() / $gcd), $sportConfigHelper->getNrOfGamePlaces() );
+        $newSportConfigs = [];
+        foreach ( $sportConfigs as $sportConfig) {
+            $newSportConfigs[] = new SportConfig(
+                $sportConfig->getSport(),
+                (int)($sportConfig->getNrOfFields() / $gcd),
+                $sportConfig->getGameAmount()
+            );
         }
-        return $newSportConfigHelpers;
+        return $newSportConfigs;
     }
 
     public function getGCDNrOfReferees(float $gcd, int $nrOfReferees ): int
@@ -97,20 +98,20 @@ class GCDService
     {
         return $this->getGCDRaw(
             $input->getPouleStructure(),
-            $input->getSportConfigHelpers(),
+            $input->getSportConfigs(),
             $input->getNrOfReferees()
         );
     }
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param array|SportConfigHelper[] $sportConfigs
+     * @param array|SportConfig[] $sportConfigs
      * @param int $nrOfReferees
      * @return int
      */
     protected function getGCDRaw(PouleStructure $pouleStructure, array $sportConfigs, int $nrOfReferees): int
     {
-        $math = new Math();
+        $math = new SportMath();
         $gcdStructure = $math->getGreatestCommonDivisor($pouleStructure->getNrOfPoulesByNrOfPlaces());
         $gcdSports = $sportConfigs[0]->getNrOfFields();
 

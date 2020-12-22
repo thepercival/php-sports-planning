@@ -6,7 +6,6 @@ namespace SportsPlanning\Resource\RefereePlace;
 use DateTimeImmutable;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Planning;
-use SportsPlanning\Game as PlanningGame;
 use SportsPlanning\Place as PlanningPlace;
 use SportsPlanning\Resource\GameCounter\Unequal as UnequalGameCounter;
 use SportsPlanning\Resource\GameCounter\Unequal as UnequalResource;
@@ -36,7 +35,7 @@ class Replacer
         $this->throwOnTimeout = true;
     }
 
-    public function setTimeoutDateTime( \DateTimeImmutable $timeoutDateTime ) {
+    public function setTimeoutDateTime( DateTimeImmutable $timeoutDateTime ) {
         $this->timeoutDateTime = $timeoutDateTime;
     }
 
@@ -110,7 +109,6 @@ class Replacer
         PlanningPlace $replacement
     ): bool {
         $batchHasReplacement = $batch->getBase()->isParticipating($replacement) || $batch->isParticipatingAsReferee($replacement);
-        /** @var PlanningGame $game */
         foreach ($batch->getBase()->getGames() as $game) {
             if ($game->getRefereePlace() !== $replaced || $batchHasReplacement) {
                 continue;
