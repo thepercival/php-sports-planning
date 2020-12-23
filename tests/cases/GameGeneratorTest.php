@@ -4,7 +4,7 @@ namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportConfig;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\GameGenerator;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -13,16 +13,16 @@ class GameGeneratorTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testGameInstanceAgainstEachOther()
+    public function testGameInstanceAgainst()
     {
         $defaultSportConfig = $this->getDefaultSportConfig();
         $planning = $this->createPlanning(
-            $this->createInput( [ 2 ], SportConfig::GAMEMODE_AGAINSTEACHOTHER, [$defaultSportConfig], 0  )
+            $this->createInput( [ 2 ], SportConfig::GAMEMODE_AGAINST, [$defaultSportConfig], 0  )
         );
         $gameGenerator = new GameGenerator();
         $gameGenerator->createGames($planning);
         $games = $planning->getGames();
-        self::assertInstanceOf(AgainstEachOtherGame::class, reset($games));
+        self::assertInstanceOf(AgainstGame::class, reset($games));
     }
 
     public function testGameInstanceTogether()

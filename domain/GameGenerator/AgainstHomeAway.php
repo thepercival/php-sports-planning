@@ -2,9 +2,9 @@
 
 namespace SportsPlanning\GameGenerator;
 
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 
-class AgainstEachOtherHomeAway
+class AgainstHomeAway
 {
     private PlaceCombination $home;
     private PlaceCombination $away;
@@ -17,7 +17,7 @@ class AgainstEachOtherHomeAway
 
     public function get(bool $homeAway): PlaceCombination
     {
-        return $homeAway === AgainstEachOtherGame::HOME ? $this->home : $this->away;
+        return $homeAway === AgainstGame::HOME ? $this->home : $this->away;
     }
 
     public function getHome(): PlaceCombination
@@ -30,7 +30,7 @@ class AgainstEachOtherHomeAway
         return $this->away;
     }
 
-    public function equals(AgainstEachOtherHomeAway $game): bool
+    public function equals(AgainstHomeAway $game): bool
     {
         return ($game->getAway()->getNumber() === $this->getHome()->getNumber()
                 || $game->getHome()->getNumber() === $this->getHome()->getNumber())
@@ -38,7 +38,7 @@ class AgainstEachOtherHomeAway
                 || $game->getHome()->getNumber() === $this->getAway()->getNumber());
     }
 
-    public function hasOverlap(AgainstEachOtherHomeAway $game): bool
+    public function hasOverlap(AgainstHomeAway $game): bool
     {
         return $game->getAway()->hasOverlap($this->getHome())
             || $game->getAway()->hasOverlap($this->getAway())

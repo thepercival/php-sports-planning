@@ -6,7 +6,7 @@ use Psr\Log\LoggerInterface;
 
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Batch as BatchBase;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Output as GameOutput;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
@@ -66,7 +66,7 @@ class Output extends OutputHelper
     }
 
     /**
-     * @param array|AgainstEachOtherGame[]|TogetherGame[] $games
+     * @param array|AgainstGame[]|TogetherGame[] $games
      * @param BatchBase|SelfRefereeBatch|null $batch
      */
     public function outputGames(array $games, $batch = null)

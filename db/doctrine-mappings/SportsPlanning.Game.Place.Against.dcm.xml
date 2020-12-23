@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-  <entity name="SportsPlanning\Game\Place\AgainstEachOther" table="planningGamePlacesAgainstEachOther" repository-class="SportsPlanning\Game\Place\AgainstEachOther\Repository">
+  <entity name="SportsPlanning\Game\Place\Against" table="planningGamePlacesAgainst" repository-class="SportsPlanning\Game\Place\Against\Repository">
     <field name="homeaway" column="homeaway" type="boolean" nullable="true" unique="false"/>
   </entity>
 </doctrine-mapping>

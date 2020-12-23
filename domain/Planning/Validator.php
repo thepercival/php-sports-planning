@@ -7,7 +7,7 @@ use SportsHelpers\SportConfig;
 use SportsPlanning\Game;
 use SportsPlanning\Poule;
 use SportsPlanning\Input;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Place;
 use SportsPlanning\Validator\GameAssignments;
 use SportsPlanning\Planning;
@@ -122,7 +122,7 @@ class Validator
         return $invalidations;
     }
 
-    protected function validateAgainstEachOtherGamesAndGamePlaces(): int
+    protected function validateAgainstGamesAndGamePlaces(): int
     {
         foreach ($this->planning->getPoules() as $poule) {
             if (count($poule->getGames()) === 0) {
@@ -158,15 +158,15 @@ class Validator
     {
         $nrOfGames = [];
         foreach ($poule->getGames() as $game) {
-            if( $this->planning->getInput()->getGameMode() === SportConfig::GAMEMODE_AGAINSTEACHOTHER ) {
+            if( $this->planning->getInput()->getGameMode() === SportConfig::GAMEMODE_AGAINST ) {
                 /** @var array|Place[] $places */
-                $homePlaces = $game->getPlaces(AgainstEachOtherGame::HOME);
-                $awayPlaces = $game->getPlaces(AgainstEachOtherGame::AWAY);
+                $homePlaces = $game->getPlaces(AgainstGame::HOME);
+                $awayPlaces = $game->getPlaces(AgainstGame::AWAY);
                 if (count($homePlaces) === 0 || count($awayPlaces) === 0) {
                     return self::EMPTY_PLACE;
                 }
-                if (count($game->getPlaces(AgainstEachOtherGame::HOME))
-                    !== count($game->getPlaces(AgainstEachOtherGame::AWAY))) {
+                if (count($game->getPlaces(AgainstGame::HOME))
+                    !== count($game->getPlaces(AgainstGame::AWAY))) {
                     return self::UNEQUAL_GAME_HOME_AWAY;
                 }
             }

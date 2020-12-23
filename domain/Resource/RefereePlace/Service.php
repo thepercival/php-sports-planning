@@ -4,7 +4,7 @@ namespace SportsPlanning\Resource\RefereePlace;
 
 use DateTimeImmutable;
 use SportsPlanning\Batch\Output as BatchOutput;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Planning;
 use SportsPlanning\Game;
@@ -85,7 +85,7 @@ class Service
 
     /**
      * @param SelfRefereeBatch $batch
-     * @param array|TogetherGame[]|AgainstEachOtherGame[] $batchGames
+     * @param array|TogetherGame[]|AgainstGame[] $batchGames
      * @param array|PlaceGameCounter[] $refereePlaces
      * @param DateTimeImmutable $timeoutDateTime
      * @return bool
@@ -150,7 +150,7 @@ class Service
 
     /**
      * @param SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @param Place $assignPlace
      * @param array|PlaceGameCounter[] $refereePlaces
      * @return array|PlaceGameCounter[]

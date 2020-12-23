@@ -6,8 +6,8 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
-use SportsPlanning\Game\Place\AgainstEachOther as AgainstEachOtherGamePlace;
+use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Input\GCDService as InputGCDService;
 use SportsPlanning\Input\Repository as InputRepository;
 use SportsPlanning\Planning\Repository as PlanningRepository;
@@ -104,15 +104,15 @@ class GCDProcessor
 
     /**
      * @param Poule $poule
-     * @param TogetherGame|AgainstEachOtherGame $gcdGame
-     * @return TogetherGame|AgainstEachOtherGame
+     * @param TogetherGame|AgainstGame $gcdGame
+     * @return TogetherGame|AgainstGame
      */
     protected function createGame(Poule $poule, $gcdGame) {
-        if( $gcdGame instanceof AgainstEachOtherGame ) {
-            $game = new AgainstEachOtherGame($poule, $gcdGame->getNrOfHeadtohead() );
+        if( $gcdGame instanceof AgainstGame ) {
+            $game = new AgainstGame($poule, $gcdGame->getNrOfHeadtohead() );
             foreach ($gcdGame->getPlaces() as $gcdGamePlace) {
                 $place = $poule->getPlace($gcdGamePlace->getPlace()->getNumber());
-                new AgainstEachOtherGamePlace($game, $place, $gcdGamePlace->getHomeaway());
+                new AgainstGamePlace($game, $place, $gcdGamePlace->getHomeaway());
             }
             return $game;
         }

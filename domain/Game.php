@@ -6,7 +6,7 @@ namespace SportsPlanning;
 
 use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Identifiable;
-use SportsPlanning\Game\Place\AgainstEachOther as AgainstEachOtherGamePlace;
+use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 
 abstract class Game extends Identifiable

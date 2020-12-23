@@ -15,7 +15,7 @@ use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Input as PlanningInput;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 
 class Planning
@@ -339,7 +339,7 @@ class Planning
 
     /**
      * @param int|null $order
-     * @return array|AgainstEachOtherGame[]|TogetherGame[]
+     * @return array|AgainstGame[]|TogetherGame[]
      */
     public function getGames(int $order = null): array
     {

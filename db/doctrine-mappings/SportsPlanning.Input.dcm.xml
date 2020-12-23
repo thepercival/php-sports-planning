@@ -7,7 +7,7 @@
     <field name="pouleStructureDb" column="structureConfig" type="json" nullable="false" unique="false"/>
     <field name="sportConfigDb" column="sportConfig" type="json" nullable="false" unique="false"/>
     <field name="nrOfReferees" column="nrOfReferees" type="smallint" nullable="false" unique="false"/>
-    <field name="againstEachOther" column="againstEachOther" type="boolean" nullable="false" unique="false"/>
+    <field name="against" column="against" type="boolean" nullable="false" unique="false"/>
     <field name="selfReferee" column="selfReferee" type="smallint" nullable="false" unique="false"/>
     <field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
     <one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="input">

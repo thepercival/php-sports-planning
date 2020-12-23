@@ -63,7 +63,7 @@ class Input
     public const SELFREFEREE_OTHERPOULES = 1;
     public const SELFREFEREE_SAMEPOULE = 2;
 
-    const AGAINSTEACHOTHER_MAXNROFGAMEPLACES = 8;
+    const AGAINST_MAXNROFGAMEPLACES = 8;
 
     /**
      * @param PouleStructure $pouleStructure

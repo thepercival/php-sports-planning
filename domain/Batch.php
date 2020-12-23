@@ -2,7 +2,7 @@
 
 namespace SportsPlanning;
 
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 
 class Batch
@@ -20,7 +20,7 @@ class Batch
      */
     protected $next;
     /**
-     * @var array | TogetherGame|AgainstEachOtherGame[]
+     * @var array | TogetherGame|AgainstGame[]
      */
     protected $games = [];
     /**
@@ -135,7 +135,7 @@ class Batch
     }
 
     /**
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      */
     public function add($game)
     {
@@ -146,7 +146,7 @@ class Batch
     }
 
     /**
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      */
     public function remove($game)
     {
@@ -169,7 +169,7 @@ class Batch
 
     /**
      * @param Poule|null $poule
-     * @return array|TogetherGame[]|AgainstEachOtherGame[]
+     * @return array|TogetherGame[]|AgainstGame[]
      */
     public function getGames( Poule $poule = null ): array
     {
@@ -185,7 +185,7 @@ class Batch
     }
 
     /**
-     * @return array|TogetherGame[]|AgainstEachOtherGame[]
+     * @return array|TogetherGame[]|AgainstGame[]
      */
     public function getAllGames(): array
     {

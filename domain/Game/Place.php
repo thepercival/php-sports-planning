@@ -10,7 +10,6 @@ abstract class Place extends Identifiable
 {
     private PoulePlace $place;
 
-
     public function __construct(PoulePlace $place)
     {
         $this->place = $place;

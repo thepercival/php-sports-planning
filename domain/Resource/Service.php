@@ -14,7 +14,7 @@ use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Planning;
 use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Place;
 use SportsPlanning\Sport;
@@ -163,7 +163,7 @@ class Service
     }
 
     /**
-     * @param array|TogetherGame[]|AgainstEachOtherGame[] $games
+     * @param array|TogetherGame[]|AgainstGame[] $games
      * @return int
      */
     public function assign(array $games): int
@@ -204,7 +204,7 @@ class Service
     }
 
     /**
-     * @param array|TogetherGame[]|AgainstEachOtherGame[] $games
+     * @param array|TogetherGame[]|AgainstGame[] $games
      * @param Resources $resources
      * @param Batch|SelfRefereeBatch $batch
      * @return Batch|SelfRefereeBatch|null
@@ -242,7 +242,7 @@ class Service
 //            });
 
     /**
-     * @param array|TogetherGame[]|AgainstEachOtherGame[] $games
+     * @param array|TogetherGame[]|AgainstGame[] $games
      * @param Resources $resources
      * @param Batch|SelfRefereeBatch $batch
      * @param int $nrOfGamesTried
@@ -277,7 +277,7 @@ class Service
 
             $gamesForBatchTmp = array_filter(
                 $games,
-                /** @var TogetherGame|AgainstEachOtherGame Game */
+                /** @var TogetherGame|AgainstGame Game */
                 function ($game) use ($nextBatch): bool {
                     return $this->areAllPlacesAssignableByGamesInARow($nextBatch, $game);
                 }
@@ -303,7 +303,7 @@ class Service
             $this->assignGame($batch, $game, $resourcesAssign);
             $gamesForBatchTmp = array_filter(
                 $gamesForBatch,
-                /** @var TogetherGame|AgainstEachOtherGame $game */
+                /** @var TogetherGame|AgainstGame $game */
                 function ($game) use ($batch): bool {
                     return $this->areAllPlacesAssignable($batch, $game);
                 }
@@ -349,7 +349,7 @@ class Service
 
     /**
      * @param Batch|SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @param Resources $resources
      */
     protected function assignGame($batch, $game, Resources $resources)
@@ -361,7 +361,7 @@ class Service
 
     /**
      * @param Batch|SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      */
     protected function releaseGame($batch, $game)
     {
@@ -395,7 +395,7 @@ class Service
 
     /**
      * @param Batch|SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @param Resources $resources
      * @return bool
      */
@@ -413,7 +413,7 @@ class Service
      * 2 alle plekken, van een wedstrijd, de sport nog niet vaak genoeg gedaan heeft of alle sporten al gedaan
      *
      * @param Batch|SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @return bool
      */
     private function areAllPlacesAssignable($batch, $game, bool $checkGamesInARow = true): bool
@@ -452,7 +452,7 @@ class Service
 
     /**
      * @param Batch|SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @return bool
      */
     private function areAllPlacesAssignableByGamesInARow($batch, $game): bool
@@ -467,7 +467,7 @@ class Service
     }
 
     /**
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @param Resources $resources
      * @return bool
      */
@@ -482,7 +482,7 @@ class Service
     }
 
     /**
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      */
     private function releaseField($game/*, Resources $resources*/)
     {
@@ -497,7 +497,7 @@ class Service
     }
 
     /**
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @param Resources $resources
      */
     private function assignField($game, Resources $resources)

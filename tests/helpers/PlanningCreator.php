@@ -63,7 +63,7 @@ trait PlanningCreator {
         int $selfReferee = null
     ) {
         if( $gameMode === null ) {
-            $gameMode = SportConfig::GAMEMODE_AGAINSTEACHOTHER;
+            $gameMode = SportConfig::GAMEMODE_AGAINST;
         }
         if( $sportConfigs === null ) {
             $sportConfigs = $this->getDefaultSportConfigs();

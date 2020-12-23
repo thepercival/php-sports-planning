@@ -9,16 +9,16 @@ use Doctrine\Common\Collections\Collection;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Game;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
-use SportsPlanning\Game\Place\AgainstEachOther as AgainstEachOtherGamePlace;
+use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Poule;
 
-class AgainstEachOther extends Game
+class Against extends Game
 {
     protected Poule $poule;
     protected $nrOfHeadtohead;
     /**
-     * @var Collection | AgainstEachOtherGamePlace[]
+     * @var Collection | AgainstGamePlace[]
      */
     protected $places;
 
@@ -30,7 +30,7 @@ class AgainstEachOther extends Game
         parent::__construct($poule);
         $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->places = new ArrayCollection();
-        $this->poule->getAgainstEachOtherGames()->add($this);
+        $this->poule->getAgainstGames()->add($this);
     }
 
     public function getNrOfHeadtohead(): int
@@ -50,7 +50,7 @@ class AgainstEachOther extends Game
 
     /**
      * @param bool|null $homeaway
-     * @return Collection | AgainstEachOtherGamePlace[] | TogetherGamePlace[]
+     * @return Collection | AgainstGamePlace[] | TogetherGamePlace[]
      */
     public function getPlaces(bool $homeaway = null): Collection
     {
@@ -58,7 +58,7 @@ class AgainstEachOther extends Game
             return $this->places;
         }
         return $this->places->filter(
-                function (AgainstEachOtherGamePlace $gamePlace) use ($homeaway): bool {
+                function (AgainstGamePlace $gamePlace) use ($homeaway): bool {
                     return $gamePlace->getHomeaway() === $homeaway;
                 }
             );
@@ -75,11 +75,11 @@ class AgainstEachOther extends Game
     /**
      * @param Place $place
      * @param bool $homeaway
-     * @return AgainstEachOtherGamePlace
+     * @return AgainstGamePlace
      */
-    public function addPlace(Place $place, bool $homeaway): AgainstEachOtherGamePlace
+    public function addPlace(Place $place, bool $homeaway): AgainstGamePlace
     {
-        return new AgainstEachOtherGamePlace($this, $place, $homeaway);
+        return new AgainstGamePlace($this, $place, $homeaway);
     }
 
     /**
@@ -97,11 +97,11 @@ class AgainstEachOther extends Game
 
     public function getHomeAway(Place $place): ?bool
     {
-        if ($this->isParticipating($place, AgainstEachOtherGame::HOME)) {
-            return AgainstEachOtherGame::HOME;
+        if ($this->isParticipating($place, AgainstGame::HOME)) {
+            return AgainstGame::HOME;
         }
-        if ($this->isParticipating($place, AgainstEachOtherGame::AWAY)) {
-            return AgainstEachOtherGame::AWAY;
+        if ($this->isParticipating($place, AgainstGame::AWAY)) {
+            return AgainstGame::AWAY;
         }
         return null;
     }
@@ -112,7 +112,7 @@ class AgainstEachOther extends Game
     public function getPoulePlaces(): Collection
     {
         if( $this->poulePlaces === null ) {
-            $this->poulePlaces = $this->getPlaces()->map( function (AgainstEachOtherGamePlace $gamePlace): Place {
+            $this->poulePlaces = $this->getPlaces()->map( function (AgainstGamePlace $gamePlace): Place {
                 return $gamePlace->getPlace();
             });
         }

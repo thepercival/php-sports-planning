@@ -8,8 +8,8 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
-use SportsPlanning\Game\Place\AgainstEachOther as AgainstEachOtherGamePlace;
+use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 
@@ -22,7 +22,7 @@ class Output extends OutputHelper
     }
 
     /**
-     * @param array|AgainstEachOtherGame[]|TogetherGame[] $games
+     * @param array|AgainstGame[]|TogetherGame[] $games
      * @param string|null $prefix
      */
     public function outputGames(array $games, string $prefix = null)
@@ -33,7 +33,7 @@ class Output extends OutputHelper
     }
 
     /**
-     * @param AgainstEachOtherGame|TogetherGame $game
+     * @param AgainstGame|TogetherGame $game
      * @param SelfRefereeBatch|Batch|null $batch
      * @param string|null $prefix
      */
@@ -48,8 +48,8 @@ class Output extends OutputHelper
         $field = $game->getField();
         $fieldNr = $field !== null ? $field->getNumber() : -1;
         $fieldColor = $useColors ? $fieldNr : -1;
-        $homeGamePlaces = $this->outputPlaces($game, $game->getPlaces(AgainstEachOtherGame::HOME), $batch);
-        $awayGamePlaces = $this->outputPlaces($game, $game->getPlaces(AgainstEachOtherGame::AWAY), $batch);
+        $homeGamePlaces = $this->outputPlaces($game, $game->getPlaces(AgainstGame::HOME), $batch);
+        $awayGamePlaces = $this->outputPlaces($game, $game->getPlaces(AgainstGame::AWAY), $batch);
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
             $this->outputColor($batchColor, 'batch ' . $game->getBatchNr()) . " " .
@@ -63,8 +63,8 @@ class Output extends OutputHelper
     }
 
     /**
-     * @param AgainstEachOtherGame|TogetherGame $game
-     * @param Collection|AgainstEachOtherGamePlace[]|TogetherGamePlace[] $gamePlaces
+     * @param AgainstGame|TogetherGame $game
+     * @param Collection|AgainstGamePlace[]|TogetherGamePlace[] $gamePlaces
      * @param SelfRefereeBatch|Batch|null $batch
      * @return string
      */

@@ -3,7 +3,7 @@
 namespace SportsPlanning\Batch;
 
 use SportsPlanning\Batch;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
@@ -101,7 +101,7 @@ abstract class SelfReferee
     }
 
     /**
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @param Place $placeReferee
      */
     public function addAsReferee( $game, Place $placeReferee)
@@ -120,7 +120,7 @@ abstract class SelfReferee
 
     /**
      * @param Place|null $place
-     * @param TogetherGame|AgainstEachOtherGame|null $game
+     * @param TogetherGame|AgainstGame|null $game
      */
     public function removeAsReferee( Place $place = null, $game = null )
     {
@@ -283,7 +283,7 @@ abstract class SelfReferee
     }
 
     /**
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      */
     public function add($game)
     {
@@ -297,7 +297,7 @@ abstract class SelfReferee
     }
 
     /**
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      */
     public function remove($game)
     {
@@ -309,7 +309,7 @@ abstract class SelfReferee
 
     /**
      * @param Poule|null $poule
-     * @return array|AgainstEachOtherGame[]|TogetherGame[]
+     * @return array|AgainstGame[]|TogetherGame[]
      */
     public function getGames(Poule $poule = null): array
     {

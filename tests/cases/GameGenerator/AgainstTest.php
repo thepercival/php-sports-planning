@@ -5,10 +5,10 @@ namespace SportsPlanning\Tests\GameGenerator;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
-use SportsPlanning\GameGenerator\AgainstEachOther as AgainstEachOtherGameGenerator;
+use SportsPlanning\GameGenerator\Against as AgainstGameGenerator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class AgainstEachOtherTest extends TestCase
+class AgainstTest extends TestCase
 {
     use PlanningCreator;
 
@@ -16,12 +16,12 @@ class AgainstEachOtherTest extends TestCase
     {
         $sportConfigs = [new SportConfig( new SportBase(2), 2, 1 )];
         $planning = $this->createPlanning(
-            $this->createInput( [5], SportConfig::GAMEMODE_AGAINSTEACHOTHER, $sportConfigs )
+            $this->createInput( [5], SportConfig::GAMEMODE_AGAINST, $sportConfigs )
         );
 
         // alle tests zitten ook in de validator, dus een beeteje dubbel om hier
         // ook nog eens alles te testen!!!!
-        $gameGenerator = new AgainstEachOtherGameGenerator();
+        $gameGenerator = new AgainstGameGenerator();
 
         $poule = $planning->getPoule(1);
         $games = $gameGenerator->generate( $poule, $sportConfigs );

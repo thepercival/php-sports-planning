@@ -5,14 +5,14 @@ namespace SportsPlanning\Resource\RefereePlace;
 
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Place;
 
 class Replace
 {
     protected SelfRefereeBatch $batch;
     /**
-     * @var TogetherGame|AgainstEachOtherGame
+     * @var TogetherGame|AgainstGame
      */
     protected $game;
     protected Place $replaced;
@@ -21,7 +21,7 @@ class Replace
     /**
      * Replace constructor.
      * @param SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @param Place $replacement
      */
     public function __construct(SelfRefereeBatch $batch, $game, Place $replacement)
@@ -38,7 +38,7 @@ class Replace
     }
 
     /**
-     * @return AgainstEachOtherGame|TogetherGame
+     * @return AgainstGame|TogetherGame
      */
     public function getGame()
     {

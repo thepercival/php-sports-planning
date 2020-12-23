@@ -7,7 +7,7 @@ namespace SportsPlanning;
 use SportsHelpers\SportConfig;
 use SportsHelpers\SportMath;
 use SportsPlanning\GameGenerator\Helper as GameGeneratorHelper;
-use SportsPlanning\GameGenerator\AgainstEachOther as AgainstEachOtherGenerator;
+use SportsPlanning\GameGenerator\Against as AgainstGenerator;
 use SportsPlanning\GameGenerator\Together as TogetherGenerator;
 
 class GameGenerator
@@ -29,8 +29,8 @@ class GameGenerator
     }
 
     protected function getGenerator(int $gameMode): GameGeneratorHelper {
-        if( $gameMode === SportConfig::GAMEMODE_AGAINSTEACHOTHER ) {
-            return new AgainstEachOtherGenerator();
+        if( $gameMode === SportConfig::GAMEMODE_AGAINST ) {
+            return new AgainstGenerator();
         }
         return new TogetherGenerator();
     }

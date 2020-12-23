@@ -3,8 +3,9 @@
 namespace SportsPlanning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use SportsHelpers\SportConfig;
 use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 
 class Poule
 {
@@ -25,9 +26,9 @@ class Poule
      */
     protected $places;
     /**
-     * @var AgainstEachOtherGame[] | ArrayCollection
+     * @var AgainstGame[] | ArrayCollection
      */
-    protected $againstEachOtherGames;
+    protected $againstGames;
     /**
      * @var TogetherGame[] | ArrayCollection
      */
@@ -41,7 +42,7 @@ class Poule
         for ($placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++) {
             $this->places->add(new Place($this, $placeNr));
         }
-        $this->againstEachOtherGames = new ArrayCollection();
+        $this->againstGames = new ArrayCollection();
         $this->togetherGames = new ArrayCollection();
     }
 
@@ -81,22 +82,22 @@ class Poule
     }
 
     /**
-     * @return AgainstEachOtherGame[] | TogetherGame[] | ArrayCollection
+     * @return AgainstGame[] | TogetherGame[] | ArrayCollection
      */
     public function getGames()
     {
-        if( $this->againstEachOtherGames->count() > 0 ) {
-            return $this->againstEachOtherGames;
+        if( $this->getPlanning()->getInput()->getGameMode() === SportConfig::GAMEMODE_AGAINST ) {
+            return $this->againstGames;
         }
         return $this->togetherGames;
     }
 
     /**
-     * @return AgainstEachOtherGame[] | ArrayCollection
+     * @return AgainstGame[] | ArrayCollection
      */
-    public function getAgainstEachOtherGames()
+    public function getAgainstGames()
     {
-        return $this->againstEachOtherGames;
+        return $this->againstGames;
     }
 
     /**

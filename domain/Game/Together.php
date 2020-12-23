@@ -7,7 +7,7 @@ namespace SportsPlanning\Game;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use SportsPlanning\Game as GameBase;
-use SportsPlanning\Game\Place\AgainstEachOther as AgainstEachOtherGamePlace;
+use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;

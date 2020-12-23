@@ -5,7 +5,7 @@ namespace SportsPlanning\GameGenerator;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Place;
 use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use drupol\phpermutations\Generators\Combinations as CombinationsGenerator;
 use SportsPlanning\Poule;
 
@@ -27,7 +27,7 @@ class Together implements Helper
     /**
      * @param Poule $poule
      * @param array | SportConfig[] $sportConfigs
-     * @return array | TogetherGame[] | AgainstEachOtherGame[]
+     * @return array | TogetherGame[] | AgainstGame[]
      */
     public function generate(Poule $poule, array $sportConfigs): array
     {

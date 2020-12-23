@@ -51,7 +51,7 @@ class Iterator implements \Iterator
         $this->rangeNrOfFields = $rangeNrOfFields;
         $this->rangeNrOfReferees = $rangeNrOfReferees;
         $this->rangeGameAmount = $rangeGameAmount;
-        $this->gameMode = SportConfig::GAMEMODE_AGAINSTEACHOTHER;
+        $this->gameMode = SportConfig::GAMEMODE_AGAINST;
         $this->maxFieldsMultipleSports = 6;
 
         $this->planningInputService = new PlanningInputService();

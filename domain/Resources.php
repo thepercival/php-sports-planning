@@ -2,7 +2,7 @@
 
 namespace SportsPlanning;
 
-use SportsPlanning\Game\AgainstEachOther as AgainstEachOtherGame;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Sport\Counter as SportCounter;
 
@@ -143,7 +143,7 @@ class Resources
     }
 
     /**
-     * @param AgainstEachOtherGame|TogetherGame $game
+     * @param AgainstGame|TogetherGame $game
      * @return int
      */
     public function getGameNrOfSportsToGo($game): int
@@ -196,7 +196,7 @@ class Resources
     }
 
     /**
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @param Sport $sport
      */
     public function assignSport($game, Sport $sport)
@@ -211,7 +211,7 @@ class Resources
     }
 
     /**
-     * @param TogetherGame|AgainstEachOtherGame $game
+     * @param TogetherGame|AgainstGame $game
      * @param Sport $sport
      * @return bool
      */
