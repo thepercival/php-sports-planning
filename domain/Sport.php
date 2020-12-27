@@ -39,11 +39,6 @@ class Sport extends SportBase
         return $this->number;
     }
 
-    public function getNrOfGamePlaces(): int
-    {
-        return $this->nrOfGamePlaces;
-    }
-
     public function getFields(): Collection
     {
         return $this->fields;
