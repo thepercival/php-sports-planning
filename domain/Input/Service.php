@@ -47,7 +47,7 @@ class Service
     {
         $smallestNrOfPlaces = $pouleStructure->getSmallestPoule();
         foreach ( $sportConfigs as $sportConfig ) {
-            if( $smallestNrOfPlaces < $sportConfig->getNrOfGamePlaces() ) {
+            if( $smallestNrOfPlaces <= $sportConfig->getNrOfGamePlaces() ) {
                 return false;
             }
         }
