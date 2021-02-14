@@ -8,7 +8,7 @@ use SportsPlanning\Place as PoulePlace;
 
 abstract class Place extends Identifiable
 {
-    private PoulePlace $place;
+    protected PoulePlace $place;
 
     public function __construct(PoulePlace $place)
     {

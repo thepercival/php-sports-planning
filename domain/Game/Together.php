@@ -64,22 +64,22 @@ class Together extends GameBase
 
 //    /**
 //     * @param Place $place
-//     * @param bool $homeaway
+//     * @param bool $homeAway
 //     * @return GamePlace
 //     */
-//    public function addPlace(Place $place, bool $homeaway): GamePlace
+//    public function addPlace(Place $place, bool $homeAway): GamePlace
 //    {
-//        return new GamePlace($this, $place, $homeaway);
+//        return new GamePlace($this, $place, $homeAway);
 //    }
 //
 //    /**
 //     * @param Place $place
-//     * @param bool|null $homeaway
+//     * @param bool|null $homeAway
 //     * @return bool
 //     */
-//    public function isParticipating(Place $place, bool $homeaway = null): bool
+//    public function isParticipating(Place $place, bool $homeAway = null): bool
 //    {
-//        $places = $this->getPlaces($homeaway)->map(function ($gamePlace) {
+//        $places = $this->getPlaces($homeAway)->map(function ($gamePlace) {
 //            return $gamePlace->getPlace();
 //        });
 //        return $places->contains($place);

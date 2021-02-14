@@ -112,7 +112,7 @@ class GCDProcessor
             $game = new AgainstGame($poule, $gcdGame->getNrOfHeadtohead() );
             foreach ($gcdGame->getPlaces() as $gcdGamePlace) {
                 $place = $poule->getPlace($gcdGamePlace->getPlace()->getNumber());
-                new AgainstGamePlace($game, $place, $gcdGamePlace->getHomeaway());
+                new AgainstGamePlace($game, $place, $gcdGamePlace->getHomeAway());
             }
             return $game;
         }

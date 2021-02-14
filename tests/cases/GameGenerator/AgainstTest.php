@@ -3,6 +3,7 @@
 namespace SportsPlanning\Tests\GameGenerator;
 
 use PHPUnit\Framework\TestCase;
+use SportsHelpers\GameMode;
 use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
 use SportsPlanning\GameGenerator\Against as AgainstGameGenerator;
@@ -14,9 +15,9 @@ class AgainstTest extends TestCase
 
     public function testSimple()
     {
-        $sportConfigs = [new SportConfig( new SportBase(2), 2, 1 )];
+        $sportConfigs = [new SportConfig(new SportBase(2), 2, 1)];
         $planning = $this->createPlanning(
-            $this->createInput( [5], SportConfig::GAMEMODE_AGAINST, $sportConfigs )
+            $this->createInput([5], GameMode::AGAINST, $sportConfigs)
         );
 
         // alle tests zitten ook in de validator, dus een beeteje dubbel om hier
@@ -24,7 +25,7 @@ class AgainstTest extends TestCase
         $gameGenerator = new AgainstGameGenerator();
 
         $poule = $planning->getPoule(1);
-        $games = $gameGenerator->generate( $poule, $sportConfigs );
+        $games = $gameGenerator->generate($poule, $sportConfigs);
 //        foreach( $games as $game ) {
 //            $output = "";
 //            $getPlacesDescription = function(PlaceCombination $placeCombination): string {

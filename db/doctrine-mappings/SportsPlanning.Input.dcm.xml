@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-  <entity name="SportsPlanning\Input" table="planninginputs" repository-class="SportsPlanning\Input\Repository">
-    <id name="id" type="integer" column="id">
-      <generator strategy="AUTO"/>
-    </id>
+  <entity name="SportsPlanning\Input" table="planningInputs" repository-class="SportsPlanning\Input\Repository">
     <field name="pouleStructureDb" column="structureConfig" type="json" nullable="false" unique="false"/>
     <field name="sportConfigDb" column="sportConfig" type="json" nullable="false" unique="false"/>
     <field name="nrOfReferees" column="nrOfReferees" type="smallint" nullable="false" unique="false"/>
-    <field name="against" column="against" type="boolean" nullable="false" unique="false"/>
+    <field name="gameMode" column="gameMode" type="smallint" nullable="false" unique="false"/>
     <field name="selfReferee" column="selfReferee" type="smallint" nullable="false" unique="false"/>
     <field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
+    <field name="teamupDep" column="teamup" type="boolean" nullable="false" unique="false"/>
+    <field name="nrOfHeadtoheadDep" column="nrOfHeadtohead" type="smallint" nullable="false" unique="false"/>
     <one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="input">
       <cascade>
         <cascade-remove/>
@@ -17,9 +16,8 @@
     </one-to-many>
     <indexes>
       <index columns="nrOfReferees"/>
-      <index columns="teamup"/>
+      <index columns="gameMode"/>
       <index columns="selfReferee"/>
-      <index columns="nrOfHeadtohead"/>
       <index columns="createdAt"/>
     </indexes>
   </entity>

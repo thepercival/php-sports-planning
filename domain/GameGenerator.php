@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning;
 
-use SportsHelpers\SportConfig;
+use SportsHelpers\GameMode;
 use SportsHelpers\SportMath;
 use SportsPlanning\GameGenerator\Helper as GameGeneratorHelper;
 use SportsPlanning\GameGenerator\Against as AgainstGenerator;
@@ -19,17 +19,18 @@ class GameGenerator
         $this->math = new SportMath();
     }
 
-    public function createGames(Planning $planning)
+    public function generateGames(Planning $planning)
     {
         $input = $planning->getInput();
-        $generatorHelper = $this->getGenerator( $input->getGameMode() );
+        $generatorHelper = $this->getGenerator($input->getGameMode());
         foreach ($planning->getPoules() as $poule) {
-            $generatorHelper->generate($poule, $input->getSportConfigs() );
+            $generatorHelper->generate($poule, $input->getSportConfigs());
         }
     }
 
-    protected function getGenerator(int $gameMode): GameGeneratorHelper {
-        if( $gameMode === SportConfig::GAMEMODE_AGAINST ) {
+    protected function getGenerator(int $gameMode): GameGeneratorHelper
+    {
+        if ($gameMode === GameMode::AGAINST) {
             return new AgainstGenerator();
         }
         return new TogetherGenerator();

@@ -6,6 +6,7 @@ namespace SportsPlanning\Tests\Validator;
 
 use \Exception;
 use PHPUnit\Framework\TestCase;
+use SportsHelpers\GameMode;
 use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Input;
@@ -22,7 +23,7 @@ class GameAssignmentsTest extends TestCase
     public function testGetCountersFields()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5] )
+            $this->createInput([5])
         );
 
         $validator = new GameAssignmentValidator($planning);
@@ -39,7 +40,7 @@ class GameAssignmentsTest extends TestCase
     public function testGetCountersReferees()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5] )
+            $this->createInput([5])
         );
 
 //        $planningOutput = new PlanningOutput();
@@ -59,7 +60,7 @@ class GameAssignmentsTest extends TestCase
     public function testGetCountersRefereePlaces()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5], null, null, null,Input::SELFREFEREE_SAMEPOULE )
+            $this->createInput([5], null, null, null, Input::SELFREFEREE_SAMEPOULE)
         );
 
 //        $planningOutput = new PlanningOutput();
@@ -79,7 +80,7 @@ class GameAssignmentsTest extends TestCase
     public function testGetUnequalRefereePlaces()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5], null, null, null, Input::SELFREFEREE_SAMEPOULE )
+            $this->createInput([5], null, null, null, Input::SELFREFEREE_SAMEPOULE)
         );
 
         $firstPoule = $planning->getPoule(1);
@@ -120,7 +121,7 @@ class GameAssignmentsTest extends TestCase
     public function testValidateRefereePlacesTwoPoulesNotEqualySized()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5,4], null, null, null, Input::SELFREFEREE_OTHERPOULES )
+            $this->createInput([5,4], null, null, null, Input::SELFREFEREE_OTHERPOULES)
         );
 
         $secondPoule = $planning->getPoule(2);
@@ -146,7 +147,7 @@ class GameAssignmentsTest extends TestCase
     {
         $sportConfigs = [new SportConfig(new SportBase(2), 2, 1)];
         $planning = $this->createPlanning(
-            $this->createInput( [5], SportConfig::GAMEMODE_AGAINST, $sportConfigs )
+            $this->createInput([5], GameMode::AGAINST, $sportConfigs)
         );
 
         // $planningGames = $planning->getPoule(1)->getGames();
@@ -165,7 +166,7 @@ class GameAssignmentsTest extends TestCase
     public function testValidateUnequalReferees()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5], SportConfig::GAMEMODE_AGAINST, null, 3 )
+            $this->createInput([5], GameMode::AGAINST, null, 3)
         );
 
         // $planningGames = $planning->getPoule(1)->getGames();
@@ -184,7 +185,7 @@ class GameAssignmentsTest extends TestCase
     public function testValidateUnequalRefereePlaces()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5], SportConfig::GAMEMODE_AGAINST, null, null, Input::SELFREFEREE_SAMEPOULE )
+            $this->createInput([5], GameMode::AGAINST, null, null, Input::SELFREFEREE_SAMEPOULE)
         );
 
         $firstPoule = $planning->getPoule(1);
@@ -208,7 +209,7 @@ class GameAssignmentsTest extends TestCase
     public function testValidate()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [5], null, null, null, Input::SELFREFEREE_SAMEPOULE )
+            $this->createInput([5], null, null, null, Input::SELFREFEREE_SAMEPOULE)
         );
 
         $validator = new GameAssignmentValidator($planning);

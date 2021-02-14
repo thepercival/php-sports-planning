@@ -3,7 +3,7 @@
 namespace SportsPlanning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use SportsHelpers\SportConfig;
+use SportsHelpers\GameMode;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Against as AgainstGame;
 
@@ -86,7 +86,7 @@ class Poule
      */
     public function getGames()
     {
-        if( $this->getPlanning()->getInput()->getGameMode() === SportConfig::GAMEMODE_AGAINST ) {
+        if( $this->getPlanning()->getInput()->getGameMode() === GameMode::AGAINST ) {
             return $this->againstGames;
         }
         return $this->togetherGames;

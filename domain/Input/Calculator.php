@@ -50,7 +50,7 @@ class Calculator
     public function getMaxNrOfGamesInARow(
         int $gameMode, PouleStructure $pouleStructure, array $sportConfigs, bool $selfReferee): int
     {
-        // if( $gameMode === SportConfig::GAMEMODE_AGAINST ) {
+        // if( $gameMode === GameMode::AGAINST ) {
             $nrOfPoulesByNrOfPlaces = $pouleStructure->getNrOfPoulesByNrOfPlaces();
             $nrOfPlaces = key($nrOfPoulesByNrOfPlaces);
             $nrOfPlaces *= $nrOfPoulesByNrOfPlaces[$nrOfPlaces];

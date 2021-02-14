@@ -2,6 +2,7 @@
 
 namespace SportsPlanning\Tests\GameGenerator;
 
+use SportsHelpers\GameMode;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
@@ -17,14 +18,14 @@ class TogetherTest extends \PHPUnit\Framework\TestCase
 
     public function testSimple()
     {
-        $sportConfigs = [new SportConfig( new SportBase(2), 2, 3 )];
+        $sportConfigs = [new SportConfig(new SportBase(2), 2, 3)];
         $planning = $this->createPlanning(
-            $this->createInput( [7], SportConfig::GAMEMODE_TOGETHER, $sportConfigs )
+            $this->createInput([7], GameMode::TOGETHER, $sportConfigs)
         );
 
-        $getPlacesDescription = function(array $togetherGamePlaces): string {
+        $getPlacesDescription = function (array $togetherGamePlaces): string {
             $description = "";
-            foreach( $togetherGamePlaces as $togetherGamePlace ) {
+            foreach ($togetherGamePlaces as $togetherGamePlace) {
                 $description .= $togetherGamePlace->getPlace()->getLocation() . " , ";
             }
             return $description;
@@ -35,7 +36,7 @@ class TogetherTest extends \PHPUnit\Framework\TestCase
         $gameGenerator = new TogetherGameeGenerator();
 
         $poule = $planning->getPoule(1);
-        $games = $gameGenerator->generate( $poule, $sportConfigs );
+        $games = $gameGenerator->generate($poule, $sportConfigs);
 //        foreach( $games as $game ) {
 //            $output = "";
 //            $places = "places: " . $getPlacesDescription($game->getPlaces()->toArray());

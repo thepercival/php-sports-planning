@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\GameGenerator;
 
+use SportsHelpers\GameMode;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Place;
 use SportsPlanning\Game\Together as TogetherGame;
@@ -15,7 +16,8 @@ use SportsPlanning\Poule;
 class Against implements Helper
 {
     public function __construct()
-    {}
+    {
+    }
 
     /**
      * @param Poule $poule
@@ -26,10 +28,10 @@ class Against implements Helper
     {
         $games = [];
         $gameAmount = 1;
-        while ( $filteredSportConfigs = $this->getSportConfigs($sportConfigs, $gameAmount)) {
-            $homeAways = $this->generateHelper($poule->getPlaces()->toArray(), $filteredSportConfigs );
-            $gamesIt = $this->toGames($homeAways, $poule, $gameAmount );
-            $games = array_merge( $games, $gamesIt );
+        while ($filteredSportConfigs = $this->getSportConfigs($sportConfigs, $gameAmount)) {
+            $homeAways = $this->generateHelper($poule->getPlaces()->toArray(), $filteredSportConfigs);
+            $gamesIt = $this->toGames($homeAways, $poule, $gameAmount);
+            $games = array_merge($games, $gamesIt);
             $gameAmount++;
         }
         return $games;
@@ -40,8 +42,9 @@ class Against implements Helper
      * @param int $gameAmount
      * @return array | SportConfig[]
      */
-    protected function getSportConfigs(array $sportConfigs, int $gameAmount): array {
-        return array_filter($sportConfigs, function( SportConfig $sportConfig) use($gameAmount): bool {
+    protected function getSportConfigs(array $sportConfigs, int $gameAmount): array
+    {
+        return array_filter($sportConfigs, function (SportConfig $sportConfig) use ($gameAmount): bool {
             return $sportConfig->getGameAmount() >= $gameAmount;
         });
     }
@@ -67,10 +70,10 @@ class Against implements Helper
      */
     public function generateForSportConfig(array $places, SportConfig $sportConfig): array
     {
-        $nrOfHomeawayPlaces = $sportConfig->getNrOfGamePlaces() / 2;
-        $maxNrOfHomeGames = (int)ceil( $sportConfig->getNrOfGamesPerPlace(SportConfig::GAMEMODE_AGAINST, count($places) ) / 2 );
+        $nrOfHomeAwayPlaces = $sportConfig->getNrOfGamePlaces() / 2;
+        $maxNrOfHomeGames = (int)ceil($sportConfig->getNrOfGamesPerPlace(GameMode::AGAINST, count($places)) / 2);
         $homeCombinations = $this->toPlaceCombinations(
-            new CombinationsGenerator($places, $nrOfHomeawayPlaces)
+            new CombinationsGenerator($places, $nrOfHomeAwayPlaces)
         );
         // $this->homeCounterService->initSport( $sportConfig, $homeCombinations);
         $games = [];
@@ -78,7 +81,7 @@ class Against implements Helper
         foreach ($homeCombinations as $homeCombination) {
             $availableAwayPlaces = $this->getOtherPlaces($places, $homeCombination);
             $awayCombinations = $this->toPlaceCombinations(
-                new CombinationsGenerator($availableAwayPlaces, $nrOfHomeawayPlaces)
+                new CombinationsGenerator($availableAwayPlaces, $nrOfHomeAwayPlaces)
             );
             $nrOfHomeGames = 0;
             foreach ($awayCombinations as $awayCombination) {
@@ -98,7 +101,8 @@ class Against implements Helper
      * @param CombinationsGenerator $combinations
      * @return array|PlaceCombination[]
      */
-    protected function toPlaceCombinations( CombinationsGenerator $combinations ): array {
+    protected function toPlaceCombinations(CombinationsGenerator $combinations): array
+    {
         return array_map(
             function (array $placeCombination): PlaceCombination {
                 return new PlaceCombination($placeCombination);
@@ -109,7 +113,7 @@ class Against implements Helper
 
     public function createGame(PlaceCombination $home, PlaceCombination $away, bool $swap): AgainstHomeAway
     {
-        return new AgainstHomeAway($swap ? $away : $home, $swap ? $home : $away );
+        return new AgainstHomeAway($swap ? $away : $home, $swap ? $home : $away);
     }
 
     protected function gameExists(&$games, PlaceCombination $home, PlaceCombination $away): bool
@@ -142,15 +146,16 @@ class Against implements Helper
      * @param array|AgainstHomeAway[] $homeAways
      * @return array|AgainstGame[]
      */
-    protected function toGames(array $homeAways, Poule $poule, int $gameAmount): array {
-        return array_map( function( AgainstHomeAway $homeAway ) use($poule, $gameAmount) : AgainstGame {
+    protected function toGames(array $homeAways, Poule $poule, int $gameAmount): array
+    {
+        return array_map(function (AgainstHomeAway $homeAway) use ($poule, $gameAmount) : AgainstGame {
             $game = new AgainstGame($poule, $gameAmount);
-            foreach( [AgainstGame::HOME, AgainstGame::AWAY] as $homeAwayValue ) {
-                foreach( $homeAway->get($homeAwayValue)->getPlaces() as $place ) {
-                    new AgainstGamePlace($game, $place, $homeAwayValue );
+            foreach ([AgainstGame::HOME, AgainstGame::AWAY] as $homeAwayValue) {
+                foreach ($homeAway->get($homeAwayValue)->getPlaces() as $place) {
+                    new AgainstGamePlace($game, $place, $homeAwayValue);
                 }
             }
             return $game;
-        }, $homeAways );
+        }, $homeAways);
     }
 }

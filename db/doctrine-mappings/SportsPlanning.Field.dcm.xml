@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-  <entity name="SportsPlanning\Field" table="planningfields" repository-class="SportsPlanning\Field\Repository">
+  <entity name="SportsPlanning\Field" table="planningFields" repository-class="SportsPlanning\Field\Repository">
     <id name="id" type="integer" column="id">
       <generator strategy="AUTO"/>
     </id>
     <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
     <many-to-one field="sport" target-entity="SportsPlanning\Sport" inversed-by="fields">
       <join-columns>
-        <join-column name="sportid" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+        <join-column name="sportId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>
     </many-to-one>
   </entity>

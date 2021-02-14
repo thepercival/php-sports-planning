@@ -3,6 +3,7 @@
 namespace SportsPlanning\Planning;
 
 use \Exception;
+use SportsHelpers\GameMode;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Game;
 use SportsPlanning\Poule;
@@ -158,7 +159,7 @@ class Validator
     {
         $nrOfGames = [];
         foreach ($poule->getGames() as $game) {
-            if( $this->planning->getInput()->getGameMode() === SportConfig::GAMEMODE_AGAINST ) {
+            if( $this->planning->getInput()->getGameMode() === GameMode::AGAINST ) {
                 /** @var array|Place[] $places */
                 $homePlaces = $game->getPlaces(AgainstGame::HOME);
                 $awayPlaces = $game->getPlaces(AgainstGame::AWAY);

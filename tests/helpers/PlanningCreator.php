@@ -9,6 +9,7 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
+use SportsHelpers\GameMode;
 use SportsHelpers\Range;
 use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
@@ -17,23 +18,27 @@ use SportsPlanning\Planning\GameCreator;
 use SportsPlanning\Input;
 use SportsHelpers\PouleStructure;
 
-trait PlanningCreator {
+trait PlanningCreator
+{
 
     /**
      * @return array|SportConfig[]
      */
-    protected function getDefaultSportConfigs(): array {
+    protected function getDefaultSportConfigs(): array
+    {
         return [$this->getDefaultSportConfig()];
     }
 
     /**
      * @return SportConfig
      */
-    protected function getDefaultSportConfig(): SportConfig {
-        return new SportConfig( new SportBase(2), 2, 1 );
+    protected function getDefaultSportConfig(): SportConfig
+    {
+        return new SportConfig(new SportBase(2), 2, 1);
     }
 
-    protected function getLogger(): LoggerInterface {
+    protected function getLogger(): LoggerInterface
+    {
         $logger = new Logger("test-logger");
         $processor = new UidProcessor();
         $logger->pushProcessor($processor);
@@ -43,7 +48,8 @@ trait PlanningCreator {
         return $logger;
     }
 
-    protected function getDefaultNrOfReferees(): int {
+    protected function getDefaultNrOfReferees(): int
+    {
         return 2;
     }
 
@@ -62,16 +68,16 @@ trait PlanningCreator {
         int $nrOfReferees = null,
         int $selfReferee = null
     ) {
-        if( $gameMode === null ) {
-            $gameMode = SportConfig::GAMEMODE_AGAINST;
+        if ($gameMode === null) {
+            $gameMode = GameMode::AGAINST;
         }
-        if( $sportConfigs === null ) {
+        if ($sportConfigs === null) {
             $sportConfigs = $this->getDefaultSportConfigs();
         }
-        if( $nrOfReferees === null ) {
+        if ($nrOfReferees === null) {
             $nrOfReferees = $this->getDefaultNrOfReferees();
         }
-        if( $selfReferee === null ) {
+        if ($selfReferee === null) {
             $selfReferee = Input::SELFREFEREE_DISABLED;
         }
         return new Input(
@@ -83,17 +89,16 @@ trait PlanningCreator {
         );
     }
 
-    protected function createPlanning( Input $input, Range $range = null ): Planning
+    protected function createPlanning(Input $input, Range $range = null): Planning
     {
-        if( $range === null ){
-            $range = new Range(1,1);
+        if ($range === null) {
+            $range = new Range(1, 1);
         }
-        $planning = new Planning( $input, $range, 0 );
-        $gameCreator = new GameCreator( $this->getLogger() );
-        if (Planning::STATE_SUCCEEDED !== $gameCreator->createGames($planning) ) {
+        $planning = new Planning($input, $range, 0);
+        $gameCreator = new GameCreator($this->getLogger());
+        if (Planning::STATE_SUCCEEDED !== $gameCreator->createGames($planning)) {
             throw new Exception("planning could not be created", E_ERROR);
         }
         return $planning;
     }
 }
-

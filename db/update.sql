@@ -1,9 +1,20 @@
 -- PRE PRE PRE doctrine-update =============================================================
-update planninginputs set sportConfig = replace(sportConfig, '2}]', '2,"versusMode": true}]');
-update planninginputs set sportConfig = replace(sportConfig, 'Places":2', 'Places":4') where teamup = true;
+
+alter table planningfields rename planningFields;
+alter table planningplaces rename planningPlaces;
+alter table planninginputs rename planningInputs;
+alter table planningpoules rename planningPoules;
+alter table planningreferees rename planningReferees;
+alter table planningsports rename planningSports;
 update sports set customId = 15 where name = 'sjoelen';
+truncate planningInputs;
 
 -- POST POST POST doctrine-update ===========================================================
+
+-- update planninginputs set gameMode = 2;
+-- update planningInputs set sportConfig = replace(sportConfig, '2}]', concat( '2,"gameAmount": ', nrOfHeadtohead, '}]') );
+-- update planningInputs set sportConfig = replace(sportConfig, 'Places":2', 'Places":4') , gameMode = 2 where teamup = true;
+
 
 -- php bin/console.php app:create-default-planning-input --placesRange=2-4 --sendCreatePlanningMessage=true
 

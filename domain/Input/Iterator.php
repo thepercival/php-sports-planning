@@ -3,6 +3,7 @@
 namespace SportsPlanning\Input;
 
 use Exception;
+use SportsHelpers\GameMode;
 use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Planning\Output as PlanningOutput;
@@ -46,12 +47,12 @@ class Iterator implements \Iterator
         Range $rangeNrOfReferees,
         Range $rangeGameAmount
     ) {
-        $this->structureIterator = new PouleStructureIterator( $rangePlaces, $rangePoules );
+        $this->structureIterator = new PouleStructureIterator($rangePlaces, $rangePoules);
         $this->rangeNrOfSports = $rangeNrOfSports;
         $this->rangeNrOfFields = $rangeNrOfFields;
         $this->rangeNrOfReferees = $rangeNrOfReferees;
         $this->rangeGameAmount = $rangeGameAmount;
-        $this->gameMode = SportConfig::GAMEMODE_AGAINST;
+        $this->gameMode = GameMode::AGAINST;
         $this->maxFieldsMultipleSports = 6;
 
         $this->planningInputService = new PlanningInputService();
@@ -72,8 +73,8 @@ class Iterator implements \Iterator
         $sports = [];
         $nrOfFieldsPerSport = (int)ceil($nrOfFields / $nrOfSports);
         for ($sportNr = 1; $sportNr <= $nrOfSports; $sportNr++) {
-            $sport = new SportBase( self::DEFAULTNROFGAMEPLACES, );
-            $sports[] = new SportConfig( $sport, $nrOfFieldsPerSport, $gameAmountNumber );
+            $sport = new SportBase(self::DEFAULTNROFGAMEPLACES, );
+            $sports[] = new SportConfig($sport, $nrOfFieldsPerSport, $gameAmountNumber);
             $nrOfFields -= $nrOfFieldsPerSport;
             if (($nrOfFieldsPerSport * ($nrOfSports - $sportNr)) > $nrOfFields) {
                 $nrOfFieldsPerSport--;
@@ -85,7 +86,7 @@ class Iterator implements \Iterator
     protected function init()
     {
         $this->initStructure();
-        if( !$this->structureIterator->valid()) {
+        if (!$this->structureIterator->valid()) {
             return;
         }
         $this->current = $this->createInput();
@@ -130,18 +131,20 @@ class Iterator implements \Iterator
         $this->selfReferee = PlanningInput::SELFREFEREE_DISABLED;
     }
 
-    public function current () : ?PlanningInput {
+    public function current() : ?PlanningInput
+    {
         return $this->current;
     }
 
-    public function key () : string {
+    public function key() : string
+    {
         $planningInputOutput = new PlanningOutput();
-        return $planningInputOutput->getInputAsString( $this->current );
+        return $planningInputOutput->getInputAsString($this->current);
     }
 
     public function next()
     {
-        if( $this->current === null ) {
+        if ($this->current === null) {
             return;
         }
 
@@ -173,11 +176,13 @@ class Iterator implements \Iterator
 //        }
     }
 
-    public function rewind() {
-        throw new Exception("rewind is not implemented", E_ERROR );
+    public function rewind()
+    {
+        throw new Exception("rewind is not implemented", E_ERROR);
     }
 
-    public function valid () : bool {
+    public function valid() : bool
+    {
         return $this->current !== null;
     }
 
@@ -208,7 +213,7 @@ class Iterator implements \Iterator
         $nrOfGamePlaces = self::DEFAULTNROFGAMEPLACES;
         $pouleStructure = $this->structureIterator->current();
         $sportConfigs = $this->createSportConfigs($this->nrOfSports, $this->nrOfFields, $this->gameAmountNumber);
-        $selfRefereeIsAvailable = $this->planningInputService->canSelfRefereeBeAvailable( $pouleStructure, $sportConfigs );
+        $selfRefereeIsAvailable = $this->planningInputService->canSelfRefereeBeAvailable($pouleStructure, $sportConfigs);
         if ($selfRefereeIsAvailable === false) {
             return $this->incrementGameAmount();
         }
@@ -298,7 +303,7 @@ class Iterator implements \Iterator
     protected function incrementStructure(): bool
     {
         $this->structureIterator->next();
-        if( !$this->structureIterator->valid() ) {
+        if (!$this->structureIterator->valid()) {
             return false;
         }
         $this->initNrOfSports();

@@ -49,17 +49,17 @@ class Against extends Game
     }
 
     /**
-     * @param bool|null $homeaway
+     * @param bool|null $homeAway
      * @return Collection | AgainstGamePlace[] | TogetherGamePlace[]
      */
-    public function getPlaces(bool $homeaway = null): Collection
+    public function getPlaces(bool $homeAway = null): Collection
     {
-        if ($homeaway === null) {
+        if ($homeAway === null) {
             return $this->places;
         }
         return $this->places->filter(
-                function (AgainstGamePlace $gamePlace) use ($homeaway): bool {
-                    return $gamePlace->getHomeaway() === $homeaway;
+                function (AgainstGamePlace $gamePlace) use ($homeAway): bool {
+                    return $gamePlace->getHomeAway() === $homeAway;
                 }
             );
     }
@@ -74,22 +74,22 @@ class Against extends Game
 
     /**
      * @param Place $place
-     * @param bool $homeaway
+     * @param bool $homeAway
      * @return AgainstGamePlace
      */
-    public function addPlace(Place $place, bool $homeaway): AgainstGamePlace
+    public function addPlace(Place $place, bool $homeAway): AgainstGamePlace
     {
-        return new AgainstGamePlace($this, $place, $homeaway);
+        return new AgainstGamePlace($this, $place, $homeAway);
     }
 
     /**
      * @param Place $place
-     * @param bool|null $homeaway
+     * @param bool|null $homeAway
      * @return bool
      */
-    public function isParticipating(Place $place, bool $homeaway = null): bool
+    public function isParticipating(Place $place, bool $homeAway = null): bool
     {
-        $places = $this->getPlaces($homeaway)->map(function ($gamePlace) {
+        $places = $this->getPlaces($homeAway)->map(function ($gamePlace) {
             return $gamePlace->getPlace();
         });
         return $places->contains($place);

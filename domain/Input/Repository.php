@@ -6,8 +6,8 @@ use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\Range;
 use SportsHelpers\SportConfig;
-use SportsPlanning\Planning;
 use SportsPlanning\Input;
+use SportsPlanning\Planning;
 use SportsPlanning\Planning\Validator;
 
 class Repository extends BaseRepository
@@ -17,27 +17,29 @@ class Repository extends BaseRepository
      * @param array|SportConfig[] $sportConfigs
      * @param int $nrOfReferees
      * @param int $selfReferee
+     * @param int $gameMode
      * @return Input|null
      */
     public function get(
         PouleStructure $pouleStructure,
         array $sportConfigs,
         int $nrOfReferees,
-        int $selfReferee
+        int $selfReferee,
+        int $gameMode
     ): ?Input {
         $query = $this->createQueryBuilder('pi')
             ->where('pi.pouleStructureDb = :pouleStructure')
             ->andWhere('pi.sportConfigDb = :sportConfig')
             ->andWhere('pi.nrOfReferees = :nrOfReferees')
-            ->andWhere('pi.teamup = :teamup')
             ->andWhere('pi.selfReferee = :selfReferee')
-            ->andWhere('pi.nrOfHeadtohead = :nrOfHeadtohead')
+            ->andWhere('pi.gameMode = :gameMode')
         ;
 
         $query = $query->setParameter('pouleStructure', json_encode($pouleStructure->toArray()));
         $query = $query->setParameter('sportConfig', json_encode($this->sportConfigsToArray($sportConfigs)));
         $query = $query->setParameter('nrOfReferees', $nrOfReferees);
         $query = $query->setParameter('selfReferee', $selfReferee);
+        $query = $query->setParameter('gameMode', $gameMode);
 
         $query->setMaxResults(1);
 
@@ -62,7 +64,8 @@ class Repository extends BaseRepository
             $input->getPouleStructure(),
             $input->getSportConfigs(),
             $input->getNrOfReferees(),
-            $input->getSelfReferee()
+            $input->getSelfReferee(),
+            $input->getGameMode()
         );
     }
 

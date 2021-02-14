@@ -9,13 +9,13 @@ use SportsPlanning\Place as PoulePlace;
 class Against extends GamePlace
 {
     private AgainstGame $game;
-    private bool $homeaway;
+    private bool $homeAway;
 
-    public function __construct(AgainstGame $game, PoulePlace $place, bool $homeaway )
+    public function __construct(AgainstGame $game, PoulePlace $place, bool $homeAway )
     {
         parent::__construct($place);
         $this->setGame($game);
-        $this->homeaway = $homeaway;
+        $this->homeAway = $homeAway;
     }
 
     public function getGame(): AgainstGame
@@ -31,8 +31,8 @@ class Against extends GamePlace
         $this->game = $game;
     }
 
-    public function getHomeaway(): bool
+    public function getHomeAway(): bool
     {
-        return $this->homeaway;
+        return $this->homeAway;
     }
 }

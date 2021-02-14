@@ -2,5 +2,13 @@
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
   <entity name="SportsPlanning\Game\Place\Together" table="planningGamePlacesTogether" repository-class="SportsPlanning\Game\Place\Together\Repository">
     <field name="gameRoundNumber" column="gameRoundNumber" type="smallint" nullable="false" unique="false"/>
+    <many-to-one field="game" target-entity="SportsPlanning\Game\Together" inversed-by="places">
+      <join-columns>
+        <join-column name="gameId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+      </join-columns>
+    </many-to-one>
+    <unique-constraints>
+      <unique-constraint columns="gameId,placeId" name="number_v_idx" />
+    </unique-constraints>
   </entity>
 </doctrine-mapping>

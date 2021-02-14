@@ -7,6 +7,7 @@ namespace SportsPlanning;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use SportsHelpers\Identifiable;
 use SportsHelpers\Range;
 use SportsHelpers\SportConfig;
 use SportsHelpers\PouleStructure;
@@ -18,12 +19,8 @@ use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 
-class Planning
+class Planning extends Identifiable
 {
-    /**
-     * @var int
-     */
-    private $id;
     /**
      * @var int
      */
@@ -97,11 +94,6 @@ class Planning
         $this->createdDateTime = new DateTimeImmutable();
         $this->timeoutSeconds = $this->getDefaultTimeoutSeconds();
         $this->state = self::STATE_TOBEPROCESSED;
-    }
-
-    public function getId(): ?int
-    {
-        return $this->id;
     }
 
     public function minIsMaxNrOfBatchGames(): bool
