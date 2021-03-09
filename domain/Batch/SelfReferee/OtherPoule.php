@@ -14,9 +14,9 @@ class OtherPoule extends Batch\SelfReferee
      */
     protected array $poules;
 
-    public function __construct( array $poules, Batch $batch, SelfReferee $previous = null)
+    public function __construct(array $poules, Batch $batch, SelfReferee $previous = null)
     {
-        parent::__construct( $batch, $previous );
+        parent::__construct($batch, $previous);
         $this->poules = $poules;
 
         if ($this->getBase()->hasNext()) {
@@ -33,7 +33,8 @@ class OtherPoule extends Batch\SelfReferee
     /**
      * @return array|int[]
      */
-    protected function getForcedRefereePlacesMap(): array {
+    protected function getForcedRefereePlacesMap(): array
+    {
         $forcedRefereePlacesMap = [];
         $otherPlacesMap = $this->getOtherPlacesMap();
         foreach ($this->getPouleCounters() as $pouleCounter) {
@@ -42,7 +43,7 @@ class OtherPoule extends Batch\SelfReferee
             $availableRefereePlaces = $this->getAvailableRefereePlaces(
                 $otherPlacesMap[$poule->getNumber()]
             );
-            if ( $nrOfGames < count($availableRefereePlaces) ) {
+            if ($nrOfGames < count($availableRefereePlaces)) {
                 continue;
             }
             foreach ($availableRefereePlaces as $availableRefereePlace) {
@@ -55,14 +56,14 @@ class OtherPoule extends Batch\SelfReferee
     /**
      * @return array[]|Place[][]
      */
-    protected function getOtherPlacesMap(): array {
-
+    protected function getOtherPlacesMap(): array
+    {
         $otherPoulePlacesMap = [];
-        foreach( $this->poules as $poule ) {
+        foreach ($this->poules as $poule) {
             $otherPoulePlacesMap[$poule->getNumber()] = [];
-            $otherPoules = array_slice( $this->poules, 0 );
-            foreach( $otherPoules as $otherPoule ) {
-                if( $otherPoule === $poule ) {
+            $otherPoules = array_slice($this->poules, 0);
+            foreach ($otherPoules as $otherPoule) {
+                if ($otherPoule === $poule) {
                     continue;
                 }
                 $otherPoulePlacesMap[$poule->getNumber()] = array_merge(
@@ -78,15 +79,16 @@ class OtherPoule extends Batch\SelfReferee
      * @param array|Place[] $otherPoulePlaces
      * @return array|Place[]
      */
-    protected function getAvailableRefereePlaces( array $otherPoulePlaces ): array {
+    protected function getAvailableRefereePlaces(array $otherPoulePlaces): array
+    {
         $baseBatch = $this->getBase();
         $availableRefereePlaces = [];
-        foreach( $otherPoulePlaces as $otherPoulePlace ) {
-            if( $baseBatch->isParticipating( $otherPoulePlace ) ) {
+        foreach ($otherPoulePlaces as $otherPoulePlace) {
+            if ($baseBatch->isParticipating($otherPoulePlace)) {
                 continue;
             }
             $availableRefereePlaces[] = $otherPoulePlace;
         }
-         return $availableRefereePlaces;
+        return $availableRefereePlaces;
     }
 }

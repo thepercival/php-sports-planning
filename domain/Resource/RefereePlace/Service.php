@@ -6,6 +6,7 @@ use DateTimeImmutable;
 use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\SelfReferee;
 use SportsPlanning\Planning;
 use SportsPlanning\Game;
 use SportsPlanning\Place;
@@ -38,7 +39,7 @@ class Service
     {
         $this->planning = $planning;
         $this->nrOfPlaces = $this->planning->getPouleStructure()->getNrOfPlaces();
-        $this->replacer = new Replacer($planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE);
+        $this->replacer = new Replacer($planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE);
         $this->throwOnTimeout = true;
     }
 
@@ -47,18 +48,18 @@ class Service
         return $this->planning->getInput();
     }
 
-    public function assign(SelfRefereeBatch $batch ): int
+    public function assign(SelfRefereeBatch $batch): int
     {
         if (!$this->getInput()->selfRefereeEnabled()) {
             return Planning::STATE_SUCCEEDED;
         }
-        return $this->assignHelper( $batch );
+        return $this->assignHelper($batch);
     }
 
     public function assignHelper(SelfRefereeBatch $batch): int
     {
         $timeoutDateTime = (new DateTimeImmutable())->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
-        $this->replacer->setTimeoutDateTime( $timeoutDateTime );
+        $this->replacer->setTimeoutDateTime($timeoutDateTime);
         $refereePlaces = $this->getRefereePlaces();
         try {
             if ($this->assignBatch($batch, $batch->getBase()->getGames(), $refereePlaces, $timeoutDateTime)) {
@@ -102,7 +103,7 @@ class Service
                 // (new BatchOutput())->output($batch);
                 return $this->equallyAssign($batch);
             }
-            if ( $this->throwOnTimeout && (new DateTimeImmutable()) > $timeoutDateTime) {
+            if ($this->throwOnTimeout && (new DateTimeImmutable()) > $timeoutDateTime) {
                 throw new TimeoutException(
                     "exceeded maximum duration",
                     E_ERROR
@@ -121,8 +122,8 @@ class Service
                     return true;
                 }
                 // statics
-                $game->setRefereePlace( null );
-                $batch->removeAsReferee($refereePlace->getPlace(), null );
+                $game->setRefereePlace(null);
+                $batch->removeAsReferee($refereePlace->getPlace(), null);
             }
         }
         return false;
@@ -138,7 +139,7 @@ class Service
         if ($batch->getBase()->isParticipating($refereePlace) || $batch->isParticipatingAsReferee($refereePlace)) {
             return false;
         }
-        if ($this->planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE) {
+        if ($this->planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
             return $refereePlace->getPoule() === $game->getPoule();
         }
 //        if (array_key_exists($batch->getNumber(), $this->canBeSamePoule)
@@ -177,7 +178,8 @@ class Service
         return $newRefereePlaces;
     }
 
-    public function disableThrowOnTimeout() {
+    public function disableThrowOnTimeout()
+    {
         $this->throwOnTimeout = false;
         $this->replacer->disableThrowOnTimeout();
     }

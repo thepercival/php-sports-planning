@@ -9,7 +9,7 @@ class SamePoule extends Batch\SelfReferee
 {
     public function __construct(Batch $batch, SelfReferee $previous = null)
     {
-        parent::__construct( $batch, $previous );
+        parent::__construct($batch, $previous);
 
         if ($this->getBase()->hasNext()) {
             $this->next = new SamePoule($this->getBase()->getNext(), $this);
@@ -25,7 +25,8 @@ class SamePoule extends Batch\SelfReferee
     /**
      * @return array|int[]
      */
-    protected function getForcedRefereePlacesMap(): array {
+    protected function getForcedRefereePlacesMap(): array
+    {
         $forcedRefereePlacesMap = [];
         foreach ($this->getPouleCounters() as $pouleCounter) {
             $poule = $pouleCounter->getPoule();

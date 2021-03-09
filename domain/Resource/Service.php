@@ -15,7 +15,7 @@ use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Planning;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Input as PlanningInput;
+use SportsPlanning\SelfReferee;
 use SportsPlanning\Place;
 use SportsPlanning\Sport;
 use SportsPlanning\Resources as Resources;
@@ -106,7 +106,7 @@ class Service
 
         $sportCounters = [];
         foreach ($this->planning->getPoules() as $poule) {
-            throw new \Exception("TODO DEPRECATED", E_ERROR );
+            throw new \Exception("TODO DEPRECATED", E_ERROR);
 //            $pouleNrOfPlaces = $poule->getPlaces()->count();
 //            $nrOfGamesToGo = (new GameCalculator())->getNrOfGamesPerPlace(
 //                $pouleNrOfPlaces,
@@ -173,11 +173,11 @@ class Service
         $this->timeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
         $this->init();
         $batch = new Batch();
-        if( $this->getInput()->selfRefereeEnabled() ) {
-            if( $this->getInput()->getSelfReferee() === PlanningInput::SELFREFEREE_SAMEPOULE) {
-                $batch = new SelfRefereeSamePouleBatch( $batch );
+        if ($this->getInput()->selfRefereeEnabled()) {
+            if ($this->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
+                $batch = new SelfRefereeSamePouleBatch($batch);
             } else {
-                $batch = new SelfRefereeOtherPouleBatch( $this->planning->getPoules()->toArray(), $batch );
+                $batch = new SelfRefereeOtherPouleBatch($this->planning->getPoules()->toArray(), $batch);
             }
         }
 
@@ -189,14 +189,12 @@ class Service
             if ($batch === null) {
                 return Planning::STATE_FAILED;
             }
-            if (!$this->getInput()->selfRefereeEnabled() && $this->getInput()->getNrOfReferees() > 0 ) {
+            if (!$this->getInput()->selfRefereeEnabled() && $this->getInput()->getNrOfReferees() > 0) {
                 $refereeService = new RefereeService($this->planning);
                 $refereeService->assign($batch->getFirst());
             }
 
-           // $this->batchOutput->output($batch->getFirst(), ' final : iterations = ' . $this->debugIterations );
-
-
+            // $this->batchOutput->output($batch->getFirst(), ' final : iterations = ' . $this->debugIterations );
         } catch (TimeoutException $e) {
             return Planning::STATE_TIMEDOUT;
         }
@@ -256,12 +254,11 @@ class Service
         $batch,
         int $maxNrOfBatchGames,
         int $nrOfGamesTried = 0
-    ): bool
-    {
+    ): bool {
         if ((count($batch->getGames()) === $maxNrOfBatchGames
                 || (count($gamesForBatch) === 0) && count($games) === count($batch->getGames()))
         ) { // batchsuccess
-            if( !$this->refereePlacesCanBeAssigned($batch)) {
+            if (!$this->refereePlacesCanBeAssigned($batch)) {
                 return false;
             }
 
@@ -286,9 +283,10 @@ class Service
 //            $this->gameOutput->outputGames($gamesForBatchTmp);
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $this->planning->getMaxNrOfBatchGames(), 0);
         }
-        if ( $this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
+        if ($this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
             throw new TimeoutException(
-                "exceeded maximum duration of " . $this->planning->getTimeoutSeconds() . " seconds", E_ERROR
+                "exceeded maximum duration of " . $this->planning->getTimeoutSeconds() . " seconds",
+                E_ERROR
             );
         }
         if ($nrOfGamesTried === count($gamesForBatch)) {
@@ -525,13 +523,14 @@ class Service
     {
         // naast forced refereeplaces and teveel
 
-        if( $batch instanceof Batch\SelfReferee ) {
+        if ($batch instanceof Batch\SelfReferee) {
             return $this->refereePlacePredicter->canStillAssign($batch, $this->getInput()->getSelfReferee());
         }
         return true;
     }
 
-    public function disableThrowOnTimeout() {
+    public function disableThrowOnTimeout()
+    {
         $this->throwOnTimeout = false;
     }
 }

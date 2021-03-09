@@ -15,7 +15,7 @@ class GCDService
 
     public function isPolynomial(Input $input): bool
     {
-        if ($input->selfRefereeEnabled()) {
+        if ($input->selfRefereeEnabled() || count($input->getSportConfigs()) > 1) {
             return false;
         }
         $gcd = $this->getGCDRaw($input->getPouleStructure(), $input->getSportConfigs(), $input->getNrOfReferees());
@@ -26,14 +26,13 @@ class GCDService
     {
         $gcd = $this->getGCDRaw($input->getPouleStructure(), $input->getSportConfigs(), $input->getNrOfReferees());
 
-        $structureConfig = $this->createGCDPouleStructure( $gcd, $input->getPouleStructure() );
-        $sportConfigs = $this->createGCDSportConfigs( $gcd, $input->getSportConfigs() );
-        $nrOfReferees = $this->getGCDNrOfReferees( $gcd, $input->getNrOfReferees() );
+        $structureConfig = $this->createGCDPouleStructure($gcd, $input->getPouleStructure());
+        $sportConfigs = $this->createGCDSportConfigs($gcd, $input->getSportConfigs());
+        $nrOfReferees = $this->getGCDNrOfReferees($gcd, $input->getNrOfReferees());
 
         return new Input(
             $structureConfig,
             $sportConfigs,
-            $input->getGameMode(),
             $nrOfReferees,
             $input->getSelfReferee()
         );
@@ -41,20 +40,19 @@ class GCDService
 
     public function getPolynomial(Input $input, int $polynomial): Input
     {
-        $structureConfig = $this->createGCDPouleStructure( 1 / $polynomial, $input->getPouleStructure() );
-        $sportConfigs = $this->createGCDSportConfigs( 1 / $polynomial, $input->getSportConfigs() );
-        $nrOfReferees = $this->getGCDNrOfReferees( 1 / $polynomial, $input->getNrOfReferees() );
+        $structureConfig = $this->createGCDPouleStructure(1 / $polynomial, $input->getPouleStructure());
+        $sportConfigs = $this->createGCDSportConfigs(1 / $polynomial, $input->getSportConfigs());
+        $nrOfReferees = $this->getGCDNrOfReferees(1 / $polynomial, $input->getNrOfReferees());
 
         return new Input(
             $structureConfig,
             $sportConfigs,
-            $input->getGameMode(),
             $nrOfReferees,
             $input->getSelfReferee()
         );
     }
 
-    public function createGCDPouleStructure(float $gcd, PouleStructure $pouleStructure ): PouleStructure
+    public function createGCDPouleStructure(float $gcd, PouleStructure $pouleStructure): PouleStructure
     {
         $nrOfPoulesByNrOfPlaces = $pouleStructure->getNrOfPoulesByNrOfPlaces();
         // divide with gcd
@@ -79,7 +77,7 @@ class GCDService
     public function createGCDSportConfigs(float $gcd, array $sportConfigs): array
     {
         $newSportConfigs = [];
-        foreach ( $sportConfigs as $sportConfig) {
+        foreach ($sportConfigs as $sportConfig) {
             $newSportConfigs[] = new SportConfig(
                 $sportConfig->getSport(),
                 (int)($sportConfig->getNrOfFields() / $gcd),
@@ -89,7 +87,7 @@ class GCDService
         return $newSportConfigs;
     }
 
-    public function getGCDNrOfReferees(float $gcd, int $nrOfReferees ): int
+    public function getGCDNrOfReferees(float $gcd, int $nrOfReferees): int
     {
         return (int)($nrOfReferees / $gcd);
     }

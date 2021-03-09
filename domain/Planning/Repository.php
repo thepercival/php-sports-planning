@@ -11,22 +11,31 @@ use SportsPlanning\Input;
 
 class Repository extends BaseRepository
 {
-    public function resetBatchGamePlanning(Planning $planning, int $state ){
-        $planning->setState( $state );
+    public function resetBatchGamePlanning(Planning $planning, int $state)
+    {
+        $planning->setState($state);
         $this->removeGamesInARowPlannings($planning);
         foreach ($planning->getPoules() as $poule) {
-            while ( $poule->getGames()->count() > 0) {
-                $game = $poule->getGames()->first();
-                $poule->getGames()->removeElement($game);
+            $againstGames = $poule->getAgainstGames();
+            while ($againstGames->count() > 0) {
+                $game = $againstGames->first();
+                $againstGames->removeElement($game);
+                $this->remove($game);
+            }
+            $togetherGames = $poule->getTogetherGames();
+            while ($togetherGames->count() > 0) {
+                $game = $togetherGames->first();
+                $togetherGames->removeElement($game);
                 $this->remove($game);
             }
         }
         $this->save($planning);
     }
 
-    protected function removeGamesInARowPlannings(Planning $batchGamePlanning){
+    protected function removeGamesInARowPlannings(Planning $batchGamePlanning)
+    {
         $gamesInARowPlannings = $batchGamePlanning->getGamesInARowPlannings();
-        while ( count($gamesInARowPlannings) > 0) {
+        while (count($gamesInARowPlannings) > 0) {
             $planning = array_pop($gamesInARowPlannings);
             $planning->getInput()->getPlannings()->removeElement($planning);
             $this->remove($planning);

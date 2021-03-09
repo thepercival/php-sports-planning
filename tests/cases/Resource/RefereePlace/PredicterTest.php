@@ -3,8 +3,7 @@
 namespace SportsPlanning\Tests\Resource\RefereePlace;
 
 use SportsPlanning\Resource\RefereePlace\Predicter;
-use SportsPlanning\Planning;
-use SportsPlanning\Input;
+use SportsPlanning\SelfReferee;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
 
@@ -15,11 +14,11 @@ class PredicterTest extends \PHPUnit\Framework\TestCase
     public function testSamePouleEnoughRefereePlaces()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [3], null, null, null, Input::SELFREFEREE_SAMEPOULE )
+            $this->createInputNew([3], null, null, SelfReferee::SAMEPOULE)
         );
 
         $predicter = new Predicter($planning->getPoules()->toArray());
-        $canStillAssign = $predicter->canStillAssign($planning->createFirstBatch(), Input::SELFREFEREE_SAMEPOULE);
+        $canStillAssign = $predicter->canStillAssign($planning->createFirstBatch(), SelfReferee::SAMEPOULE);
         self::assertTrue($canStillAssign);
     }
 
@@ -27,18 +26,18 @@ class PredicterTest extends \PHPUnit\Framework\TestCase
     {
         self::expectException(\Exception::class);
         $planning = $this->createPlanning(
-            $this->createInput( [2], null, null, null, Input::SELFREFEREE_SAMEPOULE )
+            $this->createInputNew([2], null, null, SelfReferee::SAMEPOULE)
         );
     }
 
     public function testOtherPoulesEnoughRefereePlaces()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [3,3], null, null, null, Input::SELFREFEREE_OTHERPOULES )
+            $this->createInputNew([3,3], null, null, SelfReferee::OTHERPOULES)
         );
 
         $predicter = new Predicter($planning->getPoules()->toArray());
-        $canStillAssign = $predicter->canStillAssign($planning->createFirstBatch(), Input::SELFREFEREE_OTHERPOULES);
+        $canStillAssign = $predicter->canStillAssign($planning->createFirstBatch(), SelfReferee::OTHERPOULES);
         self::assertTrue($canStillAssign);
     }
 }

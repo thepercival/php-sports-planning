@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Collection;
 use Exception;
 use SportsHelpers\Identifiable;
 use SportsHelpers\Range;
-use SportsHelpers\GameMode;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsHelpers\PouleStructure;
@@ -32,7 +31,6 @@ class Input extends Identifiable
      * @var array|SportConfig[]
      */
     protected $sportConfigs;
-    protected int $gameMode;
     /**
      * @var int
      */
@@ -57,30 +55,23 @@ class Input extends Identifiable
     protected $teamupDep = false; // DEPRECATED
     protected $nrOfHeadtoheadDep = 1; // DEPRECATED
 
-    public const SELFREFEREE_DISABLED = 0;
-    public const SELFREFEREE_OTHERPOULES = 1;
-    public const SELFREFEREE_SAMEPOULE = 2;
-
     const AGAINST_MAXNROFGAMEPLACES = 8;
 
     /**
      * @param PouleStructure $pouleStructure
      * @param array|SportConfig[] $sportConfigs
-     * @param int $gameMode
      * @param int $nrOfReferees
      * @param int $selfReferee
      */
     public function __construct(
         PouleStructure $pouleStructure,
         array $sportConfigs,
-        int $gameMode,
         int $nrOfReferees,
         int $selfReferee
     ) {
         $this->setPouleStructure($pouleStructure);
         $this->setSportConfigs($sportConfigs);
-        $this->gameMode = $gameMode;
-        $nrOfReferees = $selfReferee === self::SELFREFEREE_DISABLED ? $nrOfReferees : 0;
+        $nrOfReferees = $selfReferee === SelfReferee::DISABLED ? $nrOfReferees : 0;
         $this->nrOfReferees = $nrOfReferees;
         $this->selfReferee = $selfReferee;
         $this->plannings = new ArrayCollection();
@@ -120,7 +111,7 @@ class Input extends Identifiable
             $this->sportConfigs = [];
             foreach ($this->sportConfigDb as $sportConfig) {
                 $this->sportConfigs[] = new SportConfig(
-                    new SportBase($sportConfig["nrOfGamePlaces"]),
+                    new SportBase($sportConfig["gameMode"], $sportConfig["nrOfGamePlaces"]),
                     $sportConfig["nrOfFields"],
                     $sportConfig["gameAmount"]
                 );
@@ -155,11 +146,6 @@ class Input extends Identifiable
         return $nrOfFields;
     }
 
-    public function getGameMode(): int
-    {
-        return $this->gameMode;
-    }
-
     public function getNrOfReferees(): int
     {
         return $this->nrOfReferees;
@@ -172,7 +158,7 @@ class Input extends Identifiable
 
     public function selfRefereeEnabled(): bool
     {
-        return $this->selfReferee !== self::SELFREFEREE_DISABLED;
+        return $this->selfReferee !== SelfReferee::DISABLED;
     }
 
     public function getMaxNrOfBatchGames(): int
@@ -216,7 +202,6 @@ class Input extends Identifiable
         if ($this->maxNrOfGamesInARow === null) {
             $calculator = new InputCalculator();
             $this->maxNrOfGamesInARow = $calculator->getMaxNrOfGamesInARow(
-                $this->gameMode,
                 $this->getPouleStructure(),
                 $this->getSportConfigs(),
                 $this->selfRefereeEnabled()

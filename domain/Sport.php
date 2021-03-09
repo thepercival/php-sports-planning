@@ -9,23 +9,13 @@ use SportsHelpers\SportBase;
 class Sport extends SportBase
 {
     /**
-     * @var int
-     */
-    protected $number;
-    /**
-     * @var Planning
-     */
-    protected $planning;
-    /**
      * @var Collection | Field[]
      */
     protected $fields;
 
-    public function __construct(Planning $planning, int $number, int $nrOfGamePlaces )
+    public function __construct(protected Planning $planning, protected int $number, int $gameMode, int $nrOfGamePlaces)
     {
-        parent::__construct($nrOfGamePlaces);
-        $this->planning = $planning;
-        $this->number = $number;
+        parent::__construct($gameMode, $nrOfGamePlaces);
         $this->fields = new ArrayCollection();
     }
 

@@ -6,6 +6,7 @@ namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Game;
@@ -49,19 +50,27 @@ class Against extends Game
     }
 
     /**
-     * @param bool|null $homeAway
+     * @return Collection | AgainstGamePlace[]
+     */
+    public function getPlaces(): Collection
+    {
+        return $this->places;
+    }
+
+    /**
+     * @param int|null $side
      * @return Collection | AgainstGamePlace[] | TogetherGamePlace[]
      */
-    public function getPlaces(bool $homeAway = null): Collection
+    public function getSidePlaces(int $side = null): Collection
     {
-        if ($homeAway === null) {
-            return $this->places;
+        if ($side === null) {
+            return $this->getPlaces();
         }
         return $this->places->filter(
-                function (AgainstGamePlace $gamePlace) use ($homeAway): bool {
-                    return $gamePlace->getHomeAway() === $homeAway;
-                }
-            );
+            function (AgainstGamePlace $gamePlace) use ($side): bool {
+                return $gamePlace->getSide() === $side;
+            }
+        );
     }
 
 //    /**
@@ -74,34 +83,34 @@ class Against extends Game
 
     /**
      * @param Place $place
-     * @param bool $homeAway
+     * @param int $side
      * @return AgainstGamePlace
      */
-    public function addPlace(Place $place, bool $homeAway): AgainstGamePlace
+    public function addPlace(Place $place, int $side): AgainstGamePlace
     {
-        return new AgainstGamePlace($this, $place, $homeAway);
+        return new AgainstGamePlace($this, $place, $side);
     }
 
     /**
      * @param Place $place
-     * @param bool|null $homeAway
+     * @param int|null $side
      * @return bool
      */
-    public function isParticipating(Place $place, bool $homeAway = null): bool
+    public function isParticipating(Place $place, int $side = null): bool
     {
-        $places = $this->getPlaces($homeAway)->map(function ($gamePlace) {
+        $places = $this->getSidePlaces($side)->map(function ($gamePlace) {
             return $gamePlace->getPlace();
         });
         return $places->contains($place);
     }
 
-    public function getHomeAway(Place $place): ?bool
+    public function getSide(Place $place): ?int
     {
-        if ($this->isParticipating($place, AgainstGame::HOME)) {
-            return AgainstGame::HOME;
+        if ($this->isParticipating($place, AgainstSide::HOME)) {
+            return AgainstSide::HOME;
         }
-        if ($this->isParticipating($place, AgainstGame::AWAY)) {
-            return AgainstGame::AWAY;
+        if ($this->isParticipating($place, AgainstSide::AWAY)) {
+            return AgainstSide::AWAY;
         }
         return null;
     }
@@ -111,8 +120,8 @@ class Against extends Game
      */
     public function getPoulePlaces(): Collection
     {
-        if( $this->poulePlaces === null ) {
-            $this->poulePlaces = $this->getPlaces()->map( function (AgainstGamePlace $gamePlace): Place {
+        if ($this->poulePlaces === null) {
+            $this->poulePlaces = $this->getPlaces()->map(function (AgainstGamePlace $gamePlace): Place {
                 return $gamePlace->getPlace();
             });
         }

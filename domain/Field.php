@@ -2,12 +2,10 @@
 
 namespace SportsPlanning;
 
-class Field implements Resource
+use SportsHelpers\Identifiable;
+
+class Field extends Identifiable implements Resource
 {
-    /**
-     * @var int
-     */
-    private $id;
     /**
      * @var int
      */
@@ -17,11 +15,11 @@ class Field implements Resource
      */
     protected $sport;
 
-    public function __construct(int $number, Sport $sport)
+    public function __construct(Sport $sport)
     {
-        $this->number = $number;
         $this->sport = $sport;
         $sport->getFields()->add($this);
+        $this->number = $sport->getFields()->count();
     }
 
     public function getNumber(): int

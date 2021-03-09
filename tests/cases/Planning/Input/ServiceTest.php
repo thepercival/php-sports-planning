@@ -18,7 +18,7 @@ class ServiceTest extends TestCase
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
         $planning = $this->createPlanning(
-            $this->createInput([3, 2, 2], GameMode::AGAINST, [$defaultSportConfig], 0)
+            $this->createInputNew([3, 2, 2], [$defaultSportConfig], 0)
         );
 
         self::assertTrue(
@@ -31,7 +31,7 @@ class ServiceTest extends TestCase
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
         $planning = $this->createPlanning(
-            $this->createInput([2], GameMode::AGAINST, [$defaultSportConfig], 0)
+            $this->createInputNew([2], [$defaultSportConfig], 0)
         );
 
         self::assertFalse(
@@ -44,7 +44,7 @@ class ServiceTest extends TestCase
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
         $planning = $this->createPlanning(
-            $this->createInput([2, 2], GameMode::AGAINST, [$defaultSportConfig], 0)
+            $this->createInputNew([2, 2], [$defaultSportConfig], 0)
         );
 
         self::assertFalse(
@@ -57,7 +57,7 @@ class ServiceTest extends TestCase
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
         $planning = $this->createPlanning(
-            $this->createInput([3, 2], GameMode::AGAINST, [$defaultSportConfig], 0)
+            $this->createInputNew([3, 2], [$defaultSportConfig], 0)
         );
 
         self::assertFalse(
@@ -70,7 +70,7 @@ class ServiceTest extends TestCase
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
         $planning = $this->createPlanning(
-            $this->createInput([3, 3], GameMode::AGAINST, [$defaultSportConfig], 0)
+            $this->createInputNew([3, 3], [$defaultSportConfig], 0)
         );
 
         self::assertTrue(
@@ -83,7 +83,7 @@ class ServiceTest extends TestCase
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
         $planning = $this->createPlanning(
-            $this->createInput([3], GameMode::AGAINST, [$defaultSportConfig], 0)
+            $this->createInputNew([3], [$defaultSportConfig], 0)
         );
 
         self::assertFalse(
@@ -96,7 +96,7 @@ class ServiceTest extends TestCase
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
         $planning = $this->createPlanning(
-            $this->createInput([2,2], GameMode::AGAINST, [$defaultSportConfig], 0)
+            $this->createInputNew([2,2], [$defaultSportConfig], 0)
         );
 
         self::assertTrue(

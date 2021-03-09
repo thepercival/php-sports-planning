@@ -4,12 +4,14 @@ declare(strict_types=1);
 namespace SportsPlanning\Planning;
 
 use Psr\Log\LoggerInterface;
+use SportsHelpers\GameMode;
+use SportsPlanning\SelfReferee;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\SportConfig as SportConfig;
 use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Planning;
-use SportsPlanning\Input;
+use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Validator\GameAssignments as GameAssignmentsValidator;
 
 class Output extends OutputHelper
@@ -67,25 +69,45 @@ class Output extends OutputHelper
         }
     }
 
-    public function outputInput(Input $input, string $prefix = null, string $suffix = null): void
+    public function outputInput(PlanningInput $input, string $prefix = null, string $suffix = null): void
     {
         $output = $this->getInputAsString($input, $prefix, $suffix);
         $this->logger->info($output);
     }
 
-    public function getInputAsString(Input $input, string $prefix = null, string $suffix = null): string
+    public function getInputAsString(PlanningInput $input, string $prefix = null, string $suffix = null): string
     {
         $sports = array_map(function (SportConfig $sportConfig): string {
-            return '' . $sportConfig->getNrOfFields();
-        }, $input->getSportConfigs() );
+            return $this->getSportConfigAsString($sportConfig);
+        }, $input->getSportConfigs());
         $output = 'id ' . $input->getId() . ' => structure [' . implode(
-                '|',
-                $input->getPouleStructure()->toArray()
-            ) . ']'
+            '|',
+            $input->getPouleStructure()->toArray()
+        ) . ']'
             . ', sports [' . implode(',', $sports) . ']'
             . ', referees ' . $input->getNrOfReferees()
-            . ', selfRef ' . $input->getSelfReferee();
+            . ', selfRef ' . $this->getSelfRefereeAsString($input->getSelfReferee());
         return $prefix . $output . $suffix;
+    }
+
+    public function getSportConfigAsString(SportConfig $sportConfig): string
+    {
+        return ($sportConfig->getGameMode() === GameMode::AGAINST ? 'A' : 'T') . '-' .
+            $sportConfig->getNrOfFields() . '-' .
+            $sportConfig->getNrOfGamePlaces() . '-' .
+            $sportConfig->getGameAmount();
+    }
+
+    public function getSelfRefereeAsString(int $selfReferee): string
+    {
+        if ($selfReferee === SelfReferee::DISABLED) {
+            return '-';
+        } elseif ($selfReferee === SelfReferee::OTHERPOULES) {
+            return 'O';
+        } elseif ($selfReferee === SelfReferee::SAMEPOULE) {
+            return 'S';
+        }
+        return '?';
     }
 
     protected function outputTotals(array $planningTotals)

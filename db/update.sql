@@ -1,13 +1,23 @@
 -- PRE PRE PRE doctrine-update =============================================================
 
+SET FOREIGN_KEY_CHECKS = 0;
+truncate planninggameplaces;
+truncate planninggames;
+truncate planningfields;
+truncate planningplaces;
+truncate planningpoules;
+truncate planningreferees;
+truncate planningsports;
+truncate plannings;
+truncate planninginputs;
+SET FOREIGN_KEY_CHECKS = 1;
+
 alter table planningfields rename planningFields;
 alter table planningplaces rename planningPlaces;
 alter table planninginputs rename planningInputs;
 alter table planningpoules rename planningPoules;
 alter table planningreferees rename planningReferees;
 alter table planningsports rename planningSports;
-update sports set customId = 15 where name = 'sjoelen';
-truncate planningInputs;
 
 -- POST POST POST doctrine-update ===========================================================
 

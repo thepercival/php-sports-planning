@@ -14,15 +14,12 @@ use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 
 class Output extends OutputHelper
 {
-    /**
-     * @var GameOutput
-     */
-    private $gameOutput;
+    private GameOutput $gameOutput;
 
-    public function __construct( LoggerInterface $logger = null )
+    public function __construct(LoggerInterface $logger = null)
     {
-        $this->gameOutput = new GameOutput( $logger );
-        parent::__construct( $logger );
+        $this->gameOutput = new GameOutput($logger);
+        parent::__construct($logger);
     }
 
     /**
@@ -40,7 +37,7 @@ class Output extends OutputHelper
 //            return;
 //        }
         $this->logger->info('------batch ' . $batch->getNumber() . ' ' . $title . ' -------------');
-        $this->outputHelper($batch->getFirst(), $min, $max );
+        $this->outputHelper($batch->getFirst(), $min, $max);
     }
 
     /**
@@ -50,7 +47,7 @@ class Output extends OutputHelper
      */
     protected function outputHelper($batch, int $min = null, int $max = null)
     {
-        if ($min !== null && $batch->getNumber() < $min ) {
+        if ($min !== null && $batch->getNumber() < $min) {
             if ($batch->hasNext()) {
                 $this->outputHelper($batch->getNext(), $max);
             }

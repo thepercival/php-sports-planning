@@ -26,7 +26,7 @@ class GCDProcessor
     protected PlanningOutput $planningOutput;
     protected PlanningSeeker $seeker;
 
-    public function __construct(LoggerInterface $logger, InputRepository $inputRepos, PlanningRepository $planningRepos, PlanningSeeker $seeker )
+    public function __construct(LoggerInterface $logger, InputRepository $inputRepos, PlanningRepository $planningRepos, PlanningSeeker $seeker)
     {
         $this->logger = $logger;
         $this->planningOutput = new PlanningOutput($this->logger);
@@ -45,7 +45,7 @@ class GCDProcessor
         if ($gcdDbInput === null) {
             $gcdDbInput = $this->inputRepos->save($gcdInput);
         }
-        if( $gcdDbInput->getPlannings()->count() === 0 ) {
+        if ($gcdDbInput->getPlannings()->count() === 0) {
             $this->inputRepos->createBatchGamesPlannings($gcdDbInput);
             $this->seeker->process($gcdDbInput);
         }
@@ -64,7 +64,7 @@ class GCDProcessor
     {
         $gcd = $this->inputGCDService->getGCD($input);
 
-        $planning = new Planning($input, $gcdPlanning->getNrOfBatchGames(), 0 );
+        $planning = new Planning($input, $gcdPlanning->getNrOfBatchGames(), 0);
 
         // 5, 4     => (2) => 5, 5, 4, 4
         // 2, 2     => (2) => 2, 2, 2, 2
@@ -107,12 +107,13 @@ class GCDProcessor
      * @param TogetherGame|AgainstGame $gcdGame
      * @return TogetherGame|AgainstGame
      */
-    protected function createGame(Poule $poule, $gcdGame) {
-        if( $gcdGame instanceof AgainstGame ) {
-            $game = new AgainstGame($poule, $gcdGame->getNrOfHeadtohead() );
+    protected function createGame(Poule $poule, $gcdGame)
+    {
+        if ($gcdGame instanceof AgainstGame) {
+            $game = new AgainstGame($poule, $gcdGame->getNrOfHeadtohead());
             foreach ($gcdGame->getPlaces() as $gcdGamePlace) {
                 $place = $poule->getPlace($gcdGamePlace->getPlace()->getNumber());
-                new AgainstGamePlace($game, $place, $gcdGamePlace->getHomeAway());
+                new AgainstGamePlace($game, $place, $gcdGamePlace->getSide());
             }
             return $game;
         }

@@ -4,7 +4,6 @@
     <field name="pouleStructureDb" column="structureConfig" type="json" nullable="false" unique="false"/>
     <field name="sportConfigDb" column="sportConfig" type="json" nullable="false" unique="false"/>
     <field name="nrOfReferees" column="nrOfReferees" type="smallint" nullable="false" unique="false"/>
-    <field name="gameMode" column="gameMode" type="smallint" nullable="false" unique="false"/>
     <field name="selfReferee" column="selfReferee" type="smallint" nullable="false" unique="false"/>
     <field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
     <field name="teamupDep" column="teamup" type="boolean" nullable="false" unique="false"/>

@@ -3,6 +3,7 @@
 namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
+use SportsHelpers\GameMode;
 use SportsPlanning\Sport;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -12,10 +13,10 @@ class SportTest extends TestCase
 
     public function testConstruct()
     {
-        $planning = $this->createPlanning($this->createInput( [3] ) );
-        $sport = new Sport( $planning, 1, 2 );
-        self::assertSame($planning, $sport->getPlanning() );
-        self::assertSame(1, $sport->getNumber() );
-        self::assertSame(2, $sport->getNrOfGamePlaces() );
+        $planning = $this->createPlanning($this->createInputNew([3]));
+        $sport = new Sport($planning, 1, GameMode::AGAINST, 2);
+        self::assertSame($planning, $sport->getPlanning());
+        self::assertSame(1, $sport->getNumber());
+        self::assertSame(2, $sport->getNrOfGamePlaces());
     }
 }

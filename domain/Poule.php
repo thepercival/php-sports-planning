@@ -4,15 +4,12 @@ namespace SportsPlanning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 use SportsHelpers\GameMode;
+use SportsHelpers\Identifiable;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Against as AgainstGame;
 
-class Poule
+class Poule extends Identifiable
 {
-    /**
-     * @var int
-     */
-    private $id;
     /**
      * @var int
      */
@@ -82,14 +79,11 @@ class Poule
     }
 
     /**
-     * @return AgainstGame[] | TogetherGame[] | ArrayCollection
+     * @return AgainstGame[] | TogetherGame[] | array
      */
     public function getGames()
     {
-        if( $this->getPlanning()->getInput()->getGameMode() === GameMode::AGAINST ) {
-            return $this->againstGames;
-        }
-        return $this->togetherGames;
+        return array_merge($this->getAgainstGames()->toArray(), $this->getTogetherGames()->toArray());
     }
 
     /**

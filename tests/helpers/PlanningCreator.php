@@ -17,6 +17,7 @@ use SportsPlanning\Planning;
 use SportsPlanning\Planning\GameCreator;
 use SportsPlanning\Input;
 use SportsHelpers\PouleStructure;
+use SportsPlanning\SelfReferee;
 
 trait PlanningCreator
 {
@@ -32,9 +33,13 @@ trait PlanningCreator
     /**
      * @return SportConfig
      */
-    protected function getDefaultSportConfig(): SportConfig
+    protected function getDefaultSportConfig(int $gameMode = null): SportConfig
     {
-        return new SportConfig(new SportBase(2), 2, 1);
+        return new SportConfig(
+            new SportBase($gameMode ?? GameMode::AGAINST, 2),
+            2,
+            1
+        );
     }
 
     protected function getLogger(): LoggerInterface
@@ -55,22 +60,17 @@ trait PlanningCreator
 
     /**
      * @param array|int[] $structureConfig
-     * @param int|null $gameMode
      * @param array|SportConfig[]|null $sportConfigs
      * @param int|null $nrOfReferees
      * @param int|null $selfReferee
      * @return Input
      */
-    protected function createInput(
+    protected function createInputNew(
         array $structureConfig,
-        int $gameMode = null,
         array $sportConfigs = null,
         int $nrOfReferees = null,
         int $selfReferee = null
     ) {
-        if ($gameMode === null) {
-            $gameMode = GameMode::AGAINST;
-        }
         if ($sportConfigs === null) {
             $sportConfigs = $this->getDefaultSportConfigs();
         }
@@ -78,12 +78,11 @@ trait PlanningCreator
             $nrOfReferees = $this->getDefaultNrOfReferees();
         }
         if ($selfReferee === null) {
-            $selfReferee = Input::SELFREFEREE_DISABLED;
+            $selfReferee = SelfReferee::DISABLED;
         }
         return new Input(
             new PouleStructure($structureConfig),
             $sportConfigs,
-            $gameMode,
             $nrOfReferees,
             $selfReferee
         );

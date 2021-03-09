@@ -2,12 +2,10 @@
 
 namespace SportsPlanning;
 
-class Referee implements Resource
+use SportsHelpers\Identifiable;
+
+class Referee extends Identifiable implements Resource
 {
-    /**
-     * @var int
-     */
-    private $id;
     /**
      * @var int
      */

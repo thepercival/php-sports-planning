@@ -14,7 +14,7 @@ class PlaceTest extends \PHPUnit\Framework\TestCase
     public function testCalculations()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [3] )
+            $this->createInputNew([3])
         );
 
         $placeOne = $planning->getPoule(1)->getPlace(1);

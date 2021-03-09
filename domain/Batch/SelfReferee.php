@@ -11,11 +11,6 @@ use SportsPlanning\PouleCounter;
 
 abstract class SelfReferee
 {
-
-    /**
-     * @var Batch
-     */
-    protected $batch;
     /**
      * @var SelfReferee
      */
@@ -41,18 +36,17 @@ abstract class SelfReferee
      */
     protected $pouleCounterMap;
 
-    public function __construct(Batch $batch, SelfReferee $previous = null)
+    public function __construct(protected Batch $batch, SelfReferee $previous = null)
     {
         $this->previous = $previous;
         $this->placesAsReferee = [];
-        $this->batch = $batch;
         $this->pouleCounterMap = [];
 
         $this->previousTotalPouleCounterMap = [];
         $this->previousTotalNrOfForcedRefereePlacesMap = [];
 
         if ($previous !== null) {
-            list ($previousPreviousTotalPouleCounterMap, $previousPreviousTotalNrOfForcedRefereePlacesMap) = $previous->getCopyPreviousTotals(
+            list($previousPreviousTotalPouleCounterMap, $previousPreviousTotalNrOfForcedRefereePlacesMap) = $previous->getCopyPreviousTotals(
             );
             $this->setPreviousTotals(
                 $previousPreviousTotalPouleCounterMap,
@@ -104,7 +98,7 @@ abstract class SelfReferee
      * @param TogetherGame|AgainstGame $game
      * @param Place $placeReferee
      */
-    public function addAsReferee( $game, Place $placeReferee)
+    public function addAsReferee($game, Place $placeReferee)
     {
         $game->setRefereePlace($placeReferee);
         $this->placesAsReferee[$placeReferee->getLocation()] = $placeReferee;
@@ -122,13 +116,13 @@ abstract class SelfReferee
      * @param Place|null $place
      * @param TogetherGame|AgainstGame|null $game
      */
-    public function removeAsReferee( Place $place = null, $game = null )
+    public function removeAsReferee(Place $place = null, $game = null)
     {
-        if( $place !== null ) {
+        if ($place !== null) {
             unset($this->placesAsReferee[$place->getLocation()]);
         }
-        if( $game !== null ) {
-            $game->setRefereePlace( null );
+        if ($game !== null) {
+            $game->setRefereePlace(null);
         }
     }
 
@@ -195,8 +189,7 @@ abstract class SelfReferee
         array $baseForcedRefereePlacesMap,
         array $forcedRefereePlacesMapToAdd
     ): array {
-
-        foreach ($forcedRefereePlacesMapToAdd as $placeLocation => $amount ) {
+        foreach ($forcedRefereePlacesMapToAdd as $placeLocation => $amount) {
             if (!array_key_exists(
                 $placeLocation,
                 $baseForcedRefereePlacesMap
@@ -258,7 +251,8 @@ abstract class SelfReferee
     {
         return $this->addForcedRefereePlacesMaps(
             $this->previousTotalNrOfForcedRefereePlacesMap,
-            $this->getForcedRefereePlacesMap() );
+            $this->getForcedRefereePlacesMap()
+        );
     }
 
     /**

@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 
 namespace SportsPlanning\Validator;
 
@@ -13,7 +13,7 @@ use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Referee;
 use SportsPlanning\Resource\GameCounter;
-use SportsPlanning\Input as PlanningInput;
+use SportsPlanning\SelfReferee;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
 use SportsPlanning\Resource\GameCounter\Unequal as UnequalGameCounter;
 
@@ -119,7 +119,8 @@ class GameAssignments
         $unequalRefereePlaces = $this->getRefereePlaceUnequals();
         if (count($unequalRefereePlaces) > 0) {
             throw new UnequalAssignedRefereePlacesException(
-                $this->getUnequalDescription(reset($unequalRefereePlaces), "refereePlaces"), E_ERROR
+                $this->getUnequalDescription(reset($unequalRefereePlaces), "refereePlaces"),
+                E_ERROR
             );
         }
     }
@@ -127,7 +128,7 @@ class GameAssignments
     protected function shouldValidatePerPoule(): bool
     {
         $nrOfPoules = $this->planning->getPoules()->count();
-        if ($this->planning->getInput()->getSelfReferee() === PlanningInput::SELFREFEREE_SAMEPOULE) {
+        if ($this->planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
             return true;
         }
         if (($this->planning->getPlaces()->count() % $nrOfPoules) === 0) {
@@ -158,7 +159,7 @@ class GameAssignments
                     $unequals[] = $unequal;
                 }
             }
-        } else if( $this->planning->getPouleStructure()->isAlmostBalanced() ){
+        } elseif ($this->planning->getPouleStructure()->isAlmostBalanced()) {
             $unequal = $this->getMaxUnequal($this->refereePlaces);
             if ($unequal !== null) {
                 $unequals[] = $unequal;
@@ -208,10 +209,10 @@ class GameAssignments
         if ($maxNrOfGames - $minNrOfGames <= 1) {
             return null;
         }
-        $otherGameCounters = array_filter( $gameCounters, function( GameCounter $gameCounterIt ) use ($maxNrOfGames): bool {
-            return ($gameCounterIt->getNrOfGames() + 1 ) < $maxNrOfGames;
+        $otherGameCounters = array_filter($gameCounters, function (GameCounter $gameCounterIt) use ($maxNrOfGames): bool {
+            return ($gameCounterIt->getNrOfGames() + 1) < $maxNrOfGames;
         });
-        uasort( $otherGameCounters, function( GameCounter $a, GameCounter $b ): int {
+        uasort($otherGameCounters, function (GameCounter $a, GameCounter $b): int {
             return $a->getNrOfGames() < $b->getNrOfGames() ? -1 : 1;
         });
         return new UnequalGameCounter(

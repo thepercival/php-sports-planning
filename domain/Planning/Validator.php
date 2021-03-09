@@ -3,12 +3,12 @@
 namespace SportsPlanning\Planning;
 
 use \Exception;
-use SportsHelpers\GameMode;
-use SportsHelpers\SportConfig;
+use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Game;
 use SportsPlanning\Poule;
-use SportsPlanning\Input;
+use SportsPlanning\SelfReferee;
 use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Validator\GameAssignments;
 use SportsPlanning\Planning;
@@ -159,16 +159,20 @@ class Validator
     {
         $nrOfGames = [];
         foreach ($poule->getGames() as $game) {
-            if( $this->planning->getInput()->getGameMode() === GameMode::AGAINST ) {
-                /** @var array|Place[] $places */
-                $homePlaces = $game->getPlaces(AgainstGame::HOME);
-                $awayPlaces = $game->getPlaces(AgainstGame::AWAY);
+            if ($game instanceof AgainstGame) {
+                $homePlaces = $game->getSidePlaces(AgainstSide::HOME);
+                $awayPlaces = $game->getSidePlaces(AgainstSide::AWAY);
                 if (count($homePlaces) === 0 || count($awayPlaces) === 0) {
                     return self::EMPTY_PLACE;
                 }
-                if (count($game->getPlaces(AgainstGame::HOME))
-                    !== count($game->getPlaces(AgainstGame::AWAY))) {
+                if (count($homePlaces) !== count($awayPlaces)) {
                     return self::UNEQUAL_GAME_HOME_AWAY;
+                }
+            }
+            if ($game instanceof TogetherGame) {
+                $places = $game->getPlaces();
+                if ($places->count() === 0) {
+                    return self::EMPTY_PLACE;
                 }
             }
             if ($game->getPlaces()->count() === 0) {
@@ -189,11 +193,11 @@ class Validator
                 if ($game->getRefereePlace() === null) {
                     return self::EMPTY_REFEREEPLACE;
                 } else {
-                    if ($this->planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE
+                    if ($this->planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE
                         && $game->getRefereePlace()->getPoule() !== $game->getPoule()) {
                         return self::INVALID_ASSIGNED_REFEREEPLACE;
                     }
-                    if ($this->planning->getInput()->getSelfReferee() === Input::SELFREFEREE_OTHERPOULES
+                    if ($this->planning->getInput()->getSelfReferee() === SelfReferee::OTHERPOULES
                         && $game->getRefereePlace()->getPoule() === $game->getPoule()) {
                         return self::INVALID_ASSIGNED_REFEREEPLACE;
                     }
@@ -218,7 +222,7 @@ class Validator
 
     protected function validateGamesInARow(): int
     {
-        if( $this->planning->getMaxNrOfGamesInARow() === 0 ) {
+        if ($this->planning->getMaxNrOfGamesInARow() === 0) {
             return self::VALID;
         }
         /** @var Poule $poule */
@@ -277,12 +281,12 @@ class Validator
 
 //    /**
 //     * @param Game $game
-//     * @param bool $homeAway
+//     * @param int|null $side
 //     * @return array|Place[]
 //     */
-//    protected function getPlaces(Game $game, bool $homeAway = null): array
+//    protected function getPlaces(Game $game, int $side = null): array
 //    {
-//        return $game->getPlaces($homeAway)->map(
+//        return $game->getPlaces($side)->map(
 //            function (GamePlace $gamePlace): Place {
 //                return $gamePlace->getPlace();
 //            }
@@ -312,7 +316,7 @@ class Validator
 
             /** @var bool|int|string $search */
             $search = array_search($game->getField(), $batchResources["fields"], true);
-            if ( $search !== false ) {
+            if ($search !== false) {
                 return self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH;
             }
             $batchResources["fields"][] = $game->getField();

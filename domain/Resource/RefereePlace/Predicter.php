@@ -1,12 +1,10 @@
 <?php
-
+declare(strict_types=1);
 
 namespace SportsPlanning\Resource\RefereePlace;
 
-use Doctrine\Common\Collections\Collection;
-use SportsPlanning\Place;
 use SportsPlanning\Poule;
-use SportsPlanning\Input;
+use SportsPlanning\SelfReferee;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\PouleCounter;
 
@@ -29,10 +27,10 @@ class Predicter
 
     public function canStillAssign(SelfRefereeBatch $batch, int $selfReferee): bool
     {
-        if ($selfReferee === Input::SELFREFEREE_DISABLED) {
+        if ($selfReferee === SelfReferee::DISABLED) {
             return true;
         }
-        if ($selfReferee === Input::SELFREFEREE_SAMEPOULE) {
+        if ($selfReferee === SelfReferee::SAMEPOULE) {
             return $this->validatePouleAssignmentsSamePoule($batch) && $this->validateTooMuchForcedAssignmentDiffernce($batch);
         }
         return $this->validatePouleAssignmentsOtherPoules($batch) && $this->validateTooMuchForcedAssignmentDiffernce($batch);
@@ -55,7 +53,8 @@ class Predicter
     /**
      * @return array|PouleCounter[]
      */
-    protected function createPouleCounterMap(): array {
+    protected function createPouleCounterMap(): array
+    {
         $pouleCounterMap = [];
         foreach ($this->poules as $poule) {
             $pouleCounterMap[$poule->getNumber()] = new PouleCounter($poule);
@@ -63,7 +62,8 @@ class Predicter
         return $pouleCounterMap;
     }
 
-    protected function addGamesToPouleCounterMap(array $pouleCounterMap, SelfRefereeBatch $batch) {
+    protected function addGamesToPouleCounterMap(array $pouleCounterMap, SelfRefereeBatch $batch)
+    {
         foreach ($batch->getBase()->getGames() as $game) {
             $pouleCounterMap[$game->getPoule()->getNumber()]->add($game->getPlaces()->count());
         }
@@ -72,7 +72,7 @@ class Predicter
     protected function validatePouleAssignmentsOtherPoules(SelfRefereeBatch $batch): bool
     {
         $pouleCounterMap = $this->createPouleCounterMap();
-        $this->addGamesToPouleCounterMap( $pouleCounterMap, $batch );
+        $this->addGamesToPouleCounterMap($pouleCounterMap, $batch);
 
         foreach ($pouleCounterMap as $pouleCounter) {
             $otherPouleCounters = array_filter(
@@ -107,22 +107,22 @@ class Predicter
      * voor selfref = samepoule , per plek kijken hoevaak deze verplicht is als scheidsrechter
      * dit mag max. het gemiddelde + 1.500000001 zijn
      */
-    protected function validateTooMuchForcedAssignmentDiffernce(SelfRefereeBatch $batch): bool {
-
+    protected function validateTooMuchForcedAssignmentDiffernce(SelfRefereeBatch $batch): bool
+    {
         $totalNrOfForcedRefereePlaces = $batch->getTotalNrOfForcedRefereePlaces();
         $totalPouleCounters = $batch->getTotalPouleCounters();
 
-        $pouleHasForcedRefereePlaces = function( Poule $poule) use( $totalNrOfForcedRefereePlaces ) : bool {
-            foreach( $poule->getPlaces() as $place ) {
-                if( array_key_exists( $place->getLocation(), $totalNrOfForcedRefereePlaces  ) ) {
+        $pouleHasForcedRefereePlaces = function (Poule $poule) use ($totalNrOfForcedRefereePlaces) : bool {
+            foreach ($poule->getPlaces() as $place) {
+                if (array_key_exists($place->getLocation(), $totalNrOfForcedRefereePlaces)) {
                     return true;
                 }
             }
             return false;
         };
 
-        foreach( $this->poules as $poule ) {
-            if( count($totalNrOfForcedRefereePlaces) === 0 || !$pouleHasForcedRefereePlaces($poule) ) {
+        foreach ($this->poules as $poule) {
+            if (count($totalNrOfForcedRefereePlaces) === 0 || !$pouleHasForcedRefereePlaces($poule)) {
                 continue;
             }
             $maxNrOfForcedRefereePlaces = null;
@@ -135,22 +135,22 @@ class Predicter
             // places niet beschikbaar zijn, omdat ze zelf moeten
 
             // place met laagste nrOfForcedAssignment moet minimaal 1x beschikbaar zijn
-            foreach( $poule->getPlaces() as $place ) {
+            foreach ($poule->getPlaces() as $place) {
                 $nrOfForcedRefereePlaces = 0;
-                if( array_key_exists( $place->getLocation(), $totalNrOfForcedRefereePlaces ) ) {
+                if (array_key_exists($place->getLocation(), $totalNrOfForcedRefereePlaces)) {
                     $nrOfForcedRefereePlaces = $totalNrOfForcedRefereePlaces[$place->getLocation()];
                 }
-                if ( $nrOfForcedRefereePlaces >= $pouleMax /*|| $nrOfForcedRefereePlaces <= $pouleMin*/ ) {
+                if ($nrOfForcedRefereePlaces >= $pouleMax /*|| $nrOfForcedRefereePlaces <= $pouleMin*/) {
                     return false;
                 }
-                if( $minNrOfForcedRefereePlaces === null || $nrOfForcedRefereePlaces < $minNrOfForcedRefereePlaces ) {
+                if ($minNrOfForcedRefereePlaces === null || $nrOfForcedRefereePlaces < $minNrOfForcedRefereePlaces) {
                     $minNrOfForcedRefereePlaces = $nrOfForcedRefereePlaces;
                 }
-                if( $maxNrOfForcedRefereePlaces === null || $nrOfForcedRefereePlaces > $maxNrOfForcedRefereePlaces ) {
+                if ($maxNrOfForcedRefereePlaces === null || $nrOfForcedRefereePlaces > $maxNrOfForcedRefereePlaces) {
                     $maxNrOfForcedRefereePlaces = $nrOfForcedRefereePlaces;
                 }
             }
-            if( ($maxNrOfForcedRefereePlaces - $minNrOfForcedRefereePlaces) > 1 ) {
+            if (($maxNrOfForcedRefereePlaces - $minNrOfForcedRefereePlaces) > 1) {
                 return false;
             }
         }

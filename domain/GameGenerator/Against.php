@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\GameGenerator;
 
 use SportsHelpers\GameMode;
+use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Place;
 use SportsPlanning\Game\Together as TogetherGame;
@@ -26,6 +27,7 @@ class Against implements Helper
      */
     public function generate(Poule $poule, array $sportConfigs): array
     {
+        /** @var array | AgainstGame[] | TogetherGame[] $games */
         $games = [];
         $gameAmount = 1;
         while ($filteredSportConfigs = $this->getSportConfigs($sportConfigs, $gameAmount)) {
@@ -45,7 +47,7 @@ class Against implements Helper
     protected function getSportConfigs(array $sportConfigs, int $gameAmount): array
     {
         return array_filter($sportConfigs, function (SportConfig $sportConfig) use ($gameAmount): bool {
-            return $sportConfig->getGameAmount() >= $gameAmount;
+            return $sportConfig->getGameMode() === GameMode::AGAINST && $sportConfig->getGameAmount() >= $gameAmount;
         });
     }
 
@@ -71,7 +73,7 @@ class Against implements Helper
     public function generateForSportConfig(array $places, SportConfig $sportConfig): array
     {
         $nrOfHomeAwayPlaces = $sportConfig->getNrOfGamePlaces() / 2;
-        $maxNrOfHomeGames = (int)ceil($sportConfig->getNrOfGamesPerPlace(GameMode::AGAINST, count($places)) / 2);
+        $maxNrOfHomeGames = (int)ceil($sportConfig->getNrOfGamesPerPlace(count($places)) / 2);
         $homeCombinations = $this->toPlaceCombinations(
             new CombinationsGenerator($places, $nrOfHomeAwayPlaces)
         );
@@ -150,7 +152,7 @@ class Against implements Helper
     {
         return array_map(function (AgainstHomeAway $homeAway) use ($poule, $gameAmount) : AgainstGame {
             $game = new AgainstGame($poule, $gameAmount);
-            foreach ([AgainstGame::HOME, AgainstGame::AWAY] as $homeAwayValue) {
+            foreach ([AgainstSide::HOME, AgainstSide::AWAY] as $homeAwayValue) {
                 foreach ($homeAway->get($homeAwayValue)->getPlaces() as $place) {
                     new AgainstGamePlace($game, $place, $homeAwayValue);
                 }

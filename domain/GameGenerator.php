@@ -22,17 +22,18 @@ class GameGenerator
     public function generateGames(Planning $planning)
     {
         $input = $planning->getInput();
-        $generatorHelper = $this->getGenerator($input->getGameMode());
+        $againstGenerator = new AgainstGenerator();
+        $togetherGenerator = new TogetherGenerator();
         foreach ($planning->getPoules() as $poule) {
-            $generatorHelper->generate($poule, $input->getSportConfigs());
+            $againstGenerator->generate($poule, $input->getSportConfigs());
+            $togetherGenerator->generate($poule, $input->getSportConfigs());
         }
+
+        // hier moeten de games gegenereerd worden, op basis van creationstrategy
+//        public const StaticPouleSize = 1;
+//        public const StaticManual = 2;
+//        public const IncrementalRandom = 3;
+//        public const IncrementalRanking = 4;
     }
 
-    protected function getGenerator(int $gameMode): GameGeneratorHelper
-    {
-        if ($gameMode === GameMode::AGAINST) {
-            return new AgainstGenerator();
-        }
-        return new TogetherGenerator();
-    }
 }

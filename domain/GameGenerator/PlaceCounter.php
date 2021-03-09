@@ -3,7 +3,6 @@
 
 namespace SportsPlanning\GameGenerator;
 
-
 use SportsPlanning\Place;
 
 class PlaceCounter

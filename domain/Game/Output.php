@@ -6,6 +6,7 @@ namespace SportsPlanning\Game;
 use Doctrine\Common\Collections\Collection;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
+use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Game\Against as AgainstGame;
@@ -66,9 +67,9 @@ class Output extends OutputHelper
      */
     protected function outputPlaces($game, $batch = null): string
     {
-        if( $game instanceof AgainstGame ) {
-            $homeGamePlaces = $this->outputPlacesHelper($game, $game->getPlaces(AgainstGame::HOME), $batch);
-            $awayGamePlaces = $this->outputPlacesHelper($game, $game->getPlaces(AgainstGame::AWAY), $batch);
+        if ($game instanceof AgainstGame) {
+            $homeGamePlaces = $this->outputPlacesHelper($game, $game->getSidePlaces(AgainstSide::HOME), $batch);
+            $awayGamePlaces = $this->outputPlacesHelper($game, $game->getSidePlaces(AgainstSide::AWAY), $batch);
             return $homeGamePlaces . ' vs ' . $awayGamePlaces;
         }
         return $this->outputPlacesHelper($game, $game->getPlaces(), $batch);

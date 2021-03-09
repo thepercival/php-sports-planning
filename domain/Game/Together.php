@@ -48,10 +48,10 @@ class Together extends GameBase
             return $this->places;
         }
         return $this->places->filter(
-                function (TogetherGamePlace $gamePlace) use ($gameRoundNumber): bool {
-                    return $gamePlace->getGameRoundNumber() === $gameRoundNumber;
-                }
-            );
+            function (TogetherGamePlace $gamePlace) use ($gameRoundNumber): bool {
+                return $gamePlace->getGameRoundNumber() === $gameRoundNumber;
+            }
+        );
     }
 
 //    /**
@@ -101,8 +101,8 @@ class Together extends GameBase
      */
     public function getPoulePlaces(): Collection
     {
-        if( $this->poulePlaces === null ) {
-            $this->poulePlaces = $this->getPlaces()->map( function (TogetherGamePlace $gamePlace): Place {
+        if ($this->poulePlaces === null) {
+            $this->poulePlaces = $this->getPlaces()->map(function (TogetherGamePlace $gamePlace): Place {
                 return $gamePlace->getPlace();
             });
         }

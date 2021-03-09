@@ -17,29 +17,25 @@ class Repository extends BaseRepository
      * @param array|SportConfig[] $sportConfigs
      * @param int $nrOfReferees
      * @param int $selfReferee
-     * @param int $gameMode
      * @return Input|null
      */
     public function get(
         PouleStructure $pouleStructure,
         array $sportConfigs,
         int $nrOfReferees,
-        int $selfReferee,
-        int $gameMode
+        int $selfReferee
     ): ?Input {
         $query = $this->createQueryBuilder('pi')
             ->where('pi.pouleStructureDb = :pouleStructure')
             ->andWhere('pi.sportConfigDb = :sportConfig')
             ->andWhere('pi.nrOfReferees = :nrOfReferees')
             ->andWhere('pi.selfReferee = :selfReferee')
-            ->andWhere('pi.gameMode = :gameMode')
         ;
 
         $query = $query->setParameter('pouleStructure', json_encode($pouleStructure->toArray()));
         $query = $query->setParameter('sportConfig', json_encode($this->sportConfigsToArray($sportConfigs)));
         $query = $query->setParameter('nrOfReferees', $nrOfReferees);
         $query = $query->setParameter('selfReferee', $selfReferee);
-        $query = $query->setParameter('gameMode', $gameMode);
 
         $query->setMaxResults(1);
 
@@ -52,10 +48,11 @@ class Repository extends BaseRepository
      * @param array|SportConfig[] $sportConfigs
      * @return array
      */
-    protected function sportConfigsToArray(array $sportConfigs): array {
-        return array_map( function(SportConfig $sportConfig): array {
+    protected function sportConfigsToArray(array $sportConfigs): array
+    {
+        return array_map(function (SportConfig $sportConfig): array {
             return $sportConfig->toArray();
-        }, $sportConfigs );
+        }, $sportConfigs);
     }
 
     public function getFromInput(Input $input): ?Input
@@ -64,8 +61,7 @@ class Repository extends BaseRepository
             $input->getPouleStructure(),
             $input->getSportConfigs(),
             $input->getNrOfReferees(),
-            $input->getSelfReferee(),
-            $input->getGameMode()
+            $input->getSelfReferee()
         );
     }
 
@@ -100,10 +96,10 @@ class Repository extends BaseRepository
 
 
     //-- planninginputs not validated
-//select 	count(*)
-//from 	planninginputs pi
-//where 	not exists( select * from plannings p where p.inputId = pi.Id and ( p.state = 2 or p.state = 8 or p.state = 16 ) )
-//and		exists( select * from plannings p where p.inputId = pi.Id and p.validity < 0 )
+    //select 	count(*)
+    //from 	planninginputs pi
+    //where 	not exists( select * from plannings p where p.inputId = pi.Id and ( p.state = 2 or p.state = 8 or p.state = 16 ) )
+    //and		exists( select * from plannings p where p.inputId = pi.Id and p.validity < 0 )
     /**
      * alles zonder een succeeded
      * of met succeeded en not valid or not validated
@@ -115,14 +111,16 @@ class Repository extends BaseRepository
      * @return array|Input[]
      */
     public function findNotValidated(
-        bool $validateInvalid, int $limit,
-        PouleStructure $pouleStructure = null, int $selfReferee = null): array
-    {
+        bool $validateInvalid,
+        int $limit,
+        PouleStructure $pouleStructure = null,
+        int $selfReferee = null
+    ): array {
         $exprNot = $this->getEM()->getExpressionBuilder();
         $exprInvalidStates = $this->getEM()->getExpressionBuilder();
         $exprNotValidated = $this->getEM()->getExpressionBuilder();
         $validOperator = '<';
-        if( $validateInvalid ) {
+        if ($validateInvalid) {
             $validOperator = '<>';
         }
 
@@ -170,17 +168,17 @@ class Repository extends BaseRepository
         return $inputs;
     }
 
-// select * from planninginputs where exists( select * from  plannings where gamesinarow = 0 and state = timedout ) and  structure;
+    // select * from planninginputs where exists( select * from  plannings where gamesinarow = 0 and state = timedout ) and  structure;
 
 
     public function findGamesInARowTimedout(int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?Input
     {
-        return $this->findTimedout( false, $maxTimeoutSeconds, $pouleStructure );
+        return $this->findTimedout(false, $maxTimeoutSeconds, $pouleStructure);
     }
 
     public function findBatchGamestTimedout(int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?Input
     {
-        return $this->findTimedout( true, $maxTimeoutSeconds, $pouleStructure );
+        return $this->findTimedout(true, $maxTimeoutSeconds, $pouleStructure);
     }
 
     protected function findTimedout(bool $bBatchGames, int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?Input
@@ -209,7 +207,7 @@ class Repository extends BaseRepository
                         ->from('SportsPlanning\Planning', 'p')
                         ->where('p.input = pi')
                         ->andWhere('p.state = :state')
-                        ->andWhere('p.maxNrOfGamesInARow ' . ( $bBatchGames ? '=' : '>') .  ' 0')
+                        ->andWhere('p.maxNrOfGamesInARow ' . ($bBatchGames ? '=' : '>') .  ' 0')
                         ->andWhere('p.timeoutSeconds > 0')
                         ->andWhere('p.timeoutSeconds <= :maxTimeoutSeconds')
                         ->getDQL()

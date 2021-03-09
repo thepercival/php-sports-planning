@@ -15,9 +15,9 @@ class AgainstTest extends TestCase
 
     public function testSimple()
     {
-        $sportConfigs = [new SportConfig(new SportBase(2), 2, 1)];
+        $sportConfigs = [new SportConfig(new SportBase(GameMode::AGAINST, 2), 2, 1)];
         $planning = $this->createPlanning(
-            $this->createInput([5], GameMode::AGAINST, $sportConfigs)
+            $this->createInputNew([5], $sportConfigs)
         );
 
         // alle tests zitten ook in de validator, dus een beeteje dubbel om hier

@@ -134,7 +134,8 @@ class Planning extends Identifiable
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
     }
 
-    public function isBatchGames(): bool {
+    public function isBatchGames(): bool
+    {
         return $this->maxNrOfGamesInARow === 0;
     }
 
@@ -159,10 +160,10 @@ class Planning extends Identifiable
         $this->timeoutSeconds = $timeoutSeconds;
     }
 
-    public function getDefaultTimeoutSeconds(): int {
+    public function getDefaultTimeoutSeconds(): int
+    {
         $defaultTimeoutSecondds = Planning::DEFAULT_TIMEOUTSECONDS;
-        $gameMode = $this->getInput()->getGameMode();
-        if( $this->input->getPouleStructure()->getNrOfGames( $gameMode, $this->getInput()->getSportConfigs() ) > 50 ) {
+        if ($this->input->getPouleStructure()->getNrOfGames($this->getInput()->getSportConfigs()) > 50) {
             $defaultTimeoutSecondds *= 2;
         }
         return $defaultTimeoutSecondds;
@@ -225,7 +226,7 @@ class Planning extends Identifiable
     public function getPouleStructure(): PouleStructure
     {
         $poules = [];
-        foreach ($this->getPoules() as $poule ) {
+        foreach ($this->getPoules() as $poule) {
             $poules[] = $poule->getPlaces()->count();
         }
         return new PouleStructure($poules);
@@ -250,10 +251,12 @@ class Planning extends Identifiable
             $sport = new Sport(
                 $this,
                 $this->sports->count() + 1,
-                $sportConfig->getNrOfGamePlaces() );
+                $sportConfig->getGameMode(),
+                $sportConfig->getNrOfGamePlaces()
+            );
             $this->sports->add($sport);
             for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportConfig->getNrOfFields() ; $fieldNrDelta++) {
-                new Field($fieldNr + $fieldNrDelta, $sport);
+                new Field($sport);
             }
             $fieldNr += $sport->getFields()->count();
         }
@@ -313,11 +316,11 @@ class Planning extends Identifiable
     {
         $games = $this->getGames(Game::ORDER_BY_BATCH);
         $batch = new Batch();
-        if( $this->getInput()->selfRefereeEnabled() ) {
-            if( $this->getInput()->getSelfReferee() === PlanningInput::SELFREFEREE_SAMEPOULE) {
-                $batch = new SelfRefereeSamePouleBatch( $batch );
+        if ($this->getInput()->selfRefereeEnabled()) {
+            if ($this->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
+                $batch = new SelfRefereeSamePouleBatch($batch);
             } else {
-                $batch = new SelfRefereeOtherPouleBatch( $this->getPoules()->toArray(), $batch );
+                $batch = new SelfRefereeOtherPouleBatch($this->getPoules()->toArray(), $batch);
             }
         }
         foreach ($games as $game) {
@@ -335,9 +338,10 @@ class Planning extends Identifiable
      */
     public function getGames(int $order = null): array
     {
+        /** @var array|AgainstGame[]|TogetherGame[] $games */
         $games = [];
         foreach ($this->getPoules() as $poule) {
-            $games = array_merge($games, $poule->getGames()->toArray());
+            $games = array_merge($games, $poule->getGames());
         }
         if ($order === Game::ORDER_BY_BATCH) {
             uasort($games, function (Game $g1, Game  $g2): int {
@@ -378,18 +382,19 @@ class Planning extends Identifiable
         return $this->getPoule($pouleNr)->getPlace($placeNr);
     }
 
-    public function getGamesInARowPlannings( int $state = null ): array {
-        if( $this->getMaxNrOfGamesInARow() > 0 ) {
+    public function getGamesInARowPlannings(int $state = null): array
+    {
+        if ($this->getMaxNrOfGamesInARow() > 0) {
             return [];
         }
         $range = $this->getNrOfBatchGames();
-        $gamesInARowPlannings = $this->getInput()->getPlannings()->filter( function( Planning $planning ) use ($range, $state): bool {
+        $gamesInARowPlannings = $this->getInput()->getPlannings()->filter(function (Planning $planning) use ($range, $state): bool {
             return $planning->getMinNrOfBatchGames() === $range->min
                 && $planning->getMaxNrOfBatchGames() === $range->max
                 && $planning->getMaxNrOfGamesInARow() > 0
-                && ($state === null || (($planning->getState() & $state) > 0) );
+                && ($state === null || (($planning->getState() & $state) > 0));
         });
-        return $this->orderGamesInARowPlannings( $gamesInARowPlannings );
+        return $this->orderGamesInARowPlannings($gamesInARowPlannings);
     }
 
     /**
@@ -397,7 +402,7 @@ class Planning extends Identifiable
      *
      * @return array|Planning[]
      */
-    protected function orderGamesInARowPlannings( Collection $gamesInARowPlannings ): array
+    protected function orderGamesInARowPlannings(Collection $gamesInARowPlannings): array
     {
         $plannings = $gamesInARowPlannings->toArray();
         uasort($plannings, function (Planning $first, Planning $second) {
@@ -409,12 +414,13 @@ class Planning extends Identifiable
         return array_values($plannings);
     }
 
-    public function getBestGamesInARowPlanning(): ?Planning {
-        $succeededGamesInARowPlannings = $this->getGamesInARowPlannings( Planning::STATE_SUCCEEDED );
-        if( count( $succeededGamesInARowPlannings ) >= 1 ) {
+    public function getBestGamesInARowPlanning(): ?Planning
+    {
+        $succeededGamesInARowPlannings = $this->getGamesInARowPlannings(Planning::STATE_SUCCEEDED);
+        if (count($succeededGamesInARowPlannings) >= 1) {
             return reset($succeededGamesInARowPlannings);
         }
-        if( $this->getState() === Planning::STATE_SUCCEEDED ) {
+        if ($this->getState() === Planning::STATE_SUCCEEDED) {
             return $this;
         }
         return null;

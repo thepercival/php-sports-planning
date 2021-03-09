@@ -2,6 +2,7 @@
 
 namespace SportsPlanning\GameGenerator;
 
+use SportsHelpers\GameMode;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Place;
 use SportsPlanning\Game\Together as TogetherGame;
@@ -28,6 +29,9 @@ class Together implements Helper
         $this->togetherCounter->addPlaces($poule);
         $games = [];
         foreach ($sportConfigs as $sportConfig) {
+            if ($sportConfig->getGameMode() !== GameMode::TOGETHER) {
+                continue;
+            }
             $games = array_merge($games, $this->generateForSportConfig($poule, $sportConfig));
         }
         return $games;

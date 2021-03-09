@@ -3,13 +3,10 @@
 namespace SportsPlanning\Tests\GameGenerator;
 
 use SportsHelpers\GameMode;
-use SportsHelpers\PouleStructure;
 use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Game\Calculator;
 use SportsPlanning\GameGenerator\Together as TogetherGameeGenerator;
-use SportsPlanning\GameGenerator\PlaceCombination;
-use SportsPlanning\Input;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class TogetherTest extends \PHPUnit\Framework\TestCase
@@ -18,9 +15,9 @@ class TogetherTest extends \PHPUnit\Framework\TestCase
 
     public function testSimple()
     {
-        $sportConfigs = [new SportConfig(new SportBase(2), 2, 3)];
+        $sportConfigs = [new SportConfig(new SportBase(GameMode::TOGETHER, 2), 2, 3)];
         $planning = $this->createPlanning(
-            $this->createInput([7], GameMode::TOGETHER, $sportConfigs)
+            $this->createInputNew([7], $sportConfigs)
         );
 
         $getPlacesDescription = function (array $togetherGamePlaces): string {

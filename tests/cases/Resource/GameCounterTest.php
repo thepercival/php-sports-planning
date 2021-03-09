@@ -14,7 +14,7 @@ class GameCounterTest extends \PHPUnit\Framework\TestCase
     public function testCalculations()
     {
         $planning = $this->createPlanning(
-            $this->createInput( [3] )
+            $this->createInputNew([3])
         );
 
         $referee = $planning->getReferee(1);
@@ -28,5 +28,4 @@ class GameCounterTest extends \PHPUnit\Framework\TestCase
 
         self::assertSame($referee, $gameCounter->getResource());
     }
-
 }

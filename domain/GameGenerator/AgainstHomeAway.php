@@ -2,7 +2,7 @@
 
 namespace SportsPlanning\GameGenerator;
 
-use SportsPlanning\Game\Against as AgainstGame;
+use SportsHelpers\Against\Side as AgainstSide;
 
 class AgainstHomeAway
 {
@@ -15,9 +15,9 @@ class AgainstHomeAway
         $this->away = $away;
     }
 
-    public function get(bool $homeAway): PlaceCombination
+    public function get(int $side): PlaceCombination
     {
-        return $homeAway === AgainstGame::HOME ? $this->home : $this->away;
+        return $side === AgainstSide::HOME ? $this->home : $this->away;
     }
 
     public function getHome(): PlaceCombination

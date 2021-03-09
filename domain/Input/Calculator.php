@@ -3,7 +3,6 @@
 
 namespace SportsPlanning\Input;
 
-
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SportConfig;
 use SportsHelpers\SportConfig\Service as SportConfigService;
@@ -25,20 +24,20 @@ class Calculator
      * @param bool $selfReferee
      * @return int
      */
-    public function getMaxNrOfGamesPerBatch( PouleStructure $pouleStructure, array $sportConfigs, bool $selfReferee ): int
+    public function getMaxNrOfGamesPerBatch(PouleStructure $pouleStructure, array $sportConfigs, bool $selfReferee): int
     {
         // sort by lowest nrOfGamePlaces first
-        uasort( $sportConfigs, function(SportConfig $sportConfigA, SportConfig $sportConfigB): int {
+        uasort($sportConfigs, function (SportConfig $sportConfigA, SportConfig $sportConfigB): int {
             return $sportConfigA->getNrOfGamePlaces() < $sportConfigB->getNrOfGamePlaces() ? -1 : 1;
         });
 
         $nrOfBatchGames = 0;
         $nrOfPlaces = $pouleStructure->getNrOfPlaces();
-        while ( $nrOfPlaces > 0 && count($sportConfigs) > 0 ) {
+        while ($nrOfPlaces > 0 && count($sportConfigs) > 0) {
             $sportConfig = array_shift($sportConfigs);
             $nrOfFields = $sportConfig->getNrOfFields();
-            while ( $nrOfPlaces > 0 && $nrOfFields-- > 0 ) {
-                $nrOfPlaces -= ( $sportConfig->getNrOfGamePlaces() + ( $selfReferee ? 1 : 0) );
+            while ($nrOfPlaces > 0 && $nrOfFields-- > 0) {
+                $nrOfPlaces -= ($sportConfig->getNrOfGamePlaces() + ($selfReferee ? 1 : 0));
                 if ($nrOfPlaces >= 0) {
                     $nrOfBatchGames++;
                 }
@@ -47,20 +46,28 @@ class Calculator
         return $nrOfBatchGames === 0 ? 1 : $nrOfBatchGames;
     }
 
+    /**
+     * @param PouleStructure $pouleStructure
+     * @param array|SportConfig[] $sportConfigs
+     * @param bool $selfReferee
+     * @return int
+     */
     public function getMaxNrOfGamesInARow(
-        int $gameMode, PouleStructure $pouleStructure, array $sportConfigs, bool $selfReferee): int
-    {
+        PouleStructure $pouleStructure,
+        array $sportConfigs,
+        bool $selfReferee
+    ): int {
         // if( $gameMode === GameMode::AGAINST ) {
-            $nrOfPoulesByNrOfPlaces = $pouleStructure->getNrOfPoulesByNrOfPlaces();
-            $nrOfPlaces = key($nrOfPoulesByNrOfPlaces);
-            $nrOfPlaces *= $nrOfPoulesByNrOfPlaces[$nrOfPlaces];
-            $maxNrOfBatchPlaces = $this->getMaxNrOfPlacesPerBatch($pouleStructure, $sportConfigs, $selfReferee);
+        $nrOfPoulesByNrOfPlaces = $pouleStructure->getNrOfPoulesByNrOfPlaces();
+        $nrOfPlaces = key($nrOfPoulesByNrOfPlaces);
+        $nrOfPlaces *= $nrOfPoulesByNrOfPlaces[$nrOfPlaces];
+        $maxNrOfBatchPlaces = $this->getMaxNrOfPlacesPerBatch($pouleStructure, $sportConfigs, $selfReferee);
 
-            $nrOfRestPlaces = $nrOfPlaces - $maxNrOfBatchPlaces;
-            if( $nrOfRestPlaces <= 0 ) {
-                return $this->sportConfigService->getNrOfGamesPerPlace($gameMode, $nrOfPlaces, $sportConfigs);
-            }
-            return (int)ceil($nrOfPlaces / $nrOfRestPlaces);
+        $nrOfRestPlaces = $nrOfPlaces - $maxNrOfBatchPlaces;
+        if ($nrOfRestPlaces <= 0) {
+            return $this->sportConfigService->getNrOfGamesPerPlace($nrOfPlaces, $sportConfigs);
+        }
+        return (int)ceil($nrOfPlaces / $nrOfRestPlaces);
         // }
 
         // in together mode weet ik het niet!!
@@ -98,25 +105,25 @@ class Calculator
      * @param bool $selfReferee
      * @return int
      */
-    protected function getMaxNrOfPlacesPerBatch( PouleStructure $pouleStructure, array $sportConfigs, bool $selfReferee ): int
+    protected function getMaxNrOfPlacesPerBatch(PouleStructure $pouleStructure, array $sportConfigs, bool $selfReferee): int
     {
         // sort by lowest nrOfGamePlaces first
-        uasort( $sportConfigs, function(SportConfig $sportConfigA, SportConfig $sportConfigB): int {
+        uasort($sportConfigs, function (SportConfig $sportConfigA, SportConfig $sportConfigB): int {
             return $sportConfigA->getNrOfGamePlaces() < $sportConfigB->getNrOfGamePlaces() ? -1 : 1;
         });
 
         $nrOfBatchPlaces = 0;
         $nrOfPlaces = $pouleStructure->getNrOfPlaces();
-        while ( $nrOfPlaces > 0 && count($sportConfigs) > 0 ) {
+        while ($nrOfPlaces > 0 && count($sportConfigs) > 0) {
             $sportConfig = array_shift($sportConfigs);
             $nrOfFields = $sportConfig->getNrOfFields();
-            while ( $nrOfPlaces > 0 && $nrOfFields-- > 0 ) {
-                $nrOfGamePlaces = ( $sportConfig->getNrOfGamePlaces() + ( $selfReferee ? 1 : 0) );
+            while ($nrOfPlaces > 0 && $nrOfFields-- > 0) {
+                $nrOfGamePlaces = ($sportConfig->getNrOfGamePlaces() + ($selfReferee ? 1 : 0));
                 $nrOfPlaces -= $nrOfGamePlaces;
                 $nrOfBatchPlaces += $nrOfGamePlaces;
             }
         }
-        if( $nrOfPlaces < 0 ) {
+        if ($nrOfPlaces < 0) {
             $nrOfBatchPlaces += $nrOfPlaces;
         }
         return $nrOfBatchPlaces === 0 ? 1 : $nrOfBatchPlaces;
