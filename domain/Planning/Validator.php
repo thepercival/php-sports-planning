@@ -151,10 +151,6 @@ class Validator
         return self::VALID;
     }
 
-
-
-
-
     protected function allPlacesInPouleSameNrOfGames(Poule $poule): int
     {
         $nrOfGames = [];
@@ -167,12 +163,6 @@ class Validator
                 }
                 if (count($homePlaces) !== count($awayPlaces)) {
                     return self::UNEQUAL_GAME_HOME_AWAY;
-                }
-            }
-            if ($game instanceof TogetherGame) {
-                $places = $game->getPlaces();
-                if ($places->count() === 0) {
-                    return self::EMPTY_PLACE;
                 }
             }
             if ($game->getPlaces()->count() === 0) {

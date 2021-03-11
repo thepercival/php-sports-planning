@@ -17,6 +17,7 @@ use SportsPlanning\TestHelper\PlanningReplacer;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Referee as PlanningReferee;
+use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 
 class ValidatorTest extends TestCase
 {
@@ -130,7 +131,7 @@ class ValidatorTest extends TestCase
         );
     }
 
-    public function testBatchMultiplePlaces()
+    public function testGameUnequalHomeAway()
     {
         $planning = $this->createPlanning(
             $this->createInputNew([2])

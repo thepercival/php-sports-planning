@@ -3,6 +3,10 @@ namespace SportsPlanning\Sport;
 
 use SportsPlanning\Sport as PlanningSport;
 
+/**
+ * Class Counter DEPRECATED??
+ * @package SportsPlanning\Sport
+ */
 class Counter
 {
     /**

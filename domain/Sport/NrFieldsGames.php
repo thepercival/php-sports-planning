@@ -2,6 +2,10 @@
 
 namespace SportsPlanning\Sport;
 
+/**
+ * Class NrFieldsGames DEPRECATED??
+ * @package SportsPlanning\Sport
+ */
 class NrFieldsGames extends NrFields
 {
     /**
