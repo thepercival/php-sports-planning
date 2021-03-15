@@ -6,18 +6,10 @@ use SportsPlanning\Resource as PlanningResource;
 
 class GameCounter
 {
-    /**
-     * @var PlanningResource
-     */
-    protected $resource;
-    /**
-     * @var int
-     */
-    protected $nrOfGames;
+    protected int $nrOfGames;
 
-    public function __construct(PlanningResource $resource, int $nrOfGames = 0)
+    public function __construct(protected PlanningResource $resource, int $nrOfGames = 0)
     {
-        $this->resource = $resource;
         $this->nrOfGames = $nrOfGames;
     }
 
@@ -31,7 +23,7 @@ class GameCounter
         return (string)$this->resource->getNumber();
     }
 
-    public function increase()
+    public function increase(): void
     {
         $this->nrOfGames++;
     }

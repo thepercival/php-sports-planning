@@ -5,6 +5,8 @@ namespace SportsPlanning\Resource;
 use SportsPlanning\Planning;
 use SportsPlanning\Input;
 use SportsPlanning\Batch;
+use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
+use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 
 class RefereeService
 {
@@ -25,20 +27,21 @@ class RefereeService
         return !$this->getInput()->selfRefereeEnabled() && $this->getInput()->getNrOfReferees() > 0;
     }
 
-    public function assign(Batch $batch)
+    public function assign(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch): void
     {
         $this->assignBatch($batch->getFirst(), $this->planning->getReferees()->toArray());
     }
 
-    protected function assignBatch(Batch $batch, array $referees)
+    protected function assignBatch(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch, array $referees): void
     {
         foreach ($batch->getGames() as $game) {
             $referee = array_shift($referees);
             $game->setReferee($referee);
             array_push($referees, $referee);
         }
-        if ($batch->hasNext()) {
-            $this->assignBatch($batch->getNext(), $referees);
+        $nextBatch = $batch->getNext();
+        if ($nextBatch !== null) {
+            $this->assignBatch($nextBatch, $referees);
         }
     }
 }

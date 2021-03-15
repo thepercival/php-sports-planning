@@ -36,7 +36,7 @@ class GCDProcessor
         $this->seeker = $seeker;
     }
 
-    public function process(Input $input)
+    public function process(Input $input): void
     {
         $this->logger->info('   processing as gcd..');
         $gcdInput = $this->inputGCDService->getGCDInput($input);
@@ -53,14 +53,14 @@ class GCDProcessor
         $this->processByGCD($input, $gcdDbInput);
     }
 
-    protected function processByGCD(Input $input, Input $gcdInput)
+    protected function processByGCD(Input $input, Input $gcdInput): void
     {
         $gcdPlanning = $gcdInput->getBestPlanning();
         $this->createPlanningFromGcd($input, $gcdPlanning);
         $this->inputRepos->save($input);
     }
 
-    protected function createPlanningFromGcd(Input $input, Planning $gcdPlanning)
+    protected function createPlanningFromGcd(Input $input, Planning $gcdPlanning): void
     {
         $gcd = $this->inputGCDService->getGCD($input);
 
@@ -102,22 +102,18 @@ class GCDProcessor
         $this->planningRepos->save($planning);
     }
 
-    /**
-     * @param Poule $poule
-     * @param TogetherGame|AgainstGame $gcdGame
-     * @return TogetherGame|AgainstGame
-     */
-    protected function createGame(Poule $poule, $gcdGame)
+    protected function createGame(Poule $poule, TogetherGame|AgainstGame $gcdGame): TogetherGame|AgainstGame
     {
+        $sport = $poule->getPlanning()->getSport($gcdGame->getSport()->getNumber());
         if ($gcdGame instanceof AgainstGame) {
-            $game = new AgainstGame($poule, $gcdGame->getNrOfHeadtohead());
+            $game = new AgainstGame($poule, $gcdGame->getNrOfHeadtohead(), $sport);
             foreach ($gcdGame->getPlaces() as $gcdGamePlace) {
                 $place = $poule->getPlace($gcdGamePlace->getPlace()->getNumber());
                 new AgainstGamePlace($game, $place, $gcdGamePlace->getSide());
             }
             return $game;
         }
-        $game = new TogetherGame($poule);
+        $game = new TogetherGame($poule, $sport);
         foreach ($gcdGame->getPlaces() as $gcdGamePlace) {
             $place = $poule->getPlace($gcdGamePlace->getPlace()->getNumber());
             new TogetherGamePlace($game, $place, $gcdGamePlace->getGameRoundNumber());

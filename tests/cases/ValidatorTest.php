@@ -6,9 +6,9 @@ use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
 use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
+use SportsHelpers\SportRange;
 use SportsPlanning\Batch;
 use SportsHelpers\Against\Side as AgainstSide;
-use SportsHelpers\Range;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\SelfReferee;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
@@ -17,7 +17,6 @@ use SportsPlanning\TestHelper\PlanningReplacer;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Referee as PlanningReferee;
-use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 
 class ValidatorTest extends TestCase
 {
@@ -156,7 +155,7 @@ class ValidatorTest extends TestCase
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5]),
-            new Range(2, 2)
+            new SportRange(2, 2)
         );
 
         /** @var AgainstGame $planningGame */
@@ -179,7 +178,7 @@ class ValidatorTest extends TestCase
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5]),
-            new Range(2, 2)
+            new SportRange(2, 2)
         );
 
         /** @var AgainstGame $planningGame */

@@ -16,45 +16,41 @@ class Resources
      * @var int|null
      */
     private $fieldIndex;
+    private int $nrOfFieldSwitches;
     /**
-     * @var int
-     */
-    private $nrOfFieldSwitches;
-    /**
-     * @var array|SportCounter[]
+     * @var array<SportCounter>
      */
     private $sportCounters;
     /**
-     * @var array|int[]
+     * @var array<int>
      */
-    private $sportTimes;
+    private array $sportTimes = [];
 
     const FIELDS = 1;
     const REFEREES = 2;
     const PLACES = 4;
 
     /**
-     * Resources constructor.
-     * @param array|Field[] $fields
-     * @param array|SportCounter[]|null $sportCounters
-     * @param array|int[]|null $sportTimes
+     * @param array<Field> $fields
+     * @param array<SportCounter>|null $sportCounters
+     * @param array<int>|null $sportTimes
      */
-    public function __construct(array $fields, array $sportCounters = null, array $sportTimes = null)
+    public function __construct(array $fields, array|null $sportCounters = null, array|null $sportTimes = null)
     {
         $this->fields = $fields;
-        $this->sportCounters = $sportCounters;
-        if ($sportTimes === null && $sportCounters !== null) {
-            /** @var Field $field */
+        $this->sportCounters = $sportCounters ?? [];
+        if ($sportTimes !== null) {
+            $this->sportTimes = $sportTimes;
+        } elseif ($sportCounters !== null) {
             foreach ($fields as $field) {
-                $sportTimes[$field->getSport()->getNumber()] = 0;
+                $this->sportTimes[$field->getSport()->getNumber()] = 0;
             }
         }
-        $this->sportTimes = $sportTimes;
         $this->nrOfFieldSwitches = 0;
     }
 
     /**
-     * @return array|Field[]
+     * @return array<Field>
      */
     public function getFields(): array
     {
@@ -64,15 +60,15 @@ class Resources
     /**
      * @param Field $field
      */
-    public function addField(Field $field)
+    public function addField(Field $field): void
     {
         $this->fields[] = $field;
     }
 
     /**
-     * @param array|Field[] $fields
+     * @param array<Field> $fields
      */
-    public function setFields(array $fields)
+    public function setFields(array $fields): void
     {
         $this->fields = $fields;
     }
@@ -80,7 +76,7 @@ class Resources
     /**
      * @param Field $field
      */
-    public function unshiftField(Field $field)
+    public function unshiftField(Field $field): void
     {
         array_unshift($this->fields, $field);
     }
@@ -102,7 +98,7 @@ class Resources
         return reset($removedFields);
     }
 
-    public function orderFields()
+    public function orderFields(): void
     {
         uasort($this->fields, function (Field $fieldA, Field $fieldB): int {
             return $this->sportTimes[$fieldA->getSport()->getNumber() ] > $this->sportTimes[$fieldB->getSport()->getNumber() ] ? -1 : 1;
@@ -142,11 +138,7 @@ class Resources
 //        return $fieldCombinations;
     }
 
-    /**
-     * @param AgainstGame|TogetherGame $game
-     * @return int
-     */
-    public function getGameNrOfSportsToGo($game): int
+    public function getGameNrOfSportsToGo(AgainstGame|TogetherGame $game): int
     {
         $gameNrToGo = 0;
         foreach ($game->getPlaces() as $gamePlace) {
@@ -155,58 +147,42 @@ class Resources
         return $gameNrToGo;
     }
 
-    /**
-     * @return int
-     */
     public function getFieldIndex(): ?int
     {
         return $this->fieldIndex;
     }
 
-    /**
-     * @param int $fieldIndex
-     */
-    public function setFieldIndex(int $fieldIndex = null)
+    public function setFieldIndex(int|null $fieldIndex = null): void
     {
         $this->fieldIndex = $fieldIndex;
     }
 
-    /**
-     * @return int
-     */
-    public function getNrOfFieldSwitches(): ?int
+    public function getNrOfFieldSwitches(): int
     {
         return $this->nrOfFieldSwitches;
     }
 
-    /**
-     * @param int $nrOfFieldSwitches
-     */
-    public function setNrOfFieldSwitches(int $nrOfFieldSwitches)
+    public function setNrOfFieldSwitches(int $nrOfFieldSwitches): void
     {
         $this->nrOfFieldSwitches = $nrOfFieldSwitches;
     }
 
     /**
-     * @return array|SportCounter[]|null
+     * @return array<SportCounter>
      */
-    public function getSportCounters(): ?array
+    public function getSportCounters(): array
     {
         return $this->sportCounters;
     }
 
-    /**
-     * @param TogetherGame|AgainstGame $game
-     * @param Sport $sport
-     */
-    public function assignSport($game, Sport $sport)
+    public function assignSport(TogetherGame|AgainstGame $game): void
     {
-        if ($this->sportCounters === null) {
+        if (count($this->sportCounters) === 0) {
             return;
         }
-        $this->sportTimes[$sport->getNumber()]++;
+        $this->sportTimes[$game->getSport()->getNumber()]++;
         foreach ($game->getPlaces() as $gamePlace) {
-            $this->getSportCounter($gamePlace->getPlace())->addGame($sport);
+            $this->getSportCounter($gamePlace->getPlace())->addGame($game->getSport());
         }
     }
 
@@ -217,7 +193,7 @@ class Resources
      */
     public function isSportAssignable($game, Sport $sport): bool
     {
-        if ($this->sportCounters === null) {
+        if (count($this->sportCounters) === 0) {
             return true;
         }
         foreach ($game->getPlaces() as $gamePlace) {
@@ -235,12 +211,9 @@ class Resources
 
     public function copy(): Resources
     {
-        $newSportCounters = null;
-        if ($this->getSportCounters() !== null) {
-            $newSportCounters = [];
-            foreach ($this->getSportCounters() as $location => $sportCounter) {
-                $newSportCounters[$location] = $sportCounter->copy();
-            }
+        $newSportCounters = [];
+        foreach ($this->getSportCounters() as $location => $sportCounter) {
+            $newSportCounters[$location] = $sportCounter->copy();
         }
         $resources = new Resources($this->getFields(), $newSportCounters, $this->sportTimes);
         $resources->setFieldIndex($this->getFieldIndex());

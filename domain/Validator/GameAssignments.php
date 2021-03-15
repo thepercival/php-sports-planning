@@ -49,7 +49,7 @@ class GameAssignments
         $this->init();
     }
 
-    protected function init()
+    protected function init(): void
     {
         /** @var Field $field */
         foreach ($this->planning->getFields() as $field) {
@@ -71,16 +71,19 @@ class GameAssignments
 
         $games = $this->planning->getGames(Game::ORDER_BY_BATCH);
         foreach ($games as $game) {
-            if ($game->getField() !== null) {
-                $this->fields[(string)$game->getField()->getNumber()]->increase();
+            $field = $game->getField();
+            if ($field !== null) {
+                $this->fields[(string)$field->getNumber()]->increase();
             }
             if ($this->planning->getInput()->selfRefereeEnabled()) {
-                if ($game->getRefereePlace() !== null) {
-                    $this->refereePlaces[$game->getRefereePlace()->getLocation()]->increase();
+                $refereePlace = $game->getRefereePlace();
+                if ($refereePlace !== null) {
+                    $this->refereePlaces[$refereePlace->getLocation()]->increase();
                 }
             } else {
-                if ($game->getReferee() !== null) {
-                    $this->referees[(string)$game->getReferee()->getNumber()]->increase();
+                $referee = $game->getReferee();
+                if ($referee !== null) {
+                    $this->referees[(string)$referee->getNumber()]->increase();
                 }
             }
         }
@@ -101,7 +104,7 @@ class GameAssignments
         return $counters;
     }
 
-    public function validate()
+    public function validate(): void
     {
         $unequalFields = $this->getMaxUnequal($this->fields);
         if ($unequalFields !== null) {

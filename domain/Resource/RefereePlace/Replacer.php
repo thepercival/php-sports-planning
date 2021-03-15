@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 
 namespace SportsPlanning\Resource\RefereePlace;
 
@@ -17,25 +17,21 @@ use SportsPlanning\Batch\Output as BatchOutput;
 
 class Replacer
 {
-    protected bool $samePoule;
+    protected DateTimeImmutable|null $timeoutDateTime = null;
     /**
-     * @var \DateTimeImmutable|null
-     */
-    protected $timeoutDateTime;
-    /**
-     * @var array | Replace[]
+     * @var array<Replace>
      */
     protected array $revertableReplaces;
     private bool $throwOnTimeout;
 
-    public function __construct(bool $samePoule)
+    public function __construct(protected bool $samePoule)
     {
-        $this->samePoule = $samePoule;
         $this->revertableReplaces = [];
         $this->throwOnTimeout = true;
     }
 
-    public function setTimeoutDateTime( DateTimeImmutable $timeoutDateTime ) {
+    public function setTimeoutDateTime(DateTimeImmutable $timeoutDateTime): void
+    {
         $this->timeoutDateTime = $timeoutDateTime;
     }
 
@@ -68,8 +64,8 @@ class Replacer
 
     /**
      * @param SelfRefereeBatch $firstBatch
-     * @param array|GameCounter[] $minGameCounters
-     * @param array|GameCounter[] $maxGameCounters
+     * @param array<GameCounter> $minGameCounters
+     * @param array<GameCounter> $maxGameCounters
      * @return bool
      */
     protected function replaceUnequalHelper(SelfRefereeBatch $firstBatch, array $minGameCounters, array $maxGameCounters): bool
@@ -82,7 +78,7 @@ class Replacer
         foreach ($maxGameCounters as $replacedGameCounter) {
             /** @var PlaceGameCounter $replacementGameCounter */
             foreach ($minGameCounters as $replacementGameCounter) {
-                if ( $this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) {
+                if ($this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) {
                     throw new TimeoutException(
                         "exceeded timeout while replacing selfreferee",
                         E_ERROR
@@ -95,8 +91,14 @@ class Replacer
                 )) {
                     continue;
                 }
-                array_splice($maxGameCounters, array_search($replacedGameCounter, $maxGameCounters, true), 1);
-                array_splice($minGameCounters, array_search($replacementGameCounter, $minGameCounters, true), 1);
+                $removeIndex = array_search($replacedGameCounter, $maxGameCounters, true);
+                if ($removeIndex !== false) {
+                    array_splice($maxGameCounters, $removeIndex, 1);
+                }
+                $removeIndex = array_search($replacementGameCounter, $minGameCounters, true);
+                if ($removeIndex !== false) {
+                    array_splice($minGameCounters, $removeIndex, 1);
+                }
                 return $this->replaceUnequalHelper($firstBatch, $minGameCounters, $maxGameCounters);
             }
         }
@@ -122,17 +124,18 @@ class Replacer
                 return false;
             }
             $this->revertableReplaces[] = $replace;
-            $batch->removeAsReferee( $game->getRefereePlace(), $game );
-            $batch->addAsReferee( $game, $replacement );
+            $batch->removeAsReferee($game->getRefereePlace(), $game);
+            $batch->addAsReferee($game, $replacement);
             return true;
         }
-        if ($batch->hasNext()) {
-            return $this->replace($batch->getNext(), $replaced, $replacement);
+        $nextBatch = $batch->getNext();
+        if ($nextBatch !== null) {
+            return $this->replace($nextBatch, $replaced, $replacement);
         }
         return false;
     }
 
-    protected function isAlreadyReplaced(Replace $replace)
+    protected function isAlreadyReplaced(Replace $replace): bool
     {
         foreach ($this->revertableReplaces as $revertableReplace) {
             if ($revertableReplace->getGame() === $replace->getGame()
@@ -144,16 +147,17 @@ class Replacer
         return false;
     }
 
-    protected function revertReplaces()
+    protected function revertReplaces(): void
     {
         while (count($this->revertableReplaces) > 0) {
             $replace = array_pop($this->revertableReplaces);
-            $replace->getBatch()->removeAsReferee( $replace->getReplacement(), $replace->getGame() );
-            $replace->getBatch()->addAsReferee( $replace->getGame(), $replace->getReplaced());
+            $replace->getBatch()->removeAsReferee($replace->getReplacement(), $replace->getGame());
+            $replace->getBatch()->addAsReferee($replace->getGame(), $replace->getReplaced());
         }
     }
 
-    public function disableThrowOnTimeout() {
+    public function disableThrowOnTimeout(): void
+    {
         $this->throwOnTimeout = false;
     }
 }

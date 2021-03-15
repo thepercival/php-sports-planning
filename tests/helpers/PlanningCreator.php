@@ -10,7 +10,7 @@ use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\GameMode;
-use SportsHelpers\Range;
+use SportsHelpers\SportRange;
 use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Planning;
@@ -88,10 +88,10 @@ trait PlanningCreator
         );
     }
 
-    protected function createPlanning(Input $input, Range $range = null): Planning
+    protected function createPlanning(Input $input, SportRange $range = null): Planning
     {
         if ($range === null) {
-            $range = new Range(1, 1);
+            $range = new SportRange(1, 1);
         }
         $planning = new Planning($input, $range, 0);
         $gameCreator = new GameCreator($this->getLogger());

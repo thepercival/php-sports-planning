@@ -10,26 +10,15 @@ use SportsPlanning\Place;
 
 class Replace
 {
-    protected SelfRefereeBatch $batch;
-    /**
-     * @var TogetherGame|AgainstGame
-     */
-    protected $game;
-    protected Place $replaced;
-    protected ?Place $replacement;
+    protected Place|null $replaced;
 
-    /**
-     * Replace constructor.
-     * @param SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstGame $game
-     * @param Place $replacement
-     */
-    public function __construct(SelfRefereeBatch $batch, $game, Place $replacement)
+    public function __construct(
+        protected SelfRefereeBatch $batch,
+        protected TogetherGame|AgainstGame $game,
+        protected Place $replacement
+    )
     {
-        $this->batch = $batch;
-        $this->game = $game;
         $this->replaced = $game->getRefereePlace();
-        $this->replacement = $replacement;
     }
 
     public function getBatch(): SelfRefereeBatch
@@ -37,10 +26,7 @@ class Replace
         return $this->batch;
     }
 
-    /**
-     * @return AgainstGame|TogetherGame
-     */
-    public function getGame()
+    public function getGame(): AgainstGame|TogetherGame
     {
         return $this->game;
     }
@@ -50,7 +36,7 @@ class Replace
         return $this->replaced;
     }
 
-    public function getReplacement(): Place
+    public function getReplacement(): ?Place
     {
         return $this->replacement;
     }

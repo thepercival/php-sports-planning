@@ -6,23 +6,10 @@ use SportsHelpers\Identifiable;
 
 class Referee extends Identifiable implements Resource
 {
-    /**
-     * @var int
-     */
-    protected $number;
-    /**
-     * @var int
-     */
-    protected $priority;
-    /**
-     * @var Planning
-     */
-    protected $planning;
+    protected int $priority;
 
-    public function __construct(Planning $planning, int $number)
+    public function __construct(protected Planning $planning, protected int $number)
     {
-        $this->planning = $planning;
-        $this->number = $number;
         $this->priority = 1;
     }
 
@@ -41,7 +28,7 @@ class Referee extends Identifiable implements Resource
         return $this->priority;
     }
 
-    public function setPriority(int $priority)
+    public function setPriority(int $priority): void
     {
         $this->priority = $priority;
     }

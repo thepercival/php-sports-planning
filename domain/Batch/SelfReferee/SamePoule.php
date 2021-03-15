@@ -3,17 +3,28 @@
 namespace SportsPlanning\Batch\SelfReferee;
 
 use SportsPlanning\Batch;
-use SportsPlanning\Batch\SelfReferee;
 
 class SamePoule extends Batch\SelfReferee
 {
-    public function __construct(Batch $batch, SelfReferee $previous = null)
+    public function __construct(Batch $batch, SamePoule $previous = null)
     {
         parent::__construct($batch, $previous);
-
-        if ($this->getBase()->hasNext()) {
-            $this->next = new SamePoule($this->getBase()->getNext(), $this);
+        $next = $this->getBase()->getNext();
+        if ($next !== null) {
+            $this->next = new SamePoule($next, $this);
         }
+    }
+
+    public function getFirst(): SamePoule|OtherPoule
+    {
+        $previous = $this->getPrevious();
+        return $previous !== null ? $previous->getFirst() : $this;
+    }
+
+    public function getLeaf(): SamePoule|OtherPoule
+    {
+        $next = $this->getNext();
+        return $next !== null ? $next->getLeaf() : $this;
     }
 
     public function createNext(): SamePoule
@@ -23,7 +34,7 @@ class SamePoule extends Batch\SelfReferee
     }
 
     /**
-     * @return array|int[]
+     * @return array<int>
      */
     protected function getForcedRefereePlacesMap(): array
     {

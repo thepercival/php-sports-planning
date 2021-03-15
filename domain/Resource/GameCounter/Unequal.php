@@ -6,44 +6,20 @@ use SportsPlanning\Resource\GameCounter;
 
 class Unequal
 {
-    /**
-     * @var int
-     */
-    private $minNrOfGames;
-    /**
-     * @var array|GameCounter[]
-     */
-    private $minGameCounters;
-    /**
-     * @var int
-     */
-    private $maxNrOfGames;
-    /**
-     * @var array|GameCounter[]
-     */
-    private $maxGameCounters;
-    /**
-     * @var int
-     */
-    private $pouleNr = 0;
+    private int $pouleNr = 0;
 
     /**
-     * Unequal constructor.
      * @param int $minNrOfGames
-     * @param array|GameCounter[] $minGameCounters
+     * @param array<GameCounter> $minGameCounters
      * @param int $maxNrOfGames
-     * @param array|GameCounter[] $maxGameCounters
+     * @param array<GameCounter> $maxGameCounters
      */
     public function __construct(
-        int $minNrOfGames,
-        array $minGameCounters,
-        int $maxNrOfGames,
-        array $maxGameCounters
+        protected int $minNrOfGames,
+        protected array $minGameCounters,
+        protected int $maxNrOfGames,
+        protected array $maxGameCounters
     ) {
-        $this->minNrOfGames = $minNrOfGames;
-        $this->minGameCounters = $minGameCounters;
-        $this->maxNrOfGames = $maxNrOfGames;
-        $this->maxGameCounters = $maxGameCounters;
     }
 
     public function getDifference(): int
@@ -62,7 +38,7 @@ class Unequal
     }
 
     /**
-     * @return array|GameCounter[]
+     * @return array<GameCounter>
      */
     public function getMinGameCounters(): array
     {
@@ -70,7 +46,7 @@ class Unequal
     }
 
     /**
-     * @return array|GameCounter[]
+     * @return array<GameCounter>
      */
     public function getMaxGameCounters(): array
     {
@@ -82,7 +58,7 @@ class Unequal
         return $this->pouleNr;
     }
 
-    public function setPouleNr(int $pouleNr)
+    public function setPouleNr(int $pouleNr): void
     {
         $this->pouleNr = $pouleNr;
     }

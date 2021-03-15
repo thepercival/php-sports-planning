@@ -4,42 +4,25 @@ declare(strict_types=1);
 
 namespace SportsPlanning;
 
-use Doctrine\Common\Collections\Collection;
+use Doctrine\Common\Collections\ArrayCollection;
 use SportsHelpers\Identifiable;
-use SportsPlanning\Game\Place\Against as AgainstGamePlace;
-use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 
 abstract class Game extends Identifiable
 {
-    protected Poule $poule;
+    protected Field|null $field = null;
+    protected int $batchNr = 0;
+    protected Place|null $refereePlace = null;
+    protected Referee|null $referee = null;
     /**
-     * @var Field|null
+     * @var ArrayCollection<int|string,Place>|null
      */
-    protected $field;
-    /**
-     * @var int
-     */
-    protected $batchNr;
-    /**
-     * @var Place|null
-     */
-    protected $refereePlace;
-    /**
-     * @var Referee|null
-     */
-    protected $referee;
-    /**
-     * @var Collection|Place[]|null
-     */
-    protected $poulePlaces;
+    protected ArrayCollection|null $poulePlaces = null;
 
     public const ORDER_BY_BATCH = 1;
     // public const ORDER_BY_GAMENUMBER = 2;
 
-    public function __construct(Poule $poule)
+    public function __construct(protected Poule $poule, protected Sport $sport)
     {
-        $this->poule = $poule;
-        $this->batchNr = 0;
     }
 
     public function getPoule(): Poule
@@ -47,11 +30,19 @@ abstract class Game extends Identifiable
         return $this->poule;
     }
 
+    public function getSport(): Sport
+    {
+        return $this->sport;
+    }
+
     public function getBatchNr(): int
     {
         return $this->batchNr;
     }
 
+    /**
+     * @return void
+     */
     public function setBatchNr(int $batchNr)
     {
         $this->batchNr = $batchNr;
@@ -62,7 +53,7 @@ abstract class Game extends Identifiable
         return $this->refereePlace;
     }
 
-    public function setRefereePlace(Place $refereePlace = null )
+    public function setRefereePlace(Place $refereePlace = null): void
     {
         $this->refereePlace = $refereePlace;
     }
@@ -72,12 +63,12 @@ abstract class Game extends Identifiable
         return $this->referee;
     }
 
-    public function setReferee(Referee $referee)
+    public function setReferee(Referee $referee): void
     {
         $this->referee = $referee;
     }
 
-    public function emptyReferee()
+    public function emptyReferee(): void
     {
         $this->referee = null;
     }
@@ -87,12 +78,12 @@ abstract class Game extends Identifiable
         return $this->field;
     }
 
-    public function setField(Field $field)
+    public function setField(Field $field): void
     {
         $this->field = $field;
     }
 
-    public function emptyField()
+    public function emptyField(): void
     {
         $this->field = null;
     }

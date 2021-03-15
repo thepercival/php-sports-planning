@@ -10,19 +10,13 @@ use SportsPlanning\PouleCounter;
 
 class Predicter
 {
-    /**
-     * @var array|Poule[]
-     */
-    private array $poules;
-
     private const SAME_POULE_MAX_DELTA = 1;
 
     /**
-     * @param array|Poule[] $poules
+     * @param array<Poule> $poules
      */
-    public function __construct(array $poules)
+    public function __construct(protected array $poules)
     {
-        $this->poules = $poules;
     }
 
     public function canStillAssign(SelfRefereeBatch $batch, int $selfReferee): bool
@@ -51,7 +45,7 @@ class Predicter
     }
 
     /**
-     * @return array|PouleCounter[]
+     * @return array<PouleCounter>
      */
     protected function createPouleCounterMap(): array
     {
@@ -62,7 +56,7 @@ class Predicter
         return $pouleCounterMap;
     }
 
-    protected function addGamesToPouleCounterMap(array $pouleCounterMap, SelfRefereeBatch $batch)
+    protected function addGamesToPouleCounterMap(array $pouleCounterMap, SelfRefereeBatch $batch): void
     {
         foreach ($batch->getBase()->getGames() as $game) {
             $pouleCounterMap[$game->getPoule()->getNumber()]->add($game->getPlaces()->count());
@@ -90,7 +84,7 @@ class Predicter
     }
 
     /**
-     * @param array|PouleCounter[] $pouleCounters
+     * @param array<PouleCounter> $pouleCounters
      * @return int
      */
     protected function getNrOfPlacesAvailable(array $pouleCounters): int
@@ -150,7 +144,8 @@ class Predicter
                     $maxNrOfForcedRefereePlaces = $nrOfForcedRefereePlaces;
                 }
             }
-            if (($maxNrOfForcedRefereePlaces - $minNrOfForcedRefereePlaces) > 1) {
+            if ($maxNrOfForcedRefereePlaces !== null && $minNrOfForcedRefereePlaces !== null
+                && ($maxNrOfForcedRefereePlaces - $minNrOfForcedRefereePlaces) > 1) {
                 return false;
             }
         }

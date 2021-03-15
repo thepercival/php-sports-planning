@@ -6,23 +6,10 @@ use SportsHelpers\Identifiable;
 
 class Place extends Identifiable implements Resource
 {
-    /**
-     * @var Poule
-     */
-    protected $poule;
-    /**
-     * @var int
-     */
-    protected $number;
-    /**
-     * @var string
-     */
-    protected $location;
+    protected string|null $location = null;
 
-    public function __construct(Poule $poule, int $number)
+    public function __construct(protected Poule $poule, protected int $number)
     {
-        $this->poule = $poule;
-        $this->number = $number;
     }
 
     public function getPoule(): Poule

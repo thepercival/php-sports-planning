@@ -34,7 +34,7 @@ class GamesInARowPostProcessor
         $this->planningRepos = $planningRepos;
     }
 
-    public function updateOthers(Planning $planningProcessed)
+    public function updateOthers(Planning $planningProcessed): void
     {
         if ($planningProcessed->getState() === Planning::STATE_SUCCEEDED) {
             $this->makeGreaterNrOfGamesInARowPlanningsSucceeded($planningProcessed);
@@ -45,7 +45,7 @@ class GamesInARowPostProcessor
         }
     }
 
-    protected function makeGreaterNrOfGamesInARowPlanningsSucceeded(Planning $planning)
+    protected function makeGreaterNrOfGamesInARowPlanningsSucceeded(Planning $planning): void
     {
         foreach ($this->getGreaterNrOfGamesInARowPlannings($planning) as $greaterNrOfGamesInARowPlanning) {
             if( !($greaterNrOfGamesInARowPlanning->getState() === Planning::STATE_TIMEDOUT
@@ -57,7 +57,7 @@ class GamesInARowPostProcessor
         }
     }
 
-    protected function makeGreaterNrOfGamesInARowPlanningSucceeded(Planning $planning)
+    protected function makeGreaterNrOfGamesInARowPlanningSucceeded(Planning $planning): void
     {
         $planning->setState(Planning::STATE_LESSER_NROFGAMESINROW_SUCCEEDED);
         $this->planningRepos->save($planning);
@@ -69,7 +69,7 @@ class GamesInARowPostProcessor
         );
     }
 
-    protected function makeLesserGamesInARowPlanningsFailed(Planning $planning)
+    protected function makeLesserGamesInARowPlanningsFailed(Planning $planning): void
     {
         foreach( $this->getLesserGamesInARowPlannings($planning) as $lessGamesInARowPlanning ) {
             // alle makkelijkeren die
@@ -89,7 +89,7 @@ class GamesInARowPostProcessor
         }
     }
 
-    protected function makeLesserGamesInARowPlanningsTimedout(Planning $planning)
+    protected function makeLesserGamesInARowPlanningsTimedout(Planning $planning): void
     {
         foreach( $this->getLesserGamesInARowPlannings($planning) as $lessGamesInARowPlanning ) {
             if( !($lessGamesInARowPlanning->getState() === Planning::STATE_TIMEDOUT

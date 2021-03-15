@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 
 namespace SportsPlanning\GameGenerator;
 
@@ -8,31 +8,28 @@ use SportsPlanning\Place;
 class PlaceCombination
 {
     /**
-     * @var array | Place[]
+     * @param array<Place> $places
      */
-    private $places;
-
-    public function __construct(array $places)
+    public function __construct(private array $places)
     {
-        $this->places = $places;
     }
 
     public function getNumber(): int
     {
         $number = 0;
-        foreach( $this->places as $place ) {
-            $number += pow(2, $place->getNumber() - 1);
+        foreach ($this->places as $place) {
+            $number += (int) pow(2, $place->getNumber() - 1);
         }
         return $number;
     }
 
     public function getPlaceNumber(Place $place): int
     {
-        return pow(2, $place->getNumber() - 1);
+        return (int)pow(2, $place->getNumber() - 1);
     }
 
     /**
-     * @return array | Place[]
+     * @return array<Place>
      */
     public function getPlaces(): array
     {
@@ -59,5 +56,4 @@ class PlaceCombination
 //        return ($combinationNumber->getAway() === $this->getHome() || $combinationNumber->getHome() === $this->getHome())
 //            && ($combinationNumber->getAway() === $this->getAway() || $combinationNumber->getHome() === $this->getAway());
 //    }
-
 }

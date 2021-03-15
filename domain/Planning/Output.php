@@ -52,7 +52,8 @@ class Output extends OutputHelper
         string $prefix = null,
         string $suffix = null
     ): void {
-        $output = 'batchGames ' . $planning->getNrOfBatchGames()->min . '->' . $planning->getNrOfBatchGames()->max
+        $output = 'batchGames ' . $planning->getNrOfBatchGames()->getMin()
+            . '->' . $planning->getNrOfBatchGames()->getMax()
             . ', gamesInARow ' . $planning->getMaxNrOfGamesInARow()
             . ', timeout ' . $planning->getTimeoutSeconds();
         if ($withInput) {
@@ -110,7 +111,7 @@ class Output extends OutputHelper
         return '?';
     }
 
-    protected function outputTotals(array $planningTotals)
+    protected function outputTotals(array $planningTotals): void
     {
         /** @var GameCounter[] $gameCounters */
         foreach ($planningTotals as $totalsType => $gameCounters) {

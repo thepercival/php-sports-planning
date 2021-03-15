@@ -4,11 +4,7 @@ namespace SportsPlanning\Tests\Input;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\PouleStructure;
-use SportsHelpers\Range;
-use SportsHelpers\SportBase;
-use SportsHelpers\SportConfig;
-use SportsPlanning\Input\Calculator as InputCalculator;
+use SportsHelpers\SportRange;
 use SportsPlanning\Input\SportsIterator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -18,8 +14,8 @@ class SportsIteratorTest extends TestCase
 
     public function testRewind()
     {
-        $rangeNrOfFields = new Range(1, 2);
-        $rangeGameAmount = new Range(1, 2);
+        $rangeNrOfFields = new SportRange(1, 2);
+        $rangeGameAmount = new SportRange(1, 2);
         $sportsIterator = new SportsIterator($rangeNrOfFields, $rangeGameAmount);
 
         $sportConfig = $sportsIterator->current();
@@ -33,8 +29,8 @@ class SportsIteratorTest extends TestCase
 
     public function testLast()
     {
-        $rangeNrOfFields = new Range(1, 2);
-        $rangeGameAmount = new Range(1, 2);
+        $rangeNrOfFields = new SportRange(1, 2);
+        $rangeGameAmount = new SportRange(1, 2);
         $sportsIterator = new SportsIterator($rangeNrOfFields, $rangeGameAmount);
 
         $sportConfig = null;
@@ -52,8 +48,8 @@ class SportsIteratorTest extends TestCase
 
     public function testCount()
     {
-        $rangeNrOfFields = new Range(1, 2);
-        $rangeGameAmount = new Range(1, 2);
+        $rangeNrOfFields = new SportRange(1, 2);
+        $rangeGameAmount = new SportRange(1, 2);
         $sportsIterator = new SportsIterator($rangeNrOfFields, $rangeGameAmount);
 
         $sportConfig = null;

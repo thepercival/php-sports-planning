@@ -18,18 +18,19 @@ class Counter
      */
     private $nrOfGamesToGo;
     /**
-     * @var array
+     * @var array<int>
      */
     private $minNrOfGamesMap = [];
     /**
-     * @var array
+     * @var array<int>
      */
     private $nrOfGamesDoneMap = [];
 
     /**
-     * Counter constructor.
-     * @param array|int[] $minNrOfGamesMap
-     * @param array|int[] $nrOfGamesDoneMap
+     * @param int $nrOfGamesToGo
+     * @param array<int> $minNrOfGamesMap
+     * @param array<int> $nrOfGamesDoneMap
+     * @param int|null $nrOfSportsToGo
      */
     public function __construct(int $nrOfGamesToGo, array $minNrOfGamesMap, array $nrOfGamesDoneMap, int $nrOfSportsToGo = null)
     {
@@ -54,7 +55,7 @@ class Counter
         return ($this->nrOfSportsToGo - ($isSportDone ? 0 : 1)) <= ($this->nrOfGamesToGo - 1);
     }
 
-    public function addGame(PlanningSport $sport)
+    public function addGame(PlanningSport $sport): void
     {
         $sportNr = $sport->getNumber();
         if (array_key_exists($sportNr, $this->nrOfGamesDoneMap) === false) {

@@ -4,10 +4,8 @@ namespace SportsPlanning;
 
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Exception;
 use SportsHelpers\Identifiable;
-use SportsHelpers\Range;
+use SportsHelpers\SportRange;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsHelpers\PouleStructure;
@@ -16,80 +14,56 @@ use SportsHelpers\SportBase;
 class Input extends Identifiable
 {
     /**
-     * @var array|int[]
+     * @var array<int>
      */
-    protected $pouleStructureDb;
+    protected array $pouleStructureDb;
     /**
-     * @var PouleStructure
+     * @var array<array<int>>
      */
-    protected $pouleStructure;
+    protected array $sportConfigDb;
     /**
-     * @var array[]
+     * @var array<SportConfig>|null
      */
-    protected $sportConfigDb;
+    protected array|null $sportConfigs = null;
+    protected int $nrOfReferees;
+    protected DateTimeImmutable $createdAt;
     /**
-     * @var array|SportConfig[]
+     * @var ArrayCollection<int|string,Planning>
      */
-    protected $sportConfigs;
-    /**
-     * @var int
-     */
-    protected $nrOfReferees;
-    /**
-     * @var int
-     */
-    protected $selfReferee;
-    /**
-     * @var int|null
-     */
-    protected $maxNrOfGamesInARow;
-    /**
-     * @var DateTimeImmutable
-     */
-    protected $createdAt;
-    /**
-     * @var Collection| Planning[]
-     */
-    protected $plannings;
-
-    protected $teamupDep = false; // DEPRECATED
-    protected $nrOfHeadtoheadDep = 1; // DEPRECATED
-
-    const AGAINST_MAXNROFGAMEPLACES = 8;
+    protected ArrayCollection $plannings;
+    protected int|null $maxNrOfGamesInARow = null;
+    protected bool $teamupDep = false; // DEPRECATED
+    protected int $nrOfHeadtoheadDep = 1; // DEPRECATED
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param array|SportConfig[] $sportConfigs
+     * @param array<SportConfig> $sportConfigs
      * @param int $nrOfReferees
      * @param int $selfReferee
      */
     public function __construct(
-        PouleStructure $pouleStructure,
+        protected PouleStructure $pouleStructure,
         array $sportConfigs,
         int $nrOfReferees,
-        int $selfReferee
+        protected int $selfReferee
     ) {
-        $this->setPouleStructure($pouleStructure);
-        $this->setSportConfigs($sportConfigs);
+        $this->pouleStructureDb = $this->pouleStructure->toArray();
+
+        $this->sportConfigDb = [];
+        foreach ($sportConfigs as $sportConfig) {
+            $this->sportConfigDb[] = $sportConfig->toArray();
+        }
+        $this->sportConfigs = $sportConfigs;
+
         $nrOfReferees = $selfReferee === SelfReferee::DISABLED ? $nrOfReferees : 0;
         $this->nrOfReferees = $nrOfReferees;
-        $this->selfReferee = $selfReferee;
         $this->plannings = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
     }
 
     public function getPouleStructure(): PouleStructure
     {
-        if ($this->pouleStructure === null && $this->pouleStructureDb !== null) {
-            $this->pouleStructure = new PouleStructure($this->pouleStructureDb);
-        }
         return $this->pouleStructure;
-    }
-
-    public function setPouleStructure(PouleStructure $pouleStructure)
-    {
-        $this->pouleStructure = $pouleStructure;
-        $this->pouleStructureDb = $this->pouleStructure->toArray();
     }
 
     public function getNrOfPoules(): int
@@ -103,11 +77,11 @@ class Input extends Identifiable
     }
 
     /**
-     * @return array|SportConfig[]
+     * @return array<SportConfig>
      */
     public function getSportConfigs(): array
     {
-        if ($this->sportConfigs === null && $this->sportConfigDb !== null) {
+        if ($this->sportConfigs === null) {
             $this->sportConfigs = [];
             foreach ($this->sportConfigDb as $sportConfig) {
                 $this->sportConfigs[] = new SportConfig(
@@ -118,18 +92,6 @@ class Input extends Identifiable
             }
         }
         return $this->sportConfigs;
-    }
-
-    /**
-     * @param array| SportConfig[] $sportConfigs
-     */
-    public function setSportConfigs(array $sportConfigs)
-    {
-        $this->sportConfigs = $sportConfigs;
-        $this->sportConfigDb = [];
-        foreach ($this->sportConfigs as $sportConfig) {
-            $this->sportConfigDb[] = $sportConfig->toArray();
-        }
     }
 
     public function hasMultipleSports(): bool
@@ -211,9 +173,10 @@ class Input extends Identifiable
     }
 
     /**
-     * @return Collection|Planning[]
+     * @param int|null $state = null
+     * @return ArrayCollection<int|string,Planning>
      */
-    public function getPlannings(int $state = null): Collection
+    public function getPlannings(int|null $state = null): ArrayCollection
     {
         if ($state === null) {
             return $this->plannings;
@@ -225,9 +188,9 @@ class Input extends Identifiable
 
     /**
      * @param int|null $state
-     * @return array|Planning[]
+     * @return array<Planning>
      */
-    public function getBatchGamesPlannings(int $state = null): array
+    public function getBatchGamesPlannings(int|null $state = null): array
     {
         $batchGamesPlannings = $this->getPlannings($state)->filter(function (Planning $planning): bool {
             return $planning->isBatchGames();
@@ -238,9 +201,9 @@ class Input extends Identifiable
     /**
      * from most most efficient to less efficient
      *
-     * @return array|Planning[]
+     * @return array<Planning>
      */
-    public function orderBatchGamesPlannings(Collection $batchGamesPlannings): array
+    public function orderBatchGamesPlannings(ArrayCollection $batchGamesPlannings): array
     {
         $plannings = $batchGamesPlannings->toArray();
         uasort($plannings, function (Planning $first, Planning $second) {
@@ -257,11 +220,11 @@ class Input extends Identifiable
         return array_values($plannings);
     }
 
-    public function getPlanning(Range $range, int $maxNrOfGamesInARow): ?Planning
+    public function getPlanning(SportRange $range, int $maxNrOfGamesInARow): ?Planning
     {
         foreach ($this->getPlannings() as $planning) {
-            if ($planning->getMinNrOfBatchGames() === $range->min
-                && $planning->getMaxNrOfBatchGames() === $range->max
+            if ($planning->getMinNrOfBatchGames() === $range->getMin()
+                && $planning->getMaxNrOfBatchGames() === $range->getMax()
                 && $planning->getMaxNrOfGamesInARow() === $maxNrOfGamesInARow) {
                 return $planning;
             }

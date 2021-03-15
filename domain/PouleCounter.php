@@ -1,30 +1,14 @@
 <?php
-
+declare(strict_types=1);
 
 namespace SportsPlanning;
 
-use SportsPlanning\Poule;
-
 class PouleCounter
 {
-    /**
-     * @var Poule
-     */
-    protected $poule;
-    /**
-     * @var int
-     */
-    protected $nrOfGames;
-    /**
-     * @var int
-     */
-    protected $nrOfPlacesAssigned;
+    protected int $nrOfGames = 0;
 
-    public function __construct(Poule $poule, int $nrOfPlacesAssigned = 0)
+    public function __construct(protected Poule $poule, protected int $nrOfPlacesAssigned = 0)
     {
-        $this->poule = $poule;
-        $this->nrOfGames = 0;
-        $this->nrOfPlacesAssigned = $nrOfPlacesAssigned;
     }
 
     public function getPoule(): Poule
@@ -32,37 +16,37 @@ class PouleCounter
         return $this->poule;
     }
 
-    public function reset()
+    public function reset(): void
     {
         $this->nrOfGames = 0;
         $this->nrOfPlacesAssigned = 0;
     }
 
-    public function add(int $nrOfPlacesToAssign)
+    public function add(int $nrOfPlacesToAssign): void
     {
         $this->addNrOfGames(1);
         $this->addNrOfAssignedPlaces($nrOfPlacesToAssign);
     }
 
-    public function addNrOfGames(int $nrOfGames)
+    public function addNrOfGames(int $nrOfGames): void
     {
         $this->nrOfGames += $nrOfGames;
     }
 
-    public function addNrOfAssignedPlaces(int $nrOfAssignedPlaces)
+    public function addNrOfAssignedPlaces(int $nrOfAssignedPlaces): void
     {
         $this->nrOfPlacesAssigned += $nrOfAssignedPlaces;
     }
 
-    public function remove(int $nrOfPlacesToUnassign)
+    public function remove(int $nrOfPlacesToUnassign): void
     {
         $this->nrOfGames--;
         $this->nrOfPlacesAssigned -= $nrOfPlacesToUnassign;
     }
 
-    public function getNrOfPlacesAssigned( bool $addRefereePlace = null ): int
+    public function getNrOfPlacesAssigned(bool|null $addRefereePlace = null): int
     {
-        if( $addRefereePlace ) {
+        if ($addRefereePlace) {
             return $this->nrOfPlacesAssigned + $this->nrOfGames;
         }
         return $this->nrOfPlacesAssigned;

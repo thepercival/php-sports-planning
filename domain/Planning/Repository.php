@@ -4,14 +4,14 @@ namespace SportsPlanning\Planning;
 
 use SportsHelpers\PouleStructure;
 use SportsHelpers\Repository as BaseRepository;
-use SportsHelpers\Range;
+use SportsHelpers\SportRange;
 use SportsHelpers\SportConfig as SportConfig;
 use SportsPlanning\Planning;
 use SportsPlanning\Input;
 
 class Repository extends BaseRepository
 {
-    public function resetBatchGamePlanning(Planning $planning, int $state)
+    public function resetBatchGamePlanning(Planning $planning, int $state): void
     {
         $planning->setState($state);
         $this->removeGamesInARowPlannings($planning);
@@ -32,7 +32,7 @@ class Repository extends BaseRepository
         $this->save($planning);
     }
 
-    protected function removeGamesInARowPlannings(Planning $batchGamePlanning)
+    protected function removeGamesInARowPlannings(Planning $batchGamePlanning): void
     {
         $gamesInARowPlannings = $batchGamePlanning->getGamesInARowPlannings();
         while (count($gamesInARowPlannings) > 0) {
@@ -42,7 +42,7 @@ class Repository extends BaseRepository
         }
     }
 
-    public function createGamesInARowPlannings(Planning $planning)
+    public function createGamesInARowPlannings(Planning $planning): void
     {
         $maxNrOfGamesInARowInput = $planning->getInput()->getMaxNrOfGamesInARow();
         for ($gamesInARow = 1; $gamesInARow <= $maxNrOfGamesInARowInput - 1; $gamesInARow++) {

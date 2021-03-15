@@ -1,17 +1,17 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use \Doctrine\Common\Collections\Collection;
 use SportsHelpers\SportBase;
 
 class Sport extends SportBase
 {
     /**
-     * @var Collection | Field[]
+     * @var ArrayCollection<int|string,Field>
      */
-    protected $fields;
+    protected ArrayCollection $fields;
 
     public function __construct(protected Planning $planning, protected int $number, int $gameMode, int $nrOfGamePlaces)
     {
@@ -29,7 +29,10 @@ class Sport extends SportBase
         return $this->number;
     }
 
-    public function getFields(): Collection
+    /**
+     * @return ArrayCollection<int|string,Field>
+     */
+    public function getFields(): ArrayCollection
     {
         return $this->fields;
     }

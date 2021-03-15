@@ -11,18 +11,19 @@ use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
+use SportsPlanning\Sport;
 
 class Together extends GameBase
 {
     protected int $gameAmountNumber;
     /**
-     * @var Collection | TogetherGamePlace[]
+     * @var ArrayCollection<int|string,TogetherGamePlace>
      */
-    protected $places;
+    protected ArrayCollection $places;
 
-    public function __construct(Poule $poule)
+    public function __construct(Poule $poule, Sport $sport)
     {
-        parent::__construct($poule);
+        parent::__construct($poule, $sport);
         $this->places = new ArrayCollection();
         $this->poule->getTogetherGames()->add($this);
     }
@@ -32,6 +33,9 @@ class Together extends GameBase
         return $this->batchNr;
     }
 
+    /**
+     * @return void
+     */
     public function setBatchNr(int $batchNr)
     {
         $this->batchNr = $batchNr;
@@ -40,9 +44,9 @@ class Together extends GameBase
 
     /**
      * @param int|null $gameRoundNumber
-     * @return Collection | TogetherGamePlace[]
+     * @return ArrayCollection<int|string,TogetherGamePlace>
      */
-    public function getPlaces(int $gameRoundNumber = null): Collection
+    public function getPlaces(int|null $gameRoundNumber = null): ArrayCollection
     {
         if ($gameRoundNumber === null) {
             return $this->places;
@@ -97,9 +101,9 @@ class Together extends GameBase
 //    }
 //
     /**
-     * @return Collection|Place[]
+     * @return ArrayCollection<int|string,Place>
      */
-    public function getPoulePlaces(): Collection
+    public function getPoulePlaces(): ArrayCollection
     {
         if ($this->poulePlaces === null) {
             $this->poulePlaces = $this->getPlaces()->map(function (TogetherGamePlace $gamePlace): Place {

@@ -322,7 +322,7 @@ class Validator
         return self::VALID;
     }
 
-    protected function validateEquallyAssigned()
+    protected function validateEquallyAssigned(): int
     {
         try {
             $assignmentValidator = new GameAssignments($this->planning);

@@ -2,17 +2,16 @@
 
 namespace SportsPlanning\Input;
 
-use Exception;
 use SportsHelpers\GameMode;
 use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
-use SportsHelpers\Range;
+use SportsHelpers\SportRange;
 
 class SportsIterator implements \Iterator
 {
-    protected Range $fieldRange;
-    protected Range $gameAmountRange;
-    protected Range $gamePlacesRange;
+    protected SportRange $fieldRange;
+    protected SportRange $gameAmountRange;
+    protected SportRange $gamePlacesRange;
 
     protected int $gameMode;
     protected int $nrOfFields;
@@ -24,42 +23,42 @@ class SportsIterator implements \Iterator
     protected $current;
 
     public function __construct(
-        Range $fieldRange,
-        Range $gameAmountRange
+        SportRange $fieldRange,
+        SportRange $gameAmountRange
     ) {
         $this->fieldRange = $fieldRange;
-        $this->gamePlacesRange = new Range(1, 2);
+        $this->gamePlacesRange = new SportRange(1, 2);
         $this->gameAmountRange = $gameAmountRange;
         $this->rewind();
     }
 
-    protected function rewindGameMode()
+    protected function rewindGameMode(): void
     {
         $this->gameMode = GameMode::AGAINST;
         $this->rewindNrOfFields();
     }
 
-    protected function rewindNrOfFields()
+    protected function rewindNrOfFields(): void
     {
-        $this->nrOfFields = $this->fieldRange->min;
+        $this->nrOfFields = $this->fieldRange->getMin();
         $this->rewindNrOfGamePlaces();
     }
 
-    protected function rewindNrOfGamePlaces()
+    protected function rewindNrOfGamePlaces(): void
     {
-        $this->nrOfGamePlaces = $this->gamePlacesRange->min;
+        $this->nrOfGamePlaces = $this->gamePlacesRange->getMin();
         if ($this->gameMode === GameMode::AGAINST && $this->nrOfGamePlaces < 2) {
             $this->nrOfGamePlaces = 2;
         }
         $this->rewindGameAmount();
     }
 
-    protected function rewindGameAmount()
+    protected function rewindGameAmount(): void
     {
-        $this->gameAmount = $this->gameAmountRange->min;
+        $this->gameAmount = $this->gameAmountRange->getMin();
     }
 
-    public function current() : ?SportConfig
+    public function current() : SportConfig|null
     {
         return $this->current;
     }
@@ -111,7 +110,7 @@ class SportsIterator implements \Iterator
 
     protected function incrementGameAmount(): bool
     {
-        if ($this->gameAmount === $this->gameAmountRange->max) {
+        if ($this->gameAmount === $this->gameAmountRange->getMax()) {
             return $this->incrementNrOfGamePlaces();
         }
         $this->gameAmount++;
@@ -120,7 +119,7 @@ class SportsIterator implements \Iterator
 
     protected function incrementNrOfGamePlaces(): bool
     {
-        if ($this->nrOfGamePlaces === $this->gamePlacesRange->max) {
+        if ($this->nrOfGamePlaces === $this->gamePlacesRange->getMax()) {
             return $this->incrementNrOfFields();
         }
         $this->nrOfGamePlaces++;
@@ -130,7 +129,7 @@ class SportsIterator implements \Iterator
 
     protected function incrementNrOfFields(): bool
     {
-        if ($this->nrOfFields === $this->fieldRange->max) {
+        if ($this->nrOfFields === $this->fieldRange->getMax()) {
             return $this->incrementGameMode();
         }
         $this->nrOfFields++;

@@ -11,28 +11,22 @@ class Batch
      * @var int
      */
     protected $number;
+    protected Batch|null $previous;
+    protected Batch|null $next = null;
     /**
-     * @var Batch
+     * @var array<TogetherGame|AgainstGame>
      */
-    protected $previous;
+    protected array $games = [];
     /**
-     * @var Batch
+     * @var array<Place>
      */
-    protected $next;
+    protected array $places = [];
     /**
-     * @var array | TogetherGame|AgainstGame[]
+     * @var array<int>
      */
-    protected $games = [];
-    /**
-     * @var array | Place[]
-     */
-    protected $places = [];
-    /**
-     * @var array | int[]
-     */
-    protected $previousGamesInARowMap = [];
+    protected array $previousGamesInARowMap = [];
 
-    public function __construct(Batch $previous = null)
+    public function __construct(Batch|null $previous = null)
     {
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
@@ -48,28 +42,25 @@ class Batch
         return $this->next !== null;
     }
 
-    /**
-     * @return Batch
-     */
-    public function getNext(): Batch
+    public function getNext(): Batch|null
     {
         return $this->next;
     }
 
     public function createNext(): Batch
     {
-        $this->next = new Batch($this);
-        $this->getNext()->setPreviousGamesInARow($this->previousGamesInARowMap, $this->createMapGamesInARowMap() );
-        return $this->getNext();
+        $this->next = new self($this);
+        $this->next->setPreviousGamesInARow($this->previousGamesInARowMap, $this->createMapGamesInARowMap());
+        return $this->next;
     }
 
     /**
-     * @return array|int[]
+     * @return array<int>
      */
     protected function createMapGamesInARowMap(): array
     {
         $map = [];
-        foreach( $this->places as $place ) {
+        foreach ($this->places as $place) {
             $map[$place->getLocation()] = 1;
         }
         return $map;
@@ -85,19 +76,21 @@ class Batch
         return $this->previous !== null;
     }
 
-    public function getPrevious(): Batch
+    public function getPrevious(): Batch|null
     {
         return $this->previous;
     }
 
     public function getFirst(): Batch
     {
-        return $this->hasPrevious() ? $this->previous->getFirst() : $this;
+        $previous = $this->getPrevious();
+        return $previous !== null ? $previous->getFirst() : $this;
     }
 
     public function getLeaf(): Batch
     {
-        return $this->hasNext() ? $this->next->getLeaf() : $this;
+        $next = $this->getNext();
+        return $next !== null ? $next->getLeaf() : $this;
     }
 
     public function getGamesInARow(Place $place): int
@@ -115,20 +108,22 @@ class Batch
     /**
      * @param array|int[] $previousPreviousGamesInARowMap
      * @param array|int[] $previousGamesInARowMap
+     * @return void
      */
-    public function setPreviousGamesInARow( array $previousPreviousGamesInARowMap, array $previousGamesInARowMap )
+    public function setPreviousGamesInARow(array $previousPreviousGamesInARowMap, array $previousGamesInARowMap): void
     {
         $this->previousGamesInARowMap = $previousGamesInARowMap;
-        foreach( $this->previousGamesInARowMap as $placeLocation => $nrOfGamesInARow ) {
-            if( !array_key_exists( $placeLocation, $previousPreviousGamesInARowMap) ) {
+        foreach ($this->previousGamesInARowMap as $placeLocation => $nrOfGamesInARow) {
+            if (!array_key_exists($placeLocation, $previousPreviousGamesInARowMap)) {
                 continue;
             }
             $this->previousGamesInARowMap[$placeLocation] += $previousPreviousGamesInARowMap[$placeLocation];
         }
     }
 
-    public function getPreviousGamesInARow( Place $place ): int {
-        if( !array_key_exists( $place->getLocation(), $this->previousGamesInARowMap ) ) {
+    public function getPreviousGamesInARow(Place $place): int
+    {
+        if (!array_key_exists($place->getLocation(), $this->previousGamesInARowMap)) {
             return 0;
         }
         return $this->previousGamesInARowMap[$place->getLocation()];
@@ -136,8 +131,10 @@ class Batch
 
     /**
      * @param TogetherGame|AgainstGame $game
+     *
+     * @return void
      */
-    public function add($game)
+    public function add($game): void
     {
         $this->games[] = $game;
         foreach ($game->getPlaces() as $gamePlace) {
@@ -147,8 +144,10 @@ class Batch
 
     /**
      * @param TogetherGame|AgainstGame $game
+     *
+     * @return void
      */
-    public function remove($game)
+    public function remove($game): void
     {
         $index = array_search($game, $this->games, true);
         if ($index !== false) {
@@ -160,7 +159,7 @@ class Batch
     }
 
     /**
-     * @return array|Place[]
+     * @return array<Place>
      */
     protected function getPlaces(): array
     {
@@ -169,14 +168,16 @@ class Batch
 
     /**
      * @param Poule|null $poule
-     * @return array|TogetherGame[]|AgainstGame[]
+     * @return array<TogetherGame|AgainstGame>
      */
-    public function getGames( Poule $poule = null ): array
+    public function getGames(Poule $poule = null): array
     {
-        if( $poule === null ) {
+        if ($poule === null) {
             return $this->games;
         }
-        return array_filter( $this->games, function( $game) use ($poule ): bool { return $game->getPoule() === $poule; } );
+        return array_filter($this->games, function ($game) use ($poule): bool {
+            return $game->getPoule() === $poule;
+        });
     }
 
     public function isParticipating(Place $place): bool
@@ -185,23 +186,25 @@ class Batch
     }
 
     /**
-     * @return array|TogetherGame[]|AgainstGame[]
+     * @return array<TogetherGame|AgainstGame>
      */
     public function getAllGames(): array
     {
-        if ($this->hasNext() === false) {
+        $next = $this->getNext();
+        if ($next === null) {
             return $this->getGames();
         }
-        return array_merge($this->getGames(), $this->getNext()->getAllGames());
+        return array_merge($this->getGames(), $next->getAllGames());
     }
 
     /**
-     * @return array|Poule[]
+     * @return array<Poule>
      */
-    public function getPoules(): array {
+    public function getPoules(): array
+    {
         $poules = [];
-        foreach( $this->getGames() as $game ) {
-            if( array_search( $game->getPoule(), $poules, true ) === false ) {
+        foreach ($this->getGames() as $game) {
+            if (array_search($game->getPoule(), $poules, true) === false) {
                 $poules[] = $game->getPoule();
             }
         }

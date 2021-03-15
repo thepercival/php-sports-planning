@@ -3,7 +3,7 @@
 namespace SportsPlanning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use SportsHelpers\GameMode;
+use Exception;
 use SportsHelpers\Identifiable;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Against as AgainstGame;
@@ -11,30 +11,20 @@ use SportsPlanning\Game\Against as AgainstGame;
 class Poule extends Identifiable
 {
     /**
-     * @var int
+     * @var ArrayCollection<int|string,Place>
      */
-    protected $number;
+    protected ArrayCollection $places;
     /**
-     * @var Planning
+     * @var ArrayCollection<int|string,AgainstGame>
      */
-    protected $planning;
+    protected ArrayCollection $againstGames;
     /**
-     * @var Place[] | ArrayCollection
+     * @var ArrayCollection<int|string,TogetherGame>
      */
-    protected $places;
-    /**
-     * @var AgainstGame[] | ArrayCollection
-     */
-    protected $againstGames;
-    /**
-     * @var TogetherGame[] | ArrayCollection
-     */
-    protected $togetherGames;
+    protected ArrayCollection $togetherGames;
 
-    public function __construct(Planning $planning, int $number, int $nrOfPlaces)
+    public function __construct(protected Planning $planning, protected int $number, int $nrOfPlaces)
     {
-        $this->planning = $planning;
-        $this->number = $number;
         $this->places = new ArrayCollection();
         for ($placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++) {
             $this->places->add(new Place($this, $placeNr));
@@ -48,56 +38,49 @@ class Poule extends Identifiable
         return $this->planning;
     }
 
-    /**
-     * @return int
-     */
-    public function getNumber()
+    public function getNumber(): int
     {
         return $this->number;
     }
 
     /**
-     * @return Place[] | ArrayCollection
+     * @return ArrayCollection<int|string,Place>
      */
-    public function getPlaces()
+    public function getPlaces(): ArrayCollection
     {
         return $this->places;
     }
 
-    /**
-     * @return ?Place
-     */
-    public function getPlace($number): ?Place
+    public function getPlace(int $number): Place
     {
-        $places = $this->getPlaces()->filter(function ($place) use ($number): bool {
-            return $place->getNumber() === $number;
-        });
-        if ($places->count() === 0) {
-            return null;
+        foreach ($this->getPlaces() as $place) {
+            if ($place->getNumber() === $number) {
+                return $place;
+            }
         }
-        return $places->first();
+        throw new Exception('de plek kan niet gevonden worden', E_ERROR);
     }
 
     /**
-     * @return AgainstGame[] | TogetherGame[] | array
+     * @return array<AgainstGame|TogetherGame>
      */
-    public function getGames()
+    public function getGames(): array
     {
         return array_merge($this->getAgainstGames()->toArray(), $this->getTogetherGames()->toArray());
     }
 
     /**
-     * @return AgainstGame[] | ArrayCollection
+     * @return ArrayCollection<int|string,AgainstGame>
      */
-    public function getAgainstGames()
+    public function getAgainstGames(): ArrayCollection
     {
         return $this->againstGames;
     }
 
     /**
-     * @return TogetherGame[] | ArrayCollection
+     * @return ArrayCollection<int|string,TogetherGame>
      */
-    public function getTogetherGames()
+    public function getTogetherGames(): ArrayCollection
     {
         return $this->togetherGames;
     }

@@ -5,31 +5,24 @@ declare(strict_types=1);
 namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Exception;
 use SportsHelpers\Against\Side as AgainstSide;
-use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Game;
-use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Poule;
+use SportsPlanning\Sport;
 
 class Against extends Game
 {
-    protected Poule $poule;
-    protected $nrOfHeadtohead;
     /**
-     * @var Collection | AgainstGamePlace[]
+     * @var ArrayCollection<int|string,AgainstGamePlace>
      */
-    protected $places;
+    protected ArrayCollection $places;
 
-    public const HOME = true;
-    public const AWAY = false;
-
-    public function __construct(Poule $poule, int $nrOfHeadtohead)
+    public function __construct(Poule $poule, protected int $nrOfHeadtohead, Sport $sport)
     {
-        parent::__construct($poule);
-        $this->nrOfHeadtohead = $nrOfHeadtohead;
+        parent::__construct($poule, $sport);
         $this->places = new ArrayCollection();
         $this->poule->getAgainstGames()->add($this);
     }
@@ -44,24 +37,27 @@ class Against extends Game
         return $this->batchNr;
     }
 
+    /**
+     * @return void
+     */
     public function setBatchNr(int $batchNr)
     {
         $this->batchNr = $batchNr;
     }
 
     /**
-     * @return Collection | AgainstGamePlace[]
+     * @return ArrayCollection<int|string,AgainstGamePlace>
      */
-    public function getPlaces(): Collection
+    public function getPlaces(): ArrayCollection
     {
         return $this->places;
     }
 
     /**
      * @param int|null $side
-     * @return Collection | AgainstGamePlace[] | TogetherGamePlace[]
+     * @return ArrayCollection<int|string,AgainstGamePlace>
      */
-    public function getSidePlaces(int $side = null): Collection
+    public function getSidePlaces(int $side = null): ArrayCollection
     {
         if ($side === null) {
             return $this->getPlaces();
@@ -81,30 +77,20 @@ class Against extends Game
 //        $this->places = $places;
 //    }
 
-    /**
-     * @param Place $place
-     * @param int $side
-     * @return AgainstGamePlace
-     */
     public function addPlace(Place $place, int $side): AgainstGamePlace
     {
         return new AgainstGamePlace($this, $place, $side);
     }
 
-    /**
-     * @param Place $place
-     * @param int|null $side
-     * @return bool
-     */
-    public function isParticipating(Place $place, int $side = null): bool
+    public function isParticipating(Place $place, int|null $side = null): bool
     {
-        $places = $this->getSidePlaces($side)->map(function ($gamePlace) {
+        $places = $this->getSidePlaces($side)->map(function ($gamePlace): Place {
             return $gamePlace->getPlace();
         });
         return $places->contains($place);
     }
 
-    public function getSide(Place $place): ?int
+    public function getSide(Place $place): int
     {
         if ($this->isParticipating($place, AgainstSide::HOME)) {
             return AgainstSide::HOME;
@@ -112,13 +98,13 @@ class Against extends Game
         if ($this->isParticipating($place, AgainstSide::AWAY)) {
             return AgainstSide::AWAY;
         }
-        return null;
+        throw new Exception('kan kant niet vinden', E_ERROR);
     }
 
     /**
-     * @return Collection|Place[]
+     * @return ArrayCollection<int|string,Place>
      */
-    public function getPoulePlaces(): Collection
+    public function getPoulePlaces(): ArrayCollection
     {
         if ($this->poulePlaces === null) {
             $this->poulePlaces = $this->getPlaces()->map(function (AgainstGamePlace $gamePlace): Place {

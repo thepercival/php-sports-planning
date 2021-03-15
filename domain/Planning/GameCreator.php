@@ -48,7 +48,7 @@ class GameCreator
         return $refereePlaceService->assign($firstBatch);
     }
 
-    public function disableThrowOnTimeout()
+    public function disableThrowOnTimeout(): void
     {
         $this->throwOnTimeout = false;
     }

@@ -57,7 +57,7 @@ class Seeker
         $this->throwOnTimeout = true;
     }
 
-    public function enableTimedout( int $maxTimeoutSeconds)
+    public function enableTimedout( int $maxTimeoutSeconds): void
     {
         $this->maxTimeoutSeconds= $maxTimeoutSeconds;
     }
@@ -67,6 +67,9 @@ class Seeker
         return $this->maxTimeoutSeconds > 0;
     }
 
+    /**
+     * @return void
+     */
     public function process(Input $input)
     {
         try {
@@ -83,7 +86,7 @@ class Seeker
         }
     }
 
-    protected function processInput(Input $input)
+    protected function processInput(Input $input): void
     {
         $nextBatchGamesPlanningCalculator = new NextBatchGamesPlanningCalculator($input, $this->maxTimeoutSeconds );
         while ($planningToBeProcessed = $nextBatchGamesPlanningCalculator->next()) {
@@ -115,7 +118,7 @@ class Seeker
         }
     }
 
-    protected function processPlanning(Planning $planning)
+    protected function processPlanning(Planning $planning): void
     {
         // $planning->setState( Planning::STATE_PROCESSING );
         if ($this->processTimedout() ) {
@@ -150,7 +153,7 @@ class Seeker
         $this->logger->info('   ' . '   ' . " => " . $stateDescription);
     }
 
-    public function disableThrowOnTimeout() {
+    public function disableThrowOnTimeout(): void {
         $this->throwOnTimeout = false;
 
     }

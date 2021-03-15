@@ -3,20 +3,13 @@
 namespace SportsPlanning\Resource;
 
 use DateTimeImmutable;
-use Monolog\Handler\StreamHandler;
-use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
-use Monolog\Logger;
-
-use SportsHelpers\GameCalculator;
-use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Planning;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\SelfReferee;
-use SportsPlanning\Place;
 use SportsPlanning\Sport;
 use SportsPlanning\Resources as Resources;
 use SportsPlanning\Input;
@@ -31,43 +24,18 @@ use SportsPlanning\TimeoutException;
 
 class Service
 {
-    /**
-     * @var Planning
-     */
-    private $planning;
-    /**
-     * @var int
-     */
-    private $nrOfPoules;
-    /**
-     * @var int
-     */
-    private $nrOfSports;
-    /**
-     * @var bool
-     */
-    private $tryShuffledFields = false;
-    /**
-     * @var DateTimeImmutable
-     */
-    private $timeoutDateTime;
-    /**
-     * @var Predicter
-     */
-    private $refereePlacePredicter;
-
-    protected LoggerInterface $logger;
+    private int $nrOfPoules;
+    private bool $tryShuffledFields = false;
+    private DateTimeImmutable|null $timeoutDateTime = null;
+    private Predicter $refereePlacePredicter;
     protected BatchOutput $batchOutput;
     protected PlanningOutput $planningOutput;
     protected GameOutput $gameOutput;
-
     protected bool $throwOnTimeout;
-    protected $debugIterations;
+    protected int $debugIterations = 0;
 
-    public function __construct(Planning $planning, LoggerInterface $logger)
+    public function __construct(protected Planning $planning, protected LoggerInterface $logger)
     {
-        $this->logger = $logger;
-        $this->planning = $planning;
         $this->nrOfPoules = $this->planning->getPoules()->count();
         $this->refereePlacePredicter = new Predicter($this->planning->getPoules()->toArray());
         $this->batchOutput = new BatchOutput($logger);
@@ -81,7 +49,7 @@ class Service
         return $this->planning->getInput();
     }
 
-    protected function init()
+    protected function init(): void
     {
         if ($this->planning->getInput()->hasMultipleSports()) {
             $this->tryShuffledFields = true;
@@ -89,7 +57,7 @@ class Service
     }
 
     /**
-     * @return array|SportCounter[]
+     * @return array<SportCounter>
      */
     protected function getSportCounters(): array
     {
@@ -131,8 +99,8 @@ class Service
     }
 
     /**
-     * @param array $sports |Sport[]
-     * @return array|SportNrFields[]
+     * @param array<Sport> $sports
+     * @return array<SportNrFields>
      */
     protected function convertSports(array $sports): array
     {
@@ -149,13 +117,12 @@ class Service
     }
 
     /**
-     * @param array|SportNrFields[] $sportsNrFields
-     * @return array
+     * @param array<SportNrFields> $sportsNrFields
+     * @return array<int,int>
      */
     protected function convertToMap(array $sportsNrFields): array
     {
         $minNrOfGamesMap = [];
-        /** @var SportNrFields $sportNrFields */
         foreach ($sportsNrFields as $sportNrFields) {
             $minNrOfGamesMap[$sportNrFields->getSportNr()] = $sportNrFields->getNrOfFields();
         }
@@ -163,7 +130,7 @@ class Service
     }
 
     /**
-     * @param array|TogetherGame[]|AgainstGame[] $games
+     * @param array<TogetherGame|AgainstGame> $games
      * @return int
      */
     public function assign(array $games): int
@@ -185,13 +152,13 @@ class Service
             $fields = $this->planning->getFields()->toArray();
 
             $resources = new Resources($fields/*, $this->getSportCounters()*/);
-            $batch = $this->assignBatch($games, $resources, $batch);
-            if ($batch === null) {
+            $assignedBatch = $this->assignBatch($games, $resources, $batch);
+            if ($assignedBatch === null) {
                 return Planning::STATE_FAILED;
             }
             if (!$this->getInput()->selfRefereeEnabled() && $this->getInput()->getNrOfReferees() > 0) {
                 $refereeService = new RefereeService($this->planning);
-                $refereeService->assign($batch->getFirst());
+                $refereeService->assign($assignedBatch->getFirst());
             }
 
             // $this->batchOutput->output($batch->getFirst(), ' final : iterations = ' . $this->debugIterations );
@@ -202,13 +169,13 @@ class Service
     }
 
     /**
-     * @param array|TogetherGame[]|AgainstGame[] $games
+     * @param array<TogetherGame|AgainstGame> $games
      * @param Resources $resources
-     * @param Batch|SelfRefereeBatch $batch
-     * @return Batch|SelfRefereeBatch|null
+     * @param Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch
+     * @return Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch|null
      * @throws TimeoutException
      */
-    protected function assignBatch(array $games, Resources $resources, $batch)
+    protected function assignBatch(array $games, Resources $resources, Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch): Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch|null
     {
         if ($this->assignBatchHelper($games, $games, $resources, $batch, $this->planning->getMaxNrOfBatchGames())) {
             return $this->getActiveLeaf($batch->getLeaf());
@@ -216,19 +183,16 @@ class Service
         return null;
     }
 
-    /**
-     * @param Batch|SelfRefereeBatch $batch
-     * @return Batch|SelfRefereeBatch
-     */
-    protected function getActiveLeaf($batch)
+    protected function getActiveLeaf(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch): Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch
     {
-        if ($batch->hasPrevious() === false) {
+        $previousBatch = $batch->getPrevious();
+        if ($previousBatch === null) {
             return $batch;
         }
-        if (count($batch->getPrevious()->getGames()) === $this->planning->getMaxNrOfBatchGames()) {
+        if (count($previousBatch->getGames()) === $this->planning->getMaxNrOfBatchGames()) {
             return $batch;
         }
-        return $this->getActiveLeaf($batch->getPrevious());
+        return $this->getActiveLeaf($previousBatch);
     }
 
     // uasort( $games, function( Game $gameA, Game $gameB ) use ( $continueResources6 ) {
@@ -240,9 +204,11 @@ class Service
 //            });
 
     /**
-     * @param array|TogetherGame[]|AgainstGame[] $games
+     * @param array<TogetherGame|AgainstGame> $games
+     * @param array<TogetherGame|AgainstGame> $gamesForBatch
      * @param Resources $resources
-     * @param Batch|SelfRefereeBatch $batch
+     * @param Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch
+     * @param int $maxNrOfBatchGames
      * @param int $nrOfGamesTried
      * @return bool
      * @throws TimeoutException
@@ -251,7 +217,7 @@ class Service
         array $games,
         array $gamesForBatch,
         Resources $resources,
-        $batch,
+        Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch,
         int $maxNrOfBatchGames,
         int $nrOfGamesTried = 0
     ): bool {
@@ -274,8 +240,7 @@ class Service
 
             $gamesForBatchTmp = array_filter(
                 $games,
-                /** @var TogetherGame|AgainstGame Game */
-                function ($game) use ($nextBatch): bool {
+                function (TogetherGame|AgainstGame $game) use ($nextBatch): bool {
                     return $this->areAllPlacesAssignableByGamesInARow($nextBatch, $game);
                 }
             );
@@ -292,17 +257,13 @@ class Service
         if ($nrOfGamesTried === count($gamesForBatch)) {
             return false;
         }
-//        $this->debugIterations++;
-//        echo "iteration " . $this->debugIterations . " (27489) (".$this->convert(memory_get_usage(true))." / ".ini_get('memory_limit').")" . PHP_EOL;
-
         $game = array_shift($gamesForBatch);
         if ($this->isGameAssignable($batch, $game, $resources)) {
             $resourcesAssign = $resources->copy();
             $this->assignGame($batch, $game, $resourcesAssign);
             $gamesForBatchTmp = array_filter(
                 $gamesForBatch,
-                /** @var TogetherGame|AgainstGame $game */
-                function ($game) use ($batch): bool {
+                function (TogetherGame|AgainstGame $game) use ($batch): bool {
                     return $this->areAllPlacesAssignable($batch, $game);
                 }
             );
@@ -339,29 +300,14 @@ class Service
         return false;
     }
 
-    protected function convert($size)
-    {
-        $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
-        return @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
-    }
-
-    /**
-     * @param Batch|SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstGame $game
-     * @param Resources $resources
-     */
-    protected function assignGame($batch, $game, Resources $resources)
+    protected function assignGame(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch, TogetherGame|AgainstGame $game, Resources $resources): void
     {
         $this->assignField($game, $resources);
         $batch->add($game);
-        $resources->assignSport($game, $game->getField()->getSport());
+        $resources->assignSport($game);
     }
 
-    /**
-     * @param Batch|SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstGame $game
-     */
-    protected function releaseGame($batch, $game)
+    protected function releaseGame(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch, TogetherGame|AgainstGame $game): void
     {
         $batch->remove($game);
         // $this->releaseSport($game, $game->getField()->getSport());
@@ -369,35 +315,29 @@ class Service
     }
 
     /**
-     * @param Batch|SelfRefereeBatch $batch
+     * @param Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch
      * @param Resources $resources
-     * @return Batch|SelfRefereeBatch
+     * @param array<TogetherGame|AgainstGame> $games
+     * @return Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch
      */
-    protected function toNextBatch($batch, Resources $resources, array &$games)
+    protected function toNextBatch(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch, Resources $resources, array &$games): Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch
     {
         foreach ($batch->getGames() as $game) {
             $game->setBatchNr($batch->getNumber());
             // hier alle velden toevoegen die er nog niet in staan
-            if (array_search($game->getField(), $resources->getFields(), true) === false) {
-                $resources->addField($game->getField());
+            $field = $game->getField();
+            if ($field !== null && array_search($field, $resources->getFields(), true) === false) {
+                $resources->addField($field);
             }
             $foundGameIndex = array_search($game, $games, true);
             if ($foundGameIndex !== false) {
                 unset($games[$foundGameIndex]);
             }
         }
-        $nextBatch = $batch->createNext();
-
-        return $nextBatch;
+        return $batch->createNext();
     }
 
-    /**
-     * @param Batch|SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstGame $game
-     * @param Resources $resources
-     * @return bool
-     */
-    private function isGameAssignable($batch, $game, Resources $resources): bool
+    private function isGameAssignable(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch, TogetherGame|AgainstGame $game, Resources $resources): bool
     {
         if (!$this->isSomeFieldAssignable($game, $resources)) {
             return false;
@@ -405,23 +345,21 @@ class Service
         return $this->areAllPlacesAssignable($batch, $game);
     }
 
-    /**
-     * de wedstrijd is assignbaar als
-     * 1 alle plekken, van een wedstrijd, nog niet in de batch
-     * 2 alle plekken, van een wedstrijd, de sport nog niet vaak genoeg gedaan heeft of alle sporten al gedaan
-     *
-     * @param Batch|SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstGame $game
-     * @return bool
-     */
-    private function areAllPlacesAssignable($batch, $game, bool $checkGamesInARow = true): bool
+    // de wedstrijd is assignbaar als
+    // 1 alle plekken, van een wedstrijd, nog niet in de batch
+    // 2 alle plekken, van een wedstrijd, de sport nog niet vaak genoeg gedaan heeft of alle sporten al gedaan
+    private function areAllPlacesAssignable(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch, TogetherGame|AgainstGame $game, bool $checkGamesInARow = true): bool
     {
         $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
         foreach ($game->getPoulePlaces() as $place) {
             if ($batch->isParticipating($place)) {
                 return false;
             }
-            $nrOfGamesInARow = $batch->hasPrevious() ? ($batch->getPrevious()->getGamesInARow($place)) : 0;
+            $previousBatch = $batch->getPrevious();
+            if ($previousBatch === null) {
+                continue;
+            }
+            $nrOfGamesInARow = $previousBatch->getGamesInARow($place);
             if ($nrOfGamesInARow < $maxNrOfGamesInARow || $maxNrOfGamesInARow === -1) {
                 continue;
             }
@@ -448,15 +386,15 @@ class Service
 //        return true;
     }
 
-    /**
-     * @param Batch|SelfRefereeBatch $batch
-     * @param TogetherGame|AgainstGame $game
-     * @return bool
-     */
-    private function areAllPlacesAssignableByGamesInARow($batch, $game): bool
+    private function areAllPlacesAssignableByGamesInARow(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch, TogetherGame|AgainstGame $game): bool
     {
         foreach ($game->getPoulePlaces() as $place) {
-            $nrOfGamesInARow = ($batch->hasPrevious() ? ($batch->getPrevious()->getGamesInARow($place)) : 0) + 1;
+            $previousBatch = $batch->getPrevious();
+            if ($previousBatch === null) {
+                continue;
+            }
+            $nrOfGamesInARow = $previousBatch->getGamesInARow($place);
+            $nrOfGamesInARow += 1;
             if ($this->planning->getMaxNrOfGamesInARow() > 0 && $nrOfGamesInARow > $this->planning->getMaxNrOfGamesInARow()) {
                 return false;
             }
@@ -479,10 +417,7 @@ class Service
         return false;
     }
 
-    /**
-     * @param TogetherGame|AgainstGame $game
-     */
-    private function releaseField($game/*, Resources $resources*/)
+    private function releaseField(TogetherGame|AgainstGame $game/*, Resources $resources*/): void
     {
 //        if ($resources->getFieldIndex() !== null) {
 //            $fieldIndex = array_search($game->getField(), $resources->getFields() );
@@ -494,11 +429,7 @@ class Service
         $game->emptyField();
     }
 
-    /**
-     * @param TogetherGame|AgainstGame $game
-     * @param Resources $resources
-     */
-    private function assignField($game, Resources $resources)
+    private function assignField(TogetherGame|AgainstGame $game, Resources $resources): void
     {
         $fields = array_filter(
             $resources->getFields(),
@@ -509,17 +440,15 @@ class Service
         if (count($fields) >= 1) {
             $field = reset($fields);
             $fieldIndex = array_search($field, $resources->getFields(), true);
-            $removedField = $resources->removeField($fieldIndex);
-            $resources->setFieldIndex($fieldIndex);
-            $game->setField($removedField);
+            if ($fieldIndex !== false) {
+                $removedField = $resources->removeField($fieldIndex);
+                $resources->setFieldIndex($fieldIndex);
+                $game->setField($removedField);
+            }
         }
     }
 
-    /**
-     * @param Batch|SelfRefereeBatch $batch
-     * @return bool
-     */
-    protected function refereePlacesCanBeAssigned($batch): bool
+    protected function refereePlacesCanBeAssigned(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch): bool
     {
         // naast forced refereeplaces and teveel
 
@@ -529,7 +458,7 @@ class Service
         return true;
     }
 
-    public function disableThrowOnTimeout()
+    public function disableThrowOnTimeout(): void
     {
         $this->throwOnTimeout = false;
     }

@@ -4,7 +4,7 @@ namespace SportsPlanning\Input;
 
 use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\PouleStructure;
-use SportsHelpers\Range;
+use SportsHelpers\SportRange;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Input;
 use SportsPlanning\Planning;
@@ -65,7 +65,7 @@ class Repository extends BaseRepository
         );
     }
 
-    public function removePlannings(Input $planningInput)
+    public function removePlannings(Input $planningInput): void
     {
         while ($planningInput->getPlannings()->count() > 0) {
             $planning = $planningInput->getPlannings()->first();
@@ -75,19 +75,19 @@ class Repository extends BaseRepository
         $this->_em->flush();
     }
 
-    public function reset(Input $planningInput)
+    public function reset(Input $planningInput): void
     {
         $this->removePlannings($planningInput);
         $this->createBatchGamesPlannings($planningInput);
     }
 
-    public function createBatchGamesPlannings(Input $planningInput)
+    public function createBatchGamesPlannings(Input $planningInput): void
     {
         $maxNrOfBatchGamesInput = $planningInput->getMaxNrOfBatchGames();
 
         for ($minNrOfBatchGames = 1; $minNrOfBatchGames <= $maxNrOfBatchGamesInput; $minNrOfBatchGames++) {
             for ($maxNrOfBatchGames = $minNrOfBatchGames; $maxNrOfBatchGames <= $maxNrOfBatchGamesInput; $maxNrOfBatchGames++) {
-                $planning = new Planning($planningInput, new Range($minNrOfBatchGames, $maxNrOfBatchGames), 0);
+                $planning = new Planning($planningInput, new SportRange($minNrOfBatchGames, $maxNrOfBatchGames), 0);
                 $this->_em->persist($planning);
             }
         }
@@ -226,6 +226,6 @@ class Repository extends BaseRepository
         $query->setMaxResults(1);
         $results = $query->getQuery()->getResult();
         $first = reset($results);
-        return $first !== false ? $first : null;
+        return $first === false ? null : $first;
     }
 }

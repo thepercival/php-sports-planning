@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
 use SportsHelpers\Place\Range as PlaceRange;
 use SportsPlanning\Input\Iterator as InputIterator;
-use SportsHelpers\Range;
+use SportsHelpers\SportRange;
 use SportsPlanning\SelfReferee;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -17,11 +17,11 @@ class IteratorTest extends TestCase
     public function testRewind()
     {
         $inputIterator = new InputIterator(
-            new PlaceRange(2, 6, new Range(2, 6)),
-            new Range(1, 3),
-            new Range(0, 3),
-            new Range(1, 3),
-            new Range(1, 2)
+            new PlaceRange(2, 6, new SportRange(2, 6)),
+            new SportRange(1, 3),
+            new SportRange(0, 3),
+            new SportRange(1, 3),
+            new SportRange(1, 2)
         );
 
         $planningInput = $inputIterator->current();
@@ -54,11 +54,11 @@ class IteratorTest extends TestCase
     public function testCount()
     {
         $inputIterator = new InputIterator(
-            new PlaceRange(2, 6, new Range(2, 6)),
-            new Range(1, 3),
-            new Range(0, 3),
-            new Range(1, 3),
-            new Range(1, 2)
+            new PlaceRange(2, 6, new SportRange(2, 6)),
+            new SportRange(1, 3),
+            new SportRange(0, 3),
+            new SportRange(1, 3),
+            new SportRange(1, 2)
         );
 
         $planningInput = null;

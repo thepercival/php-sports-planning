@@ -3,7 +3,6 @@
 namespace SportsPlanning\Batch\SelfReferee;
 
 use SportsPlanning\Batch;
-use SportsPlanning\Batch\SelfReferee;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
@@ -14,14 +13,27 @@ class OtherPoule extends Batch\SelfReferee
      */
     protected array $poules;
 
-    public function __construct(array $poules, Batch $batch, SelfReferee $previous = null)
+    public function __construct(array $poules, Batch $batch, OtherPoule $previous = null)
     {
         parent::__construct($batch, $previous);
         $this->poules = $poules;
 
-        if ($this->getBase()->hasNext()) {
-            $this->next = new OtherPoule($poules, $this->getBase()->getNext(), $this);
+        $nextBatch = $this->getBase()->getNext();
+        if ($nextBatch !== null) {
+            $this->next = new OtherPoule($poules, $nextBatch, $this);
         }
+    }
+
+    public function getFirst(): OtherPoule|SamePoule
+    {
+        $previous = $this->getPrevious();
+        return $previous !== null ? $previous->getFirst() : $this;
+    }
+
+    public function getLeaf(): OtherPoule|SamePoule
+    {
+        $next = $this->getNext();
+        return $next !== null ? $next->getLeaf() : $this;
     }
 
     public function createNext(): OtherPoule
@@ -31,7 +43,7 @@ class OtherPoule extends Batch\SelfReferee
     }
 
     /**
-     * @return array|int[]
+     * @return array<int>
      */
     protected function getForcedRefereePlacesMap(): array
     {
@@ -54,7 +66,7 @@ class OtherPoule extends Batch\SelfReferee
     }
 
     /**
-     * @return array[]|Place[][]
+     * @return array<array<Place>>
      */
     protected function getOtherPlacesMap(): array
     {
@@ -76,8 +88,8 @@ class OtherPoule extends Batch\SelfReferee
     }
 
     /**
-     * @param array|Place[] $otherPoulePlaces
-     * @return array|Place[]
+     * @param array<Place> $otherPoulePlaces
+     * @return array<Place>
      */
     protected function getAvailableRefereePlaces(array $otherPoulePlaces): array
     {

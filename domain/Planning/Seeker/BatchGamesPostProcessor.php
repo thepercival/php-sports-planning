@@ -32,7 +32,7 @@ class BatchGamesPostProcessor
         $this->planningRepos = $planningRepos;
     }
 
-    public function updateOthers(Planning $planningProcessed)
+    public function updateOthers(Planning $planningProcessed): void
     {
         if ($planningProcessed->getState() === Planning::STATE_SUCCEEDED) {
             $this->makeLessEfficientBatchGamesPlanningsSucceeded($planningProcessed );
@@ -44,13 +44,16 @@ class BatchGamesPostProcessor
         }
     }
 
-    protected function makeLessEfficientBatchGamesPlanningsSucceeded(Planning $planning)
+    protected function makeLessEfficientBatchGamesPlanningsSucceeded(Planning $planning): void
     {
         foreach( $this->getGreaterNrOfBatchesPlannings($planning) as $moreNrOfBatchesPlanning ) {
             $this->makeLessEfficientBatchGamesPlanningSucceeded($moreNrOfBatchesPlanning);
         }
     }
 
+    /**
+     * @return void
+     */
     protected function makeLessEfficientBatchGamesPlanningSucceeded(Planning $planning)
     {
         if( $planning->getState() === Planning::STATE_LESSER_NROFBATCHES_SUCCEEDED ) {
@@ -66,6 +69,9 @@ class BatchGamesPostProcessor
 
     }
 
+    /**
+     * @return void
+     */
     protected function updateSucceededSameBatchGamesPlannings(Input $input)
     {
         $succeededBatchGamesPlannings = $input->getBatchGamesPlannings( Planning::STATE_SUCCEEDED);
@@ -75,7 +81,7 @@ class BatchGamesPostProcessor
         $this->makeLessEfficientBatchGamesPlanningSucceeded(array_pop($succeededBatchGamesPlannings));
     }
 
-    protected function makeLessNrOfBatchesPlanningsFailed(Planning $planning)
+    protected function makeLessNrOfBatchesPlanningsFailed(Planning $planning): void
     {
         foreach( $this->getLessNrOfBatchesPlannings($planning) as $lessNrOfBatchesPlanning ) {
             if( $lessNrOfBatchesPlanning->getState() === Planning::STATE_GREATER_NROFBATCHES_FAILED ) {
@@ -91,7 +97,7 @@ class BatchGamesPostProcessor
         }
     }
 
-    protected function makeLesserNrOfBatchesPlanningsTimedout(Planning $planningProcessed)
+    protected function makeLesserNrOfBatchesPlanningsTimedout(Planning $planningProcessed): void
     {
         foreach( $this->getLessNrOfBatchesPlannings($planningProcessed) as $planningIt ) {
             if( !($planningIt->getState() === Planning::STATE_TIMEDOUT

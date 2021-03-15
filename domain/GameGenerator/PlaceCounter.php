@@ -25,7 +25,7 @@ class PlaceCounter
         return $this->counter;
     }
 
-    public function increment()
+    public function increment(): void
     {
         $this->counter++;
     }

@@ -10,7 +10,8 @@ use SportsPlanning\Batch as BatchBase;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Output as GameOutput;
-use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
+use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
+use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 
 class Output extends OutputHelper
 {
@@ -22,14 +23,12 @@ class Output extends OutputHelper
         parent::__construct($logger);
     }
 
-    /**
-     * @param BatchBase|SelfRefereeBatch $batch
-     * @param string|null $title
-     * @param int|null $max
-     * @param int|null $min
-     */
-    public function output($batch, string $title = null, int $max = null, int $min = null)
-    {
+    public function output(
+        BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch,
+        string $title = null,
+        int $max = null,
+        int $min = null
+    ): void {
         if ($title === null) {
             $title = '';
         }
@@ -40,16 +39,15 @@ class Output extends OutputHelper
         $this->outputHelper($batch->getFirst(), $min, $max);
     }
 
-    /**
-     * @param BatchBase|SelfRefereeBatch $batch
-     * @param int|null $min
-     * @param int|null $max
-     */
-    protected function outputHelper($batch, int $min = null, int $max = null)
-    {
+    protected function outputHelper(
+        BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch,
+        int|null $min = null,
+        int|null $max = null
+    ): void {
         if ($min !== null && $batch->getNumber() < $min) {
-            if ($batch->hasNext()) {
-                $this->outputHelper($batch->getNext(), $max);
+            $nextBatch = $batch->getNext();
+            if ($nextBatch !== null) {
+                $this->outputHelper($nextBatch, $max);
             }
             return;
         }
@@ -58,16 +56,21 @@ class Output extends OutputHelper
         }
 
         $this->outputGames($batch->getGames(), $batch);
-        if ($batch->hasNext()) {
-            $this->outputHelper($batch->getNext(), $max);
+        $nextBatch = $batch->getNext();
+        if ($nextBatch !== null) {
+            $this->outputHelper($nextBatch, $max);
         }
     }
 
     /**
-     * @param array|AgainstGame[]|TogetherGame[] $games
-     * @param BatchBase|SelfRefereeBatch|null $batch
+     * @param array<AgainstGame|TogetherGame> $games
+     * @param BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule|null $batch
+     * @return void
      */
-    public function outputGames(array $games, $batch = null)
+    public function outputGames(
+        array $games,
+        BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule|null $batch = null
+    ): void
     {
         foreach ($games as $game) {
             $this->gameOutput->output($game, $batch);

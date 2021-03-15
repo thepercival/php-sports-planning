@@ -33,7 +33,7 @@ class TogetherTest extends \PHPUnit\Framework\TestCase
         $gameGenerator = new TogetherGameeGenerator();
 
         $poule = $planning->getPoule(1);
-        $games = $gameGenerator->generate($poule, $sportConfigs);
+        $games = $gameGenerator->generate($poule, $planning->getSportAndConfigs());
 //        foreach( $games as $game ) {
 //            $output = "";
 //            $places = "places: " . $getPlacesDescription($game->getPlaces()->toArray());

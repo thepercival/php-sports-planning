@@ -2,15 +2,17 @@
 
 namespace SportsPlanning\GameGenerator;
 
+use Exception;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
+use SportsPlanning\Sport;
 
 class TogetherCounter
 {
     /**
-     * @var array | PlaceCounter[][]
+     * @var array<array<PlaceCounter>>
      */
     protected array $placeCounters = [];
 
@@ -18,7 +20,7 @@ class TogetherCounter
     {
     }
 
-    public function addPlaces(Poule $poule)
+    public function addPlaces(Poule $poule): void
     {
         foreach ($poule->getPlaces() as $placeIt) {
             $this->placeCounters[$placeIt->getLocation()] = [];
@@ -33,12 +35,13 @@ class TogetherCounter
 
     /**
      * @param Poule $poule
-     * @param array|GameRoundPlace[] $base
-     * @param array|GameRoundPlace[] $choosable
+     * @param Sport $sport
+     * @param array<GameRoundPlace> $base
+     * @param array<GameRoundPlace> $choosable
      * @param int $nrOfGamePlaces
      * @return TogetherGame
      */
-    public function createGame(Poule $poule, array $base, array $choosable, int $nrOfGamePlaces): TogetherGame
+    public function createGame(Poule $poule, Sport $sport, array $base, array $choosable, int $nrOfGamePlaces): TogetherGame
     {
         while (count($base) < $nrOfGamePlaces && count($choosable) > 0) {
             $gameRoundPlace = $this->getBestPlace($base, $choosable);
@@ -46,7 +49,7 @@ class TogetherCounter
             $base[] = $gameRoundPlace;
         }
         $this->increment($this->mapToPlaces($base));
-        $game = new TogetherGame($poule);
+        $game = new TogetherGame($poule, $sport);
         foreach ($base as $basePlace) {
             new TogetherGamePlace($game, $basePlace->getPlace(), $basePlace->getGameRoundNumber());
         }
@@ -54,8 +57,8 @@ class TogetherCounter
     }
 
     /**
-     * @param array|GameRoundPlace[] $gameRoundPlaces
-     * @return array|Place[]
+     * @param array<GameRoundPlace> $gameRoundPlaces
+     * @return array<Place>
      */
     protected function mapToPlaces(array $gameRoundPlaces): array
     {
@@ -65,11 +68,11 @@ class TogetherCounter
     }
 
     /**
-     * @param array|GameRoundPlace[] $base
-     * @param array|GameRoundPlace[] $choosable
+     * @param array<GameRoundPlace> $base
+     * @param array<GameRoundPlace> $choosable
      * @return GameRoundPlace
      */
-    protected function getBestPlace(array $base, $choosable): GameRoundPlace
+    protected function getBestPlace(array $base, array $choosable): GameRoundPlace
     {
         $basePlaces = $this->mapToPlaces($base);
         $bestPlace = null;
@@ -81,6 +84,9 @@ class TogetherCounter
                 $lowestScore = $score;
                 $bestPlace = $choosableGameRoundPlace;
             }
+        }
+        if ($bestPlace === null) {
+            throw new Exception('de beste plek mag niet leeg zijn', E_ERROR);
         }
         return $bestPlace;
     }
@@ -100,9 +106,11 @@ class TogetherCounter
     }
 
     /**
-     * @param array|Place[] $places
+     * @param array<Place> $places
+     *
+     * @return void
      */
-    protected function increment(array $places)
+    protected function increment(array $places): void
     {
         foreach ($places as $placeIt) {
             foreach ($places as $coPlace) {
