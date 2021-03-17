@@ -25,7 +25,8 @@ class AgainstTest extends TestCase
         $gameGenerator = new AgainstGameGenerator();
 
         $poule = $planning->getPoule(1);
-        $games = $gameGenerator->generate($poule, $planning->getSportAndConfigs());
+        $sports = array_values($planning->getSports()->toArray());
+        $games = $gameGenerator->generate($poule, $sports);
 //        foreach( $games as $game ) {
 //            $output = "";
 //            $getPlacesDescription = function(PlaceCombination $placeCombination): string {

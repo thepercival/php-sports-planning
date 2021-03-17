@@ -18,18 +18,18 @@ class Counter
      */
     private $nrOfGamesToGo;
     /**
-     * @var array<int>
+     * @var list<int>
      */
     private $minNrOfGamesMap = [];
     /**
-     * @var array<int>
+     * @var list<int>
      */
     private $nrOfGamesDoneMap = [];
 
     /**
      * @param int $nrOfGamesToGo
-     * @param array<int> $minNrOfGamesMap
-     * @param array<int> $nrOfGamesDoneMap
+     * @param list<int> $minNrOfGamesMap
+     * @param list<int> $nrOfGamesDoneMap
      * @param int|null $nrOfSportsToGo
      */
     public function __construct(int $nrOfGamesToGo, array $minNrOfGamesMap, array $nrOfGamesDoneMap, int $nrOfSportsToGo = null)

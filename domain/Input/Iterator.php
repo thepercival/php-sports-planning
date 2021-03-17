@@ -36,24 +36,24 @@ class Iterator implements \Iterator
         $this->rewind();
     }
 
-    protected function rewindStructure()
+    protected function rewindStructure(): void
     {
         $this->rewindSports();
     }
 
-    protected function rewindSports()
+    protected function rewindSports(): void
     {
         $this->sportsIterator->rewind();
         $this->rewindNrOfReferees();
     }
 
-    protected function rewindNrOfReferees()
+    protected function rewindNrOfReferees(): void
     {
         $this->nrOfReferees = $this->rangeNrOfReferees->getMin();
         $this->rewindSelfReferee();
     }
 
-    protected function rewindSelfReferee()
+    protected function rewindSelfReferee(): void
     {
         $this->selfReferee = SelfReferee::DISABLED;
     }
@@ -66,10 +66,13 @@ class Iterator implements \Iterator
     public function key() : string
     {
         $planningInputOutput = new PlanningOutput();
+        if ($this->current === null) {
+            return 'no current value';
+        }
         return $planningInputOutput->getInputAsString($this->current);
     }
 
-    public function next()
+    public function next(): void
     {
         if ($this->current === null) {
             return;
@@ -146,8 +149,13 @@ class Iterator implements \Iterator
             return $this->incrementNrOfReferees();
         }
         $pouleStructure = $this->structureIterator->current();
-        $sportConfigs = [$this->sportsIterator->current()];
-        $selfRefereeIsAvailable = $this->planningInputService->canSelfRefereeBeAvailable($pouleStructure, $sportConfigs);
+        $sportConfig = $this->sportsIterator->current();
+        if ($pouleStructure === null || $sportConfig === null) {
+            return $this->incrementNrOfReferees();
+        }
+        $selfRefereeIsAvailable = $this->planningInputService->canSelfRefereeBeAvailable(
+            $pouleStructure,
+            [$sportConfig->getSport()]);
         if ($selfRefereeIsAvailable === false) {
             return $this->incrementNrOfReferees();
         }
@@ -160,7 +168,7 @@ class Iterator implements \Iterator
         } else {
             $selfRefereeSamePouleAvailable = $this->planningInputService->canSelfRefereeSamePouleBeAvailable(
                 $pouleStructure,
-                $sportConfigs
+                [$sportConfig->getSport()]
             );
             if (!$selfRefereeSamePouleAvailable) {
                 return $this->incrementNrOfReferees();
@@ -173,7 +181,11 @@ class Iterator implements \Iterator
     protected function incrementNrOfReferees(): bool
     {
         $maxNrOfReferees = $this->rangeNrOfReferees->getMax();
-        $nrOfPlaces = $this->structureIterator->current()->getNrOfPlaces();
+        $pouleStructure = $this->structureIterator->current();
+        if ($pouleStructure === null) {
+            return $this->incrementSports();
+        }
+        $nrOfPlaces = $pouleStructure->getNrOfPlaces();
         $maxNrOfRefereesByPlaces = (int)(ceil($nrOfPlaces / 2));
         if ($this->nrOfReferees >= $maxNrOfReferees || $this->nrOfReferees >= $maxNrOfRefereesByPlaces) {
             return $this->incrementSports();

@@ -14,9 +14,10 @@ class SportTest extends TestCase
     public function testConstruct()
     {
         $planning = $this->createPlanning($this->createInputNew([3]));
-        $sport = new Sport($planning, 1, GameMode::AGAINST, 2);
+        $sport = new Sport($planning, 1, GameMode::AGAINST, 2, 1);
         self::assertSame($planning, $sport->getPlanning());
         self::assertSame(1, $sport->getNumber());
         self::assertSame(2, $sport->getNrOfGamePlaces());
+        self::assertSame(1, $sport->getGameAmount());
     }
 }

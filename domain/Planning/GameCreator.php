@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace SportsPlanning\Planning;
 
 use Psr\Log\LoggerInterface;
+use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
+use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\GameGenerator;
 use SportsPlanning\Planning;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
@@ -41,11 +43,14 @@ class GameCreator
             return $state;
         }
         $firstBatch = $planning->createFirstBatch();
-        $refereePlaceService = new RefereePlaceService($planning);
-        if (!$this->throwOnTimeout) {
-            $refereePlaceService->disableThrowOnTimeout();
+        if ($firstBatch instanceof SelfRefereeBatchOtherPoule || $firstBatch instanceof SelfRefereeBatchSamePoule) {
+            $refereePlaceService = new RefereePlaceService($planning);
+            if (!$this->throwOnTimeout) {
+                $refereePlaceService->disableThrowOnTimeout();
+            }
+            return $refereePlaceService->assign($firstBatch);
         }
-        return $refereePlaceService->assign($firstBatch);
+        return Planning::STATE_SUCCEEDED;
     }
 
     public function disableThrowOnTimeout(): void

@@ -20,7 +20,7 @@ class GameCounter
 
     public function getIndex(): string
     {
-        return (string)$this->resource->getNumber();
+        return $this->resource->getUniqueIndex();
     }
 
     public function increase(): void

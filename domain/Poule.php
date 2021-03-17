@@ -62,11 +62,11 @@ class Poule extends Identifiable
     }
 
     /**
-     * @return array<AgainstGame|TogetherGame>
+     * @return list<AgainstGame|TogetherGame>
      */
     public function getGames(): array
     {
-        return array_merge($this->getAgainstGames()->toArray(), $this->getTogetherGames()->toArray());
+        return array_values(array_merge($this->getAgainstGames()->toArray(), $this->getTogetherGames()->toArray()));
     }
 
     /**

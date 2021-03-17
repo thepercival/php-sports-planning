@@ -2,6 +2,7 @@
 
 namespace SportsPlanning\Planning;
 
+use Exception;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\SportRange;
@@ -17,14 +18,12 @@ class Repository extends BaseRepository
         $this->removeGamesInARowPlannings($planning);
         foreach ($planning->getPoules() as $poule) {
             $againstGames = $poule->getAgainstGames();
-            while ($againstGames->count() > 0) {
-                $game = $againstGames->first();
+            while ($game = $againstGames->first()) {
                 $againstGames->removeElement($game);
                 $this->remove($game);
             }
             $togetherGames = $poule->getTogetherGames();
-            while ($togetherGames->count() > 0) {
-                $game = $togetherGames->first();
+            while ($game = $togetherGames->first()) {
                 $togetherGames->removeElement($game);
                 $this->remove($game);
             }
@@ -49,6 +48,17 @@ class Repository extends BaseRepository
             $planning = new Planning($planning->getInput(), $planning->getNrOfBatchGames(), $gamesInARow);
             $this->save($planning);
         }
+    }
+
+    public function save(Planning $object): Planning
+    {
+        try {
+            $this->_em->persist($object);
+            $this->_em->flush();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), E_ERROR);
+        }
+        return $object;
     }
 
 

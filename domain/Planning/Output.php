@@ -59,7 +59,7 @@ class Output extends OutputHelper
         if ($withInput) {
             $output = $this->getInputAsString($planning->getInput()) . ', ' . $output;
         }
-        $this->logger->info($prefix . $output . $suffix);
+        $this->logger->info(($prefix ?? '') . $output . ($suffix ?? ''));
         if ($withGames) {
             $batchOutput = new BatchOutput($this->logger);
             $batchOutput->output($planning->createFirstBatch());
@@ -88,7 +88,7 @@ class Output extends OutputHelper
             . ', sports [' . implode(',', $sports) . ']'
             . ', referees ' . $input->getNrOfReferees()
             . ', selfRef ' . $this->getSelfRefereeAsString($input->getSelfReferee());
-        return $prefix . $output . $suffix;
+        return ($prefix ?? '') . $output . ($suffix ?? '');
     }
 
     public function getSportConfigAsString(SportConfig $sportConfig): string
@@ -111,9 +111,11 @@ class Output extends OutputHelper
         return '?';
     }
 
+    /**
+     * @param array<int,array<string,GameCounter>> $planningTotals
+     */
     protected function outputTotals(array $planningTotals): void
     {
-        /** @var GameCounter[] $gameCounters */
         foreach ($planningTotals as $totalsType => $gameCounters) {
             $name = '';
             if ($totalsType === GameAssignmentsValidator::FIELDS) {
@@ -133,10 +135,10 @@ class Output extends OutputHelper
 
     /**
      * @param string $name
-     * @param array|GameCounter[] $gameCounters
+     * @param array<string,GameCounter> $gameCounters
      * @return string
      */
-    protected function getPlanningTotalAsString(string $name, array $gameCounters)
+    protected function getPlanningTotalAsString(string $name, array $gameCounters): string
     {
         $retVal = "";
         foreach ($gameCounters as $gameCounter) {

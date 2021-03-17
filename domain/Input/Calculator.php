@@ -20,7 +20,7 @@ class Calculator
      * dit aantal kan misschien niet gehaal worden, ivm variatie in poulegrootte en sportConfig->nrOfGamePlaces
      *
      * @param PouleStructure $pouleStructure
-     * @param array|SportConfig[] $sportConfigs
+     * @param list<SportConfig> $sportConfigs
      * @param bool $selfReferee
      * @return int
      */
@@ -48,7 +48,7 @@ class Calculator
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param array|SportConfig[] $sportConfigs
+     * @param list<SportConfig> $sportConfigs
      * @param bool $selfReferee
      * @return int
      */
@@ -101,7 +101,7 @@ class Calculator
      * dit aantal kan misschien niet gehaal worden, ivm variatie in poulegrootte en sportConfig->nrOfGamePlaces
      *
      * @param PouleStructure $pouleStructure
-     * @param array|SportConfig[] $sportConfigs
+     * @param list<SportConfig> $sportConfigs
      * @param bool $selfReferee
      * @return int
      */

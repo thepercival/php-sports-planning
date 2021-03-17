@@ -21,59 +21,63 @@ class Against
 
     /**
      * @param Poule $poule
-     * @param array<SportAndConfig> $sportAndConfigs
-     * @return array<AgainstGame>
+     * @param list<Sport> $sports
+     * @return list<AgainstGame>
      */
-    public function generate(Poule $poule, array $sportAndConfigs): array
+    public function generate(Poule $poule, array $sports): array
     {
-        /** @var array<AgainstGame> $games */
+        /** @var list<AgainstGame> $games */
         $games = [];
         $gameAmount = 1;
-        while ($sportAndConfigs = $this->getSportAndConfigs($sportAndConfigs, $gameAmount)) {
-            $homeAways = $this->generateHelper($poule->getPlaces()->toArray(), $sportAndConfigs);
+        while ($sports = $this->getSports($sports, $gameAmount)) {
+            $places = array_values($poule->getPlaces()->toArray());
+            $homeAways = $this->generateHelper($places, $sports);
             $gamesIt = $this->toGames($poule, $homeAways, $gameAmount);
-            $games = array_merge($games, $gamesIt);
+            $games = array_values(array_merge($games, $gamesIt));
             $gameAmount++;
         }
         return $games;
     }
 
     /**
-     * @param array<SportAndConfig> $sportAndConfigs
+     * @param list<Sport> $sports
      * @param int $gameAmount
-     * @return array<SportAndConfig>
+     * @return list<Sport>
      */
-    protected function getSportAndConfigs(array $sportAndConfigs, int $gameAmount): array
+    protected function getSports(array $sports, int $gameAmount): array
     {
-        return array_filter($sportAndConfigs, function (SportAndConfig $sportAndConfig) use ($gameAmount): bool {
-            return $sportAndConfig->getSport()->getGameMode() === GameMode::AGAINST
-                && $sportAndConfig->getConfig()->getGameAmount() >= $gameAmount;
+        $sports = array_filter($sports, function (Sport $sport) use ($gameAmount): bool {
+            return $sport->getGameMode() === GameMode::AGAINST
+                && $sport->getGameAmount() >= $gameAmount;
         });
+        return array_values($sports);
     }
 
     /**
-     * @param array<Place> $places
-     * @param array<SportAndConfig> $sportAndConfigs
-     * @return array<AgainstHomeAway>
+     * @param list<Place> $places
+     * @param list<Sport> $sports
+     * @return list<AgainstHomeAway>
      */
-    protected function generateHelper(array $places, array $sportAndConfigs): array
+    protected function generateHelper(array $places, array $sports): array
     {
         $games = [];
-        foreach ($sportAndConfigs as $sportAndConfig) {
-            $games = array_merge($games, $this->generateForSportAndConfig($places, $sportAndConfig));
+        foreach ($sports as $sport) {
+            $games = array_values(
+                array_merge($games, $this->generateForSport($places, $sport))
+            );
         }
         return $games;
     }
 
     /**
-     * @param array<Place> $places
-     * @param SportAndConfig $sportAndConfig
-     * @return array<AgainstHomeAway>
+     * @param list<Place> $places
+     * @param Sport $sport
+     * @return list<AgainstHomeAway>
      */
-    public function generateForSportAndConfig(array $places, SportAndConfig $sportAndConfig): array
+    public function generateForSport(array $places, Sport $sport): array
     {
-        $nrOfHomeAwayPlaces = (int)($sportAndConfig->getSport()->getNrOfGamePlaces() / 2);
-        $maxNrOfHomeGames = (int)ceil($sportAndConfig->getConfig()->getNrOfGamesPerPlace(count($places)) / 2);
+        $nrOfHomeAwayPlaces = (int)($sport->getNrOfGamePlaces() / 2);
+        $maxNrOfHomeGames = (int)ceil($sport->getNrOfGamesPerPlace(count($places)) / 2);
         $homeCombinations = $this->toPlaceCombinations(
             new CombinationsGenerator($places, $nrOfHomeAwayPlaces)
         );
@@ -90,10 +94,10 @@ class Against
                 if ($homeCombination->hasOverlap($awayCombination)) {
                     continue;
                 }
-                if ($this->gameExists($sportAndConfig->getSport(), $games, $homeCombination, $awayCombination)) {
+                if ($this->gameExists($sport, $games, $homeCombination, $awayCombination)) {
                     continue;
                 }
-                $games[] = $this->createGame($sportAndConfig->getSport(), $homeCombination, $awayCombination, ++$nrOfHomeGames > $maxNrOfHomeGames);
+                $games[] = $this->createGame($sport, $homeCombination, $awayCombination, ++$nrOfHomeGames > $maxNrOfHomeGames);
             }
         }
         return $games;
@@ -101,16 +105,18 @@ class Against
 
     /**
      * @param CombinationsGenerator $combinations
-     * @return array<PlaceCombination>
+     * @return list<PlaceCombination>
      */
     protected function toPlaceCombinations(CombinationsGenerator $combinations): array
     {
-        return array_map(
+        /** @var array<int, list<Place>> $combinationsTmp */
+        $combinationsTmp = $combinations->toArray();
+        return array_values(array_map(
             function (array $placeCombination): PlaceCombination {
                 return new PlaceCombination($placeCombination);
             },
-            $combinations->toArray()
-        );
+            $combinationsTmp
+        ));
     }
 
     public function createGame(Sport $sport, PlaceCombination $home, PlaceCombination $away, bool $swap): AgainstHomeAway
@@ -120,7 +126,7 @@ class Against
 
     /**
      * @param Sport $sport
-     * @param array<AgainstHomeAway> $games
+     * @param list<AgainstHomeAway> $games
      * @param PlaceCombination $home
      * @param PlaceCombination $away
      * @return bool
@@ -137,25 +143,25 @@ class Against
     }
 
     /**
-     * @param array<Place> $places
+     * @param list<Place> $places
      * @param PlaceCombination $placeCombination
-     * @return array<Place>
+     * @return list<Place>
      */
     protected function getOtherPlaces(array $places, PlaceCombination $placeCombination): array
     {
-        return array_filter(
+        return array_values(array_filter(
             $places,
             function (Place $placeIt) use ($placeCombination): bool {
                 return !$placeCombination->has($placeIt);
             }
-        );
+        ));
     }
 
     /**
      * @param Poule $poule
-     * @param array<AgainstHomeAway> $homeAways
+     * @param list<AgainstHomeAway> $homeAways
      * @param int $gameAmount
-     * @return array<AgainstGame>
+     * @return list<AgainstGame>
      */
     protected function toGames(Poule $poule, array $homeAways, int $gameAmount): array
     {

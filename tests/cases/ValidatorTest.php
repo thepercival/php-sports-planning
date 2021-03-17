@@ -161,7 +161,7 @@ class ValidatorTest extends TestCase
         /** @var AgainstGame $planningGame */
         $planningGame = $planning->getPoule(1)->getAgainstGames()->first();
         $newFieldNr = $planningGame->getField()->getNumber() === 1 ? 2 : 1;
-        $planningGame->setField($planning->getField($newFieldNr));
+        $planningGame->setField($planning->getSport(1)->getField($newFieldNr));
 
         // (new PlanningOutput())->outputWithGames($planning, true);
 
@@ -212,7 +212,7 @@ class ValidatorTest extends TestCase
         /** @var AgainstGame $planningGame */
         $planningGame = $planning->getPoule(1)->getAgainstGames()->first();
         $newFieldNr = $planningGame->getField()->getNumber() === 3 ? 1 : 3;
-        $planningGame->setField($planning->getField($newFieldNr));
+        $planningGame->setField($planning->getSport(1)->getField($newFieldNr));
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);

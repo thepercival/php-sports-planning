@@ -10,15 +10,12 @@ use SportsPlanning\Place;
 
 class Replace
 {
-    protected Place|null $replaced;
-
     public function __construct(
         protected SelfRefereeBatch $batch,
         protected TogetherGame|AgainstGame $game,
-        protected Place $replacement
-    )
-    {
-        $this->replaced = $game->getRefereePlace();
+        protected Place $replacement,
+        protected Place $replaced
+    ) {
     }
 
     public function getBatch(): SelfRefereeBatch

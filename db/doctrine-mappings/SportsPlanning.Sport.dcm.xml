@@ -2,6 +2,7 @@
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
   <entity name="SportsPlanning\Sport" table="planningSports" repository-class="SportsPlanning\Sport\Repository">
     <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
+    <field name="gameAmount" column="gameAmount" type="smallint" nullable="false" unique="false"/>
     <many-to-one field="planning" target-entity="SportsPlanning\Planning" inversed-by="sports">
       <join-columns>
         <join-column name="planningId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>

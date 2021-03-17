@@ -6,18 +6,10 @@ use SportsHelpers\Identifiable;
 
 class Field extends Identifiable implements Resource
 {
-    /**
-     * @var int
-     */
-    protected $number;
-    /**
-     * @var Sport
-     */
-    protected $sport;
+    protected int $number;
 
-    public function __construct(Sport $sport)
+    public function __construct(protected Sport $sport)
     {
-        $this->sport = $sport;
         $sport->getFields()->add($this);
         $this->number = $sport->getFields()->count();
     }
@@ -25,6 +17,10 @@ class Field extends Identifiable implements Resource
     public function getNumber(): int
     {
         return $this->number;
+    }
+
+    public function getUniqueIndex(): string {
+        return $this->getSport()->getNumber() . '.' . $this->getNumber();
     }
 
     public function getSport(): Sport

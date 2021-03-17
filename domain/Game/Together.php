@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use SportsPlanning\Game as GameBase;
-use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
@@ -15,7 +13,7 @@ use SportsPlanning\Sport;
 
 class Together extends GameBase
 {
-    protected int $gameAmountNumber;
+    // protected int $gameAmountNumber;
     /**
      * @var ArrayCollection<int|string,TogetherGamePlace>
      */
@@ -76,18 +74,16 @@ class Together extends GameBase
 //        return new GamePlace($this, $place, $homeAway);
 //    }
 //
-//    /**
-//     * @param Place $place
-//     * @param bool|null $homeAway
-//     * @return bool
-//     */
-//    public function isParticipating(Place $place, bool $homeAway = null): bool
-//    {
-//        $places = $this->getPlaces($homeAway)->map(function ($gamePlace) {
-//            return $gamePlace->getPlace();
-//        });
-//        return $places->contains($place);
-//    }
+
+    public function isParticipating(Place $place): bool
+    {
+        foreach ($this->getPlaces() as $gamePlace) {
+            if ($gamePlace->getPlace() === $place) {
+                return true;
+            }
+        }
+        return false;
+    }
 //
 //    public function getHomeAway(Place $place): ?bool
 //    {

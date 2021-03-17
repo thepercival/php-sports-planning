@@ -10,9 +10,9 @@ class Unequal
 
     /**
      * @param int $minNrOfGames
-     * @param array<GameCounter> $minGameCounters
+     * @param array<int|string,GameCounter> $minGameCounters
      * @param int $maxNrOfGames
-     * @param array<GameCounter> $maxGameCounters
+     * @param array<int|string,GameCounter> $maxGameCounters
      */
     public function __construct(
         protected int $minNrOfGames,
@@ -38,7 +38,7 @@ class Unequal
     }
 
     /**
-     * @return array<GameCounter>
+     * @return array<int|string,GameCounter>
      */
     public function getMinGameCounters(): array
     {
@@ -46,7 +46,7 @@ class Unequal
     }
 
     /**
-     * @return array<GameCounter>
+     * @return array<int|string,GameCounter>
      */
     public function getMaxGameCounters(): array
     {

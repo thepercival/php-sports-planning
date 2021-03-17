@@ -14,15 +14,15 @@ use SportsHelpers\SportBase;
 class Input extends Identifiable
 {
     /**
-     * @var array<int>
+     * @var list<int>
      */
     protected array $pouleStructureDb;
     /**
-     * @var array<array<int>>
+     * @var list<array<string,int>>
      */
     protected array $sportConfigDb;
     /**
-     * @var array<SportConfig>|null
+     * @var list<SportConfig>|null
      */
     protected array|null $sportConfigs = null;
     protected int $nrOfReferees;
@@ -37,7 +37,7 @@ class Input extends Identifiable
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param array<SportConfig> $sportConfigs
+     * @param list<SportConfig> $sportConfigs
      * @param int $nrOfReferees
      * @param int $selfReferee
      */
@@ -77,17 +77,17 @@ class Input extends Identifiable
     }
 
     /**
-     * @return array<SportConfig>
+     * @return list<SportConfig>
      */
     public function getSportConfigs(): array
     {
         if ($this->sportConfigs === null) {
             $this->sportConfigs = [];
-            foreach ($this->sportConfigDb as $sportConfig) {
+            foreach ($this->sportConfigDb as $sportConfigDb) {
                 $this->sportConfigs[] = new SportConfig(
-                    new SportBase($sportConfig["gameMode"], $sportConfig["nrOfGamePlaces"]),
-                    $sportConfig["nrOfFields"],
-                    $sportConfig["gameAmount"]
+                    new SportBase($sportConfigDb["gameMode"], $sportConfigDb["nrOfGamePlaces"]),
+                    $sportConfigDb["nrOfFields"],
+                    $sportConfigDb["gameAmount"]
                 );
             }
         }
@@ -188,7 +188,7 @@ class Input extends Identifiable
 
     /**
      * @param int|null $state
-     * @return array<Planning>
+     * @return list<Planning>
      */
     public function getBatchGamesPlannings(int|null $state = null): array
     {
@@ -198,10 +198,10 @@ class Input extends Identifiable
         return $this->orderBatchGamesPlannings($batchGamesPlannings);
     }
 
+    // from most most efficient to less efficient
     /**
-     * from most most efficient to less efficient
-     *
-     * @return array<Planning>
+     * @param ArrayCollection<int|string,Planning> $batchGamesPlannings
+     * @return list<Planning>
      */
     public function orderBatchGamesPlannings(ArrayCollection $batchGamesPlannings): array
     {
@@ -232,11 +232,11 @@ class Input extends Identifiable
         return null;
     }
 
-    public function getBestPlanning(): ?Planning
+    public function getBestPlanning(): Planning
     {
         $bestBatchGamesPlanning = $this->getBestBatchGamesPlanning();
         if ($bestBatchGamesPlanning === null) {
-            return null;
+            throw new \Exception('er kan geen planning worden gevonden', E_ERROR);
         }
         return $bestBatchGamesPlanning->getBestGamesInARowPlanning();
     }

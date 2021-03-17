@@ -7,22 +7,19 @@ use SportsPlanning\Game\Together as TogetherGame;
 
 class Batch
 {
-    /**
-     * @var int
-     */
-    protected $number;
+    protected int $number;
     protected Batch|null $previous;
     protected Batch|null $next = null;
     /**
-     * @var array<TogetherGame|AgainstGame>
+     * @var list<TogetherGame|AgainstGame>
      */
     protected array $games = [];
     /**
-     * @var array<Place>
+     * @var array<int|string,Place>
      */
-    protected array $places = [];
+    protected array $placeMap = [];
     /**
-     * @var array<int>
+     * @var array<string,int>
      */
     protected array $previousGamesInARowMap = [];
 
@@ -55,12 +52,12 @@ class Batch
     }
 
     /**
-     * @return array<int>
+     * @return array<string,int>
      */
     protected function createMapGamesInARowMap(): array
     {
         $map = [];
-        foreach ($this->places as $place) {
+        foreach ($this->placeMap as $place) {
             $map[$place->getLocation()] = 1;
         }
         return $map;
@@ -106,8 +103,8 @@ class Batch
     }
 
     /**
-     * @param array|int[] $previousPreviousGamesInARowMap
-     * @param array|int[] $previousGamesInARowMap
+     * @param array<string,int> $previousPreviousGamesInARowMap
+     * @param array<string,int> $previousGamesInARowMap
      * @return void
      */
     public function setPreviousGamesInARow(array $previousPreviousGamesInARowMap, array $previousGamesInARowMap): void
@@ -129,64 +126,55 @@ class Batch
         return $this->previousGamesInARowMap[$place->getLocation()];
     }
 
-    /**
-     * @param TogetherGame|AgainstGame $game
-     *
-     * @return void
-     */
-    public function add($game): void
+    public function add(TogetherGame|AgainstGame $game): void
     {
         $this->games[] = $game;
         foreach ($game->getPlaces() as $gamePlace) {
-            $this->places[$gamePlace->getPlace()->getLocation()] = $gamePlace->getPlace();
+            $this->placeMap[$gamePlace->getPlace()->getLocation()] = $gamePlace->getPlace();
         }
     }
 
-    /**
-     * @param TogetherGame|AgainstGame $game
-     *
-     * @return void
-     */
-    public function remove($game): void
+    public function remove(TogetherGame|AgainstGame $game): void
     {
         $index = array_search($game, $this->games, true);
         if ($index !== false) {
-            unset($this->games[$index]);
+            array_splice($this->games, $index, 1);
         }
         foreach ($game->getPlaces() as $gamePlace) {
-            unset($this->places[$gamePlace->getPlace()->getLocation()]);
+            unset($this->placeMap[$gamePlace->getPlace()->getLocation()]);
         }
     }
 
     /**
-     * @return array<Place>
+     * @return array<int|string,Place>
      */
-    protected function getPlaces(): array
+    protected function getPlaceMap(): array
     {
-        return $this->places;
+        return $this->placeMap;
     }
 
     /**
      * @param Poule|null $poule
-     * @return array<TogetherGame|AgainstGame>
+     * @return list<TogetherGame|AgainstGame>
      */
     public function getGames(Poule $poule = null): array
     {
         if ($poule === null) {
             return $this->games;
         }
-        return array_filter($this->games, function ($game) use ($poule): bool {
+        $games = array_filter($this->games, function (TogetherGame|AgainstGame $game) use ($poule): bool {
             return $game->getPoule() === $poule;
         });
+        return array_values($games);
     }
 
     public function isParticipating(Place $place): bool
     {
-        return array_key_exists($place->getLocation(), $this->places);
+        return array_key_exists($place->getLocation(), $this->placeMap);
     }
 
     /**
-     * @return array<TogetherGame|AgainstGame>
+     * @return list<TogetherGame|AgainstGame>
      */
     public function getAllGames(): array
     {
@@ -198,7 +186,7 @@ class Batch
     }
 
     /**
-     * @return array<Poule>
+     * @return list<Poule>
      */
     public function getPoules(): array
     {

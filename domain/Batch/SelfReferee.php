@@ -16,33 +16,32 @@ abstract class SelfReferee
     protected SelfRefereeOtherPoule|SelfRefereeSamePoule|null $previous;
     protected SelfRefereeOtherPoule|SelfRefereeSamePoule|null $next = null;
     /**
-     * @var array<Place>
+     * @var array<string|Place>
      */
-    protected array $placesAsReferee = [];
+    protected array $placesAsRefereeMap = [];
     /**
-     * @var array<int|string,PouleCounter>
+     * @var array<int,PouleCounter>
      */
-    protected array $previousTotalPouleCounterMap;
+    protected array $previousTotalPouleCounterMap = [];
     /**
      * @var array<int|string,int>
      */
-    protected array $previousTotalNrOfForcedRefereePlacesMap;
+    protected array $previousTotalNrOfForcedRefereePlacesMap = [];
     /**
-     * @var array<int|string,PouleCounter>
+     * @var array<int,PouleCounter>
      */
-    protected $pouleCounterMap;
+    protected array $pouleCounterMap = [];
 
     public function __construct(protected Batch $batch, SelfRefereeOtherPoule|SelfRefereeSamePoule|null $previous = null)
     {
         $this->previous = $previous;
-        $this->placesAsReferee = [];
-        $this->pouleCounterMap = [];
-
-        $this->previousTotalPouleCounterMap = [];
-        $this->previousTotalNrOfForcedRefereePlacesMap = [];
 
         if ($previous !== null) {
-            list($previousPreviousTotalPouleCounterMap, $previousPreviousTotalNrOfForcedRefereePlacesMap) = $previous->getCopyPreviousTotals(
+            $previousPreviousTotalPouleCounterMap = [];
+            $previousPreviousTotalNrOfForcedRefereePlacesMap = [];
+            $previous->getCopyPreviousTotals(
+                $previousPreviousTotalPouleCounterMap,
+                $previousPreviousTotalNrOfForcedRefereePlacesMap
             );
             $this->setPreviousTotals(
                 $previousPreviousTotalPouleCounterMap,
@@ -80,21 +79,21 @@ abstract class SelfReferee
     public function addAsReferee(TogetherGame|AgainstGame$game, Place $placeReferee): void
     {
         $game->setRefereePlace($placeReferee);
-        $this->placesAsReferee[$placeReferee->getLocation()] = $placeReferee;
+        $this->placesAsRefereeMap[$placeReferee->getLocation()] = $placeReferee;
     }
 
     /**
-     * @return array<Place>
+     * @return array<string|Place>
      */
     public function getPlacesAsReferees(): array
     {
-        return $this->placesAsReferee;
+        return $this->placesAsRefereeMap;
     }
 
     public function removeAsReferee(Place|null $place = null, TogetherGame|AgainstGame|null $game = null): void
     {
         if ($place !== null) {
-            unset($this->placesAsReferee[$place->getLocation()]);
+            unset($this->placesAsRefereeMap[$place->getLocation()]);
         }
         if ($game !== null) {
             $game->setRefereePlace(null);
@@ -103,20 +102,20 @@ abstract class SelfReferee
 
     public function emptyPlacesAsReferees(): void
     {
-        $this->placesAsReferee = [];
+        $this->placesAsRefereeMap = [];
     }
 
     public function isParticipatingAsReferee(Place $placeReferee): bool
     {
-        return array_key_exists($placeReferee->getLocation(), $this->placesAsReferee);
+        return array_key_exists($placeReferee->getLocation(), $this->placesAsRefereeMap);
     }
 
     /**
-     * @return array
+     * @param array<int,PouleCounter> $previousTotalPouleCounterMap
+     * @param array<int|string,int> $previousPreviousTotalNrOfForcedRefereePlacesMap
      */
-    public function getCopyPreviousTotals(): array
+    public function getCopyPreviousTotals(array &$previousTotalPouleCounterMap, array &$previousPreviousTotalNrOfForcedRefereePlacesMap): void
     {
-        $previousTotalPouleCounterMap = [];
         foreach ($this->previousTotalPouleCounterMap as $key => $pouleCounterMap) {
             $copiedPouleCounterMap = new PouleCounter(
                 $pouleCounterMap->getPoule(),
@@ -125,14 +124,15 @@ abstract class SelfReferee
             $copiedPouleCounterMap->addNrOfGames($pouleCounterMap->getNrOfGames());
             $previousTotalPouleCounterMap[$key] = $copiedPouleCounterMap;
         }
-        return array($previousTotalPouleCounterMap, $this->previousTotalNrOfForcedRefereePlacesMap);
+        foreach ($this->previousTotalNrOfForcedRefereePlacesMap as $key => $nrOfForcedRefereePlace) {
+            $previousPreviousTotalNrOfForcedRefereePlacesMap[$key] = $nrOfForcedRefereePlace;
+        }
     }
 
     /**
-     * @param array| PouleCounter[] $previousPreviousTotalPouleCounterMap
-     * @param array| int[] $previousPreviousTotalNrOfForcedRefereePlacesMap
+     * @param array<int,PouleCounter> $previousPreviousTotalPouleCounterMap
+     * @param array<string|int,int> $previousPreviousTotalNrOfForcedRefereePlacesMap
      * @param self $previousBatch
-     *
      * @return void
      */
     protected function setPreviousTotals(
@@ -153,14 +153,14 @@ abstract class SelfReferee
     }
 
     /**
-     * @return array<int>
+     * @return array<string,int>
      */
     abstract protected function getForcedRefereePlacesMap(): array;
 
     /**
-     * @param array<int> $baseForcedRefereePlacesMap
-     * @param array<int> $forcedRefereePlacesMapToAdd
-     * @return array<int>
+     * @param array<string|int,int> $baseForcedRefereePlacesMap
+     * @param array<string|int,int> $forcedRefereePlacesMapToAdd
+     * @return array<string|int,int>
      */
     protected function addForcedRefereePlacesMaps(
         array $baseForcedRefereePlacesMap,
@@ -179,7 +179,7 @@ abstract class SelfReferee
     }
 
     /**
-     * @return array<PouleCounter>
+     * @return array<int,PouleCounter>
      */
     public function getTotalPouleCounters(): array
     {
@@ -197,9 +197,9 @@ abstract class SelfReferee
     }
 
     /**
-     * @param array<PouleCounter> $previousPreviousTotalPouleCounterMap
-     * @param array<PouleCounter> $previousBatchPouleCounterMap
-     * @return array<PouleCounter>
+     * @param array<int,PouleCounter> $previousPreviousTotalPouleCounterMap
+     * @param array<int,PouleCounter> $previousBatchPouleCounterMap
+     * @return array<int,PouleCounter>
      */
     protected function addPouleCounters(
         array $previousPreviousTotalPouleCounterMap,
@@ -222,7 +222,7 @@ abstract class SelfReferee
     }
 
     /**
-     * @return array<int>
+     * @return array<string|int,int>
      */
     public function getTotalNrOfForcedRefereePlaces(): array
     {
@@ -234,30 +234,26 @@ abstract class SelfReferee
 
     /**
      * @param Poule $poule
-     * @return array<Place>
+     * @return list<Place>
      */
     public function getPlacesNotParticipating(Poule $poule): array
     {
-        return $poule->getPlaces()->filter(
+        return array_values($poule->getPlaces()->filter(
             function (Place $place): bool {
                 return !$this->getBase()->isParticipating($place);
             }
-        )->toArray();
+        )->toArray());
     }
 
     /**
-     * @return array<PouleCounter>
+     * @return array<int,PouleCounter>
      */
     public function getPouleCounters(): array
     {
         return $this->pouleCounterMap;
     }
 
-    /**
-     * @param TogetherGame|AgainstGame $game
-     * @return void
-     */
-    public function add($game): void
+    public function add(TogetherGame|AgainstGame $game): void
     {
         $this->batch->add($game);
 
@@ -278,7 +274,7 @@ abstract class SelfReferee
 
     /**
      * @param Poule|null $poule
-     * @return array<AgainstGame|TogetherGame>
+     * @return list<AgainstGame|TogetherGame>
      */
     public function getGames(Poule|null $poule = null): array
     {

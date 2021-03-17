@@ -31,7 +31,7 @@ class GameAssignmentsTest extends TestCase
 
         /** @var GameCounter[] $gameFieldCounters */
         $gameFieldCounters = $gameCounters[GameAssignmentValidator::FIELDS];
-        $field = $planning->getField(1);
+        $field = $planning->getSport(1)->getField(1);
         $gameFieldCounter = $gameFieldCounters[(string)$field->getNumber()];
         self::assertSame($field, $gameFieldCounter->getResource());
         self::assertSame(5, $gameFieldCounter->getNrOfGames());
@@ -145,14 +145,14 @@ class GameAssignmentsTest extends TestCase
 
     public function testValidateUnequalFields()
     {
-        $sportConfig = new SportConfig(new SportBase( GameMode::AGAINST, 2), 2, 1);
+        $sportConfig = new SportConfig(new SportBase(GameMode::AGAINST, 2), 2, 1);
         $planning = $this->createPlanning(
             $this->createInputNew([5], [$sportConfig])
         );
 
         // $planningGames = $planning->getPoule(1)->getGames();
-        $replacedField = $planning->getField(2);
-        $replacedByField = $planning->getField(1);
+        $replacedField = $planning->getSport(1)->getField(2);
+        $replacedByField = $planning->getSport(1)->getField(1);
         $this->replaceField($planning->createFirstBatch(), $replacedField, $replacedByField);
 
 //        $planningOutput = new PlanningOutput();

@@ -34,7 +34,7 @@ class SamePoule extends Batch\SelfReferee
     }
 
     /**
-     * @return array<int>
+     * @return array<string,int>
      */
     protected function getForcedRefereePlacesMap(): array
     {

@@ -63,7 +63,7 @@ class Output extends OutputHelper
     }
 
     /**
-     * @param array<AgainstGame|TogetherGame> $games
+     * @param list<AgainstGame|TogetherGame> $games
      * @param BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule|null $batch
      * @return void
      */

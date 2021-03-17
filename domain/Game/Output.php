@@ -23,7 +23,7 @@ class Output extends OutputHelper
     }
 
     /**
-     * @param array|AgainstGame[]|TogetherGame[] $games
+     * @param list<TogetherGame|AgainstGame> $games
      * @param string|null $prefix
      * @return void
      */
@@ -65,20 +65,46 @@ class Output extends OutputHelper
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null
     ): string {
         if ($game instanceof AgainstGame) {
-            $homeGamePlaces = $this->outputPlacesHelper($game, $game->getSidePlaces(AgainstSide::HOME), $batch);
-            $awayGamePlaces = $this->outputPlacesHelper($game, $game->getSidePlaces(AgainstSide::AWAY), $batch);
+            $homeGamePlaces = $this->outputAgainstPlaces($game, $game->getSidePlaces(AgainstSide::HOME), $batch);
+            $awayGamePlaces = $this->outputAgainstPlaces($game, $game->getSidePlaces(AgainstSide::AWAY), $batch);
             return $homeGamePlaces . ' vs ' . $awayGamePlaces;
         }
-        return $this->outputPlacesHelper($game, $game->getPlaces(), $batch);
+        return $this->outputTogetherPlaces($game, $game->getPlaces(), $batch);
     }
 
     /**
-     * @param AgainstGame|TogetherGame $game
-     * @param ArrayCollection<int|string,AgainstGamePlace|TogetherGamePlace> $gamePlaces
+     * @param AgainstGame $game
+     * @param ArrayCollection<int|string,AgainstGamePlace> $gamePlaces
      * @param Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch
      * @return string
      */
-    protected function outputPlacesHelper(
+    protected function outputAgainstPlaces(
+        AgainstGame $game,
+        ArrayCollection $gamePlaces,
+        Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null
+    ): string {
+        //        $homeGamePlaces = $this->outputPlaces($game, $game->getPlaces(AgainstGame::HOME), $batch);
+//        $awayGamePlaces = $this->outputPlaces($game, $game->getPlaces(AgainstGame::AWAY), $batch);
+//        $homeGamePlaces . ' vs ' . $awayGamePlaces
+
+        $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
+        $placesAsArrayOfStrings = $gamePlaces->map(
+            function ($gamePlace) use ($useColors, $batch): string {
+                $colorNumber = $useColors ? $gamePlace->getPlace()->getNumber() : -1;
+                $gamesInARow = $batch !== null ? ('(' . $batch->getGamesInARow($gamePlace->getPlace()) . ')') : '';
+                return $this->outputColor($colorNumber, $gamePlace->getPlace()->getLocation() . $gamesInARow);
+            }
+        )->toArray();
+        return implode(' & ', $placesAsArrayOfStrings);
+    }
+
+    /**
+     * @param TogetherGame $game
+     * @param ArrayCollection<int|string,TogetherGamePlace> $gamePlaces
+     * @param Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch
+     * @return string
+     */
+    protected function outputTogetherPlaces(
         AgainstGame|TogetherGame $game,
         ArrayCollection $gamePlaces,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null

@@ -9,11 +9,11 @@ use SportsPlanning\Poule;
 class OtherPoule extends Batch\SelfReferee
 {
     /**
-     * @var array | Poule[]
+     * @param list<Poule> $poules
+     * @param Batch $batch
+     * @param OtherPoule|null $previous
      */
-    protected array $poules;
-
-    public function __construct(array $poules, Batch $batch, OtherPoule $previous = null)
+    public function __construct(protected array $poules, Batch $batch, OtherPoule|null $previous = null)
     {
         parent::__construct($batch, $previous);
         $this->poules = $poules;
@@ -43,7 +43,7 @@ class OtherPoule extends Batch\SelfReferee
     }
 
     /**
-     * @return array<int>
+     * @return array<string,int>
      */
     protected function getForcedRefereePlacesMap(): array
     {
@@ -66,30 +66,30 @@ class OtherPoule extends Batch\SelfReferee
     }
 
     /**
-     * @return array<array<Place>>
+     * @return array<int,list<Place>>
      */
     protected function getOtherPlacesMap(): array
     {
         $otherPoulePlacesMap = [];
         foreach ($this->poules as $poule) {
             $otherPoulePlacesMap[$poule->getNumber()] = [];
-            $otherPoules = array_slice($this->poules, 0);
+            $otherPoules = $this->poules;
             foreach ($otherPoules as $otherPoule) {
                 if ($otherPoule === $poule) {
                     continue;
                 }
-                $otherPoulePlacesMap[$poule->getNumber()] = array_merge(
+                $otherPoulePlacesMap[$poule->getNumber()] = array_values(array_merge(
                     $otherPoulePlacesMap[$poule->getNumber()],
                     $otherPoule->getPlaces()->toArray()
-                );
+                ));
             }
         }
         return $otherPoulePlacesMap;
     }
 
     /**
-     * @param array<Place> $otherPoulePlaces
-     * @return array<Place>
+     * @param list<Place> $otherPoulePlaces
+     * @return list<Place>
      */
     protected function getAvailableRefereePlaces(array $otherPoulePlaces): array
     {

@@ -2,6 +2,7 @@
 
 namespace SportsPlanning\Input;
 
+use Exception;
 use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SportRange;
@@ -14,7 +15,7 @@ class Repository extends BaseRepository
 {
     /**
      * @param PouleStructure $pouleStructure
-     * @param array|SportConfig[] $sportConfigs
+     * @param list<SportConfig> $sportConfigs
      * @param int $nrOfReferees
      * @param int $selfReferee
      * @return Input|null
@@ -38,21 +39,21 @@ class Repository extends BaseRepository
         $query = $query->setParameter('selfReferee', $selfReferee);
 
         $query->setMaxResults(1);
-
+        /** @var list<Input> $results */
         $results = $query->getQuery()->getResult();
         $first = reset($results);
         return $first !== false ? $first : null;
     }
 
     /**
-     * @param array|SportConfig[] $sportConfigs
-     * @return array
+     * @param list<SportConfig> $sportConfigs
+     * @return list<array<string,int>>
      */
     protected function sportConfigsToArray(array $sportConfigs): array
     {
-        return array_map(function (SportConfig $sportConfig): array {
+        return array_values(array_map(function (SportConfig $sportConfig): array {
             return $sportConfig->toArray();
-        }, $sportConfigs);
+        }, $sportConfigs));
     }
 
     public function getFromInput(Input $input): ?Input
@@ -65,10 +66,20 @@ class Repository extends BaseRepository
         );
     }
 
+    public function save(Input $object): Input
+    {
+        try {
+            $this->_em->persist($object);
+            $this->_em->flush();
+        } catch (Exception $e) {
+            throw new Exception($e->getMessage(), E_ERROR);
+        }
+        return $object;
+    }
+
     public function removePlannings(Input $planningInput): void
     {
-        while ($planningInput->getPlannings()->count() > 0) {
-            $planning = $planningInput->getPlannings()->first();
+        while ($planning = $planningInput->getPlannings()->first()) {
             $planningInput->getPlannings()->removeElement($planning);
             $this->_em->remove($planning);
         }
@@ -108,7 +119,7 @@ class Repository extends BaseRepository
      * @param int $limit
      * @param PouleStructure|null $pouleStructure
      * @param int|null $selfReferee
-     * @return array|Input[]
+     * @return list<Input>
      */
     public function findNotValidated(
         bool $validateInvalid,
@@ -163,7 +174,7 @@ class Repository extends BaseRepository
                 ->andWhere('pi.selfReferee = :selfReferee')
                 ->setParameter('selfReferee', $selfReferee);
         }
-
+        /** @var list<Input> $inputs */
         $inputs = $query->getQuery()->getResult();
         return $inputs;
     }
@@ -224,6 +235,7 @@ class Repository extends BaseRepository
         }
 
         $query->setMaxResults(1);
+        /** @var list<Input> $results */
         $results = $query->getQuery()->getResult();
         $first = reset($results);
         return $first === false ? null : $first;

@@ -2,6 +2,7 @@
 
 namespace SportsPlanning;
 
+use Exception;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Sport\Counter as SportCounter;
@@ -9,20 +10,17 @@ use SportsPlanning\Sport\Counter as SportCounter;
 class Resources
 {
     /**
-     * @var array|Field[]
+     * @var array<int,Field>
      */
-    private $fields;
-    /**
-     * @var int|null
-     */
-    private $fieldIndex;
+    private array $fieldMap;
+    private int|null $fieldIndex  = null;
     private int $nrOfFieldSwitches;
     /**
-     * @var array<SportCounter>
+     * @var array<string,SportCounter>
      */
-    private $sportCounters;
+    private array $sportCounters;
     /**
-     * @var array<int>
+     * @var array<int,int>
      */
     private array $sportTimes = [];
 
@@ -31,13 +29,13 @@ class Resources
     const PLACES = 4;
 
     /**
-     * @param array<Field> $fields
-     * @param array<SportCounter>|null $sportCounters
-     * @param array<int>|null $sportTimes
+     * @param array<int,Field> $fields
+     * @param array<string,SportCounter>|null $sportCounters
+     * @param array<int,int>|null $sportTimes
      */
     public function __construct(array $fields, array|null $sportCounters = null, array|null $sportTimes = null)
     {
-        $this->fields = $fields;
+        $this->fieldMap = $fields;
         $this->sportCounters = $sportCounters ?? [];
         if ($sportTimes !== null) {
             $this->sportTimes = $sportTimes;
@@ -50,57 +48,49 @@ class Resources
     }
 
     /**
-     * @return array<Field>
+     * @return array<int,Field>
      */
     public function getFields(): array
     {
-        return $this->fields;
+        return $this->fieldMap;
     }
 
-    /**
-     * @param Field $field
-     */
     public function addField(Field $field): void
     {
-        $this->fields[] = $field;
+        $this->fieldMap[] = $field;
     }
 
     /**
-     * @param array<Field> $fields
+     * @param array<int,Field> $fields
      */
     public function setFields(array $fields): void
     {
-        $this->fields = $fields;
+        $this->fieldMap = $fields;
     }
 
-    /**
-     * @param Field $field
-     */
     public function unshiftField(Field $field): void
     {
-        array_unshift($this->fields, $field);
+        array_unshift($this->fieldMap, $field);
     }
 
-    /**
-     * @return Field
-     */
     public function shiftField(): Field
     {
         return $this->removeField(0);
     }
 
-    /**
-     * @return Field
-     */
     public function removeField(int $fieldIndex): Field
     {
-        $removedFields = array_splice($this->fields, $fieldIndex, 1);
-        return reset($removedFields);
+        if (isset($this->fieldMap[$fieldIndex]) === false) {
+            throw new Exception('veld kan niet vewijderd worden', E_ERROR);
+        }
+        $removedField = $this->fieldMap[$fieldIndex];
+        unset($this->fieldMap[$fieldIndex]);
+        return $removedField;
     }
 
     public function orderFields(): void
     {
-        uasort($this->fields, function (Field $fieldA, Field $fieldB): int {
+        uasort($this->fieldMap, function (Field $fieldA, Field $fieldB): int {
             return $this->sportTimes[$fieldA->getSport()->getNumber() ] > $this->sportTimes[$fieldB->getSport()->getNumber() ] ? -1 : 1;
         });
     }
@@ -147,7 +137,7 @@ class Resources
         return $gameNrToGo;
     }
 
-    public function getFieldIndex(): ?int
+    public function getFieldIndex(): int|null
     {
         return $this->fieldIndex;
     }
@@ -168,7 +158,7 @@ class Resources
     }
 
     /**
-     * @return array<SportCounter>
+     * @return array<string,SportCounter>
      */
     public function getSportCounters(): array
     {
@@ -186,12 +176,7 @@ class Resources
         }
     }
 
-    /**
-     * @param TogetherGame|AgainstGame $game
-     * @param Sport $sport
-     * @return bool
-     */
-    public function isSportAssignable($game, Sport $sport): bool
+    public function isSportAssignable(TogetherGame|AgainstGame $game, Sport $sport): bool
     {
         if (count($this->sportCounters) === 0) {
             return true;

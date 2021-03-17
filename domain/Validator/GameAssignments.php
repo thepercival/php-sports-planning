@@ -6,12 +6,9 @@ namespace SportsPlanning\Validator;
 use SportsPlanning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
 use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
 use SportsPlanning\Exception\UnequalAssignedRefereePlaces as UnequalAssignedRefereePlacesException;
-use \Exception;
-use SportsPlanning\Field;
 use SportsPlanning\Game;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
-use SportsPlanning\Referee;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\SelfReferee;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
@@ -20,52 +17,43 @@ use SportsPlanning\Resource\GameCounter\Unequal as UnequalGameCounter;
 class GameAssignments
 {
     /**
-     * @var Planning
+     * @var array<string,GameCounter>
      */
-    protected $planning;
+    protected array $fieldMap;
     /**
-     * @var array|GameCounter[]
+     * @var array<string,GameCounter>
      */
-    protected $fields;
+    protected array $refereeMap;
     /**
-     * @var array|GameCounter[]
+     * @var array<string,GameCounter>
      */
-    protected $referees;
-    /**
-     * @var array|GameCounter[]
-     */
-    protected $refereePlaces;
+    protected array $refereePlaceMap;
 
     const FIELDS = 1;
     const REFEREES = 2;
     const REFEREEPLACES = 4;
 
-    public function __construct(Planning $planning)
+    public function __construct(protected Planning $planning)
     {
-        $this->planning = $planning;
-        $this->fields = [];
-        $this->referees = [];
-        $this->refereePlaces = [];
+        $this->fieldMap = [];
+        $this->refereeMap = [];
+        $this->refereePlaceMap = [];
         $this->init();
     }
 
     protected function init(): void
     {
-        /** @var Field $field */
         foreach ($this->planning->getFields() as $field) {
-            $this->fields[(string)$field->getNumber()] = new GameCounter($field);
+            $this->fieldMap[$field->getUniqueIndex()] = new GameCounter($field);
         }
 
         if ($this->planning->getInput()->selfRefereeEnabled()) {
-            /** @var Place $place */
             foreach ($this->planning->getPlaces() as $place) {
-                $gameCounter = new PlaceGameCounter($place);
-                $this->refereePlaces[$gameCounter->getIndex()] = $gameCounter;
+                $this->refereePlaceMap[$place->getUniqueIndex()] = new PlaceGameCounter($place);
             }
         } else {
-            /** @var Referee $referee */
             foreach ($this->planning->getReferees() as $referee) {
-                $this->referees[(string)$referee->getNumber()] = new GameCounter($referee);
+                $this->refereeMap[$referee->getUniqueIndex()] = new GameCounter($referee);
             }
         }
 
@@ -73,45 +61,49 @@ class GameAssignments
         foreach ($games as $game) {
             $field = $game->getField();
             if ($field !== null) {
-                $this->fields[(string)$field->getNumber()]->increase();
+                $this->fieldMap[$field->getUniqueIndex()]->increase();
             }
             if ($this->planning->getInput()->selfRefereeEnabled()) {
                 $refereePlace = $game->getRefereePlace();
                 if ($refereePlace !== null) {
-                    $this->refereePlaces[$refereePlace->getLocation()]->increase();
+                    $this->refereePlaceMap[$refereePlace->getUniqueIndex()]->increase();
                 }
             } else {
                 $referee = $game->getReferee();
                 if ($referee !== null) {
-                    $this->referees[(string)$referee->getNumber()]->increase();
+                    $this->refereeMap[$referee->getUniqueIndex()]->increase();
                 }
             }
         }
     }
 
-    public function getCounters(int $totalTypes = null): array
+    /**
+     * @param int|null $totalTypes
+     * @return array<int,array<string,GameCounter>>
+     */
+    public function getCounters(int|null $totalTypes = null): array
     {
         $counters = [];
         if ($totalTypes === null || ($totalTypes & self::FIELDS) === self::FIELDS) {
-            $counters[self::FIELDS] = $this->fields;
+            $counters[self::FIELDS] = $this->fieldMap;
         }
         if ($totalTypes === null || ($totalTypes & self::REFEREES) === self::REFEREES) {
-            $counters[self::REFEREES] = $this->referees;
+            $counters[self::REFEREES] = $this->refereeMap;
         }
         if ($totalTypes === null || ($totalTypes & self::REFEREEPLACES) === self::REFEREEPLACES) {
-            $counters[self::REFEREEPLACES] = $this->refereePlaces;
+            $counters[self::REFEREEPLACES] = $this->refereePlaceMap;
         }
         return $counters;
     }
 
     public function validate(): void
     {
-        $unequalFields = $this->getMaxUnequal($this->fields);
+        $unequalFields = $this->getMaxUnequal($this->fieldMap);
         if ($unequalFields !== null) {
             throw new UnequalAssignedFieldsException($this->getUnequalDescription($unequalFields, "fields"), E_ERROR);
         }
 
-        $unequalReferees = $this->getMaxUnequal($this->referees);
+        $unequalReferees = $this->getMaxUnequal($this->refereeMap);
         if ($unequalReferees !== null) {
             throw new UnequalAssignedRefereesException(
                 $this->getUnequalDescription($unequalReferees, "referees"),
@@ -148,7 +140,7 @@ class GameAssignments
     }
 
     /**
-     * @return array|UnequalGameCounter[]
+     * @return list<UnequalGameCounter>
      */
     public function getRefereePlaceUnequals(): array
     {
@@ -163,7 +155,7 @@ class GameAssignments
                 }
             }
         } elseif ($this->planning->getPouleStructure()->isAlmostBalanced()) {
-            $unequal = $this->getMaxUnequal($this->refereePlaces);
+            $unequal = $this->getMaxUnequal($this->refereePlaceMap);
             if ($unequal !== null) {
                 $unequals[] = $unequal;
             }
@@ -171,11 +163,14 @@ class GameAssignments
         return $unequals;
     }
 
+    /**
+     * @return array<int,array<int,PlaceGameCounter>>
+     */
     protected function getRefereePlacesPerPoule(): array
     {
         $refereePlacesPerPoule = [];
         /** @var PlaceGameCounter $gameCounter */
-        foreach ($this->refereePlaces as $gameCounter) {
+        foreach ($this->refereePlaceMap as $gameCounter) {
             /** @var Place $place */
             $place = $gameCounter->getResource();
             $pouleNr = $place->getPoule()->getNumber();
@@ -188,28 +183,35 @@ class GameAssignments
     }
 
     /**
-     * @param array|GameCounter[] $gameCounters
-     * @return UnequalGameCounter
+     * @param array<int|string,GameCounter> $gameCounters
+     * @return UnequalGameCounter|null
      */
-    protected function getMaxUnequal(array $gameCounters): ?UnequalGameCounter
+    protected function getMaxUnequal(array $gameCounters): UnequalGameCounter|null
     {
-        $minNrOfGames = null;
-        $maxNrOfGames = null;
-        $maxGameCounters = [];
-        foreach ($gameCounters as $gameCounter) {
-            $nrOfGames = $gameCounter->getNrOfGames();
-            if ($minNrOfGames === null || $nrOfGames < $minNrOfGames) {
-                $minNrOfGames = $nrOfGames;
-            }
-            if ($maxNrOfGames === null || $nrOfGames >= $maxNrOfGames) {
-                if ($nrOfGames > $maxNrOfGames) {
-                    $maxGameCounters = [];
+        /**
+         * @return list<int|list<int>>
+         */
+        $setCounters = function () use ($gameCounters) : array {
+            $minNrOfGames = null;
+            $maxNrOfGames = null;
+            $maxGameCounters = [];
+            foreach ($gameCounters as $gameCounter) {
+                $nrOfGames = $gameCounter->getNrOfGames();
+                if ($minNrOfGames === null || $nrOfGames < $minNrOfGames) {
+                    $minNrOfGames = $nrOfGames;
                 }
-                $maxGameCounters[] = $gameCounter;
-                $maxNrOfGames = $nrOfGames;
+                if ($maxNrOfGames === null || $nrOfGames >= $maxNrOfGames) {
+                    if ($nrOfGames > $maxNrOfGames) {
+                        $maxGameCounters = [];
+                    }
+                    $maxGameCounters[] = $gameCounter;
+                    $maxNrOfGames = $nrOfGames;
+                }
             }
-        }
-        if ($maxNrOfGames - $minNrOfGames <= 1) {
+            return array($minNrOfGames,$maxNrOfGames,$maxGameCounters);
+        };
+        list($minNrOfGames, $maxNrOfGames, $maxGameCounters) = $setCounters();
+        if ($minNrOfGames === null || $maxNrOfGames === null || $maxNrOfGames - $minNrOfGames <= 1) {
             return null;
         }
         $otherGameCounters = array_filter($gameCounters, function (GameCounter $gameCounterIt) use ($maxNrOfGames): bool {

@@ -12,7 +12,7 @@ use SportsPlanning\Sport;
 class TogetherCounter
 {
     /**
-     * @var array<array<PlaceCounter>>
+     * @var array<string,array<string,PlaceCounter>>
      */
     protected array $placeCounters = [];
 
@@ -36,8 +36,8 @@ class TogetherCounter
     /**
      * @param Poule $poule
      * @param Sport $sport
-     * @param array<GameRoundPlace> $base
-     * @param array<GameRoundPlace> $choosable
+     * @param list<GameRoundPlace> $base
+     * @param list<GameRoundPlace> $choosable
      * @param int $nrOfGamePlaces
      * @return TogetherGame
      */
@@ -45,7 +45,10 @@ class TogetherCounter
     {
         while (count($base) < $nrOfGamePlaces && count($choosable) > 0) {
             $gameRoundPlace = $this->getBestPlace($base, $choosable);
-            array_splice($choosable, array_search($gameRoundPlace, $choosable, true), 1);
+            $idx = array_search($gameRoundPlace, $choosable, true);
+            if ($idx !== false) {
+                array_splice($choosable, $idx, 1);
+            }
             $base[] = $gameRoundPlace;
         }
         $this->increment($this->mapToPlaces($base));
@@ -57,8 +60,8 @@ class TogetherCounter
     }
 
     /**
-     * @param array<GameRoundPlace> $gameRoundPlaces
-     * @return array<Place>
+     * @param list<GameRoundPlace> $gameRoundPlaces
+     * @return list<Place>
      */
     protected function mapToPlaces(array $gameRoundPlaces): array
     {
@@ -68,8 +71,8 @@ class TogetherCounter
     }
 
     /**
-     * @param array<GameRoundPlace> $base
-     * @param array<GameRoundPlace> $choosable
+     * @param list<GameRoundPlace> $base
+     * @param list<GameRoundPlace> $choosable
      * @return GameRoundPlace
      */
     protected function getBestPlace(array $base, array $choosable): GameRoundPlace
@@ -91,6 +94,11 @@ class TogetherCounter
         return $bestPlace;
     }
 
+    /**
+     * @param Place $place
+     * @param list<Place> $basePlaces
+     * @return int
+     */
     protected function getScore(Place $place, array $basePlaces): int
     {
         $score = 0;
@@ -106,7 +114,7 @@ class TogetherCounter
     }
 
     /**
-     * @param array<Place> $places
+     * @param list<Place> $places
      *
      * @return void
      */

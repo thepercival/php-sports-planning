@@ -1,10 +1,9 @@
 <?php
-
+declare(strict_types=1);
 
 namespace SportsPlanning;
 
-
 interface Resource
 {
-    public function getNumber(): int;
+    public function getUniqueIndex(): string;
 }

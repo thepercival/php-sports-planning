@@ -8,7 +8,7 @@ use SportsPlanning\Place;
 class PlaceCombination
 {
     /**
-     * @param array<Place> $places
+     * @param list<Place> $places
      */
     public function __construct(private array $places)
     {
@@ -29,7 +29,7 @@ class PlaceCombination
     }
 
     /**
-     * @return array<Place>
+     * @return list<Place>
      */
     public function getPlaces(): array
     {

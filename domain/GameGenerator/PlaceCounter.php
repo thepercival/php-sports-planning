@@ -28,5 +28,6 @@ class PlaceCounter
     public function increment(): void
     {
         $this->counter++;
+        return;
     }
 }

@@ -3,8 +3,6 @@
 namespace SportsPlanning\Planning\Seeker;
 
 use Psr\Log\LoggerInterface;
-use SportsPlanning\Input\Service as InputService;
-use SportsPlanning\Input\Repository as InputRepository;
 use SportsPlanning\Planning\Repository as PlanningRepository;
 use SportsPlanning\Planning;
 use SportsPlanning\Input;
@@ -12,51 +10,35 @@ use SportsPlanning\Planning\Output as PlanningOutput;
 
 class BatchGamesPostProcessor
 {
-    /**
-     * @var LoggerInterface
-     */
-    protected $logger;
-    /**
-     * @var PlanningRepository
-     */
-    protected $planningRepos;
-    /**
-     * @var PlanningOutput
-     */
-    protected $planningOutput;
+    protected PlanningOutput $planningOutput;
 
-    public function __construct(LoggerInterface $logger, PlanningRepository $planningRepos)
+    public function __construct(protected LoggerInterface $logger, protected PlanningRepository $planningRepos)
     {
-        $this->logger = $logger;
         $this->planningOutput = new PlanningOutput($this->logger);
-        $this->planningRepos = $planningRepos;
     }
 
     public function updateOthers(Planning $planningProcessed): void
     {
         if ($planningProcessed->getState() === Planning::STATE_SUCCEEDED) {
-            $this->makeLessEfficientBatchGamesPlanningsSucceeded($planningProcessed );
-            $this->updateSucceededSameBatchGamesPlannings($planningProcessed->getInput() );
+            $this->makeLessEfficientBatchGamesPlanningsSucceeded($planningProcessed);
+            $this->updateSucceededSameBatchGamesPlannings($planningProcessed->getInput());
         } elseif ($planningProcessed->getState() === Planning::STATE_FAILED) {
-            $this->makeLessNrOfBatchesPlanningsFailed($planningProcessed );
+            $this->makeLessNrOfBatchesPlanningsFailed($planningProcessed);
         } else { // Planning::STATE_TIMEDOUT
-            $this->makeLesserNrOfBatchesPlanningsTimedout($planningProcessed );
+            $this->makeLesserNrOfBatchesPlanningsTimedout($planningProcessed);
         }
     }
 
     protected function makeLessEfficientBatchGamesPlanningsSucceeded(Planning $planning): void
     {
-        foreach( $this->getGreaterNrOfBatchesPlannings($planning) as $moreNrOfBatchesPlanning ) {
+        foreach ($this->getGreaterNrOfBatchesPlannings($planning) as $moreNrOfBatchesPlanning) {
             $this->makeLessEfficientBatchGamesPlanningSucceeded($moreNrOfBatchesPlanning);
         }
     }
 
-    /**
-     * @return void
-     */
-    protected function makeLessEfficientBatchGamesPlanningSucceeded(Planning $planning)
+    protected function makeLessEfficientBatchGamesPlanningSucceeded(Planning $planning): void
     {
-        if( $planning->getState() === Planning::STATE_LESSER_NROFBATCHES_SUCCEEDED ) {
+        if ($planning->getState() === Planning::STATE_LESSER_NROFBATCHES_SUCCEEDED) {
             return;
         }
         $this->planningRepos->resetBatchGamePlanning($planning, Planning::STATE_LESSER_NROFBATCHES_SUCCEEDED);
@@ -66,16 +48,12 @@ class BatchGamesPostProcessor
             '   ',
             " state => LESSER_NROFBATCHES_SUCCEEDED (gamesinarow removed)"
         );
-
     }
 
-    /**
-     * @return void
-     */
-    protected function updateSucceededSameBatchGamesPlannings(Input $input)
+    protected function updateSucceededSameBatchGamesPlannings(Input $input): void
     {
-        $succeededBatchGamesPlannings = $input->getBatchGamesPlannings( Planning::STATE_SUCCEEDED);
-        if( count( $succeededBatchGamesPlannings ) !== 2 ) {
+        $succeededBatchGamesPlannings = $input->getBatchGamesPlannings(Planning::STATE_SUCCEEDED);
+        if (count($succeededBatchGamesPlannings) !== 2) {
             return;
         }
         $this->makeLessEfficientBatchGamesPlanningSucceeded(array_pop($succeededBatchGamesPlannings));
@@ -83,8 +61,8 @@ class BatchGamesPostProcessor
 
     protected function makeLessNrOfBatchesPlanningsFailed(Planning $planning): void
     {
-        foreach( $this->getLessNrOfBatchesPlannings($planning) as $lessNrOfBatchesPlanning ) {
-            if( $lessNrOfBatchesPlanning->getState() === Planning::STATE_GREATER_NROFBATCHES_FAILED ) {
+        foreach ($this->getLessNrOfBatchesPlannings($planning) as $lessNrOfBatchesPlanning) {
+            if ($lessNrOfBatchesPlanning->getState() === Planning::STATE_GREATER_NROFBATCHES_FAILED) {
                 continue;
             }
             $this->planningRepos->resetBatchGamePlanning($lessNrOfBatchesPlanning, Planning::STATE_GREATER_NROFBATCHES_FAILED);
@@ -99,10 +77,10 @@ class BatchGamesPostProcessor
 
     protected function makeLesserNrOfBatchesPlanningsTimedout(Planning $planningProcessed): void
     {
-        foreach( $this->getLessNrOfBatchesPlannings($planningProcessed) as $planningIt ) {
-            if( !($planningIt->getState() === Planning::STATE_TIMEDOUT
+        foreach ($this->getLessNrOfBatchesPlannings($planningProcessed) as $planningIt) {
+            if (!($planningIt->getState() === Planning::STATE_TIMEDOUT
                 || $planningIt->getState() === Planning::STATE_GREATER_NROFBATCHES_TIMEDOUT
-                || $planningIt->getState() === Planning::STATE_TOBEPROCESSED) ) {
+                || $planningIt->getState() === Planning::STATE_TOBEPROCESSED)) {
                 continue;
             }
             $planningIt->setState(Planning::STATE_GREATER_NROFBATCHES_TIMEDOUT);
@@ -121,39 +99,39 @@ class BatchGamesPostProcessor
      * alles waarbij max<= success->min of waarbij min=success->min en max< success->max  eruit
      *
      * @param Planning $planningProcessed
-     * @return array|Planning[]
+     * @return list<Planning>
      */
     protected function getGreaterNrOfBatchesPlannings(Planning $planningProcessed): array
     {
-        return array_filter(
+        return array_values(array_filter(
             $planningProcessed->getInput()->getBatchGamesPlannings(),
             function (Planning $planningToBeProcessed) use ($planningProcessed) : bool {
-                if( $planningToBeProcessed === $planningProcessed ) {
+                if ($planningToBeProcessed === $planningProcessed) {
                     return false;
                 }
                 return $planningToBeProcessed->getMinNrOfBatchGames() <= $planningProcessed->getMinNrOfBatchGames()
                         && $planningToBeProcessed->getMaxNrOfBatchGames() <= $planningProcessed->getMaxNrOfBatchGames();
             }
-        );
+        ));
     }
 
     /**
      *  alles waarbij max > failed->min of waarbij max = failed->max en min> failed->min eruit
      *
      * @param Planning $planningProcessed
-     * @return array|Planning[]
+     * @return list<Planning>
      */
     protected function getLessNrOfBatchesPlannings(Planning $planningProcessed): array
     {
-        return array_filter(
+        return array_values(array_filter(
             $planningProcessed->getInput()->getBatchGamesPlannings(),
             function (Planning $planningToBeProcessed) use ($planningProcessed) : bool {
-                if( $planningToBeProcessed === $planningProcessed ) {
+                if ($planningToBeProcessed === $planningProcessed) {
                     return false;
                 }
                 return $planningToBeProcessed->getMaxNrOfBatchGames() >= $planningProcessed->getMaxNrOfBatchGames()
                         && $planningToBeProcessed->getMinNrOfBatchGames() >= $planningProcessed->getMinNrOfBatchGames();
             }
-        );
+        ));
     }
 }

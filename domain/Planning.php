@@ -17,33 +17,15 @@ use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\GameGenerator\SportAndConfig;
 
 class Planning extends Identifiable
 {
     protected int $minNrOfBatchGames;
     protected int $maxNrOfBatchGames;
-    protected int $maxNrOfGamesInARow;
-    /**
-     * @var DateTimeImmutable
-     */
-    protected $createdDateTime;
-    /**
-     * @var int
-     */
-    protected $timeoutSeconds;
-    /**
-     * @var int
-     */
-    protected $state;
-    /**
-     * @var int
-     */
-    protected $validity = -1;
-    /**
-     * @var Input
-     */
-    protected $input;
+    protected DateTimeImmutable $createdDateTime;
+    protected int $timeoutSeconds;
+    protected int $state;
+    protected int $validity = -1;
     /**
      * @var ArrayCollection<int|string,Poule>
      */
@@ -56,10 +38,6 @@ class Planning extends Identifiable
      * @var ArrayCollection<int|string,Referee>
      */
     protected ArrayCollection $referees;
-    /**
-     * @var array<SportAndConfig>
-     */
-    protected array $sportAndConfigs = [];
 
     const STATE_TOBEPROCESSED = 1;
     const STATE_SUCCEEDED = 2;
@@ -75,12 +53,10 @@ class Planning extends Identifiable
     const TIMEOUT_MULTIPLIER = 6;
     const DEFAULT_TIMEOUTSECONDS = 5;
 
-    public function __construct(Input $input, SportRange $nrOfBatchGames, int $maxNrOfGamesInARow)
+    public function __construct(protected Input $input, SportRange $nrOfBatchGames, protected int $maxNrOfGamesInARow)
     {
-        $this->input = $input;
         $this->minNrOfBatchGames = $nrOfBatchGames->getMin();
         $this->maxNrOfBatchGames = $nrOfBatchGames->getMax();
-        $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
         $this->input->getPlannings()->add($this);
         $this->initPoules($this->getInput()->getPouleStructure());
         $this->initSports($this->getInput()->getSportConfigs());
@@ -209,7 +185,6 @@ class Planning extends Identifiable
 
     /**
      * @param PouleStructure $pouleStructure
-     *
      * @return void
      */
     protected function initPoules(PouleStructure $pouleStructure): void
@@ -248,15 +223,7 @@ class Planning extends Identifiable
     }
 
     /**
-     * @return array<SportAndConfig>
-     */
-    public function getSportAndConfigs(): array
-    {
-        return $this->sportAndConfigs;
-    }
-
-    /**
-     * @param array<SportConfig> $sportConfigs
+     * @param list<SportConfig> $sportConfigs
      */
     protected function initSports(array $sportConfigs): void
     {
@@ -267,17 +234,20 @@ class Planning extends Identifiable
                 $this,
                 $this->sports->count() + 1,
                 $sportConfig->getGameMode(),
-                $sportConfig->getNrOfGamePlaces()
+                $sportConfig->getNrOfGamePlaces(),
+                $sportConfig->getGameAmount(),
             );
             $this->sports->add($sport);
             for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportConfig->getNrOfFields() ; $fieldNrDelta++) {
                 new Field($sport);
             }
             $fieldNr += $sport->getFields()->count();
-            $this->sportAndConfigs[] = new SportAndConfig($sport, $sportConfig);
         }
     }
 
+    /**
+     * @return ArrayCollection<int|string,Field>
+     */
     public function getFields(): ArrayCollection
     {
         /** @var ArrayCollection<int|string,Field> $fields */
@@ -288,16 +258,6 @@ class Planning extends Identifiable
             }
         }
         return $fields;
-    }
-        
-    public function getField(int $fieldNr): ?Field
-    {
-        foreach ($this->getFields() as $field) {
-            if ($field->getNumber() === $fieldNr) {
-                return $field;
-            }
-        }
-        return null;
     }
 
     /**
@@ -316,14 +276,14 @@ class Planning extends Identifiable
         }
     }
 
-    public function getReferee(int $refereeNr): ?Referee
+    public function getReferee(int $refereeNr): Referee
     {
         foreach ($this->getReferees() as $referee) {
             if ($referee->getNumber() === $refereeNr) {
                 return $referee;
             }
         }
-        return null;
+        throw new Exception('scheidsrechter kan niet gevonden worden', E_ERROR);
     }
 
     public function createFirstBatch(): Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch
@@ -334,7 +294,8 @@ class Planning extends Identifiable
             if ($this->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
                 $batch = new SelfRefereeSamePouleBatch($batch);
             } else {
-                $batch = new SelfRefereeOtherPouleBatch($this->getPoules()->toArray(), $batch);
+                $poules = array_values($this->getPoules()->toArray());
+                $batch = new SelfRefereeOtherPouleBatch($poules, $batch);
             }
         }
         foreach ($games as $game) {
@@ -348,11 +309,10 @@ class Planning extends Identifiable
 
     /**
      * @param int|null $order
-     * @return array<AgainstGame|TogetherGame>
+     * @return list<AgainstGame|TogetherGame>
      */
     public function getGames(int|null $order = null): array
     {
-        /** @var array<AgainstGame|TogetherGame> $games */
         $games = [];
         foreach ($this->getPoules() as $poule) {
             $games = array_merge($games, $poule->getGames());
@@ -379,7 +339,7 @@ class Planning extends Identifiable
                 return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
             });
         }*/
-        return $games;
+        return array_values($games);
     }
 
     /**
@@ -408,6 +368,10 @@ class Planning extends Identifiable
         return $this->getPoule($pouleNr)->getPlace($placeNr);
     }
 
+    /**
+     * @param int|null $state
+     * @return list<Planning>
+     */
     public function getGamesInARowPlannings(int $state = null): array
     {
         if ($this->getMaxNrOfGamesInARow() > 0) {
@@ -426,7 +390,7 @@ class Planning extends Identifiable
     // from most efficient to less efficient
     /**
      * @param Collection<int|string,Planning> $gamesInARowPlannings
-     * @return array<Planning>
+     * @return list<Planning>
      */
     protected function orderGamesInARowPlannings(Collection $gamesInARowPlannings): array
     {
@@ -440,7 +404,7 @@ class Planning extends Identifiable
         return array_values($plannings);
     }
 
-    public function getBestGamesInARowPlanning(): ?Planning
+    public function getBestGamesInARowPlanning(): Planning
     {
         $succeededGamesInARowPlannings = $this->getGamesInARowPlannings(Planning::STATE_SUCCEEDED);
         if (count($succeededGamesInARowPlannings) >= 1) {
@@ -449,6 +413,6 @@ class Planning extends Identifiable
         if ($this->getState() === Planning::STATE_SUCCEEDED) {
             return $this;
         }
-        return null;
+        throw new Exception('er kan geen planning gevonden worden', E_ERROR);
     }
 }

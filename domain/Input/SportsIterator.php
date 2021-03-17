@@ -36,6 +36,7 @@ class SportsIterator implements \Iterator
     {
         $this->gameMode = GameMode::AGAINST;
         $this->rewindNrOfFields();
+        return;
     }
 
     protected function rewindNrOfFields(): void

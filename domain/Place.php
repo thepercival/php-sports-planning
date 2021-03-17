@@ -22,6 +22,10 @@ class Place extends Identifiable implements Resource
         return $this->number;
     }
 
+    public function getUniqueIndex(): string {
+        return $this->getLocation();
+    }
+
     public function getLocation(): string
     {
         if ($this->location === null) {

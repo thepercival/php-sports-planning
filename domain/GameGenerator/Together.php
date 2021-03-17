@@ -20,42 +20,37 @@ class Together
 
     /**
      * @param Poule $poule
-     * @param array<SportAndConfig> $sportAndConfigs
-     * @return array<TogetherGame>
+     * @param list<Sport> $sports
+     * @return list<TogetherGame>
      */
-    public function generate(Poule $poule, array $sportAndConfigs): array
+    public function generate(Poule $poule, array $sports): array
     {
         $this->togetherCounter->addPlaces($poule);
         $games = [];
-        foreach ($sportAndConfigs as $sportAndConfig) {
-            if ($sportAndConfig->getSport()->getGameMode() !== GameMode::TOGETHER) {
+        foreach ($sports as $sport) {
+            if ($sport->getGameMode() !== GameMode::TOGETHER) {
                 continue;
             }
-            $games = array_merge($games, $this->generateForSportAndConfig($poule, $sportAndConfig));
+            $games = array_merge($games, $this->generateForSport($poule, $sport));
         }
-        return $games;
+        return array_values($games);
     }
 
     /**
      * @param Poule $poule
-     * @param SportAndConfig $sportAndConfig
-     * @return array<TogetherGame>
+     * @param Sport $sport
+     * @return list<TogetherGame>
      */
-    protected function generateForSportAndConfig(Poule $poule, SportAndConfig $sportAndConfig): array
+    protected function generateForSport(Poule $poule, Sport $sport): array
     {
-        $places = $poule->getPlaces()->toArray();
-        $gameAmount = $sportAndConfig->getConfig()->getGameAmount();
-        $nrOfGamePlaces = $sportAndConfig->getConfig()->getNrOfGamePlaces();
-        if ($sportAndConfig->getConfig()->allPlacesAreGamePlaces()) {
+        $places = array_values($poule->getPlaces()->toArray());
+        $gameAmount = $sport->getGameAmount();
+        $nrOfGamePlaces = $sport->getNrOfGamePlaces();
+        if ($sport->allPlacesAreGamePlaces()) {
             $nrOfGamePlaces = count($places);
         }
 
-        /**
-         * @param int $gameRoundNumber
-         * @param array<GameRoundPlace> $gameRoundPlaces
-         * @return TogetherGame|null
-         */
-        $createGame = function (int &$gameRoundNumber, array &$gameRoundPlaces) use ($poule, $sportAndConfig, $places, $nrOfGamePlaces, $gameAmount): TogetherGame|null {
+        $createGame = function (int &$gameRoundNumber, array &$gameRoundPlaces) use ($poule, $sport, $places, $nrOfGamePlaces, $gameAmount): TogetherGame|null {
             $nextGameRoundPlaces = null;
             if (count($gameRoundPlaces) < $nrOfGamePlaces) {
                 if (++$gameRoundNumber <= $gameAmount) {
@@ -65,7 +60,8 @@ class Together
             if (count($gameRoundPlaces) === 0 && $gameRoundNumber > $gameAmount) {
                 return null;
             }
-            return $this->selectPlaces($poule, $sportAndConfig->getSport(), $nrOfGamePlaces, $gameRoundPlaces, $nextGameRoundPlaces);
+            /** @var list<GameRoundPlace> $gameRoundPlaces */
+            return $this->selectPlaces($poule, $sport, $nrOfGamePlaces, $gameRoundPlaces, $nextGameRoundPlaces);
         };
 
         $games = [];
@@ -79,8 +75,8 @@ class Together
 
     /**
      * @param int $gameRoundNumber
-     * @param array<Place> $places
-     * @return array<GameRoundPlace>
+     * @param list<Place> $places
+     * @return list<GameRoundPlace>
      */
     protected function createGameRoundPlaces(int $gameRoundNumber, array $places): array
     {
@@ -93,24 +89,26 @@ class Together
 
     /**
      * @param CombinationsGenerator $combinations
-     * @return array<PlaceCombination>
+     * @return list<PlaceCombination>
      */
     protected function toPlaceCombinations(CombinationsGenerator $combinations): array
     {
-        return array_map(
-            function (array $placeCombination): PlaceCombination {
-                return new PlaceCombination($placeCombination);
+        /** @var array<int, list<Place>> $combinationsTmp */
+        $combinationsTmp = $combinations->toArray();
+        return array_values(array_map(
+            function (array $places): PlaceCombination {
+                return new PlaceCombination($places);
             },
-            $combinations->toArray()
-        );
+            $combinationsTmp
+        ));
     }
 
     /**
      * @param Poule $poule
      * @param Sport $sport
      * @param int $nrOfGamePlaces
-     * @param array<GameRoundPlace> $gameRoundPlaces
-     * @param array<GameRoundPlace>|null $nextGameRoundPlaces
+     * @param list<GameRoundPlace> $gameRoundPlaces
+     * @param list<GameRoundPlace>|null $nextGameRoundPlaces
      * @return TogetherGame
      */
     protected function selectPlaces(Poule $poule, Sport $sport, int $nrOfGamePlaces, array &$gameRoundPlaces, array|null $nextGameRoundPlaces = null): TogetherGame
@@ -128,15 +126,18 @@ class Together
         }
 
         foreach ($game->getPlaces() as $gamePlace) {
-            array_splice($gameRoundPlaces, array_search($gamePlace, $gameRoundPlaces, true), 1);
+            $idx = array_search($gamePlace, $gameRoundPlaces, true);
+            if ($idx !== false) {
+                array_splice($gameRoundPlaces, $idx, 1);
+            }
         }
         return $game;
     }
 
     /**
-     * @param array<GameRoundPlace> $nextGameRoundPlaces
-     * @param array<GameRoundPlace> $gameRoundPlaces
-     * @return array<GameRoundPlace>
+     * @param list<GameRoundPlace> $nextGameRoundPlaces
+     * @param list<GameRoundPlace> $gameRoundPlaces
+     * @return list<GameRoundPlace>
      */
     protected function removeSameLocation(array &$nextGameRoundPlaces, array $gameRoundPlaces): array
     {
@@ -155,7 +156,7 @@ class Together
 
     /**
      * @param GameRoundPlace $nextGameRoundPlace
-     * @param array<GameRoundPlace> $gameRoundPlaces
+     * @param list<GameRoundPlace> $gameRoundPlaces
      * @return bool
      */
     protected function hasSameLocation(GameRoundPlace $nextGameRoundPlace, array $gameRoundPlaces): bool

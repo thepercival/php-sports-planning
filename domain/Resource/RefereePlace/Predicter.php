@@ -13,7 +13,7 @@ class Predicter
     private const SAME_POULE_MAX_DELTA = 1;
 
     /**
-     * @param array<Poule> $poules
+     * @param list<Poule> $poules
      */
     public function __construct(protected array $poules)
     {
@@ -45,7 +45,7 @@ class Predicter
     }
 
     /**
-     * @return array<PouleCounter>
+     * @return array<int,PouleCounter>
      */
     protected function createPouleCounterMap(): array
     {
@@ -56,6 +56,10 @@ class Predicter
         return $pouleCounterMap;
     }
 
+    /**
+     * @param array<int,PouleCounter> $pouleCounterMap
+     * @param SelfRefereeBatch $batch
+     */
     protected function addGamesToPouleCounterMap(array $pouleCounterMap, SelfRefereeBatch $batch): void
     {
         foreach ($batch->getBase()->getGames() as $game) {
@@ -69,12 +73,12 @@ class Predicter
         $this->addGamesToPouleCounterMap($pouleCounterMap, $batch);
 
         foreach ($pouleCounterMap as $pouleCounter) {
-            $otherPouleCounters = array_filter(
+            $otherPouleCounters = array_values(array_filter(
                 $pouleCounterMap,
                 function (PouleCounter $pouleCounterIt) use ($pouleCounter) : bool {
                     return $pouleCounter !== $pouleCounterIt;
                 }
-            );
+            ));
             $nrOfPlacesAvailable = $this->getNrOfPlacesAvailable($otherPouleCounters);
             if ($pouleCounter->getNrOfGames() > $nrOfPlacesAvailable) {
                 return false;
@@ -84,7 +88,7 @@ class Predicter
     }
 
     /**
-     * @param array<PouleCounter> $pouleCounters
+     * @param list<PouleCounter> $pouleCounters
      * @return int
      */
     protected function getNrOfPlacesAvailable(array $pouleCounters): int
@@ -119,7 +123,9 @@ class Predicter
             if (count($totalNrOfForcedRefereePlaces) === 0 || !$pouleHasForcedRefereePlaces($poule)) {
                 continue;
             }
+            /** @var int|null $maxNrOfForcedRefereePlaces */
             $maxNrOfForcedRefereePlaces = null;
+            /** @var int|null $minNrOfForcedRefereePlaces */
             $minNrOfForcedRefereePlaces = null;
             $avgNrOfGamesForRefereePlace = $totalPouleCounters[$poule->getNumber()]->getNrOfGames() / $poule->getPlaces()->count();
             $pouleMax = $avgNrOfGamesForRefereePlace + self::SAME_POULE_MAX_DELTA;

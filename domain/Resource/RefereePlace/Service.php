@@ -18,27 +18,12 @@ use SportsPlanning\TimeoutException;
 
 class Service
 {
-    /**
-     * @var Planning
-     */
-    private $planning;
-    /**
-     * @var int
-     */
-    protected $nrOfPlaces;
-    /**
-     * @var array
-     */
-    // private $canBeSamePoule;
-    /**
-     * @var Replacer
-     */
-    private $replacer;
+    protected int $nrOfPlaces;
+    private Replacer $replacer;
     private bool $throwOnTimeout;
 
-    public function __construct(Planning $planning)
+    public function __construct(private Planning $planning)
     {
-        $this->planning = $planning;
         $this->nrOfPlaces = $this->planning->getPouleStructure()->getNrOfPlaces();
         $this->replacer = new Replacer($planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE);
         $this->throwOnTimeout = true;
@@ -51,9 +36,6 @@ class Service
 
     public function assign(SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch): int
     {
-        if (!$this->getInput()->selfRefereeEnabled()) {
-            return Planning::STATE_SUCCEEDED;
-        }
         return $this->assignHelper($batch);
     }
 
@@ -61,9 +43,9 @@ class Service
     {
         $timeoutDateTime = (new DateTimeImmutable())->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
         $this->replacer->setTimeoutDateTime($timeoutDateTime);
-        $refereePlaces = $this->getRefereePlaces();
+        $refereePlaceMap = $this->getRefereePlaceMap();
         try {
-            if ($this->assignBatch($batch, $batch->getBase()->getGames(), $refereePlaces, $timeoutDateTime)) {
+            if ($this->assignBatch($batch, $batch->getBase()->getGames(), $refereePlaceMap, $timeoutDateTime)) {
                 return Planning::STATE_SUCCEEDED;
             };
         } catch (TimeoutException $timeoutExc) {
@@ -73,9 +55,9 @@ class Service
     }
 
     /**
-     * @return array<PlaceGameCounter>
+     * @return array<string,PlaceGameCounter>
      */
-    protected function getRefereePlaces(): array
+    protected function getRefereePlaceMap(): array
     {
         $refereePlaces = [];
         foreach ($this->planning->getPlaces() as $place) {
@@ -87,8 +69,8 @@ class Service
 
     /**
      * @param SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch
-     * @param array<TogetherGame|AgainstGame> $batchGames
-     * @param array<PlaceGameCounter> $refereePlaces
+     * @param list<TogetherGame|AgainstGame> $batchGames
+     * @param array<string,PlaceGameCounter> $refereePlaceMap
      * @param DateTimeImmutable $timeoutDateTime
      * @return bool
      * @throws TimeoutException
@@ -96,7 +78,7 @@ class Service
     protected function assignBatch(
         SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch,
         array $batchGames,
-        array $refereePlaces,
+        array $refereePlaceMap,
         DateTimeImmutable $timeoutDateTime
     ): bool {
         if (count($batchGames) === 0) { // batchsuccess
@@ -111,14 +93,13 @@ class Service
                     E_ERROR
                 );
             }
-            return $this->assignBatch($nextBatch, $nextBatch->getBase()->getGames(), $refereePlaces, $timeoutDateTime);
+            return $this->assignBatch($nextBatch, $nextBatch->getBase()->getGames(), $refereePlaceMap, $timeoutDateTime);
         }
 
         $game = array_shift($batchGames);
-        /** @var PlaceGameCounter $refereePlace */
-        foreach ($refereePlaces as $refereePlace) {
+        foreach ($refereePlaceMap as $refereePlace) {
             if ($this->isRefereePlaceAssignable($batch, $game, $refereePlace->getPlace())) {
-                $newRefereePlaces = $this->assignRefereePlace($batch, $game, $refereePlace->getPlace(), $refereePlaces);
+                $newRefereePlaces = $this->assignRefereePlace($batch, $game, $refereePlace->getPlace(), $refereePlaceMap);
                 if ($this->assignBatch($batch, $batchGames, $newRefereePlaces, $timeoutDateTime)) {
                     return true;
                 }
@@ -154,29 +135,34 @@ class Service
      * @param SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch
      * @param TogetherGame|AgainstGame $game
      * @param Place $assignPlace
-     * @param array<PlaceGameCounter> $refereePlaces
-     * @return array<PlaceGameCounter>
+     * @param array<string,PlaceGameCounter> $refereePlaceMap
+     * @return array<string,PlaceGameCounter>
      */
-    private function assignRefereePlace(SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch, $game, Place $assignPlace, array $refereePlaces): array
+    private function assignRefereePlace(
+        SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch,
+        TogetherGame|AgainstGame $game,
+        Place $assignPlace,
+        array $refereePlaceMap
+    ): array
     {
         $batch->addAsReferee($game, $assignPlace);
 
-        $newRefereePlaces = [];
-        foreach ($refereePlaces as $refereePlace) {
+        $newRefereePlaceMap = [];
+        foreach ($refereePlaceMap as $refereePlace) {
             $place = $refereePlace->getPlace();
             $newRefereePlace = new PlaceGameCounter($place, $refereePlace->getNrOfGames());
-            $newRefereePlaces[$newRefereePlace->getIndex()] = $newRefereePlace;
+            $newRefereePlaceMap[$newRefereePlace->getIndex()] = $newRefereePlace;
             if ($place === $assignPlace) {
                 $newRefereePlace->increase();
             }
         }
         uasort(
-            $newRefereePlaces,
+            $newRefereePlaceMap,
             function (PlaceGameCounter $a, PlaceGameCounter $b): int {
                 return $a->getNrOfGames() < $b->getNrOfGames() ? -1 : 1;
             }
         );
-        return $newRefereePlaces;
+        return $newRefereePlaceMap;
     }
 
     public function disableThrowOnTimeout(): void

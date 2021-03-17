@@ -19,7 +19,7 @@ class Replacer
 {
     protected DateTimeImmutable|null $timeoutDateTime = null;
     /**
-     * @var array<Replace>
+     * @var list<Replace>
      */
     protected array $revertableReplaces;
     private bool $throwOnTimeout;
@@ -43,7 +43,7 @@ class Replacer
     public function replaceUnequals(Planning $planning, SelfRefereeBatch $firstBatch): bool
     {
         $gameAssignmentValidator = new GameAssignmentValidator($planning);
-        /** @var array|UnequalGameCounter[] $unequals */
+        /** @var list<UnequalGameCounter> $unequals */
         $unequals = $gameAssignmentValidator->getRefereePlaceUnequals();
         if (count($unequals) === 0) {
             return true;
@@ -64,8 +64,8 @@ class Replacer
 
     /**
      * @param SelfRefereeBatch $firstBatch
-     * @param array<GameCounter> $minGameCounters
-     * @param array<GameCounter> $maxGameCounters
+     * @param array<int|string,GameCounter> $minGameCounters
+     * @param array<int|string,GameCounter> $maxGameCounters
      * @return bool
      */
     protected function replaceUnequalHelper(SelfRefereeBatch $firstBatch, array $minGameCounters, array $maxGameCounters): bool
@@ -91,13 +91,12 @@ class Replacer
                 )) {
                     continue;
                 }
-                $removeIndex = array_search($replacedGameCounter, $maxGameCounters, true);
-                if ($removeIndex !== false) {
-                    array_splice($maxGameCounters, $removeIndex, 1);
+
+                if (isset($maxGameCounters[$replacedGameCounter->getIndex()])) {
+                    unset($maxGameCounters[$replacedGameCounter->getIndex()]);
                 }
-                $removeIndex = array_search($replacementGameCounter, $minGameCounters, true);
-                if ($removeIndex !== false) {
-                    array_splice($minGameCounters, $removeIndex, 1);
+                if (isset($minGameCounters[$replacedGameCounter->getIndex()])) {
+                    unset($minGameCounters[$replacedGameCounter->getIndex()]);
                 }
                 return $this->replaceUnequalHelper($firstBatch, $minGameCounters, $maxGameCounters);
             }
@@ -112,19 +111,20 @@ class Replacer
     ): bool {
         $batchHasReplacement = $batch->getBase()->isParticipating($replacement) || $batch->isParticipatingAsReferee($replacement);
         foreach ($batch->getBase()->getGames() as $game) {
-            if ($game->getRefereePlace() !== $replaced || $batchHasReplacement) {
+            $refereePlace = $game->getRefereePlace();
+            if ($refereePlace === null || $refereePlace !== $replaced || $batchHasReplacement) {
                 continue;
             }
             if (($game->getPoule() === $replacement->getPoule() && !$this->samePoule)
                 || ($game->getPoule() !== $replacement->getPoule() && $this->samePoule)) {
                 continue;
             }
-            $replace = new Replace($batch, $game, $replacement);
+            $replace = new Replace($batch, $game, $replacement, $refereePlace);
             if ($this->isAlreadyReplaced($replace)) {
                 return false;
             }
             $this->revertableReplaces[] = $replace;
-            $batch->removeAsReferee($game->getRefereePlace(), $game);
+            $batch->removeAsReferee($refereePlace, $game);
             $batch->addAsReferee($game, $replacement);
             return true;
         }
