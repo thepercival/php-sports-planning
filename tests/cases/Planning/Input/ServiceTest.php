@@ -22,7 +22,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertTrue(
-            $inputService->canSelfRefereeBeAvailable($planning->getPouleStructure(), [$defaultSportConfig])
+            $inputService->canSelfRefereeBeAvailable($planning->getPouleStructure(), [$defaultSportConfig->getSport()])
         );
     }
 
@@ -35,7 +35,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertFalse(
-            $inputService->canSelfRefereeBeAvailable($planning->getPouleStructure(), [$defaultSportConfig])
+            $inputService->canSelfRefereeBeAvailable($planning->getPouleStructure(), [$defaultSportConfig->getSport()])
         );
     }
 
@@ -48,7 +48,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertFalse(
-            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig])
+            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig->getSport()])
         );
     }
 
@@ -61,7 +61,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertFalse(
-            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig])
+            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig->getSport()])
         );
     }
 
@@ -74,7 +74,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertTrue(
-            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig])
+            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig->getSport()])
         );
     }
 
