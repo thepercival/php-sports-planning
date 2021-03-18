@@ -12,7 +12,7 @@ class AgainstTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testSimple()
+    public function testSimple(): void
     {
         $sportConfigs = [new SportConfig(GameMode::AGAINST, 2, 2, 1)];
         $planning = $this->createPlanning(

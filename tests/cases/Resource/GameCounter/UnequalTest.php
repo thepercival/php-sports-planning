@@ -1,18 +1,19 @@
 <?php
-
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Resource\GameCounter;
 
+use PHPUnit\Framework\TestCase;
 use SportsPlanning\Resource\GameCounter\Place as PlaceCounter;
 use SportsPlanning\Resource\GameCounter\Unequal;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
 
-class UnequalTest extends \PHPUnit\Framework\TestCase
+class UnequalTest extends TestCase
 {
     use PlanningCreator, PlanningReplacer;
 
-    public function testCalculations()
+    public function testCalculations(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([3])

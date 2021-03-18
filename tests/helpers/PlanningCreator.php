@@ -19,7 +19,6 @@ use SportsPlanning\SelfReferee;
 
 trait PlanningCreator
 {
-
     /**
      * @return list<SportConfig>
      */

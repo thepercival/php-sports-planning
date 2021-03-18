@@ -14,7 +14,7 @@ class PouleCounterTest extends \PHPUnit\Framework\TestCase
 {
     use PlanningCreator, PlanningReplacer;
 
-    public function testCalculations()
+    public function testCalculations(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([3])

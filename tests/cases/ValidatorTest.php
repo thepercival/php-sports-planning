@@ -10,7 +10,10 @@ use SportsHelpers\SportRange;
 use SportsPlanning\Batch;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\SelfReferee;
+use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
+use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
@@ -22,7 +25,7 @@ class ValidatorTest extends TestCase
 {
     use PlanningCreator, PlanningReplacer;
 
-    public function testHasEnoughTotalNrOfGames()
+    public function testHasEnoughTotalNrOfGames(): void
     {
         $planning = $this->createPlanning($this->createInputNew([3,3]));
         $planning->getPoule(2)->getAgainstGames()->clear();
@@ -32,10 +35,11 @@ class ValidatorTest extends TestCase
         self::assertSame(PlanningValidator::NO_GAMES, $validity & PlanningValidator::NO_GAMES);
     }
 
-    public function testHasEmptyGamePlace()
+    public function testHasEmptyGamePlace(): void
     {
         $planning = $this->createPlanning($this->createInputNew([5]));
         $firstGame = $planning->getPoule(1)->getAgainstGames()->first();
+        self::assertNotFalse($firstGame);
         $firstGame->getPlaces()->clear();
 
         $planningValidator = new PlanningValidator();
@@ -43,7 +47,7 @@ class ValidatorTest extends TestCase
         self::assertSame(PlanningValidator::EMPTY_PLACE, $validity & PlanningValidator::EMPTY_PLACE);
     }
 
-    public function testHasEmptyGameField()
+    public function testHasEmptyGameField(): void
     {
         $planning = $this->createPlanning($this->createInputNew([5]));
         /** @var AgainstGame $firstGame */
@@ -55,7 +59,7 @@ class ValidatorTest extends TestCase
         self::assertSame(PlanningValidator::EMPTY_FIELD, $validity & PlanningValidator::EMPTY_FIELD);
     }
 
-    public function testHasEmptyGameRefereePlace()
+    public function testHasEmptyGameRefereePlace(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5], null, null, SelfReferee::SAMEPOULE)
@@ -81,7 +85,7 @@ class ValidatorTest extends TestCase
         );
     }
 
-    public function testEmptyGameReferee()
+    public function testEmptyGameReferee(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5])
@@ -96,7 +100,7 @@ class ValidatorTest extends TestCase
         self::assertSame(PlanningValidator::EMPTY_REFEREE, $validity & PlanningValidator::EMPTY_REFEREE);
     }
 
-    public function testAllPlacesSameNrOfGames()
+    public function testAllPlacesSameNrOfGames(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5])
@@ -112,7 +116,7 @@ class ValidatorTest extends TestCase
         self::assertSame(PlanningValidator::NOT_EQUALLY_ASSIGNED_PLACES, $planningValidator->validate($planning));
     }
 
-    public function testGamesInARow()
+    public function testGamesInARow(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5])
@@ -130,17 +134,18 @@ class ValidatorTest extends TestCase
         );
     }
 
-    public function testGameUnequalHomeAway()
+    public function testGameUnequalHomeAway(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([2])
         );
 
-        /** @var AgainstGame $planningGame */
         $planningGame = $planning->getPoule(1)->getAgainstGames()->first();
+        self::assertInstanceOf(AgainstGame::class, $planningGame);
         $firstHomeGamePlace = $planningGame->getSidePlaces(AgainstSide::HOME)->first();
         // $firstHomePlace = $firstHomeGamePlace->getPlace();
         // $firstAwayPlace = $planningGame->getPlaces(Game::AWAY)->first()->getPlace();
+        self::assertInstanceOf(AgainstGamePlace::class, $firstHomeGamePlace);
         $planningGame->getPlaces()->add($firstHomeGamePlace);
 
         $planningValidator = new PlanningValidator();
@@ -151,16 +156,18 @@ class ValidatorTest extends TestCase
         );
     }
 
-    public function testBatchMultipleFields()
+    public function testBatchMultipleFields(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5]),
             new SportRange(2, 2)
         );
 
-        /** @var AgainstGame $planningGame */
         $planningGame = $planning->getPoule(1)->getAgainstGames()->first();
-        $newFieldNr = $planningGame->getField()->getNumber() === 1 ? 2 : 1;
+        self::assertInstanceOf(AgainstGame::class, $planningGame);
+        $field = $planningGame->getField();
+        self::assertNotNull($field);
+        $newFieldNr = $field->getNumber() === 1 ? 2 : 1;
         $planningGame->setField($planning->getSport(1)->getField($newFieldNr));
 
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -174,16 +181,18 @@ class ValidatorTest extends TestCase
     }
 
 
-    public function testBatchMultipleReferees()
+    public function testBatchMultipleReferees(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5]),
             new SportRange(2, 2)
         );
 
-        /** @var AgainstGame $planningGame */
         $planningGame = $planning->getPoule(1)->getAgainstGames()->first();
-        $newRefereeNr = $planningGame->getReferee()->getNumber() === 1 ? 2 : 1;
+        self::assertInstanceOf(AgainstGame::class, $planningGame);
+        $referee = $planningGame->getReferee();
+        self::assertNotNull($referee);
+        $newRefereeNr = -$referee->getNumber() === 1 ? 2 : 1;
         $planningGame->setReferee($planning->getReferee($newRefereeNr));
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
@@ -193,7 +202,7 @@ class ValidatorTest extends TestCase
         );
     }
 
-    public function testValidResourcesPerBatch()
+    public function testValidResourcesPerBatch(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5])
@@ -204,14 +213,16 @@ class ValidatorTest extends TestCase
         self::assertSame(PlanningValidator::VALID, $validity);
     }
 
-    public function testValidateNrOfGamesPerField()
+    public function testValidateNrOfGamesPerField(): void
     {
         $sportConfig = new SportConfig(GameMode::AGAINST, 2, 3, 1);
         $planning = $this->createPlanning($this->createInputNew([4], [$sportConfig]));
 
-        /** @var AgainstGame $planningGame */
         $planningGame = $planning->getPoule(1)->getAgainstGames()->first();
-        $newFieldNr = $planningGame->getField()->getNumber() === 3 ? 1 : 3;
+        self::assertInstanceOf(AgainstGame::class, $planningGame);
+        $field = $planningGame->getField();
+        self::assertNotNull($field);
+        $newFieldNr = $field->getNumber() === 3 ? 1 : 3;
         $planningGame->setField($planning->getSport(1)->getField($newFieldNr));
 
         $planningValidator = new PlanningValidator();
@@ -222,7 +233,7 @@ class ValidatorTest extends TestCase
         );
     }
 
-    public function testValidResourcesPerReferee()
+    public function testValidResourcesPerReferee(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5], null, 3)
@@ -231,7 +242,9 @@ class ValidatorTest extends TestCase
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->output($planning, true);
 
-        $this->replaceReferee($planning->createFirstBatch(), $planning->getReferee(1), $planning->getReferee(2), 2);
+        $batch = $planning->createFirstBatch();
+        self::assertInstanceOf(Batch::class, $batch);
+        $this->replaceReferee($batch, $planning->getReferee(1), $planning->getReferee(2), 2);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->output($planning, true);
@@ -249,7 +262,7 @@ class ValidatorTest extends TestCase
         PlanningReferee $fromReferee,
         PlanningReferee $toReferee,
         int $amount = 1
-    ) {
+    ): void {
         $amountReplaced = 0;
         /** @var AgainstGame $game */
         foreach ($batch->getGames() as $game) {
@@ -261,8 +274,9 @@ class ValidatorTest extends TestCase
                 return;
             }
         }
-        if ($batch->hasNext()) {
-            $this->replaceReferee($batch->getNext(), $fromReferee, $toReferee, $amount);
+        $nextBatch = $batch->getNext();
+        if ($nextBatch !== null) {
+            $this->replaceReferee($nextBatch, $fromReferee, $toReferee, $amount);
         }
     }
 
@@ -276,7 +290,7 @@ class ValidatorTest extends TestCase
         return false;
     }
 
-    public function testInvalidAssignedRefereePlaceSamePoule()
+    public function testInvalidAssignedRefereePlaceSamePoule(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew(
@@ -287,15 +301,21 @@ class ValidatorTest extends TestCase
             )
         );
 
+        $firstBatch = $planning->createFirstBatch();
+        self::assertTrue($firstBatch instanceof SelfRefereeBatchSamePoule
+                         || $firstBatch instanceof SelfRefereeBatchOtherPoule);
         $refereePlaceService = new RefereePlaceService($planning);
-        $refereePlaceService->assign($planning->createFirstBatch());
+        $refereePlaceService->assign($firstBatch);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
 
+        $firstBatch = $planning->createFirstBatch();
+        self::assertTrue($firstBatch instanceof SelfRefereeBatchSamePoule
+                         || $firstBatch instanceof SelfRefereeBatchOtherPoule);
         $this->replaceRefereePlace(
             $planning->getInput()->getSelfReferee() !== SelfReferee::SAMEPOULE,
-            $planning->createFirstBatch(),
+            $firstBatch,
             $planning->getPoule(1)->getPlace(1),
             $planning->getPoule(2)->getPlace(1)
         );
@@ -311,15 +331,18 @@ class ValidatorTest extends TestCase
         );
     }
 
-    public function testValidResourcesPerRefereePlace()
+    public function testValidResourcesPerRefereePlace(): void
     {
         $sportConfigs = [new SportConfig(GameMode::AGAINST, 2, 1, 1)];
         $planning = $this->createPlanning(
             $this->createInputNew([5], $sportConfigs, null, SelfReferee::SAMEPOULE)
         );
 
+        $firstBatch = $planning->createFirstBatch();
+        self::assertTrue($firstBatch instanceof SelfRefereeBatchSamePoule
+                         || $firstBatch instanceof SelfRefereeBatchOtherPoule);
         $refereePlaceService = new RefereePlaceService($planning);
-        $refereePlaceService->assign($planning->createFirstBatch());
+        $refereePlaceService->assign($firstBatch);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -345,21 +368,24 @@ class ValidatorTest extends TestCase
         );
     }
 
-    public function testValidResourcesPerRefereePlaceDifferentPouleSizes()
+    public function testValidResourcesPerRefereePlaceDifferentPouleSizes(): void
     {
         $sportConfigs = [new SportConfig(GameMode::AGAINST, 2, 1, 1)];
         $planning = $this->createPlanning(
             $this->createInputNew([5,4], $sportConfigs, null, SelfReferee::OTHERPOULES)
         );
         $refereePlaceService = new RefereePlaceService($planning);
-        $refereePlaceService->assign($planning->createFirstBatch());
+        $firstBatch = $planning->createFirstBatch();
+        self::assertTrue($firstBatch instanceof SelfRefereeBatchSamePoule
+            || $firstBatch instanceof SelfRefereeBatchOtherPoule);
+        $refereePlaceService->assign($firstBatch);
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
         self::assertSame(PlanningValidator::VALID, $validity);
     }
 
-    public function testValidityDescriptions()
+    public function testValidityDescriptions(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([5,4], null, 3)
@@ -373,7 +399,9 @@ class ValidatorTest extends TestCase
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
 
-        $this->replaceReferee($planning->createFirstBatch(), $planning->getReferee(3), $planning->getReferee(1));
+        $firstBatch = $planning->createFirstBatch();
+        self::assertTrue($firstBatch instanceof Batch);
+        $this->replaceReferee($firstBatch, $planning->getReferee(3), $planning->getReferee(1));
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);

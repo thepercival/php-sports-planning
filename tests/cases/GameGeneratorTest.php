@@ -15,7 +15,7 @@ class GameGeneratorTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testGameInstanceAgainst()
+    public function testGameInstanceAgainst(): void
     {
         $defaultSportConfig = $this->getDefaultSportConfig();
         $planning = $this->createPlanning(
@@ -27,7 +27,7 @@ class GameGeneratorTest extends TestCase
         self::assertInstanceOf(AgainstGame::class, reset($games));
     }
 
-    public function testGameInstanceTogether()
+    public function testGameInstanceTogether(): void
     {
         $defaultSportConfig = $this->getDefaultSportConfig(GameMode::TOGETHER);
         $planning = $this->createPlanning(
@@ -39,7 +39,7 @@ class GameGeneratorTest extends TestCase
         self::assertInstanceOf(TogetherGame::class, reset($games));
     }
 
-    public function testMixedGameModes()
+    public function testMixedGameModes(): void
     {
         $sportConfigs = [
             new SportConfig(GameMode::AGAINST, 2, 2, 2),

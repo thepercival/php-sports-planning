@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Sport;
 
@@ -11,7 +12,7 @@ class CounterTest extends TestCase
 {
     // probably deprecated, first test planning of multiple sports
 
-    public function testConstruct()
+    public function testConstruct(): void
     {
         $nrOfGamesToGo = 3;
         $minNrOfGamesMap = [];

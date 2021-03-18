@@ -13,7 +13,7 @@ class SportsIteratorTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testRewind()
+    public function testRewind(): void
     {
         $rangeNrOfFields = new SportRange(1, 2);
         $rangeGameAmount = new SportRange(1, 2);
@@ -28,7 +28,7 @@ class SportsIteratorTest extends TestCase
         self::assertEquals(1, $sportConfig->getGameAmount());
     }
 
-    public function testLast()
+    public function testLast(): void
     {
         $rangeNrOfFields = new SportRange(1, 2);
         $rangeGameAmount = new SportRange(1, 2);
@@ -47,7 +47,7 @@ class SportsIteratorTest extends TestCase
         self::assertEquals(2, $sportConfig->getGameAmount());
     }
 
-    public function testCount()
+    public function testCount(): void
     {
         $rangeNrOfFields = new SportRange(1, 2);
         $rangeGameAmount = new SportRange(1, 2);

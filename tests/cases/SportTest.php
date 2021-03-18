@@ -11,7 +11,7 @@ class SportTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testConstruct()
+    public function testConstruct(): void
     {
         $planning = $this->createPlanning($this->createInputNew([3]));
         $sport = new Sport($planning, 1, GameMode::AGAINST, 2, 1);

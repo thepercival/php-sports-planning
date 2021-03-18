@@ -14,7 +14,7 @@ class CalculatorTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testSimple()
+    public function testSimple(): void
     {
         $calculator = new InputCalculator();
 
@@ -24,7 +24,7 @@ class CalculatorTest extends TestCase
         self::assertSame(3, $maxNrOfGamesSim);
     }
 
-    public function testOneExtra()
+    public function testOneExtra(): void
     {
         $calculator = new InputCalculator();
 

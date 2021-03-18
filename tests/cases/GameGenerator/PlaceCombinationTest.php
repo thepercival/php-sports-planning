@@ -15,17 +15,19 @@ class PlaceCombinationTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testCount()
+    public function testCount(): void
     {
         $planning = $this->createPlanning($this->createInputNew([4]));
-        $placeCombination = new PlaceCombination($planning->getPoule(1)->getPlaces()->toArray());
+        $places = array_values($planning->getPoule(1)->getPlaces()->toArray());
+        $placeCombination = new PlaceCombination($places);
         self::assertSame(4, $placeCombination->count());
     }
 
-    public function testNumber()
+    public function testNumber(): void
     {
         $planning = $this->createPlanning($this->createInputNew([4]));
-        $placeCombination = new PlaceCombination($planning->getPoule(1)->getPlaces()->toArray());
+        $places = array_values($planning->getPoule(1)->getPlaces()->toArray());
+        $placeCombination = new PlaceCombination($places);
         self::assertSame(15, $placeCombination->getNumber());
     }
 }

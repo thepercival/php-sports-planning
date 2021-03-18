@@ -14,7 +14,7 @@ class IteratorTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testRewind()
+    public function testRewind(): void
     {
         $inputIterator = new InputIterator(
             new PlaceRange(2, 6, new SportRange(2, 6)),
@@ -51,7 +51,7 @@ class IteratorTest extends TestCase
 //        self::assertEquals(2, $sportConfig->getGameAmount());
 //    }
 
-    public function testCount()
+    public function testCount(): void
     {
         $inputIterator = new InputIterator(
             new PlaceRange(2, 6, new SportRange(2, 6)),

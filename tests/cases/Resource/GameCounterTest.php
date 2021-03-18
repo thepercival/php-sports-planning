@@ -3,15 +3,16 @@
 
 namespace SportsPlanning\Tests\Resource;
 
+use PHPUnit\Framework\TestCase;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
 
-class GameCounterTest extends \PHPUnit\Framework\TestCase
+class GameCounterTest extends TestCase
 {
     use PlanningCreator, PlanningReplacer;
 
-    public function testCalculations()
+    public function testCalculations(): void
     {
         $planning = $this->createPlanning(
             $this->createInputNew([3])

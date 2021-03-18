@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-namespace RefereesPlanning\Tests;
+namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -10,7 +11,7 @@ class RefereeTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testConstruct()
+    public function testConstruct(): void
     {
         $planning = $this->createPlanning($this->createInputNew([3]));
         $referee = new Referee($planning, 1);

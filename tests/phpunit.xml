@@ -14,8 +14,8 @@
     </report>
   </coverage>
   <testsuites>
-    <testsuite name="voetbal">
-      <directory suffix=".php">./tests/cases</directory>
+    <testsuite name="php-sportss">
+      <directory suffix="Test.php">cases</directory>
     </testsuite>
   </testsuites>
   <logging/>

@@ -14,7 +14,7 @@ class PlaceCounterTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testSimple()
+    public function testSimple(): void
     {
         $planning = $this->createPlanning($this->createInputNew([5]));
         $place = $planning->getPoule(1)->getPlace(1);
@@ -22,7 +22,7 @@ class PlaceCounterTest extends TestCase
         self::assertSame(1, $placeCounter->getNumber());
     }
 
-    public function testCounter()
+    public function testCounter(): void
     {
         $planning = $this->createPlanning($this->createInputNew([5]));
         $place = $planning->getPoule(1)->getPlace(1);

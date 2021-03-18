@@ -11,7 +11,7 @@ class ServiceTest extends TestCase
 {
     use PlanningCreator;
 
-    public function test332()
+    public function test332(): void
     {
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
@@ -24,7 +24,7 @@ class ServiceTest extends TestCase
         );
     }
 
-    public function test2()
+    public function test2(): void
     {
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
@@ -37,7 +37,7 @@ class ServiceTest extends TestCase
         );
     }
 
-    public function test22SamePoule()
+    public function test22SamePoule(): void
     {
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
@@ -50,7 +50,7 @@ class ServiceTest extends TestCase
         );
     }
 
-    public function test32SamePoule()
+    public function test32SamePoule(): void
     {
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
@@ -63,7 +63,7 @@ class ServiceTest extends TestCase
         );
     }
 
-    public function test33SamePoule()
+    public function test33SamePoule(): void
     {
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
@@ -76,7 +76,7 @@ class ServiceTest extends TestCase
         );
     }
 
-    public function test3OtherPoule()
+    public function test3OtherPoule(): void
     {
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();
@@ -89,7 +89,7 @@ class ServiceTest extends TestCase
         );
     }
 
-    public function test22OtherPoule()
+    public function test22OtherPoule(): void
     {
         $inputService = new InputService();
         $defaultSportConfig = $this->getDefaultSportConfig();

@@ -12,20 +12,20 @@ class TogetherTest extends TestCase
 {
     use PlanningCreator;
 
-    public function testSimple()
+    public function testSimple(): void
     {
         $sportConfigs = [new SportConfig(GameMode::TOGETHER, 2, 2, 3)];
         $planning = $this->createPlanning(
             $this->createInputNew([7], $sportConfigs)
         );
 
-        $getPlacesDescription = function (array $togetherGamePlaces): string {
-            $description = "";
-            foreach ($togetherGamePlaces as $togetherGamePlace) {
-                $description .= $togetherGamePlace->getPlace()->getLocation() . " , ";
-            }
-            return $description;
-        };
+//        $getPlacesDescription = function (array $togetherGamePlaces): string {
+//            $description = "";
+//            foreach ($togetherGamePlaces as $togetherGamePlace) {
+//                $description .= $togetherGamePlace->getPlace()->getLocation() . " , ";
+//            }
+//            return $description;
+//        };
 
         // alle tests zitten ook in de validator, dus een beeteje dubbel om hier
         // ook nog eens alles te testen!!!!
