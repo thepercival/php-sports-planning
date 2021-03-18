@@ -2,20 +2,19 @@
 
 namespace SportsPlanning\Tests\GameGenerator;
 
+use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
-use SportsPlanning\Game\Calculator;
 use SportsPlanning\GameGenerator\Together as TogetherGameeGenerator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class TogetherTest extends \PHPUnit\Framework\TestCase
+class TogetherTest extends TestCase
 {
     use PlanningCreator;
 
     public function testSimple()
     {
-        $sportConfigs = [new SportConfig(new SportBase(GameMode::TOGETHER, 2), 2, 3)];
+        $sportConfigs = [new SportConfig(GameMode::TOGETHER, 2, 2, 3)];
         $planning = $this->createPlanning(
             $this->createInputNew([7], $sportConfigs)
         );

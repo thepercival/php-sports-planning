@@ -98,7 +98,8 @@ class SportsIterator implements \Iterator
     protected function createSportConfig(): SportConfig
     {
         return new SportConfig(
-            new SportBase($this->gameMode, $this->nrOfGamePlaces),
+            $this->gameMode,
+            $this->nrOfGamePlaces,
             $this->nrOfFields,
             $this->gameAmount
         );

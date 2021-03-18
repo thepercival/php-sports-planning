@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace SportsPlanning\TestHelper;
@@ -11,7 +10,6 @@ use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\GameMode;
 use SportsHelpers\SportRange;
-use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\GameCreator;
@@ -23,7 +21,7 @@ trait PlanningCreator
 {
 
     /**
-     * @return array|SportConfig[]
+     * @return list<SportConfig>
      */
     protected function getDefaultSportConfigs(): array
     {
@@ -35,11 +33,7 @@ trait PlanningCreator
      */
     protected function getDefaultSportConfig(int $gameMode = null): SportConfig
     {
-        return new SportConfig(
-            new SportBase($gameMode ?? GameMode::AGAINST, 2),
-            2,
-            1
-        );
+        return new SportConfig($gameMode ?? GameMode::AGAINST, 2, 2, 1);
     }
 
     protected function getLogger(): LoggerInterface
@@ -59,8 +53,8 @@ trait PlanningCreator
     }
 
     /**
-     * @param array|int[] $structureConfig
-     * @param array|SportConfig[]|null $sportConfigs
+     * @param list<int> $structureConfig
+     * @param list<SportConfig>|null $sportConfigs
      * @param int|null $nrOfReferees
      * @param int|null $selfReferee
      * @return Input

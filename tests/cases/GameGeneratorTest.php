@@ -1,10 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
@@ -42,8 +42,8 @@ class GameGeneratorTest extends TestCase
     public function testMixedGameModes()
     {
         $sportConfigs = [
-            new SportConfig(new SportBase(GameMode::AGAINST, 2), 2, 2),
-            new SportConfig(new SportBase(GameMode::TOGETHER, 2), 2, 2),
+            new SportConfig(GameMode::AGAINST, 2, 2, 2),
+            new SportConfig(GameMode::TOGETHER, 2, 2, 2),
         ];
         $planning = $this->createPlanning($this->createInputNew([4], $sportConfigs));
         $againstGames = array_filter($planning->getGames(), function (AgainstGame|TogetherGame $game): bool {

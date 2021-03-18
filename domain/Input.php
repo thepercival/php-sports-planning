@@ -85,7 +85,8 @@ class Input extends Identifiable
             $this->sportConfigs = [];
             foreach ($this->sportConfigDb as $sportConfigDb) {
                 $this->sportConfigs[] = new SportConfig(
-                    new SportBase($sportConfigDb["gameMode"], $sportConfigDb["nrOfGamePlaces"]),
+                    $sportConfigDb["gameMode"],
+                    $sportConfigDb["nrOfGamePlaces"],
                     $sportConfigDb["nrOfFields"],
                     $sportConfigDb["gameAmount"]
                 );

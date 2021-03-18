@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Input;
 
@@ -21,8 +22,8 @@ class SportsIteratorTest extends TestCase
         $sportConfig = $sportsIterator->current();
         self::assertNotNull($sportConfig);
         self::assertGreaterThan(50, $sportsIterator->key());
-        self::assertEquals(GameMode::AGAINST, $sportConfig->getSport()->getGameMode());
-        self::assertEquals(2, $sportConfig->getSport()->getNrOfGamePlaces());
+        self::assertEquals(GameMode::AGAINST, $sportConfig->getGameMode());
+        self::assertEquals(2, $sportConfig->getNrOfGamePlaces());
         self::assertEquals(1, $sportConfig->getNrOfFields());
         self::assertEquals(1, $sportConfig->getGameAmount());
     }
@@ -40,8 +41,8 @@ class SportsIteratorTest extends TestCase
         }
         self::assertNotNull($sportConfig);
 
-        self::assertEquals(GameMode::TOGETHER, $sportConfig->getSport()->getGameMode());
-        self::assertEquals(2, $sportConfig->getSport()->getNrOfGamePlaces());
+        self::assertEquals(GameMode::TOGETHER, $sportConfig->getGameMode());
+        self::assertEquals(2, $sportConfig->getNrOfGamePlaces());
         self::assertEquals(2, $sportConfig->getNrOfFields());
         self::assertEquals(2, $sportConfig->getGameAmount());
     }

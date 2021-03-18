@@ -4,7 +4,6 @@ namespace SportsPlanning\Tests\GameGenerator;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
 use SportsPlanning\GameGenerator\Against as AgainstGameGenerator;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -15,7 +14,7 @@ class AgainstTest extends TestCase
 
     public function testSimple()
     {
-        $sportConfigs = [new SportConfig(new SportBase(GameMode::AGAINST, 2), 2, 1)];
+        $sportConfigs = [new SportConfig(GameMode::AGAINST, 2, 2, 1)];
         $planning = $this->createPlanning(
             $this->createInputNew([5], $sportConfigs)
         );

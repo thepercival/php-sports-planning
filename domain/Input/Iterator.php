@@ -155,7 +155,8 @@ class Iterator implements \Iterator
         }
         $selfRefereeIsAvailable = $this->planningInputService->canSelfRefereeBeAvailable(
             $pouleStructure,
-            [$sportConfig->getSport()]);
+            [$sportConfig]
+        );
         if ($selfRefereeIsAvailable === false) {
             return $this->incrementNrOfReferees();
         }
@@ -168,7 +169,7 @@ class Iterator implements \Iterator
         } else {
             $selfRefereeSamePouleAvailable = $this->planningInputService->canSelfRefereeSamePouleBeAvailable(
                 $pouleStructure,
-                [$sportConfig->getSport()]
+                [$sportConfig]
             );
             if (!$selfRefereeSamePouleAvailable) {
                 return $this->incrementNrOfReferees();

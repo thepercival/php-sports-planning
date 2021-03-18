@@ -1,11 +1,9 @@
 <?php
-
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Planning\Input;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\GameMode;
-use SportsHelpers\SportConfig;
 use SportsPlanning\Input\Service as InputService;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -22,7 +20,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertTrue(
-            $inputService->canSelfRefereeBeAvailable($planning->getPouleStructure(), [$defaultSportConfig->getSport()])
+            $inputService->canSelfRefereeBeAvailable($planning->getPouleStructure(), [$defaultSportConfig])
         );
     }
 
@@ -35,7 +33,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertFalse(
-            $inputService->canSelfRefereeBeAvailable($planning->getPouleStructure(), [$defaultSportConfig->getSport()])
+            $inputService->canSelfRefereeBeAvailable($planning->getPouleStructure(), [$defaultSportConfig])
         );
     }
 
@@ -48,7 +46,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertFalse(
-            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig->getSport()])
+            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig])
         );
     }
 
@@ -61,7 +59,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertFalse(
-            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig->getSport()])
+            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig])
         );
     }
 
@@ -74,7 +72,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertTrue(
-            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig->getSport()])
+            $inputService->canSelfRefereeSamePouleBeAvailable($planning->getPouleStructure(), [$defaultSportConfig])
         );
     }
 

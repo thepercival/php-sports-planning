@@ -1,10 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
 use SportsHelpers\SportRange;
 use SportsPlanning\Batch;
@@ -206,7 +206,7 @@ class ValidatorTest extends TestCase
 
     public function testValidateNrOfGamesPerField()
     {
-        $sportConfig = new SportConfig(new SportBase(GameMode::AGAINST, 2), 3, 1);
+        $sportConfig = new SportConfig(GameMode::AGAINST, 2, 3, 1);
         $planning = $this->createPlanning($this->createInputNew([4], [$sportConfig]));
 
         /** @var AgainstGame $planningGame */
@@ -281,7 +281,7 @@ class ValidatorTest extends TestCase
         $planning = $this->createPlanning(
             $this->createInputNew(
                 [3,3],
-                [new SportConfig(new SportBase(GameMode::AGAINST, 2), 1, 1)],
+                [new SportConfig(GameMode::AGAINST, 2, 1, 1)],
                 null,
                 SelfReferee::SAMEPOULE
             )
@@ -313,7 +313,7 @@ class ValidatorTest extends TestCase
 
     public function testValidResourcesPerRefereePlace()
     {
-        $sportConfigs = [new SportConfig(new SportBase(GameMode::AGAINST, 2), 1, 1)];
+        $sportConfigs = [new SportConfig(GameMode::AGAINST, 2, 1, 1)];
         $planning = $this->createPlanning(
             $this->createInputNew([5], $sportConfigs, null, SelfReferee::SAMEPOULE)
         );
@@ -347,7 +347,7 @@ class ValidatorTest extends TestCase
 
     public function testValidResourcesPerRefereePlaceDifferentPouleSizes()
     {
-        $sportConfigs = [new SportConfig(new SportBase(GameMode::AGAINST, 2), 1, 1)];
+        $sportConfigs = [new SportConfig(GameMode::AGAINST, 2, 1, 1)];
         $planning = $this->createPlanning(
             $this->createInputNew([5,4], $sportConfigs, null, SelfReferee::OTHERPOULES)
         );
@@ -367,7 +367,7 @@ class ValidatorTest extends TestCase
 
         $planningValidator = new PlanningValidator();
         $planningValidator->validate($planning);
-        $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID);
+        $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID, $planning);
         self::assertCount(13, $descriptions);
 
 //        $planningOutput = new PlanningOutput();
@@ -380,7 +380,7 @@ class ValidatorTest extends TestCase
 
         $planningValidator = new PlanningValidator();
         $planningValidator->validate($planning);
-        $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID);
+        $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID, $planning);
         self::assertCount(13, $descriptions);
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Validator;
@@ -7,7 +6,6 @@ namespace SportsPlanning\Tests\Validator;
 use \Exception;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\SportBase;
 use SportsHelpers\SportConfig;
 use SportsPlanning\SelfReferee;
 use SportsPlanning\Resource\GameCounter;
@@ -29,10 +27,9 @@ class GameAssignmentsTest extends TestCase
         $validator = new GameAssignmentValidator($planning);
         $gameCounters = $validator->getCounters(GameAssignmentValidator::FIELDS);
 
-        /** @var GameCounter[] $gameFieldCounters */
-        $gameFieldCounters = $gameCounters[GameAssignmentValidator::FIELDS];
+        $fieldGameCounters = $gameCounters[GameAssignmentValidator::FIELDS];
         $field = $planning->getSport(1)->getField(1);
-        $gameFieldCounter = $gameFieldCounters[(string)$field->getNumber()];
+        $gameFieldCounter = $fieldGameCounters[$field->getUniqueIndex()];
         self::assertSame($field, $gameFieldCounter->getResource());
         self::assertSame(5, $gameFieldCounter->getNrOfGames());
     }
@@ -145,7 +142,7 @@ class GameAssignmentsTest extends TestCase
 
     public function testValidateUnequalFields()
     {
-        $sportConfig = new SportConfig(new SportBase(GameMode::AGAINST, 2), 2, 1);
+        $sportConfig = new SportConfig(GameMode::AGAINST, 2, 2, 1);
         $planning = $this->createPlanning(
             $this->createInputNew([5], [$sportConfig])
         );

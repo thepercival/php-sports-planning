@@ -125,8 +125,16 @@ class Together
             $game = $this->togetherCounter->createGame($poule, $sport, [], $gameRoundPlaces, $nrOfGamePlaces);
         }
 
+        // remove places from $gameRoundPlaces
         foreach ($game->getPlaces() as $gamePlace) {
-            $idx = array_search($gamePlace, $gameRoundPlaces, true);
+            $gameRoundPlacesToDelete = array_filter($gameRoundPlaces, function (GameRoundPlace $gameRoundPlace) use ($gamePlace): bool {
+                return $gameRoundPlace->getPlace() === $gamePlace->getPlace();
+            });
+            $gameRoundPlaceToDelete = reset($gameRoundPlacesToDelete);
+            if ($gameRoundPlaceToDelete === false) {
+                continue;
+            }
+            $idx = array_search($gameRoundPlaceToDelete, $gameRoundPlaces, true);
             if ($idx !== false) {
                 array_splice($gameRoundPlaces, $idx, 1);
             }
