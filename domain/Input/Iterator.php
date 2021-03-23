@@ -7,7 +7,7 @@ use SportsHelpers\SportConfig;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Input as PlanningInput;
 use SportsHelpers\SportRange;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 use SportsHelpers\PouleStructure\BalancedIterator as PouleStructureIterator;
 use SportsHelpers\Place\Range as PlaceRange;
 use SportsPlanning\Input\Service as PlanningInputService;

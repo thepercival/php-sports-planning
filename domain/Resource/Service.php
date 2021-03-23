@@ -9,7 +9,7 @@ use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Planning;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 use SportsPlanning\Sport;
 use SportsPlanning\Resources as Resources;
 use SportsPlanning\Input;

@@ -10,7 +10,7 @@ use SportsPlanning\Game;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Resource\GameCounter;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
 use SportsPlanning\Resource\GameCounter\Unequal as UnequalGameCounter;
 

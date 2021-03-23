@@ -5,6 +5,7 @@ namespace SportsPlanning;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use SportsHelpers\Identifiable;
+use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
 use SportsHelpers\SportConfig;
 use SportsPlanning\Input\Calculator as InputCalculator;

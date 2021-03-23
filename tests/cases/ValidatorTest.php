@@ -11,7 +11,7 @@ use SportsPlanning\Batch;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
@@ -192,8 +192,11 @@ class ValidatorTest extends TestCase
         self::assertInstanceOf(AgainstGame::class, $planningGame);
         $referee = $planningGame->getReferee();
         self::assertNotNull($referee);
-        $newRefereeNr = -$referee->getNumber() === 1 ? 2 : 1;
+        $newRefereeNr = $referee->getNumber() === 1 ? 2 : 1;
         $planningGame->setReferee($planning->getReferee($newRefereeNr));
+
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
         self::assertSame(

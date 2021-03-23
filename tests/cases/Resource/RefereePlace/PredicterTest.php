@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Resource\RefereePlace\Predicter;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
 

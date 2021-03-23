@@ -7,7 +7,7 @@ use SportsHelpers\GameMode;
 use SportsHelpers\Place\Range as PlaceRange;
 use SportsPlanning\Input\Iterator as InputIterator;
 use SportsHelpers\SportRange;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class IteratorTest extends TestCase

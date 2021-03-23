@@ -5,7 +5,7 @@ namespace SportsPlanning\Planning;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\GameMode;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\SportConfig as SportConfig;
 use SportsPlanning\Batch\Output as BatchOutput;

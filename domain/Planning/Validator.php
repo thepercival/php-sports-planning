@@ -6,7 +6,7 @@ use \Exception;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Game;
 use SportsPlanning\Poule;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Place;
 use SportsPlanning\Field;

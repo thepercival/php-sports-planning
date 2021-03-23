@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Resource\RefereePlace;
 
 use SportsPlanning\Poule;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\PouleCounter;
 

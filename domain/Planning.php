@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use SportsHelpers\Identifiable;
+use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
 use SportsHelpers\SportConfig;
 use SportsHelpers\PouleStructure;

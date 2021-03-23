@@ -15,7 +15,7 @@ use SportsPlanning\Planning;
 use SportsPlanning\Planning\GameCreator;
 use SportsPlanning\Input;
 use SportsHelpers\PouleStructure;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 
 trait PlanningCreator
 {

@@ -6,7 +6,7 @@ use DateTimeImmutable;
 use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\SelfReferee;
+use SportsHelpers\SelfReferee;
 use SportsPlanning\Planning;
 use SportsPlanning\Game;
 use SportsPlanning\Place;
