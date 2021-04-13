@@ -1,43 +1,43 @@
 <?php
-
+declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
 use SportsHelpers\PouleStructure;
-use SportsHelpers\SportConfig;
-use SportsHelpers\SportConfig\Service as SportConfigService;
+use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
+use SportsHelpers\Sport\GamePlaceCalculator;
 
 class Calculator
 {
-    protected SportConfigService $sportConfigService;
+    protected GamePlaceCalculator $sportGamePlaceCalculator;
 
     public function __construct()
     {
-        $this->sportConfigService = new SportConfigService();
+        $this->sportGamePlaceCalculator = new GamePlaceCalculator();
     }
 
     /**
      * dit aantal kan misschien niet gehaal worden, ivm variatie in poulegrootte en sportConfig->nrOfGamePlaces
      *
      * @param PouleStructure $pouleStructure
-     * @param list<SportConfig> $sportConfigs
+     * @param list<SportGameAmountVariant> $sportVariants
      * @param bool $selfReferee
      * @return int
      */
-    public function getMaxNrOfGamesPerBatch(PouleStructure $pouleStructure, array $sportConfigs, bool $selfReferee): int
+    public function getMaxNrOfGamesPerBatch(PouleStructure $pouleStructure, array $sportVariants, bool $selfReferee): int
     {
         // sort by lowest nrOfGamePlaces first
-        uasort($sportConfigs, function (SportConfig $sportConfigA, SportConfig $sportConfigB): int {
-            return $sportConfigA->getNrOfGamePlaces() < $sportConfigB->getNrOfGamePlaces() ? -1 : 1;
+        uasort($sportVariants, function (SportGameAmountVariant $sportA, SportGameAmountVariant $sportB): int {
+            return $sportA->getNrOfGamePlaces() < $sportB->getNrOfGamePlaces() ? -1 : 1;
         });
 
         $nrOfBatchGames = 0;
         $nrOfPlaces = $pouleStructure->getNrOfPlaces();
-        while ($nrOfPlaces > 0 && count($sportConfigs) > 0) {
-            $sportConfig = array_shift($sportConfigs);
-            $nrOfFields = $sportConfig->getNrOfFields();
+        while ($nrOfPlaces > 0 && count($sportVariants) > 0) {
+            $sportVariant = array_shift($sportVariants);
+            $nrOfFields = $sportVariant->getNrOfFields();
             while ($nrOfPlaces > 0 && $nrOfFields-- > 0) {
-                $nrOfPlaces -= ($sportConfig->getNrOfGamePlaces() + ($selfReferee ? 1 : 0));
+                $nrOfPlaces -= ($sportVariant->getNrOfGamePlaces() + ($selfReferee ? 1 : 0));
                 if ($nrOfPlaces >= 0) {
                     $nrOfBatchGames++;
                 }
@@ -48,24 +48,24 @@ class Calculator
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportConfig> $sportConfigs
+     * @param list<SportGameAmountVariant> $sportVariants
      * @param bool $selfReferee
      * @return int
      */
     public function getMaxNrOfGamesInARow(
         PouleStructure $pouleStructure,
-        array $sportConfigs,
+        array $sportVariants,
         bool $selfReferee
     ): int {
         // if( $gameMode === GameMode::AGAINST ) {
         $nrOfPoulesByNrOfPlaces = $pouleStructure->getNrOfPoulesByNrOfPlaces();
         $nrOfPlaces = key($nrOfPoulesByNrOfPlaces);
         $nrOfPlaces *= $nrOfPoulesByNrOfPlaces[$nrOfPlaces];
-        $maxNrOfBatchPlaces = $this->getMaxNrOfPlacesPerBatch($pouleStructure, $sportConfigs, $selfReferee);
+        $maxNrOfBatchPlaces = $this->getMaxNrOfPlacesPerBatch($pouleStructure, $sportVariants, $selfReferee);
 
         $nrOfRestPlaces = $nrOfPlaces - $maxNrOfBatchPlaces;
         if ($nrOfRestPlaces <= 0) {
-            return $this->sportConfigService->getNrOfGamesPerPlace($nrOfPlaces, $sportConfigs);
+            return $this->sportGamePlaceCalculator->getNrOfGamesPerPlace($nrOfPlaces, $sportVariants);
         }
         return (int)ceil($nrOfPlaces / $nrOfRestPlaces);
         // }
@@ -101,24 +101,24 @@ class Calculator
      * dit aantal kan misschien niet gehaal worden, ivm variatie in poulegrootte en sportConfig->nrOfGamePlaces
      *
      * @param PouleStructure $pouleStructure
-     * @param list<SportConfig> $sportConfigs
+     * @param list<SportGameAmountVariant> $sportVariants
      * @param bool $selfReferee
      * @return int
      */
-    protected function getMaxNrOfPlacesPerBatch(PouleStructure $pouleStructure, array $sportConfigs, bool $selfReferee): int
+    protected function getMaxNrOfPlacesPerBatch(PouleStructure $pouleStructure, array $sportVariants, bool $selfReferee): int
     {
         // sort by lowest nrOfGamePlaces first
-        uasort($sportConfigs, function (SportConfig $sportConfigA, SportConfig $sportConfigB): int {
-            return $sportConfigA->getNrOfGamePlaces() < $sportConfigB->getNrOfGamePlaces() ? -1 : 1;
+        uasort($sportVariants, function (SportGameAmountVariant $sportA, SportGameAmountVariant $sportB): int {
+            return $sportA->getNrOfGamePlaces() < $sportB->getNrOfGamePlaces() ? -1 : 1;
         });
 
         $nrOfBatchPlaces = 0;
         $nrOfPlaces = $pouleStructure->getNrOfPlaces();
-        while ($nrOfPlaces > 0 && count($sportConfigs) > 0) {
-            $sportConfig = array_shift($sportConfigs);
-            $nrOfFields = $sportConfig->getNrOfFields();
+        while ($nrOfPlaces > 0 && count($sportVariants) > 0) {
+            $sportVariant = array_shift($sportVariants);
+            $nrOfFields = $sportVariant->getNrOfFields();
             while ($nrOfPlaces > 0 && $nrOfFields-- > 0) {
-                $nrOfGamePlaces = ($sportConfig->getNrOfGamePlaces() + ($selfReferee ? 1 : 0));
+                $nrOfGamePlaces = ($sportVariant->getNrOfGamePlaces() + ($selfReferee ? 1 : 0));
                 $nrOfPlaces -= $nrOfGamePlaces;
                 $nrOfBatchPlaces += $nrOfGamePlaces;
             }

@@ -31,7 +31,8 @@
     "friendsofphp/php-cs-fixer": "^2.16",
     "phpstan/phpstan-strict-rules": "^0.12",
     "vimeo/psalm": "^4.6",
-    "psalm/plugin-phpunit": "^0.15.1"
+    "psalm/plugin-phpunit": "^0.15.1",
+    "weirdan/doctrine-psalm-plugin": "^1.0"
   },
   "autoload": {
     "psr-4": {
@@ -52,7 +53,7 @@
     "test": [
       "XDEBUG_MODE=coverage vendor/bin/phpunit --configuration tests/phpunit.xml tests/cases/"
     ],
-    "stan": "vendor/bin/phpstan analyse --level=5 domain tests/cases/ tests/helpers/",
+    "stan": "XDEBUG_MODE=off vendor/bin/phpstan analyse",
     "cs-fix": "php-cs-fixer fix .",
     "copy-fct": [
       "rm -rf ../fctoernooi-api/vendor/thepercival/php-sports-planning",

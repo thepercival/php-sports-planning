@@ -1,12 +1,17 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
 use SportsHelpers\GameMode;
-use SportsHelpers\SportBase;
-use SportsHelpers\SportConfig;
+use SportsHelpers\Sport\GameAmountVariant;
 use SportsHelpers\SportRange;
 
+/**
+ * @template TKey
+ * @template TValue
+ * @implements \Iterator<TKey, TValue>
+ */
 class SportsIterator implements \Iterator
 {
     protected SportRange $fieldRange;
@@ -18,7 +23,7 @@ class SportsIterator implements \Iterator
     protected int $nrOfGamePlaces;
     protected int $gameAmount;
     /**
-     * @var SportConfig|null
+     * @var GameAmountVariant|null
      */
     protected $current;
 
@@ -59,7 +64,7 @@ class SportsIterator implements \Iterator
         $this->gameAmount = $this->gameAmountRange->getMin();
     }
 
-    public function current() : SportConfig|null
+    public function current() : GameAmountVariant|null
     {
         return $this->current;
     }
@@ -81,13 +86,13 @@ class SportsIterator implements \Iterator
             $this->current = null;
             return;
         }
-        $this->current = $this->createSportConfig();
+        $this->current = $this->createGameAmountVariant();
     }
 
     public function rewind()
     {
         $this->rewindGameMode();
-        $this->current = $this->createSportConfig();
+        $this->current = $this->createGameAmountVariant();
     }
 
     public function valid() : bool
@@ -95,9 +100,9 @@ class SportsIterator implements \Iterator
         return $this->current !== null;
     }
 
-    protected function createSportConfig(): SportConfig
+    protected function createGameAmountVariant(): GameAmountVariant
     {
-        return new SportConfig(
+        return new GameAmountVariant(
             $this->gameMode,
             $this->nrOfGamePlaces,
             $this->nrOfFields,

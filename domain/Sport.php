@@ -4,28 +4,26 @@ declare(strict_types=1);
 namespace SportsPlanning;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Exception;
-use SportsHelpers\SportBase;
-use SportsHelpers\Sport\Helper as SportHelper;
-use SportsHelpers\Sport\HelperTrait as SportHelperTrait;
+use SportsHelpers\Sport\GameAmountVariant;
 
-class Sport extends SportBase implements SportHelper
+class Sport extends GameAmountVariant
 {
     /**
-     * @var ArrayCollection<int|string,Field>
+     * @phpstan-var ArrayCollection<int|string, Field>|PersistentCollection<int|string, Field>
+     * @psalm-var ArrayCollection<int|string, Field>
      */
-    protected ArrayCollection $fields;
-
-    use SportHelperTrait;
+    protected ArrayCollection|PersistentCollection $fields;
 
     public function __construct(
         protected Planning $planning,
         protected int $number,
         int $gameMode,
         int $nrOfGamePlaces,
-        protected int $gameAmount
+        int $gameAmount
     ) {
-        parent::__construct($gameMode, $nrOfGamePlaces);
+        parent::__construct($gameMode, $nrOfGamePlaces, 0, $gameAmount);
         $this->fields = new ArrayCollection();
     }
 
@@ -40,9 +38,10 @@ class Sport extends SportBase implements SportHelper
     }
 
     /**
-     * @return ArrayCollection<int|string,Field>
+     * @phpstan-return ArrayCollection<int|string, Field>|PersistentCollection<int|string, Field>
+     * @psalm-return ArrayCollection<int|string, Field>
      */
-    public function getFields(): ArrayCollection
+    public function getFields(): ArrayCollection|PersistentCollection
     {
         return $this->fields;
     }
@@ -55,5 +54,10 @@ class Sport extends SportBase implements SportHelper
             }
         }
         throw new Exception('het veld kan niet gevonden worden', E_ERROR);
+    }
+
+    public function getNrOfFields(): int
+    {
+        return $this->getFields()->count();
     }
 }

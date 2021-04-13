@@ -1,18 +1,23 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
 
+use SportsHelpers\Repository\SaveRemove as SaveRemoveRepository;
+use Doctrine\ORM\EntityRepository;
 use Exception;
-use SportsHelpers\PouleStructure;
 use SportsHelpers\Repository as BaseRepository;
-use SportsHelpers\SportRange;
-use SportsHelpers\SportConfig as SportConfig;
-use SportsPlanning\Planning;
-use SportsPlanning\Input;
+use SportsPlanning\Planning as PlanningBase;
 
-class Repository extends BaseRepository
+/**
+ * @template-extends EntityRepository<PlanningBase>
+ * @template-implements SaveRemoveRepository<PlanningBase>
+ */
+class Repository extends EntityRepository implements SaveRemoveRepository
 {
-    public function resetBatchGamePlanning(Planning $planning, int $state): void
+    use BaseRepository;
+
+    public function resetBatchGamePlanning(PlanningBase $planning, int $state): void
     {
         $planning->setState($state);
         $this->removeGamesInARowPlannings($planning);
@@ -31,7 +36,7 @@ class Repository extends BaseRepository
         $this->save($planning);
     }
 
-    protected function removeGamesInARowPlannings(Planning $batchGamePlanning): void
+    protected function removeGamesInARowPlannings(PlanningBase $batchGamePlanning): void
     {
         $gamesInARowPlannings = $batchGamePlanning->getGamesInARowPlannings();
         while (count($gamesInARowPlannings) > 0) {
@@ -41,27 +46,14 @@ class Repository extends BaseRepository
         }
     }
 
-    public function createGamesInARowPlannings(Planning $planning): void
+    public function createGamesInARowPlannings(PlanningBase $planning): void
     {
         $maxNrOfGamesInARowInput = $planning->getInput()->getMaxNrOfGamesInARow();
         for ($gamesInARow = 1; $gamesInARow <= $maxNrOfGamesInARowInput - 1; $gamesInARow++) {
-            $planning = new Planning($planning->getInput(), $planning->getNrOfBatchGames(), $gamesInARow);
+            $planning = new PlanningBase($planning->getInput(), $planning->getNrOfBatchGames(), $gamesInARow);
             $this->save($planning);
         }
     }
-
-    public function save(Planning $object): Planning
-    {
-        try {
-            $this->_em->persist($object);
-            $this->_em->flush();
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), E_ERROR);
-        }
-        return $object;
-    }
-
-
 
 //    public function hasEndSuccess(Input $input): bool
 //    {

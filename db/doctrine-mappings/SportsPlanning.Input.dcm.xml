@@ -15,7 +15,6 @@
     </one-to-many>
     <indexes>
       <index columns="nrOfReferees"/>
-      <index columns="gameMode"/>
       <index columns="selfReferee"/>
       <index columns="createdAt"/>
     </indexes>

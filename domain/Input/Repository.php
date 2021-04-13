@@ -1,83 +1,81 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
+use SportsHelpers\Repository\SaveRemove as SaveRemoveRepository;
 use Exception;
+use Doctrine\ORM\EntityRepository;
 use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\PouleStructure;
+use SportsHelpers\Sport\GameAmountVariant;
 use SportsHelpers\SportRange;
-use SportsHelpers\SportConfig;
-use SportsPlanning\Input;
+use SportsPlanning\Input as InputBase;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\Validator;
 
-class Repository extends BaseRepository
+/**
+ * @template-extends EntityRepository<InputBase>
+ * @template-implements SaveRemoveRepository<InputBase>
+ */
+class Repository extends EntityRepository implements SaveRemoveRepository
 {
+    use BaseRepository;
+
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportConfig> $sportConfigs
+     * @param list<GameAmountVariant> $sportVariants
      * @param int $nrOfReferees
      * @param int $selfReferee
-     * @return Input|null
+     * @return InputBase|null
      */
     public function get(
         PouleStructure $pouleStructure,
-        array $sportConfigs,
+        array $sportVariants,
         int $nrOfReferees,
         int $selfReferee
-    ): ?Input {
+    ): ?InputBase {
         $query = $this->createQueryBuilder('pi')
             ->where('pi.pouleStructureDb = :pouleStructure')
-            ->andWhere('pi.sportConfigDb = :sportConfig')
+            ->andWhere('pi.sportConfigDb = :sportVariant')
             ->andWhere('pi.nrOfReferees = :nrOfReferees')
             ->andWhere('pi.selfReferee = :selfReferee')
         ;
 
         $query = $query->setParameter('pouleStructure', json_encode($pouleStructure->toArray()));
-        $query = $query->setParameter('sportConfig', json_encode($this->sportConfigsToArray($sportConfigs)));
+        $query = $query->setParameter('sportVariant', json_encode($this->sportVariantsToArray($sportVariants)));
         $query = $query->setParameter('nrOfReferees', $nrOfReferees);
         $query = $query->setParameter('selfReferee', $selfReferee);
 
         $query->setMaxResults(1);
-        /** @var list<Input> $results */
+        /** @var list<InputBase> $results */
         $results = $query->getQuery()->getResult();
         $first = reset($results);
         return $first !== false ? $first : null;
     }
 
     /**
-     * @param list<SportConfig> $sportConfigs
+     * @param list<GameAmountVariant> $sportVariants
      * @return list<array<string,int>>
      */
-    protected function sportConfigsToArray(array $sportConfigs): array
+    protected function sportVariantsToArray(array $sportVariants): array
     {
-        return array_values(array_map(function (SportConfig $sportConfig): array {
-            return $sportConfig->toArray();
-        }, $sportConfigs));
+        return array_values(array_map(function (GameAmountVariant $sportVariant): array {
+            return $sportVariant->toArray();
+        }, $sportVariants));
     }
 
-    public function getFromInput(Input $input): ?Input
+    public function getFromInput(InputBase $input): ?InputBase
     {
         return $this->get(
             $input->getPouleStructure(),
-            $input->getSportConfigs(),
+            $input->getSportVariants(),
             $input->getNrOfReferees(),
             $input->getSelfReferee()
         );
     }
 
-    public function save(Input $object): Input
-    {
-        try {
-            $this->_em->persist($object);
-            $this->_em->flush();
-        } catch (Exception $e) {
-            throw new Exception($e->getMessage(), E_ERROR);
-        }
-        return $object;
-    }
-
-    public function removePlannings(Input $planningInput): void
+    public function removePlannings(InputBase $planningInput): void
     {
         while ($planning = $planningInput->getPlannings()->first()) {
             $planningInput->getPlannings()->removeElement($planning);
@@ -86,13 +84,13 @@ class Repository extends BaseRepository
         $this->_em->flush();
     }
 
-    public function reset(Input $planningInput): void
+    public function reset(InputBase $planningInput): void
     {
         $this->removePlannings($planningInput);
         $this->createBatchGamesPlannings($planningInput);
     }
 
-    public function createBatchGamesPlannings(Input $planningInput): void
+    public function createBatchGamesPlannings(InputBase $planningInput): void
     {
         $maxNrOfBatchGamesInput = $planningInput->getMaxNrOfBatchGames();
 
@@ -119,7 +117,7 @@ class Repository extends BaseRepository
      * @param int $limit
      * @param PouleStructure|null $pouleStructure
      * @param int|null $selfReferee
-     * @return list<Input>
+     * @return list<InputBase>
      */
     public function findNotValidated(
         bool $validateInvalid,
@@ -127,9 +125,9 @@ class Repository extends BaseRepository
         PouleStructure $pouleStructure = null,
         int $selfReferee = null
     ): array {
-        $exprNot = $this->getEM()->getExpressionBuilder();
-        $exprInvalidStates = $this->getEM()->getExpressionBuilder();
-        $exprNotValidated = $this->getEM()->getExpressionBuilder();
+        $exprNot = $this->_em->getExpressionBuilder();
+        $exprInvalidStates = $this->_em->getExpressionBuilder();
+        $exprNotValidated = $this->_em->getExpressionBuilder();
         $validOperator = '<';
         if ($validateInvalid) {
             $validOperator = '<>';
@@ -140,7 +138,7 @@ class Repository extends BaseRepository
             ->andWhere(
                 $exprNot->not(
                     $exprInvalidStates->exists(
-                        $this->getEM()->createQueryBuilder()
+                        $this->_em->createQueryBuilder()
                             ->select('p1.id')
                             ->from('SportsPlanning\Planning', 'p1')
                             ->where('p1.input = pi')
@@ -151,7 +149,7 @@ class Repository extends BaseRepository
             )
             ->orWhere(
                 $exprNotValidated->exists(
-                    $this->getEM()->createQueryBuilder()
+                    $this->_em->createQueryBuilder()
                         ->select('p2.id')
                         ->from('SportsPlanning\Planning', 'p2')
                         ->where('p2.input = pi')
@@ -174,7 +172,7 @@ class Repository extends BaseRepository
                 ->andWhere('pi.selfReferee = :selfReferee')
                 ->setParameter('selfReferee', $selfReferee);
         }
-        /** @var list<Input> $inputs */
+        /** @var list<InputBase> $inputs */
         $inputs = $query->getQuery()->getResult();
         return $inputs;
     }
@@ -182,27 +180,27 @@ class Repository extends BaseRepository
     // select * from planninginputs where exists( select * from  plannings where gamesinarow = 0 and state = timedout ) and  structure;
 
 
-    public function findGamesInARowTimedout(int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?Input
+    public function findGamesInARowTimedout(int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?InputBase
     {
         return $this->findTimedout(false, $maxTimeoutSeconds, $pouleStructure);
     }
 
-    public function findBatchGamestTimedout(int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?Input
+    public function findBatchGamestTimedout(int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?InputBase
     {
         return $this->findTimedout(true, $maxTimeoutSeconds, $pouleStructure);
     }
 
-    protected function findTimedout(bool $bBatchGames, int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?Input
+    protected function findTimedout(bool $bBatchGames, int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?InputBase
     {
-        $exprNot = $this->getEM()->getExpressionBuilder();
-        $exprInputWithToBeProcessedPlannings = $this->getEM()->getExpressionBuilder();
-        $exprTimedoutPlannings = $this->getEM()->getExpressionBuilder();
+        $exprNot = $this->_em->getExpressionBuilder();
+        $exprInputWithToBeProcessedPlannings = $this->_em->getExpressionBuilder();
+        $exprTimedoutPlannings = $this->_em->getExpressionBuilder();
 
         $query = $this->createQueryBuilder('pi')
             ->andWhere(
                 $exprNot->not(
                     $exprInputWithToBeProcessedPlannings->exists(
-                        $this->getEM()->createQueryBuilder()
+                        $this->_em->createQueryBuilder()
                             ->select('p1.id')
                             ->from('SportsPlanning\Planning', 'p1')
                             ->where('p1.input = pi')
@@ -213,7 +211,7 @@ class Repository extends BaseRepository
             )
             ->andWhere(
                 $exprTimedoutPlannings->exists(
-                    $this->getEM()->createQueryBuilder()
+                    $this->_em->createQueryBuilder()
                         ->select('p.id')
                         ->from('SportsPlanning\Planning', 'p')
                         ->where('p.input = pi')
@@ -235,7 +233,7 @@ class Repository extends BaseRepository
         }
 
         $query->setMaxResults(1);
-        /** @var list<Input> $results */
+        /** @var list<InputBase> $results */
         $results = $query->getQuery()->getResult();
         $first = reset($results);
         return $first === false ? null : $first;

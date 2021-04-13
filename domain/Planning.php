@@ -7,11 +7,12 @@ namespace SportsPlanning;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Exception;
 use SportsHelpers\Identifiable;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsHelpers\SportRange;
-use SportsHelpers\SportConfig;
 use SportsHelpers\PouleStructure;
 
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
@@ -28,17 +29,20 @@ class Planning extends Identifiable
     protected int $state;
     protected int $validity = -1;
     /**
-     * @var ArrayCollection<int|string,Poule>
+     * @phpstan-var ArrayCollection<int|string, Poule>|PersistentCollection<int|string, Poule>
+     * @psalm-var ArrayCollection<int|string, Poule>
      */
-    protected ArrayCollection $poules;
+    protected ArrayCollection|PersistentCollection $poules;
     /**
-     * @var ArrayCollection<int|string,Sport>
+     * @phpstan-var ArrayCollection<int|string, Sport>|PersistentCollection<int|string, Sport>
+     * @psalm-var ArrayCollection<int|string, Sport>
      */
-    protected ArrayCollection $sports;
+    protected ArrayCollection|PersistentCollection $sports;
     /**
-     * @var ArrayCollection<int|string,Referee>
+     * @phpstan-var ArrayCollection<int|string, Referee>|PersistentCollection<int|string, Referee>
+     * @psalm-var ArrayCollection<int|string, Referee>
      */
-    protected ArrayCollection $referees;
+    protected ArrayCollection|PersistentCollection $referees;
 
     const STATE_TOBEPROCESSED = 1;
     const STATE_SUCCEEDED = 2;
@@ -60,7 +64,7 @@ class Planning extends Identifiable
         $this->maxNrOfBatchGames = $nrOfBatchGames->getMax();
         $this->input->getPlannings()->add($this);
         $this->initPoules($this->getInput()->getPouleStructure());
-        $this->initSports($this->getInput()->getSportConfigs());
+        $this->initSports($this->getInput()->getSportVariants());
         $this->initReferees($this->getInput()->getNrOfReferees());
 
         $this->createdDateTime = new DateTimeImmutable();
@@ -135,7 +139,7 @@ class Planning extends Identifiable
     public function getDefaultTimeoutSeconds(): int
     {
         $defaultTimeoutSecondds = Planning::DEFAULT_TIMEOUTSECONDS;
-        if ($this->input->getPouleStructure()->getNrOfGames($this->getInput()->getSportConfigs()) > 50) {
+        if ($this->input->getPouleStructure()->getNrOfGames($this->getInput()->getSportVariants()) > 50) {
             $defaultTimeoutSecondds *= 2;
         }
         return $defaultTimeoutSecondds;
@@ -167,9 +171,10 @@ class Planning extends Identifiable
     }
 
     /**
-     * @return ArrayCollection<int|string,Poule>
+     * @phpstan-return ArrayCollection<int|string, Poule>|PersistentCollection<int|string, Poule>
+     * @psalm-return ArrayCollection<int|string, Poule>
      */
-    public function getPoules(): ArrayCollection
+    public function getPoules(): ArrayCollection|PersistentCollection
     {
         return $this->poules;
     }
@@ -202,13 +207,14 @@ class Planning extends Identifiable
         foreach ($this->getPoules() as $poule) {
             $poules[] = $poule->getPlaces()->count();
         }
-        return new PouleStructure($poules);
+        return new PouleStructure(...$poules);
     }
 
     /**
-     * @return ArrayCollection<int|string,Sport>
+     * @phpstan-return ArrayCollection<int|string, Sport>|PersistentCollection<int|string, Sport>
+     * @psalm-return ArrayCollection<int|string, Sport>
      */
-    public function getSports(): ArrayCollection
+    public function getSports(): ArrayCollection|PersistentCollection
     {
         return $this->sports;
     }
@@ -224,47 +230,45 @@ class Planning extends Identifiable
     }
 
     /**
-     * @param list<SportConfig> $sportConfigs
+     * @param list<SportGameAmountVariant> $sportVariants
      */
-    protected function initSports(array $sportConfigs): void
+    protected function initSports(array $sportVariants): void
     {
-        $fieldNr = 1;
         $this->sports = new ArrayCollection();
-        foreach ($sportConfigs as $sportConfig) {
+        foreach ($sportVariants as $sportVariant) {
             $sport = new Sport(
                 $this,
                 $this->sports->count() + 1,
-                $sportConfig->getGameMode(),
-                $sportConfig->getNrOfGamePlaces(),
-                $sportConfig->getGameAmount(),
+                $sportVariant->getGameMode(),
+                $sportVariant->getNrOfGamePlaces(),
+                $sportVariant->getGameAmount(),
             );
             $this->sports->add($sport);
-            for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportConfig->getNrOfFields() ; $fieldNrDelta++) {
+            for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportVariant->getNrOfFields() ; $fieldNrDelta++) {
                 new Field($sport);
             }
-            $fieldNr += $sport->getFields()->count();
         }
     }
 
     /**
-     * @return ArrayCollection<int|string,Field>
+     * @return list<Field>
      */
-    public function getFields(): ArrayCollection
+    public function getFields(): array
     {
-        /** @var ArrayCollection<int|string,Field> $fields */
-        $fields = new ArrayCollection();
+        $fields = [];
         foreach ($this->getSports() as $sport) {
             foreach ($sport->getFields() as $field) {
-                $fields->add($field);
+                array_push($fields, $field);
             }
         }
         return $fields;
     }
 
     /**
-     * @return ArrayCollection<int|string,Referee>
+     * @phpstan-return ArrayCollection<int|string, Referee>|PersistentCollection<int|string, Referee>
+     * @psalm-return ArrayCollection<int|string, Referee>
      */
-    public function getReferees(): ArrayCollection
+    public function getReferees(): ArrayCollection|PersistentCollection
     {
         return $this->referees;
     }
@@ -321,11 +325,7 @@ class Planning extends Identifiable
         if ($order === Game::ORDER_BY_BATCH) {
             uasort($games, function (Game $g1, Game  $g2): int {
                 if ($g1->getBatchNr() === $g2->getBatchNr()) {
-                    $field1 = $g1->getField();
-                    $field2 = $g2->getField();
-                    $fieldNr1 = $field1 !== null ? $field1->getNumber() : 0;
-                    $fieldNr2 = $field2 !== null ? $field2->getNumber() : 0;
-                    return $fieldNr1 - $fieldNr2;
+                    return $g1->getField()->getUniqueIndex() <= $g2->getField()->getUniqueIndex() ? -1 : 1;
                 }
                 return $g1->getBatchNr() - $g2->getBatchNr();
             });
@@ -344,11 +344,11 @@ class Planning extends Identifiable
     }
 
     /**
-     * @return ArrayCollection<int|string,Place>
+     * @return ArrayCollection<int|string, Place>
      */
     public function getPlaces(): ArrayCollection
     {
-        /** @var ArrayCollection<int|string,Place> $places */
+        /** @var ArrayCollection<int|string, Place> $places */
         $places = new ArrayCollection();
         foreach ($this->getPoules() as $poule) {
             foreach ($poule->getPlaces() as $place) {

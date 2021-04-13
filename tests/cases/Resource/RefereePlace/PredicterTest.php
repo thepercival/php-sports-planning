@@ -32,7 +32,7 @@ class PredicterTest extends TestCase
     public function testSamePouleNotEnoughRefereePlaces(): void
     {
         self::expectException(\Exception::class);
-        $planning = $this->createPlanning(
+        $this->createPlanning(
             $this->createInputNew([2], null, null, SelfReferee::SAMEPOULE)
         );
     }

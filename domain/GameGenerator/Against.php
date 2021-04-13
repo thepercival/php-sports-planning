@@ -166,7 +166,7 @@ class Against
     protected function toGames(Poule $poule, array $homeAways, int $gameAmount): array
     {
         return array_map(function (AgainstHomeAway $homeAway) use ($poule, $gameAmount) : AgainstGame {
-            $game = new AgainstGame($poule, $gameAmount, $homeAway->getSport());
+            $game = new AgainstGame($poule, $gameAmount, $homeAway->getSport()->getField(1));
             foreach ([AgainstSide::HOME, AgainstSide::AWAY] as $homeAwayValue) {
                 foreach ($homeAway->get($homeAwayValue)->getPlaces() as $place) {
                     new AgainstGamePlace($game, $place, $homeAwayValue);

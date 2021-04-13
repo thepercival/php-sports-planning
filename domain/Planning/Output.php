@@ -7,7 +7,7 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\GameMode;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\Output as OutputHelper;
-use SportsHelpers\SportConfig as SportConfig;
+use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Planning;
@@ -78,10 +78,10 @@ class Output extends OutputHelper
 
     public function getInputAsString(PlanningInput $input, string $prefix = null, string $suffix = null): string
     {
-        $sports = array_map(function (SportConfig $sportConfig): string {
-            return $this->getSportConfigAsString($sportConfig);
-        }, $input->getSportConfigs());
-        $output = 'id ' . $input->getId() . ' => structure [' . implode(
+        $sports = array_map(function (SportGameAmountVariant $sportGameAmountVariant): string {
+            return (string)$sportGameAmountVariant;
+        }, $input->getSportVariants());
+        $output = 'id ' . ($input->getId() ?? '?') . ' => structure [' . implode(
             '|',
             $input->getPouleStructure()->toArray()
         ) . ']'
@@ -89,14 +89,6 @@ class Output extends OutputHelper
             . ', referees ' . $input->getNrOfReferees()
             . ', selfRef ' . $this->getSelfRefereeAsString($input->getSelfReferee());
         return ($prefix ?? '') . $output . ($suffix ?? '');
-    }
-
-    public function getSportConfigAsString(SportConfig $sportConfig): string
-    {
-        return ($sportConfig->getGameMode() === GameMode::AGAINST ? 'A' : 'T') . '-' .
-            $sportConfig->getNrOfFields() . '-' .
-            $sportConfig->getNrOfGamePlaces() . '-' .
-            $sportConfig->getGameAmount();
     }
 
     public function getSelfRefereeAsString(int $selfReferee): string

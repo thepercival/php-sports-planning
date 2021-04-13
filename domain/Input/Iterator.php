@@ -3,7 +3,8 @@
 namespace SportsPlanning\Input;
 
 use SportsHelpers\PouleStructure\Balanced as BalancedPouleStructure;
-use SportsHelpers\SportConfig;
+use SportsHelpers\Sport\GameAmountVariant;
+use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Input as PlanningInput;
 use SportsHelpers\SportRange;
@@ -12,9 +13,17 @@ use SportsHelpers\PouleStructure\BalancedIterator as PouleStructureIterator;
 use SportsHelpers\Place\Range as PlaceRange;
 use SportsPlanning\Input\Service as PlanningInputService;
 
+/**
+ * @template TKey
+ * @template TValue
+ * @implements \Iterator<TKey, TValue>
+ */
 class Iterator implements \Iterator
 {
     protected PouleStructureIterator $structureIterator;
+    /**
+     * @var SportsIterator<string, GameAmountVariant>
+     */
     protected SportsIterator $sportsIterator;
     protected SportRange $rangeNrOfReferees;
     protected PlanningInputService $planningInputService;
@@ -84,11 +93,11 @@ class Iterator implements \Iterator
         }
 
         $pouleStructure = $this->structureIterator->current();
-        $sportConfig = $this->sportsIterator->current();
-        if ($pouleStructure === null || $sportConfig === null) {
+        $sportVariant = $this->sportsIterator->current();
+        if ($pouleStructure === null || $sportVariant === null) {
             return;
         }
-        $this->current = $this->createInput($pouleStructure, $sportConfig);
+        $this->current = $this->createInput($pouleStructure, $sportVariant);
 
 //        $maxNrOfRefereesInPlanning = $planningInput->getMaxNrOfBatchGames(
 //            Resources::FIELDS + Resources::PLACES
@@ -115,12 +124,12 @@ class Iterator implements \Iterator
     {
         $this->rewindStructure();
         $pouleStructure = $this->structureIterator->current();
-        $sportConfig = $this->sportsIterator->current();
+        $sportVariant = $this->sportsIterator->current();
 
-        if ($pouleStructure === null || $sportConfig === null) {
+        if ($pouleStructure === null || $sportVariant === null) {
             return;
         }
-        $this->current = $this->createInput($pouleStructure, $sportConfig);
+        $this->current = $this->createInput($pouleStructure, $sportVariant);
     }
 
     public function valid() : bool
@@ -128,11 +137,11 @@ class Iterator implements \Iterator
         return $this->current !== null;
     }
 
-    protected function createInput(BalancedPouleStructure $pouleStructure, SportConfig $sportConfig): PlanningInput
+    protected function createInput(BalancedPouleStructure $pouleStructure, SportGameAmountVariant $sportVariant): PlanningInput
     {
         return new PlanningInput(
             $pouleStructure,
-            [$sportConfig],
+            [$sportVariant],
             $this->nrOfReferees,
             $this->selfReferee
         );
@@ -149,13 +158,13 @@ class Iterator implements \Iterator
             return $this->incrementNrOfReferees();
         }
         $pouleStructure = $this->structureIterator->current();
-        $sportConfig = $this->sportsIterator->current();
-        if ($pouleStructure === null || $sportConfig === null) {
+        $sportVariant = $this->sportsIterator->current();
+        if ($pouleStructure === null || $sportVariant === null) {
             return $this->incrementNrOfReferees();
         }
         $selfRefereeIsAvailable = $this->planningInputService->canSelfRefereeBeAvailable(
             $pouleStructure,
-            [$sportConfig]
+            [$sportVariant]
         );
         if ($selfRefereeIsAvailable === false) {
             return $this->incrementNrOfReferees();
@@ -169,7 +178,7 @@ class Iterator implements \Iterator
         } else {
             $selfRefereeSamePouleAvailable = $this->planningInputService->canSelfRefereeSamePouleBeAvailable(
                 $pouleStructure,
-                [$sportConfig]
+                [$sportVariant]
             );
             if (!$selfRefereeSamePouleAvailable) {
                 return $this->incrementNrOfReferees();

@@ -9,7 +9,6 @@ use SportsHelpers\Identifiable;
 
 abstract class Game extends Identifiable
 {
-    protected Field|null $field = null;
     protected int $batchNr = 0;
     protected Place|null $refereePlace = null;
     protected Referee|null $referee = null;
@@ -21,7 +20,7 @@ abstract class Game extends Identifiable
     public const ORDER_BY_BATCH = 1;
     // public const ORDER_BY_GAMENUMBER = 2;
 
-    public function __construct(protected Poule $poule, protected Sport $sport)
+    public function __construct(protected Poule $poule, protected Field $field)
     {
     }
 
@@ -32,7 +31,7 @@ abstract class Game extends Identifiable
 
     public function getSport(): Sport
     {
-        return $this->sport;
+        return $this->field->getSport();
     }
 
     public function getBatchNr(): int
@@ -73,7 +72,7 @@ abstract class Game extends Identifiable
         $this->referee = null;
     }
 
-    public function getField(): ?Field
+    public function getField(): Field
     {
         return $this->field;
     }
@@ -81,10 +80,5 @@ abstract class Game extends Identifiable
     public function setField(Field $field): void
     {
         $this->field = $field;
-    }
-
-    public function emptyField(): void
-    {
-        $this->field = null;
     }
 }

@@ -52,7 +52,7 @@ class TogetherCounter
             $base[] = $gameRoundPlace;
         }
         $this->increment($this->mapToPlaces($base));
-        $game = new TogetherGame($poule, $sport);
+        $game = new TogetherGame($poule, $sport->getField(1));
         foreach ($base as $basePlace) {
             new TogetherGamePlace($game, $basePlace->getPlace(), $basePlace->getGameRoundNumber());
         }

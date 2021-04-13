@@ -5,7 +5,7 @@ namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\SportConfig;
+use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\GameGenerator;
@@ -17,9 +17,9 @@ class GameGeneratorTest extends TestCase
 
     public function testGameInstanceAgainst(): void
     {
-        $defaultSportConfig = $this->getDefaultSportConfig();
+        $defaultSportVariant = $this->getDefaultSportVariant();
         $planning = $this->createPlanning(
-            $this->createInputNew([2], [$defaultSportConfig], 0)
+            $this->createInputNew([2], [$defaultSportVariant], 0)
         );
         $gameGenerator = new GameGenerator();
         $gameGenerator->generateGames($planning);
@@ -29,9 +29,9 @@ class GameGeneratorTest extends TestCase
 
     public function testGameInstanceTogether(): void
     {
-        $defaultSportConfig = $this->getDefaultSportConfig(GameMode::TOGETHER);
+        $defaultSportVariant = $this->getDefaultSportVariant(GameMode::TOGETHER);
         $planning = $this->createPlanning(
-            $this->createInputNew([2], [$defaultSportConfig], 0)
+            $this->createInputNew([2], [$defaultSportVariant], 0)
         );
         $gameGenerator = new GameGenerator();
         $gameGenerator->generateGames($planning);
@@ -41,11 +41,11 @@ class GameGeneratorTest extends TestCase
 
     public function testMixedGameModes(): void
     {
-        $sportConfigs = [
-            new SportConfig(GameMode::AGAINST, 2, 2, 2),
-            new SportConfig(GameMode::TOGETHER, 2, 2, 2),
+        $sportVariants = [
+            new SportGameAmountVariant(GameMode::AGAINST, 2, 2, 2),
+            new SportGameAmountVariant(GameMode::TOGETHER, 2, 2, 2),
         ];
-        $planning = $this->createPlanning($this->createInputNew([4], $sportConfigs));
+        $planning = $this->createPlanning($this->createInputNew([4], $sportVariants));
         $againstGames = array_filter($planning->getGames(), function (AgainstGame|TogetherGame $game): bool {
             return $game instanceof AgainstGame;
         });

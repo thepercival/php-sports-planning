@@ -45,8 +45,7 @@ class Output extends OutputHelper
         $refDescr = ($refereePlace !== null ? $refereePlace->getLocation() : ($referee !== null ? $referee->getNumber() : ''));
         $refNumber = ($useColors ? ($refereePlace !== null ? $refereePlace->getNumber() : ($referee !== null ? $referee->getNumber() : 0)) : -1);
         $batchColor = $useColors ? ($game->getBatchNr() % 10) : -1;
-        $field = $game->getField();
-        $fieldNr = $field !== null ? $field->getNumber() : -1;
+        $fieldNr = $game->getField()->getNumber();
         $fieldColor = $useColors ? $fieldNr : -1;
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
@@ -56,7 +55,7 @@ class Output extends OutputHelper
             . ', ' . $this->outputPlaces($game, $batch)
             . ' , ' . $this->outputColor($refNumber, 'ref ' . $refDescr)
             . ', ' . $this->outputColor($fieldColor, 'field ' . $fieldNr)
-            . ', sport ' . ($field !== null ? $game->getSport()->getNumber() : -1)
+            . ', sport ' . $game->getSport()->getNumber()
         );
     }
 

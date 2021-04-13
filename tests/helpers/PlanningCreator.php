@@ -9,8 +9,8 @@ use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\GameMode;
+use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsHelpers\SportRange;
-use SportsHelpers\SportConfig;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\GameCreator;
 use SportsPlanning\Input;
@@ -20,19 +20,16 @@ use SportsHelpers\SelfReferee;
 trait PlanningCreator
 {
     /**
-     * @return list<SportConfig>
+     * @return list<SportGameAmountVariant>
      */
-    protected function getDefaultSportConfigs(): array
+    protected function getDefaultSportVariants(): array
     {
-        return [$this->getDefaultSportConfig()];
+        return [$this->getDefaultSportVariant()];
     }
 
-    /**
-     * @return SportConfig
-     */
-    protected function getDefaultSportConfig(int $gameMode = null): SportConfig
+    protected function getDefaultSportVariant(int $gameMode = null): SportGameAmountVariant
     {
-        return new SportConfig($gameMode ?? GameMode::AGAINST, 2, 2, 1);
+        return new SportGameAmountVariant($gameMode ?? GameMode::AGAINST, 2, 2, 1);
     }
 
     protected function getLogger(): LoggerInterface
@@ -53,19 +50,19 @@ trait PlanningCreator
 
     /**
      * @param list<int> $structureConfig
-     * @param list<SportConfig>|null $sportConfigs
+     * @param list<SportGameAmountVariant>|null $sportVariants
      * @param int|null $nrOfReferees
      * @param int|null $selfReferee
      * @return Input
      */
     protected function createInputNew(
         array $structureConfig,
-        array $sportConfigs = null,
+        array $sportVariants = null,
         int $nrOfReferees = null,
         int $selfReferee = null
     ) {
-        if ($sportConfigs === null) {
-            $sportConfigs = $this->getDefaultSportConfigs();
+        if ($sportVariants === null) {
+            $sportVariants = $this->getDefaultSportVariants();
         }
         if ($nrOfReferees === null) {
             $nrOfReferees = $this->getDefaultNrOfReferees();
@@ -74,8 +71,8 @@ trait PlanningCreator
             $selfReferee = SelfReferee::DISABLED;
         }
         return new Input(
-            new PouleStructure($structureConfig),
-            $sportConfigs,
+            new PouleStructure(...$structureConfig),
+            $sportVariants,
             $nrOfReferees,
             $selfReferee
         );

@@ -19,7 +19,7 @@ class GameGenerator
 
     public function generateGames(Planning $planning): void
     {
-        $sports = array_values($planning->getSports()->toArray());
+        $sports = $this->prepareSports($planning);
         $againstGenerator = new AgainstGenerator();
         $togetherGenerator = new TogetherGenerator();
         foreach ($planning->getPoules() as $poule) {
@@ -33,4 +33,21 @@ class GameGenerator
 //        public const IncrementalRandom = 3;
 //        public const IncrementalRanking = 4;
     }
+
+    /**
+     * @param Planning $planning
+     * @return list<Sport>
+     */
+    public function prepareSports(Planning $planning): array
+    {
+        $sports = [];
+        foreach( $planning->getSports() as $sport ) {
+            array_push($sports, $sport);
+            if($sport->getFields()->count() === 0 ) {
+                new Field($sport);
+            }
+        }
+        return $sports;
+    }
+
 }

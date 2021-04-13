@@ -3,10 +3,6 @@
 namespace SportsPlanning\Tests\GameGenerator;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\GameMode;
-use SportsHelpers\SportBase;
-use SportsHelpers\SportConfig;
-use SportsPlanning\GameGenerator\Against as AgainstGameGenerator;
 use SportsPlanning\GameGenerator\PlaceCounter;
 use SportsPlanning\TestHelper\PlanningCreator;
 

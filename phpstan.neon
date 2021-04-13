@@ -2,3 +2,7 @@ parameters:
     level: 8
     inferPrivatePropertyTypeFromConstructor:
         true
+    paths:
+        - domain/
+        - tests/cases/
+        - tests/helpers/

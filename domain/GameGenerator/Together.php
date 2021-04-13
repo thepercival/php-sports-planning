@@ -116,7 +116,6 @@ class Together
 //        $current = array_filter( $gameRoundPlaces, function(GameRoundPlace $gameRoundPlace) use ( $gameRoundNumber ): bool {
 //            return $gameRoundPlace->getGameRoundNumber() === $gameRoundNumber;
 //        });
-        $game = null;
         if ($nextGameRoundPlaces !== null) {
             $nextGameRoundPlacesSameLocation = $this->removeSameLocation($nextGameRoundPlaces, $gameRoundPlaces);
             $game = $this->togetherCounter->createGame($poule, $sport, $gameRoundPlaces, $nextGameRoundPlaces, $nrOfGamePlaces);

@@ -5,23 +5,25 @@ declare(strict_types=1);
 namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
+use SportsPlanning\Field;
 use SportsPlanning\Game as GameBase;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
-use SportsPlanning\Sport;
 
 class Together extends GameBase
 {
     // protected int $gameAmountNumber;
     /**
-     * @var ArrayCollection<int|string,TogetherGamePlace>
+     * @phpstan-var ArrayCollection<int|string, TogetherGamePlace>|PersistentCollection<int|string, TogetherGamePlace>
+     * @psalm-var ArrayCollection<int|string, TogetherGamePlace>
      */
-    protected ArrayCollection $places;
+    protected ArrayCollection|PersistentCollection $places;
 
-    public function __construct(Poule $poule, Sport $sport)
+    public function __construct(Poule $poule, Field $field)
     {
-        parent::__construct($poule, $sport);
+        parent::__construct($poule, $field);
         $this->places = new ArrayCollection();
         $this->poule->getTogetherGames()->add($this);
     }
@@ -31,20 +33,17 @@ class Together extends GameBase
         return $this->batchNr;
     }
 
-    /**
-     * @return void
-     */
-    public function setBatchNr(int $batchNr)
+    public function setBatchNr(int $batchNr): void
     {
         $this->batchNr = $batchNr;
     }
 
-
     /**
      * @param int|null $gameRoundNumber
-     * @return ArrayCollection<int|string,TogetherGamePlace>
+     * @phpstan-return ArrayCollection<int|string, TogetherGamePlace>|PersistentCollection<int|string, TogetherGamePlace>
+     * @psalm-return ArrayCollection<int|string, TogetherGamePlace>
      */
-    public function getPlaces(int|null $gameRoundNumber = null): ArrayCollection
+    public function getPlaces(int|null $gameRoundNumber = null): ArrayCollection|PersistentCollection
     {
         if ($gameRoundNumber === null) {
             return $this->places;

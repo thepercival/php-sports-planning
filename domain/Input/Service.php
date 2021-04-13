@@ -2,7 +2,7 @@
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\SportBase as Sport;
+use SportsHelpers\Sport\Variant as SportVariant;
 use SportsHelpers\PouleStructure;
 
 class Service
@@ -23,7 +23,7 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<Sport> $sports
+     * @param list<SportVariant> $sports
      * @return bool
      */
     public function canSelfRefereeBeAvailable(PouleStructure $pouleStructure, array $sports): bool
@@ -39,7 +39,7 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<Sport> $sports
+     * @param list<SportVariant> $sports
      * @return bool
      */
     public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, array $sports): bool

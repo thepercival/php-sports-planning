@@ -43,7 +43,6 @@ class Replacer
     public function replaceUnequals(Planning $planning, SelfRefereeBatch $firstBatch): bool
     {
         $gameAssignmentValidator = new GameAssignmentValidator($planning);
-        /** @var list<UnequalGameCounter> $unequals */
         $unequals = $gameAssignmentValidator->getRefereePlaceUnequals();
         if (count($unequals) === 0) {
             return true;

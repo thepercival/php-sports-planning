@@ -23,7 +23,6 @@ class Validator
     public const VALID = 0;
     public const NO_GAMES = 1;
     public const EMPTY_PLACE = 2;
-    public const EMPTY_FIELD = 4;
     public const EMPTY_REFEREE = 8;
     public const EMPTY_REFEREEPLACE = 16;
     public const UNEQUAL_GAME_HOME_AWAY = 32;
@@ -80,9 +79,6 @@ class Validator
         }
         if (($validity & self::EMPTY_PLACE) === self::EMPTY_PLACE) {
             $invalidations[] = "the planning has a game with an empty place";
-        }
-        if (($validity & self::EMPTY_FIELD) === self::EMPTY_FIELD) {
-            $invalidations[] = "the planning has a game with no field";
         }
         if (($validity & self::EMPTY_REFEREE) === self::EMPTY_REFEREE) {
             $invalidations[] = "the planning has a game with no referee";
@@ -166,15 +162,11 @@ class Validator
                 return self::EMPTY_PLACE;
             }
             $places = $game->getPoulePlaces();
-            /** @var Place $place */
             foreach ($places as $place) {
                 if (array_key_exists($place->getLocation(), $nrOfGames) === false) {
                     $nrOfGames[$place->getLocation()] = 0;
                 }
                 $nrOfGames[$place->getLocation()]++;
-            }
-            if ($game->getField() === null) {
-                return self::EMPTY_FIELD;
             }
             if ($planning->getInput()->selfRefereeEnabled()) {
                 $refereePlace = $game->getRefereePlace();
@@ -212,7 +204,6 @@ class Validator
         if ($planning->getMaxNrOfGamesInARow() === 0) {
             return self::VALID;
         }
-        /** @var Poule $poule */
         foreach ($planning->getPoules() as $poule) {
             foreach ($poule->getPlaces() as $place) {
                 if ($this->checkGamesInARowForPlace($planning, $place) === false) {
@@ -284,47 +275,37 @@ class Validator
     protected function validateResourcesPerBatch(Planning $planning): int
     {
         $games = $planning->getGames(Game::ORDER_BY_BATCH);
-        /** @var array<string,list<Place>|list<Field>|list<Referee>> $batchMap */
         $batchMap = [];
         foreach ($games as $game) {
             if (array_key_exists($game->getBatchNr(), $batchMap) === false) {
                 $batchMap[$game->getBatchNr()] = array("fields" => [], "referees" => [], "places" => []);
             }
-            $batch = &$batchMap[$game->getBatchNr()];
-            /** @var list<Place> $batchPlaces */
-            $batchPlaces = &$batch['places'];
             $places = $game->getPoulePlaces();
             $refereePlace = $game->getRefereePlace();
             if ($refereePlace !== null) {
                 $places[] = $refereePlace;
             }
             foreach ($places as $placeIt) {
-                if (array_search($placeIt, $batchPlaces, true) !== false) {
-                    return self::MULTIPLE_ASSIGNED_PLACES_IN_BATCH;
+                $search = array_search($placeIt, $batchMap[$game->getBatchNr()]["places"], true);
+                if ($search !== false) {
+                    return self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH;
                 }
-                $batchPlaces[] = $placeIt;
+                array_push($batchMap[$game->getBatchNr()]["places"], $placeIt);
             }
-            /** @var list<Field> $batchFields */
-            $batchFields = &$batch['fields'];
 
-            $search = array_search($game->getField(), $batchFields, true);
+            $search = array_search($game->getField(), $batchMap[$game->getBatchNr()]["fields"], true);
             if ($search !== false) {
                 return self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH;
             }
-            $field = $game->getField();
-            if ($field !== null) {
-                $batchFields[] = $field;
-            }
+            array_push($batchMap[$game->getBatchNr()]["fields"], $game->getField());
 
-            /** @var list<Referee> $batchReferees */
-            $batchReferees = &$batch['referees'];
             $referee = $game->getReferee();
             if ($referee !== null) {
-                $search = array_search($referee, $batchReferees, true);
+                $search = array_search($referee, $batchMap[$game->getBatchNr()]["referees"], true);
                 if ($search !== false) {
                     return self::MULTIPLE_ASSIGNED_REFEREES_IN_BATCH;
                 }
-                $batchReferees[] = $referee;
+                array_push($batchMap[$game->getBatchNr()]["referees"], $referee);
             }
         }
         return self::VALID;

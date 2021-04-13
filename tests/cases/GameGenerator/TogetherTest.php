@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests\GameGenerator;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\SportConfig;
+use SportsHelpers\Sport\GameAmountVariant;
 use SportsPlanning\GameGenerator\Together as TogetherGameeGenerator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -14,9 +15,9 @@ class TogetherTest extends TestCase
 
     public function testSimple(): void
     {
-        $sportConfigs = [new SportConfig(GameMode::TOGETHER, 2, 2, 3)];
+        $sportVariants = [new GameAmountVariant(GameMode::TOGETHER, 2, 2, 3)];
         $planning = $this->createPlanning(
-            $this->createInputNew([7], $sportConfigs)
+            $this->createInputNew([7], $sportVariants)
         );
 
 //        $getPlacesDescription = function (array $togetherGamePlaces): string {

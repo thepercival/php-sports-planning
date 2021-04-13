@@ -19,13 +19,13 @@ class SportsIteratorTest extends TestCase
         $rangeGameAmount = new SportRange(1, 2);
         $sportsIterator = new SportsIterator($rangeNrOfFields, $rangeGameAmount);
 
-        $sportConfig = $sportsIterator->current();
-        self::assertNotNull($sportConfig);
+        $sportVariant = $sportsIterator->current();
+        self::assertNotNull($sportVariant);
         self::assertGreaterThan(50, $sportsIterator->key());
-        self::assertEquals(GameMode::AGAINST, $sportConfig->getGameMode());
-        self::assertEquals(2, $sportConfig->getNrOfGamePlaces());
-        self::assertEquals(1, $sportConfig->getNrOfFields());
-        self::assertEquals(1, $sportConfig->getGameAmount());
+        self::assertEquals(GameMode::AGAINST, $sportVariant->getGameMode());
+        self::assertEquals(2, $sportVariant->getNrOfGamePlaces());
+        self::assertEquals(1, $sportVariant->getNrOfFields());
+        self::assertEquals(1, $sportVariant->getGameAmount());
     }
 
     public function testLast(): void
@@ -34,17 +34,17 @@ class SportsIteratorTest extends TestCase
         $rangeGameAmount = new SportRange(1, 2);
         $sportsIterator = new SportsIterator($rangeNrOfFields, $rangeGameAmount);
 
-        $sportConfig = null;
+        $sportVariant = null;
         while ($sportsIterator->current() !== null) {
-            $sportConfig = $sportsIterator->current();
+            $sportVariant = $sportsIterator->current();
             $sportsIterator->next();
         }
-        self::assertNotNull($sportConfig);
+        self::assertNotNull($sportVariant);
 
-        self::assertEquals(GameMode::TOGETHER, $sportConfig->getGameMode());
-        self::assertEquals(2, $sportConfig->getNrOfGamePlaces());
-        self::assertEquals(2, $sportConfig->getNrOfFields());
-        self::assertEquals(2, $sportConfig->getGameAmount());
+        self::assertEquals(GameMode::TOGETHER, $sportVariant->getGameMode());
+        self::assertEquals(2, $sportVariant->getNrOfGamePlaces());
+        self::assertEquals(2, $sportVariant->getNrOfFields());
+        self::assertEquals(2, $sportVariant->getGameAmount());
     }
 
     public function testCount(): void
@@ -53,7 +53,6 @@ class SportsIteratorTest extends TestCase
         $rangeGameAmount = new SportRange(1, 2);
         $sportsIterator = new SportsIterator($rangeNrOfFields, $rangeGameAmount);
 
-        $sportConfig = null;
         $nrOfPossibilities = 0;
         while ($sportsIterator->valid()) {
             // echo $sportsIterator->key() . PHP_EOL;

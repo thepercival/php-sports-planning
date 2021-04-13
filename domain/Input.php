@@ -4,13 +4,14 @@ namespace SportsPlanning;
 
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
+use Exception;
 use SportsHelpers\Identifiable;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsHelpers\SportRange;
-use SportsHelpers\SportConfig;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsHelpers\PouleStructure;
-use SportsHelpers\SportBase;
 
 class Input extends Identifiable
 {
@@ -18,43 +19,46 @@ class Input extends Identifiable
      * @var list<int>
      */
     protected array $pouleStructureDb;
+    protected PouleStructure|null $pouleStructure = null;
     /**
      * @var list<array<string,int>>
      */
     protected array $sportConfigDb;
     /**
-     * @var list<SportConfig>|null
+     * @var list<SportGameAmountVariant>|null
      */
-    protected array|null $sportConfigs = null;
+    protected array|null $sportVariants = null;
     protected int $nrOfReferees;
     protected DateTimeImmutable $createdAt;
     /**
-     * @var ArrayCollection<int|string,Planning>
+     * @phpstan-var ArrayCollection<int|string, Planning>|PersistentCollection<int|string, Planning>
+     * @psalm-var ArrayCollection<int|string, Planning>
      */
-    protected ArrayCollection $plannings;
+    protected ArrayCollection|PersistentCollection $plannings;
     protected int|null $maxNrOfGamesInARow = null;
     protected bool $teamupDep = false; // DEPRECATED
     protected int $nrOfHeadtoheadDep = 1; // DEPRECATED
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportConfig> $sportConfigs
+     * @param list<SportGameAmountVariant> $sportVariants
      * @param int $nrOfReferees
      * @param int $selfReferee
      */
     public function __construct(
-        protected PouleStructure $pouleStructure,
-        array $sportConfigs,
+        PouleStructure $pouleStructure,
+        array $sportVariants,
         int $nrOfReferees,
         protected int $selfReferee
     ) {
+        $this->pouleStructure = $pouleStructure;
         $this->pouleStructureDb = $this->pouleStructure->toArray();
 
         $this->sportConfigDb = [];
-        foreach ($sportConfigs as $sportConfig) {
-            $this->sportConfigDb[] = $sportConfig->toArray();
+        foreach ($sportVariants as $sportVariant) {
+            $this->sportConfigDb[] = $sportVariant->toArray();
         }
-        $this->sportConfigs = $sportConfigs;
+        $this->sportVariants = $sportVariants;
 
         $nrOfReferees = $selfReferee === SelfReferee::DISABLED ? $nrOfReferees : 0;
         $this->nrOfReferees = $nrOfReferees;
@@ -64,6 +68,9 @@ class Input extends Identifiable
 
     public function getPouleStructure(): PouleStructure
     {
+        if( $this->pouleStructure === null) {
+            $this->pouleStructure = new PouleStructure(...$this->pouleStructureDb);
+        }
         return $this->pouleStructure;
     }
 
@@ -78,14 +85,14 @@ class Input extends Identifiable
     }
 
     /**
-     * @return list<SportConfig>
+     * @return list<SportGameAmountVariant>
      */
-    public function getSportConfigs(): array
+    public function getSportVariants(): array
     {
-        if ($this->sportConfigs === null) {
-            $this->sportConfigs = [];
+        if ($this->sportVariants === null) {
+            $this->sportVariants = [];
             foreach ($this->sportConfigDb as $sportConfigDb) {
-                $this->sportConfigs[] = new SportConfig(
+                $this->sportVariants[] = new SportGameAmountVariant(
                     $sportConfigDb["gameMode"],
                     $sportConfigDb["nrOfGamePlaces"],
                     $sportConfigDb["nrOfFields"],
@@ -93,7 +100,7 @@ class Input extends Identifiable
                 );
             }
         }
-        return $this->sportConfigs;
+        return $this->sportVariants;
     }
 
     public function hasMultipleSports(): bool
@@ -104,8 +111,8 @@ class Input extends Identifiable
     public function getNrOfFields(): int
     {
         $nrOfFields = 0;
-        foreach ($this->getSportConfigs() as $sportConfig) {
-            $nrOfFields += $sportConfig->getNrOfFields();
+        foreach ($this->getSportVariants() as $sportVariant) {
+            $nrOfFields += $sportVariant->getNrOfFields();
         }
         return $nrOfFields;
     }
@@ -130,7 +137,7 @@ class Input extends Identifiable
         $inputCalculator = new InputCalculator();
         return $inputCalculator->getMaxNrOfGamesPerBatch(
             $this->getPouleStructure(),
-            $this->getSportConfigs(),
+            $this->getSportVariants(),
             $this->selfRefereeEnabled()
         );
     }
@@ -167,7 +174,7 @@ class Input extends Identifiable
             $calculator = new InputCalculator();
             $this->maxNrOfGamesInARow = $calculator->getMaxNrOfGamesInARow(
                 $this->getPouleStructure(),
-                $this->getSportConfigs(),
+                $this->getSportVariants(),
                 $this->selfRefereeEnabled()
             );
         }
@@ -176,9 +183,10 @@ class Input extends Identifiable
 
     /**
      * @param int|null $state = null
-     * @return ArrayCollection<int|string,Planning>
+     * @phpstan-return ArrayCollection<int|string, Planning>|PersistentCollection<int|string, Planning>
+     * @psalm-return ArrayCollection<int|string, Planning>
      */
-    public function getPlannings(int|null $state = null): ArrayCollection
+    public function getPlannings(int|null $state = null): ArrayCollection|PersistentCollection
     {
         if ($state === null) {
             return $this->plannings;
@@ -238,7 +246,7 @@ class Input extends Identifiable
     {
         $bestBatchGamesPlanning = $this->getBestBatchGamesPlanning();
         if ($bestBatchGamesPlanning === null) {
-            throw new \Exception('er kan geen planning worden gevonden', E_ERROR);
+            throw new Exception('er kan geen planning worden gevonden', E_ERROR);
         }
         return $bestBatchGamesPlanning->getBestGamesInARowPlanning();
     }

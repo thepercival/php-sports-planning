@@ -1,10 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests\GameGenerator;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\SportConfig;
+use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsPlanning\GameGenerator\Against as AgainstGameGenerator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -14,9 +15,9 @@ class AgainstTest extends TestCase
 
     public function testSimple(): void
     {
-        $sportConfigs = [new SportConfig(GameMode::AGAINST, 2, 2, 1)];
+        $sportVariants = [new SportGameAmountVariant(GameMode::AGAINST, 2, 2, 1)];
         $planning = $this->createPlanning(
-            $this->createInputNew([5], $sportConfigs)
+            $this->createInputNew([5], $sportVariants)
         );
 
         // alle tests zitten ook in de validator, dus een beeteje dubbel om hier

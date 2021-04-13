@@ -63,7 +63,7 @@ class Seeker
 
         $bestBatchGamePlanning = $input->getBestBatchGamesPlanning();
         if ($bestBatchGamePlanning === null) {
-            throw new Exception("input(" . $input->getId() . ") should always have a best planning after processing");
+            throw new Exception("input(" . ($input->getId() ?? '?') . ") should always have a best planning after processing", E_ERROR);
         }
 
         if (count($bestBatchGamePlanning->getGamesInARowPlannings()) === 0) {

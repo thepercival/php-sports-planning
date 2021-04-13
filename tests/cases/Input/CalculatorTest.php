@@ -6,7 +6,7 @@ namespace SportsPlanning\Tests\Input;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
 use SportsHelpers\PouleStructure;
-use SportsHelpers\SportConfig;
+use SportsHelpers\Sport\GameAmountVariant;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -18,9 +18,9 @@ class CalculatorTest extends TestCase
     {
         $calculator = new InputCalculator();
 
-        $pouleStructure = new PouleStructure([3,2,2]);
-        $sportConfig = new SportConfig(GameMode::AGAINST, 2, 4, 1);
-        $maxNrOfGamesSim = $calculator->getMaxNrOfGamesPerBatch($pouleStructure, [$sportConfig], false);
+        $pouleStructure = new PouleStructure(3, 2, 2);
+        $sportVariant = new GameAmountVariant(GameMode::AGAINST, 2, 4, 1);
+        $maxNrOfGamesSim = $calculator->getMaxNrOfGamesPerBatch($pouleStructure, [$sportVariant], false);
         self::assertSame(3, $maxNrOfGamesSim);
     }
 
@@ -28,9 +28,9 @@ class CalculatorTest extends TestCase
     {
         $calculator = new InputCalculator();
 
-        $pouleStructure = new PouleStructure([3,3,2]);
-        $sportConfig = new SportConfig(GameMode::AGAINST, 2, 4, 1);
-        $maxNrOfGamesSim = $calculator->getMaxNrOfGamesPerBatch($pouleStructure, [$sportConfig], false);
+        $pouleStructure = new PouleStructure(3, 3, 2);
+        $sportVariant = new GameAmountVariant(GameMode::AGAINST, 2, 4, 1);
+        $maxNrOfGamesSim = $calculator->getMaxNrOfGamesPerBatch($pouleStructure, [$sportVariant], false);
         self::assertSame(4, $maxNrOfGamesSim);
     }
 }

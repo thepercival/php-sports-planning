@@ -61,7 +61,6 @@ class IteratorTest extends TestCase
             new SportRange(1, 2)
         );
 
-        $planningInput = null;
         $nrOfPossibilities = 0;
         while ($inputIterator->valid()) {
             // echo $inputIterator->key() . PHP_EOL;

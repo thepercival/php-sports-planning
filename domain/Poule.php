@@ -1,8 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Exception;
 use SportsHelpers\Identifiable;
 use SportsPlanning\Game\Together as TogetherGame;
@@ -11,17 +13,20 @@ use SportsPlanning\Game\Against as AgainstGame;
 class Poule extends Identifiable
 {
     /**
-     * @var ArrayCollection<int|string,Place>
+     * @phpstan-var ArrayCollection<int|string, Place>|PersistentCollection<int|string, Place>
+     * @psalm-var ArrayCollection<int|string, Place>
      */
-    protected ArrayCollection $places;
+    protected ArrayCollection|PersistentCollection $places;
     /**
-     * @var ArrayCollection<int|string,AgainstGame>
+     * @phpstan-var ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>
+     * @psalm-var ArrayCollection<int|string, AgainstGame>
      */
-    protected ArrayCollection $againstGames;
+    protected ArrayCollection|PersistentCollection $againstGames;
     /**
-     * @var ArrayCollection<int|string,TogetherGame>
+     * @phpstan-var ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>
+     * @psalm-var ArrayCollection<int|string, TogetherGame>
      */
-    protected ArrayCollection $togetherGames;
+    protected ArrayCollection|PersistentCollection $togetherGames;
 
     public function __construct(protected Planning $planning, protected int $number, int $nrOfPlaces)
     {
@@ -44,9 +49,10 @@ class Poule extends Identifiable
     }
 
     /**
-     * @return ArrayCollection<int|string,Place>
+     * @phpstan-return ArrayCollection<int|string, Place>|PersistentCollection<int|string, Place>
+     * @psalm-return ArrayCollection<int|string, Place>
      */
-    public function getPlaces(): ArrayCollection
+    public function getPlaces(): ArrayCollection|PersistentCollection
     {
         return $this->places;
     }
@@ -70,17 +76,19 @@ class Poule extends Identifiable
     }
 
     /**
-     * @return ArrayCollection<int|string,AgainstGame>
+     * @phpstan-return ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>
+     * @psalm-return ArrayCollection<int|string, AgainstGame>
      */
-    public function getAgainstGames(): ArrayCollection
+    public function getAgainstGames(): ArrayCollection|PersistentCollection
     {
         return $this->againstGames;
     }
 
     /**
-     * @return ArrayCollection<int|string,TogetherGame>
+     * @phpstan-return ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>
+     * @psalm-return ArrayCollection<int|string, TogetherGame>
      */
-    public function getTogetherGames(): ArrayCollection
+    public function getTogetherGames(): ArrayCollection|PersistentCollection
     {
         return $this->togetherGames;
     }
