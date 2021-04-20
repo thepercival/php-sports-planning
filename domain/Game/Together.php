@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use SportsPlanning\Field;
 use SportsPlanning\Game as GameBase;
 use SportsPlanning\Place;
+use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 
@@ -21,11 +23,11 @@ class Together extends GameBase
      */
     protected ArrayCollection|PersistentCollection $places;
 
-    public function __construct(Poule $poule, Field $field)
+    public function __construct(Planning $planning, Poule $poule, Field $field)
     {
-        parent::__construct($poule, $field);
+        parent::__construct($planning, $poule, $field);
         $this->places = new ArrayCollection();
-        $this->poule->getTogetherGames()->add($this);
+        $this->planning->getTogetherGames()->add($this);
     }
 
     public function getBatchNr(): int
@@ -39,15 +41,20 @@ class Together extends GameBase
     }
 
     /**
-     * @param int|null $gameRoundNumber
      * @phpstan-return ArrayCollection<int|string, TogetherGamePlace>|PersistentCollection<int|string, TogetherGamePlace>
      * @psalm-return ArrayCollection<int|string, TogetherGamePlace>
      */
-    public function getPlaces(int|null $gameRoundNumber = null): ArrayCollection|PersistentCollection
+    public function getPlaces(): ArrayCollection|PersistentCollection
     {
-        if ($gameRoundNumber === null) {
-            return $this->places;
-        }
+        return $this->places;
+    }
+
+    /**
+     * @param int $gameRoundNumber
+     * @return Collection<int|string, TogetherGamePlace>
+     */
+    public function getPlacesForRoundNumber(int $gameRoundNumber): Collection
+    {
         return $this->places->filter(
             function (TogetherGamePlace $gamePlace) use ($gameRoundNumber): bool {
                 return $gamePlace->getGameRoundNumber() === $gameRoundNumber;
@@ -96,9 +103,9 @@ class Together extends GameBase
 //    }
 //
     /**
-     * @return ArrayCollection<int|string,Place>
+     * @return Collection<int|string,Place>
      */
-    public function getPoulePlaces(): ArrayCollection
+    public function getPoulePlaces(): Collection
     {
         if ($this->poulePlaces === null) {
             $this->poulePlaces = $this->getPlaces()->map(function (TogetherGamePlace $gamePlace): Place {

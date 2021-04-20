@@ -118,8 +118,8 @@ class Validator
 
     protected function validateAgainstGamesAndGamePlaces(Planning $planning): int
     {
-        foreach ($planning->getPoules() as $poule) {
-            if (count($poule->getGames()) === 0) {
+        foreach ($planning->getInput()->getPoules() as $poule) {
+            if (count($planning->getGamesForPoule($poule)) === 0) {
                 return self::NO_GAMES;
             }
             $validity = $this->allPlacesInPouleSameNrOfGames($planning, $poule);
@@ -132,8 +132,8 @@ class Validator
 
     protected function validateGamesAndGamePlaces(Planning $planning): int
     {
-        foreach ($planning->getPoules() as $poule) {
-            if (count($poule->getGames()) === 0) {
+        foreach ($planning->getInput()->getPoules() as $poule) {
+            if (count($planning->getGamesForPoule($poule)) === 0) {
                 return self::NO_GAMES;
             }
             $validity = $this->allPlacesInPouleSameNrOfGames($planning, $poule);
@@ -146,8 +146,8 @@ class Validator
 
     protected function allPlacesInPouleSameNrOfGames(Planning $planning, Poule $poule): int
     {
-        $nrOfGames = [];
-        foreach ($poule->getGames() as $game) {
+        $nrOfGamesPerPlace = [];
+        foreach ($planning->getGamesForPoule($poule) as $game) {
             if ($game instanceof AgainstGame) {
                 $homePlaces = $game->getSidePlaces(AgainstSide::HOME);
                 $awayPlaces = $game->getSidePlaces(AgainstSide::AWAY);
@@ -163,10 +163,10 @@ class Validator
             }
             $places = $game->getPoulePlaces();
             foreach ($places as $place) {
-                if (array_key_exists($place->getLocation(), $nrOfGames) === false) {
-                    $nrOfGames[$place->getLocation()] = 0;
+                if (array_key_exists($place->getLocation(), $nrOfGamesPerPlace) === false) {
+                    $nrOfGamesPerPlace[$place->getLocation()] = 0;
                 }
-                $nrOfGames[$place->getLocation()]++;
+                $nrOfGamesPerPlace[$place->getLocation()]++;
             }
             if ($planning->getInput()->selfRefereeEnabled()) {
                 $refereePlace = $game->getRefereePlace();
@@ -182,16 +182,16 @@ class Validator
                     return self::INVALID_ASSIGNED_REFEREEPLACE;
                 }
             } else {
-                if ($planning->getInput()->getNrOfReferees() > 0) {
+                if ($planning->getInput()->getReferees()->count() > 0) {
                     if ($game->getReferee() === null) {
                         return self::EMPTY_REFEREE;
                     }
                 }
             }
         }
-        $value = reset($nrOfGames);
-        foreach ($nrOfGames as $valueIt) {
-            if ($value !== $valueIt) {
+        $nrOfGamesFirstPlace = reset($nrOfGamesPerPlace);
+        foreach ($nrOfGamesPerPlace as $nrOfGamesSomePlace) {
+            if ($nrOfGamesFirstPlace !== $nrOfGamesSomePlace) {
                 return self::NOT_EQUALLY_ASSIGNED_PLACES;
             }
         }
@@ -204,7 +204,7 @@ class Validator
         if ($planning->getMaxNrOfGamesInARow() === 0) {
             return self::VALID;
         }
-        foreach ($planning->getPoules() as $poule) {
+        foreach ($planning->getInput()->getPoules() as $poule) {
             foreach ($poule->getPlaces() as $place) {
                 if ($this->checkGamesInARowForPlace($planning, $place) === false) {
                     return self::TOO_MANY_GAMES_IN_A_ROW;
@@ -286,6 +286,7 @@ class Validator
                 $places[] = $refereePlace;
             }
             foreach ($places as $placeIt) {
+                /** @var bool|int|string $search */
                 $search = array_search($placeIt, $batchMap[$game->getBatchNr()]["places"], true);
                 if ($search !== false) {
                     return self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH;
@@ -294,6 +295,7 @@ class Validator
             }
 
             $search = array_search($game->getField(), $batchMap[$game->getBatchNr()]["fields"], true);
+            /** @var bool|int|string $search */
             if ($search !== false) {
                 return self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH;
             }
@@ -301,6 +303,7 @@ class Validator
 
             $referee = $game->getReferee();
             if ($referee !== null) {
+                /** @var bool|int|string $search */
                 $search = array_search($referee, $batchMap[$game->getBatchNr()]["referees"], true);
                 if ($search !== false) {
                     return self::MULTIPLE_ASSIGNED_REFEREES_IN_BATCH;

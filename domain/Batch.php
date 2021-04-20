@@ -110,7 +110,7 @@ class Batch
     public function setPreviousGamesInARow(array $previousPreviousGamesInARowMap, array $previousGamesInARowMap): void
     {
         $this->previousGamesInARowMap = $previousGamesInARowMap;
-        foreach ($this->previousGamesInARowMap as $placeLocation => $nrOfGamesInARow) {
+        foreach (array_keys($this->previousGamesInARowMap) as $placeLocation) {
             if (!array_key_exists($placeLocation, $previousPreviousGamesInARowMap)) {
                 continue;
             }

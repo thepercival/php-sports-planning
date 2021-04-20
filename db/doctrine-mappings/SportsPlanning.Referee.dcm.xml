@@ -3,9 +3,9 @@
   <entity name="SportsPlanning\Referee" table="planningReferees" repository-class="SportsPlanning\Referee\Repository">
     <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
     <field name="priority" column="priority" type="smallint" nullable="false" unique="false"/>
-    <many-to-one field="planning" target-entity="SportsPlanning\Planning" inversed-by="referees">
+    <many-to-one field="input" target-entity="SportsPlanning\Input" inversed-by="referees">
       <join-columns>
-        <join-column name="planningId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+        <join-column name="inputId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>
     </many-to-one>
   </entity>

@@ -6,30 +6,36 @@ namespace SportsPlanning;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use Exception;
-use SportsHelpers\Sport\GameAmountVariant;
+use SportsHelpers\Sport\PersistVariant;
+use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 
-class Sport extends GameAmountVariant
+class Sport extends PersistVariant implements \Stringable
 {
     /**
      * @phpstan-var ArrayCollection<int|string, Field>|PersistentCollection<int|string, Field>
      * @psalm-var ArrayCollection<int|string, Field>
      */
     protected ArrayCollection|PersistentCollection $fields;
+    protected int $number;
 
-    public function __construct(
-        protected Planning $planning,
-        protected int $number,
-        int $gameMode,
-        int $nrOfGamePlaces,
-        int $gameAmount
-    ) {
-        parent::__construct($gameMode, $nrOfGamePlaces, 0, $gameAmount);
+    public function __construct(protected Input $input, PersistVariant $sportVariant)
+    {
+        parent::__construct(
+            $sportVariant->getGameMode(),
+            $sportVariant->getNrOfHomePlaces(),
+            $sportVariant->getNrOfAwayPlaces(),
+            $sportVariant->getNrOfH2H(),
+            $sportVariant->getNrOfGamePlaces(),
+            $sportVariant->getGameAmount()
+        );
+        $this->number = $input->getSports()->count() + 1;
+        $this->input->getSports()->add($this);
         $this->fields = new ArrayCollection();
     }
 
-    public function getPlanning(): Planning
+    public function getInput(): Input
     {
-        return $this->planning;
+        return $this->input;
     }
 
     public function getNumber(): int
@@ -59,5 +65,15 @@ class Sport extends GameAmountVariant
     public function getNrOfFields(): int
     {
         return $this->getFields()->count();
+    }
+
+    public function createVariantWithFields(): SportVariantWithFields
+    {
+        return new SportVariantWithFields($this->createVariant(), $this->getNrOfFields());
+    }
+
+    public function __toString(): string
+    {
+        return $this->createVariant() . ' f(' . $this->getNrOfFields() . ')';
     }
 }

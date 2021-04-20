@@ -1,76 +1,66 @@
 <?php
+declare(strict_types=1);
 
-namespace SportsPlanning\GameGenerator;
+namespace SportsPlanning\GameGenerator\GameMode;
 
-use SportsHelpers\GameMode;
+use SportsPlanning\Field;
+use SportsPlanning\GameGenerator\GameMode as GameModeGameGenerator;
+use SportsPlanning\GameGenerator\GameRoundPlace;
+use SportsPlanning\GameGenerator\PlaceCombination;
+use SportsPlanning\GameGenerator\GameMode\SingleHelper;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\Place;
 use SportsPlanning\Game\Together as TogetherGame;
 use drupol\phpermutations\Generators\Combinations as CombinationsGenerator;
+use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Sport;
 
-class Together
+class Single implements GameModeGameGenerator
 {
-    private TogetherCounter $togetherCounter;
+    private SingleHelper $singleHelper;
 
-    public function __construct()
+    public function __construct(protected Planning $planning)
     {
-        $this->togetherCounter = new TogetherCounter();
+        $this->singleHelper = new SingleHelper($planning);
     }
 
     /**
      * @param Poule $poule
      * @param list<Sport> $sports
-     * @return list<TogetherGame>
      */
-    public function generate(Poule $poule, array $sports): array
+    public function generate(Poule $poule, array $sports): void
     {
-        $this->togetherCounter->addPlaces($poule);
-        $games = [];
+        $this->singleHelper->addPlaces($poule);
         foreach ($sports as $sport) {
-            if ($sport->getGameMode() !== GameMode::TOGETHER) {
-                continue;
+            $this->singleHelper->setDefaultField($sport->getField(1));
+            $sportVariant = $sport->createVariant();
+            if (!($sportVariant instanceof SingleSportVariant)) {
+                throw new \Exception('only single-sport-variant accepted', E_ERROR);
             }
-            $games = array_merge($games, $this->generateForSport($poule, $sport));
+            $this->generateForSportVariant($poule, $sportVariant);
         }
-        return array_values($games);
     }
 
     /**
      * @param Poule $poule
-     * @param Sport $sport
-     * @return list<TogetherGame>
+     * @param SingleSportVariant $singleSportVariant
      */
-    protected function generateForSport(Poule $poule, Sport $sport): array
+    protected function generateForSportVariant(Poule $poule, SingleSportVariant $singleSportVariant): void
     {
         $places = array_values($poule->getPlaces()->toArray());
-        $gameAmount = $sport->getGameAmount();
-        $nrOfGamePlaces = $sport->getNrOfGamePlaces();
-        if ($sport->allPlacesAreGamePlaces()) {
-            $nrOfGamePlaces = count($places);
-        }
 
-        $createGame = function (int &$gameRoundNumber, array &$gameRoundPlaces) use ($poule, $sport, $places, $nrOfGamePlaces, $gameAmount): TogetherGame|null {
+        $gameRoundNumber = 1;
+        $gameRoundPlaces = $this->createGameRoundPlaces(1, $places);
+        while (count($gameRoundPlaces) > 0 || $gameRoundNumber < $singleSportVariant->getGameAmount()) {
             $nextGameRoundPlaces = null;
-            if (count($gameRoundPlaces) < $nrOfGamePlaces) {
-                if (++$gameRoundNumber <= $gameAmount) {
+            if (count($gameRoundPlaces) < $singleSportVariant->getNrOfGamePlaces()) {
+                if (++$gameRoundNumber <= $singleSportVariant->getGameAmount()) {
                     $nextGameRoundPlaces = $this->createGameRoundPlaces($gameRoundNumber, $places);
                 }
             }
-            if (count($gameRoundPlaces) === 0 && $gameRoundNumber > $gameAmount) {
-                return null;
-            }
-            /** @var list<GameRoundPlace> $gameRoundPlaces */
-            return $this->selectPlaces($poule, $sport, $nrOfGamePlaces, $gameRoundPlaces, $nextGameRoundPlaces);
-        };
-
-        $games = [];
-        $gameRoundNumber = 1;
-        $gameRoundNumberPlaces = $this->createGameRoundPlaces(1, $places);
-        while ($game = $createGame($gameRoundNumber, $gameRoundNumberPlaces)) {
-            $games[] = $game;
+            $this->selectPlaces($poule, $singleSportVariant, $gameRoundPlaces, $nextGameRoundPlaces);
         }
-        return $games;
     }
 
     /**
@@ -80,11 +70,9 @@ class Together
      */
     protected function createGameRoundPlaces(int $gameRoundNumber, array $places): array
     {
-        $gameRoundPlaces = [];
-        foreach ($places as $place) {
-            $gameRoundPlaces[] = new GameRoundPlace($gameRoundNumber, $place);
-        }
-        return $gameRoundPlaces;
+        return array_values(array_map(function (Place $place) use ($gameRoundNumber): GameRoundPlace {
+            return new GameRoundPlace($gameRoundNumber, $place);
+        }, $places));
     }
 
     /**
@@ -105,24 +93,23 @@ class Together
 
     /**
      * @param Poule $poule
-     * @param Sport $sport
-     * @param int $nrOfGamePlaces
+     * @param SingleSportVariant $sportVariant
      * @param list<GameRoundPlace> $gameRoundPlaces
      * @param list<GameRoundPlace>|null $nextGameRoundPlaces
-     * @return TogetherGame
      */
-    protected function selectPlaces(Poule $poule, Sport $sport, int $nrOfGamePlaces, array &$gameRoundPlaces, array|null $nextGameRoundPlaces = null): TogetherGame
+    protected function selectPlaces(Poule $poule, SingleSportVariant $sportVariant, array &$gameRoundPlaces, array|null $nextGameRoundPlaces = null): void
     {
 //        $current = array_filter( $gameRoundPlaces, function(GameRoundPlace $gameRoundPlace) use ( $gameRoundNumber ): bool {
 //            return $gameRoundPlace->getGameRoundNumber() === $gameRoundNumber;
 //        });
         if ($nextGameRoundPlaces !== null) {
             $nextGameRoundPlacesSameLocation = $this->removeSameLocation($nextGameRoundPlaces, $gameRoundPlaces);
-            $game = $this->togetherCounter->createGame($poule, $sport, $gameRoundPlaces, $nextGameRoundPlaces, $nrOfGamePlaces);
+            $game = $this->singleHelper->createGame($poule, $sportVariant, $gameRoundPlaces, $nextGameRoundPlaces);
             $gameRoundPlaces = array_merge($gameRoundPlaces, $nextGameRoundPlaces, $nextGameRoundPlacesSameLocation);
         } else {
-            $game = $this->togetherCounter->createGame($poule, $sport, [], $gameRoundPlaces, $nrOfGamePlaces);
+            $game = $this->singleHelper->createGame($poule, $sportVariant, [], $gameRoundPlaces);
         }
+        $gameRoundPlaces = array_values($gameRoundPlaces);
 
         // remove places from $gameRoundPlaces
         foreach ($game->getPlaces() as $gamePlace) {
@@ -138,7 +125,6 @@ class Together
                 array_splice($gameRoundPlaces, $idx, 1);
             }
         }
-        return $game;
     }
 
     /**
@@ -152,6 +138,9 @@ class Together
         $removed = [];
         for ($idx = 0 ; $idx < $nrOfPlaces ; $idx++) {
             $nextGameRoundPlace = array_shift($nextGameRoundPlaces);
+            if ($nextGameRoundPlace === null) {
+                break;
+            }
             if ($this->hasSameLocation($nextGameRoundPlace, $gameRoundPlaces)) {
                 $removed[] = $nextGameRoundPlace;
             } else {

@@ -15,10 +15,10 @@ class GameCounterTest extends TestCase
     public function testCalculations(): void
     {
         $planning = $this->createPlanning(
-            $this->createInputNew([3])
+            $this->createInput([3])
         );
 
-        $referee = $planning->getReferee(1);
+        $referee = $planning->getInput()->getReferee(1);
         $gameCounter = new GameCounter($referee);
 
         self::assertSame("1", $gameCounter->getIndex());

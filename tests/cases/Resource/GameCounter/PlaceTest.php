@@ -15,10 +15,10 @@ class PlaceTest extends TestCase
     public function testCalculations(): void
     {
         $planning = $this->createPlanning(
-            $this->createInputNew([3])
+            $this->createInput([3])
         );
 
-        $placeOne = $planning->getPoule(1)->getPlace(1);
+        $placeOne = $planning->getInput()->getPoule(1)->getPlace(1);
         $gameCounter = new PlaceCounter($placeOne);
 
         self::assertSame($placeOne, $gameCounter->getPlace());

@@ -32,10 +32,8 @@ class GameCreator
         }
         $state = $resourceService->assign($games);
         if ($state === Planning::STATE_FAILED || $state === Planning::STATE_TIMEDOUT) {
-            foreach ($planning->getPoules() as $poule) {
-                $poule->getAgainstGames()->clear();
-                $poule->getTogetherGames()->clear();
-            }
+            $planning->getAgainstGames()->clear();
+            $planning->getTogetherGames()->clear();
             return $state;
         }
 

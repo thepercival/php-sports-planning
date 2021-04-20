@@ -1,24 +1,44 @@
 <?php
+declare(strict_types=1);
 
-namespace SportsPlanning\GameGenerator;
+namespace SportsPlanning\GameGenerator\GameMode;
 
 use Exception;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsPlanning\Field;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
+use SportsPlanning\GameGenerator\GameRoundPlace;
+use SportsPlanning\GameGenerator\PlaceCounter;
 use SportsPlanning\Place;
+use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Sport;
 
-class TogetherCounter
+class SingleHelper
 {
     /**
      * @var array<string,array<string,PlaceCounter>>
      */
     protected array $placeCounters = [];
+    protected Field|null $defaultField = null;
 
-    public function __construct()
+    public function __construct(protected Planning $planning)
     {
     }
+
+    protected function getDefaultField(): Field
+    {
+        if ($this->defaultField === null) {
+            throw new Exception('geen standaard veld gedefinieerd', E_ERROR);
+        }
+        return $this->defaultField;
+    }
+
+    public function setDefaultField(Field $field): void
+    {
+        $this->defaultField = $field;
+    }
+
 
     public function addPlaces(Poule $poule): void
     {
@@ -35,15 +55,14 @@ class TogetherCounter
 
     /**
      * @param Poule $poule
-     * @param Sport $sport
+     * @param SingleSportVariant $sportVariant
      * @param list<GameRoundPlace> $base
      * @param list<GameRoundPlace> $choosable
-     * @param int $nrOfGamePlaces
      * @return TogetherGame
      */
-    public function createGame(Poule $poule, Sport $sport, array $base, array $choosable, int $nrOfGamePlaces): TogetherGame
+    public function createGame(Poule $poule, SingleSportVariant $sportVariant, array $base, array $choosable): TogetherGame
     {
-        while (count($base) < $nrOfGamePlaces && count($choosable) > 0) {
+        while (count($base) < $sportVariant->getNrOfGamePlaces() && count($choosable) > 0) {
             $gameRoundPlace = $this->getBestPlace($base, $choosable);
             $idx = array_search($gameRoundPlace, $choosable, true);
             if ($idx !== false) {
@@ -52,7 +71,7 @@ class TogetherCounter
             $base[] = $gameRoundPlace;
         }
         $this->increment($this->mapToPlaces($base));
-        $game = new TogetherGame($poule, $sport->getField(1));
+        $game = new TogetherGame($this->planning, $poule, $this->getDefaultField());
         foreach ($base as $basePlace) {
             new TogetherGamePlace($game, $basePlace->getPlace(), $basePlace->getGameRoundNumber());
         }
@@ -115,7 +134,6 @@ class TogetherCounter
 
     /**
      * @param list<Place> $places
-     *
      * @return void
      */
     protected function increment(array $places): void

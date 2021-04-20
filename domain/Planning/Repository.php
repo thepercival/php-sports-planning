@@ -21,18 +21,18 @@ class Repository extends EntityRepository implements SaveRemoveRepository
     {
         $planning->setState($state);
         $this->removeGamesInARowPlannings($planning);
-        foreach ($planning->getPoules() as $poule) {
-            $againstGames = $poule->getAgainstGames();
-            while ($game = $againstGames->first()) {
-                $againstGames->removeElement($game);
-                $this->remove($game);
-            }
-            $togetherGames = $poule->getTogetherGames();
-            while ($game = $togetherGames->first()) {
-                $togetherGames->removeElement($game);
-                $this->remove($game);
-            }
+
+        $againstGames = $planning->getAgainstGames();
+        while ($game = $againstGames->first()) {
+            $againstGames->removeElement($game);
+            $this->remove($game);
         }
+        $togetherGames = $planning->getTogetherGames();
+        while ($game = $togetherGames->first()) {
+            $togetherGames->removeElement($game);
+            $this->remove($game);
+        }
+
         $this->save($planning);
     }
 

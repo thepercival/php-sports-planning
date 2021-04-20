@@ -1,10 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
 use SportsHelpers\PouleStructure\Balanced as BalancedPouleStructure;
-use SportsHelpers\Sport\GameAmountVariant;
-use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Input as PlanningInput;
 use SportsHelpers\SportRange;
@@ -12,6 +11,7 @@ use SportsHelpers\SelfReferee;
 use SportsHelpers\PouleStructure\BalancedIterator as PouleStructureIterator;
 use SportsHelpers\Place\Range as PlaceRange;
 use SportsPlanning\Input\Service as PlanningInputService;
+use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 
 /**
  * @template TKey
@@ -22,9 +22,9 @@ class Iterator implements \Iterator
 {
     protected PouleStructureIterator $structureIterator;
     /**
-     * @var SportsIterator<string, GameAmountVariant>
+     * @implements AgainstSportsIterator<string, SportVariantWithFields>
      */
-    protected SportsIterator $sportsIterator;
+    protected AgainstSportsIterator $sportsIterator;
     protected SportRange $rangeNrOfReferees;
     protected PlanningInputService $planningInputService;
     protected int $nrOfReferees;
@@ -39,7 +39,7 @@ class Iterator implements \Iterator
         SportRange $rangeGameAmount
     ) {
         $this->structureIterator = new PouleStructureIterator($rangePlaces, $rangePoules);
-        $this->sportsIterator = new SportsIterator($rangeNrOfFields, $rangeGameAmount);
+        $this->sportsIterator = new AgainstSportsIterator($rangeNrOfFields, $rangeGameAmount);
         $this->rangeNrOfReferees = $rangeNrOfReferees;
         $this->planningInputService = new PlanningInputService();
         $this->rewind();
@@ -93,11 +93,11 @@ class Iterator implements \Iterator
         }
 
         $pouleStructure = $this->structureIterator->current();
-        $sportVariant = $this->sportsIterator->current();
-        if ($pouleStructure === null || $sportVariant === null) {
+        $sportVariantWithFields = $this->sportsIterator->current();
+        if ($pouleStructure === null || $sportVariantWithFields === null) {
             return;
         }
-        $this->current = $this->createInput($pouleStructure, $sportVariant);
+        $this->current = $this->createInput($pouleStructure, $sportVariantWithFields);
 
 //        $maxNrOfRefereesInPlanning = $planningInput->getMaxNrOfBatchGames(
 //            Resources::FIELDS + Resources::PLACES
@@ -137,11 +137,13 @@ class Iterator implements \Iterator
         return $this->current !== null;
     }
 
-    protected function createInput(BalancedPouleStructure $pouleStructure, SportGameAmountVariant $sportVariant): PlanningInput
+    protected function createInput(
+        BalancedPouleStructure $pouleStructure,
+        SportVariantWithFields  $sportVariantWithFields): PlanningInput
     {
         return new PlanningInput(
             $pouleStructure,
-            [$sportVariant],
+            [$sportVariantWithFields],
             $this->nrOfReferees,
             $this->selfReferee
         );
@@ -158,13 +160,13 @@ class Iterator implements \Iterator
             return $this->incrementNrOfReferees();
         }
         $pouleStructure = $this->structureIterator->current();
-        $sportVariant = $this->sportsIterator->current();
-        if ($pouleStructure === null || $sportVariant === null) {
+        $sportVariantWithFields = $this->sportsIterator->current();
+        if ($pouleStructure === null || $sportVariantWithFields === null) {
             return $this->incrementNrOfReferees();
         }
         $selfRefereeIsAvailable = $this->planningInputService->canSelfRefereeBeAvailable(
             $pouleStructure,
-            [$sportVariant]
+            [$sportVariantWithFields->getSportVariant()]
         );
         if ($selfRefereeIsAvailable === false) {
             return $this->incrementNrOfReferees();
@@ -178,7 +180,7 @@ class Iterator implements \Iterator
         } else {
             $selfRefereeSamePouleAvailable = $this->planningInputService->canSelfRefereeSamePouleBeAvailable(
                 $pouleStructure,
-                [$sportVariant]
+                [$sportVariantWithFields->getSportVariant()]
             );
             if (!$selfRefereeSamePouleAvailable) {
                 return $this->incrementNrOfReferees();

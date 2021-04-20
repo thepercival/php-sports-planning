@@ -22,7 +22,7 @@ class Fields
 
     public function __construct(Planning $planning)
     {
-        $this->unassignedFields = $planning->getFields();
+        $this->unassignedFields = $planning->getInput()->getFields();
     }
 
     protected function isUnassigned(Field $field): bool

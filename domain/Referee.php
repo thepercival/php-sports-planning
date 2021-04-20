@@ -6,16 +6,19 @@ use SportsHelpers\Identifiable;
 
 class Referee extends Identifiable implements Resource
 {
+    protected int $number;
     protected int $priority;
 
-    public function __construct(protected Planning $planning, protected int $number)
+    public function __construct(protected Input $input)
     {
+        $this->number = $input->getReferees()->count() + 1;
+        $input->getReferees()->add($this);
         $this->priority = 1;
     }
 
-    public function getPlanning(): Planning
+    public function getInput(): Input
     {
-        return $this->planning;
+        return $this->input;
     }
 
     public function getNumber(): int

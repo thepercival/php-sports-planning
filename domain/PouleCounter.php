@@ -46,7 +46,7 @@ class PouleCounter
 
     public function getNrOfPlacesAssigned(bool|null $addRefereePlace = null): int
     {
-        if ($addRefereePlace) {
+        if ($addRefereePlace === true) {
             return $this->nrOfPlacesAssigned + $this->nrOfGames;
         }
         return $this->nrOfPlacesAssigned;

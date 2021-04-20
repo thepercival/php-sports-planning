@@ -4,10 +4,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Planning;
 
 use Psr\Log\LoggerInterface;
-use SportsHelpers\GameMode;
-use SportsHelpers\SelfReferee;
 use SportsHelpers\Output as OutputHelper;
-use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Planning;
@@ -78,29 +75,7 @@ class Output extends OutputHelper
 
     public function getInputAsString(PlanningInput $input, string $prefix = null, string $suffix = null): string
     {
-        $sports = array_map(function (SportGameAmountVariant $sportGameAmountVariant): string {
-            return (string)$sportGameAmountVariant;
-        }, $input->getSportVariants());
-        $output = 'id ' . ($input->getId() ?? '?') . ' => structure [' . implode(
-            '|',
-            $input->getPouleStructure()->toArray()
-        ) . ']'
-            . ', sports [' . implode(',', $sports) . ']'
-            . ', referees ' . $input->getNrOfReferees()
-            . ', selfRef ' . $this->getSelfRefereeAsString($input->getSelfReferee());
-        return ($prefix ?? '') . $output . ($suffix ?? '');
-    }
-
-    public function getSelfRefereeAsString(int $selfReferee): string
-    {
-        if ($selfReferee === SelfReferee::DISABLED) {
-            return '-';
-        } elseif ($selfReferee === SelfReferee::OTHERPOULES) {
-            return 'O';
-        } elseif ($selfReferee === SelfReferee::SAMEPOULE) {
-            return 'S';
-        }
-        return '?';
+        return ($prefix ?? '') . $input->getUniqueString() . ($suffix ?? '');
     }
 
     /**

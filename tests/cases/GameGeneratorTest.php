@@ -4,8 +4,6 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\GameMode;
-use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\GameGenerator;
@@ -17,9 +15,8 @@ class GameGeneratorTest extends TestCase
 
     public function testGameInstanceAgainst(): void
     {
-        $defaultSportVariant = $this->getDefaultSportVariant();
         $planning = $this->createPlanning(
-            $this->createInputNew([2], [$defaultSportVariant], 0)
+            $this->createInput([2], null, 0)
         );
         $gameGenerator = new GameGenerator();
         $gameGenerator->generateGames($planning);
@@ -29,9 +26,9 @@ class GameGeneratorTest extends TestCase
 
     public function testGameInstanceTogether(): void
     {
-        $defaultSportVariant = $this->getDefaultSportVariant(GameMode::TOGETHER);
+        $singleSportVariantWithFields = $this->getSingleSportVariantWithFields(2);
         $planning = $this->createPlanning(
-            $this->createInputNew([2], [$defaultSportVariant], 0)
+            $this->createInput([2], [$singleSportVariantWithFields], 0)
         );
         $gameGenerator = new GameGenerator();
         $gameGenerator->generateGames($planning);
@@ -42,17 +39,11 @@ class GameGeneratorTest extends TestCase
     public function testMixedGameModes(): void
     {
         $sportVariants = [
-            new SportGameAmountVariant(GameMode::AGAINST, 2, 2, 2),
-            new SportGameAmountVariant(GameMode::TOGETHER, 2, 2, 2),
+            $this->getAgainstSportVariantWithFields(2, 2, 2, 4),
+            $this->getSingleSportVariantWithFields(2, 4, 2),
         ];
-        $planning = $this->createPlanning($this->createInputNew([4], $sportVariants));
-        $againstGames = array_filter($planning->getGames(), function (AgainstGame|TogetherGame $game): bool {
-            return $game instanceof AgainstGame;
-        });
-        self::assertCount(12, $againstGames);
-        $togetherGames = array_filter($planning->getGames(), function (AgainstGame|TogetherGame $game): bool {
-            return $game instanceof TogetherGame;
-        });
-        self::assertCount(4, $togetherGames);
+        $planning = $this->createPlanning($this->createInput([4], $sportVariants));
+        self::assertCount(12, $planning->getAgainstGames());
+        self::assertCount(8, $planning->getTogetherGames());
     }
 }

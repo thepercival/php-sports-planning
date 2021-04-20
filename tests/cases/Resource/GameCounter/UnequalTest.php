@@ -16,11 +16,11 @@ class UnequalTest extends TestCase
     public function testCalculations(): void
     {
         $planning = $this->createPlanning(
-            $this->createInputNew([3])
+            $this->createInput([3])
         );
 
-        $placeOne = $planning->getPoule(1)->getPlace(1);
-        $placeTwo = $planning->getPoule(1)->getPlace(2);
+        $placeOne = $planning->getInput()->getPoule(1)->getPlace(1);
+        $placeTwo = $planning->getInput()->getPoule(1)->getPlace(2);
         $gameCounterPlaceOne = new PlaceCounter($placeOne);
         $gameCounterPlaceTwo = new PlaceCounter($placeTwo);
 

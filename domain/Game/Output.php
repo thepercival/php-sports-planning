@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Game;
 
+use Doctrine\Common\Collections\Collection;
 use Psr\Log\LoggerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use SportsHelpers\Output as OutputHelper;
@@ -73,13 +74,13 @@ class Output extends OutputHelper
 
     /**
      * @param AgainstGame $game
-     * @param ArrayCollection<int|string,AgainstGamePlace> $gamePlaces
+     * @param Collection<int|string,AgainstGamePlace> $gamePlaces
      * @param Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch
      * @return string
      */
     protected function outputAgainstPlaces(
         AgainstGame $game,
-        ArrayCollection $gamePlaces,
+        Collection $gamePlaces,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null
     ): string {
         //        $homeGamePlaces = $this->outputPlaces($game, $game->getPlaces(AgainstGame::HOME), $batch);
@@ -99,13 +100,13 @@ class Output extends OutputHelper
 
     /**
      * @param TogetherGame $game
-     * @param ArrayCollection<int|string,TogetherGamePlace> $gamePlaces
+     * @param Collection<int|string,TogetherGamePlace> $gamePlaces
      * @param Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch
      * @return string
      */
     protected function outputTogetherPlaces(
         AgainstGame|TogetherGame $game,
-        ArrayCollection $gamePlaces,
+        Collection $gamePlaces,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null
     ): string {
         //        $homeGamePlaces = $this->outputPlaces($game, $game->getPlaces(AgainstGame::HOME), $batch);

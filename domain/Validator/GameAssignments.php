@@ -43,16 +43,16 @@ class GameAssignments
 
     protected function init(): void
     {
-        foreach ($this->planning->getFields() as $field) {
+        foreach ($this->planning->getInput()->getFields() as $field) {
             $this->fieldMap[$field->getUniqueIndex()] = new GameCounter($field);
         }
 
         if ($this->planning->getInput()->selfRefereeEnabled()) {
-            foreach ($this->planning->getPlaces() as $place) {
+            foreach ($this->planning->getInput()->getPlaces() as $place) {
                 $this->refereePlaceMap[$place->getUniqueIndex()] = new PlaceGameCounter($place);
             }
         } else {
-            foreach ($this->planning->getReferees() as $referee) {
+            foreach ($this->planning->getInput()->getReferees() as $referee) {
                 $this->refereeMap[$referee->getUniqueIndex()] = new GameCounter($referee);
             }
         }
@@ -119,11 +119,11 @@ class GameAssignments
 
     protected function shouldValidatePerPoule(): bool
     {
-        $nrOfPoules = $this->planning->getPoules()->count();
+        $nrOfPoules = $this->planning->getInput()->getPoules()->count();
         if ($this->planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
             return true;
         }
-        if (($this->planning->getPlaces()->count() % $nrOfPoules) === 0) {
+        if (($this->planning->getInput()->getPlaces()->count() % $nrOfPoules) === 0) {
             return false;
         }
         if ($nrOfPoules === 2) {
@@ -151,7 +151,7 @@ class GameAssignments
                     $unequals[] = $unequal;
                 }
             }
-        } elseif ($this->planning->getPouleStructure()->isAlmostBalanced()) {
+        } elseif ($this->planning->getInput()->createPouleStructure()->isAlmostBalanced()) {
             $unequal = $this->getMaxUnequal($this->refereePlaceMap);
             if ($unequal !== null) {
                 $unequals[] = $unequal;

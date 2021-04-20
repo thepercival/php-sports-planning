@@ -6,10 +6,13 @@ use SportsHelpers\Identifiable;
 
 class Place extends Identifiable implements Resource
 {
+    protected int $number;
     protected string|null $location = null;
 
-    public function __construct(protected Poule $poule, protected int $number)
+    public function __construct(protected Poule $poule)
     {
+        $this->number = $poule->getPlaces()->count() + 1;
+        $poule->getPlaces()->add($this);
     }
 
     public function getPoule(): Poule

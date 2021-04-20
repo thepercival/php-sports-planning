@@ -20,12 +20,13 @@ class RefereeService
 
     protected function refereesEnabled(): bool
     {
-        return !$this->getInput()->selfRefereeEnabled() && $this->getInput()->getNrOfReferees() > 0;
+        return !$this->getInput()->selfRefereeEnabled() && $this->getInput()->getReferees()->count() > 0;
     }
 
     public function assign(Batch $batch): void
     {
-        $this->assignBatch($batch->getFirst(), array_values($this->planning->getReferees()->toArray()));
+        $referees = array_values($this->planning->getInput()->getReferees()->toArray());
+        $this->assignBatch($batch->getFirst(), $referees);
     }
 
     /**

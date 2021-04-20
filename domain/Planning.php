@@ -11,10 +11,7 @@ use Doctrine\ORM\PersistentCollection;
 use Exception;
 use SportsHelpers\Identifiable;
 use SportsHelpers\SelfReferee;
-use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
 use SportsHelpers\SportRange;
-use SportsHelpers\PouleStructure;
-
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Game\Against as AgainstGame;
@@ -29,20 +26,19 @@ class Planning extends Identifiable
     protected int $state;
     protected int $validity = -1;
     /**
-     * @phpstan-var ArrayCollection<int|string, Poule>|PersistentCollection<int|string, Poule>
-     * @psalm-var ArrayCollection<int|string, Poule>
+     * @var array<int|string, list<AgainstGame|TogetherGame>>|null
      */
-    protected ArrayCollection|PersistentCollection $poules;
+    protected array|null $pouleGamesMap = null;
     /**
-     * @phpstan-var ArrayCollection<int|string, Sport>|PersistentCollection<int|string, Sport>
-     * @psalm-var ArrayCollection<int|string, Sport>
+     * @phpstan-var ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>
+     * @psalm-var ArrayCollection<int|string, AgainstGame>
      */
-    protected ArrayCollection|PersistentCollection $sports;
+    protected ArrayCollection|PersistentCollection $againstGames;
     /**
-     * @phpstan-var ArrayCollection<int|string, Referee>|PersistentCollection<int|string, Referee>
-     * @psalm-var ArrayCollection<int|string, Referee>
+     * @phpstan-var ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>
+     * @psalm-var ArrayCollection<int|string, TogetherGame>
      */
-    protected ArrayCollection|PersistentCollection $referees;
+    protected ArrayCollection|PersistentCollection $togetherGames;
 
     const STATE_TOBEPROCESSED = 1;
     const STATE_SUCCEEDED = 2;
@@ -63,9 +59,9 @@ class Planning extends Identifiable
         $this->minNrOfBatchGames = $nrOfBatchGames->getMin();
         $this->maxNrOfBatchGames = $nrOfBatchGames->getMax();
         $this->input->getPlannings()->add($this);
-        $this->initPoules($this->getInput()->getPouleStructure());
-        $this->initSports($this->getInput()->getSportVariants());
-        $this->initReferees($this->getInput()->getNrOfReferees());
+
+        $this->againstGames = new ArrayCollection();
+        $this->togetherGames = new ArrayCollection();
 
         $this->createdDateTime = new DateTimeImmutable();
         $this->timeoutSeconds = $this->getDefaultTimeoutSeconds();
@@ -136,10 +132,11 @@ class Planning extends Identifiable
         $this->timeoutSeconds = $timeoutSeconds;
     }
 
-    public function getDefaultTimeoutSeconds(): int
+    protected function getDefaultTimeoutSeconds(): int
     {
         $defaultTimeoutSecondds = Planning::DEFAULT_TIMEOUTSECONDS;
-        if ($this->input->getPouleStructure()->getNrOfGames($this->getInput()->getSportVariants()) > 50) {
+        $sportVariants = array_values($this->input->createSportVariants()->toArray());
+        if ($this->input->createPouleStructure()->getTotalNrOfGames($sportVariants) > 50) {
             $defaultTimeoutSecondds *= 2;
         }
         return $defaultTimeoutSecondds;
@@ -170,136 +167,15 @@ class Planning extends Identifiable
         return $this->input;
     }
 
-    /**
-     * @phpstan-return ArrayCollection<int|string, Poule>|PersistentCollection<int|string, Poule>
-     * @psalm-return ArrayCollection<int|string, Poule>
-     */
-    public function getPoules(): ArrayCollection|PersistentCollection
-    {
-        return $this->poules;
-    }
-
-    public function getPoule(int $pouleNr): Poule
-    {
-        foreach ($this->getPoules() as $poule) {
-            if ($poule->getNumber() === $pouleNr) {
-                return $poule;
-            }
-        }
-        throw new Exception('de poule kan niet gevonden worden', E_ERROR);
-    }
-
-    /**
-     * @param PouleStructure $pouleStructure
-     * @return void
-     */
-    protected function initPoules(PouleStructure $pouleStructure): void
-    {
-        $this->poules = new ArrayCollection();
-        foreach ($pouleStructure->toArray() as $nrOfPlaces) {
-            $this->poules->add(new Poule($this, $this->poules->count() + 1, $nrOfPlaces));
-        }
-    }
-
-    public function getPouleStructure(): PouleStructure
-    {
-        $poules = [];
-        foreach ($this->getPoules() as $poule) {
-            $poules[] = $poule->getPlaces()->count();
-        }
-        return new PouleStructure(...$poules);
-    }
-
-    /**
-     * @phpstan-return ArrayCollection<int|string, Sport>|PersistentCollection<int|string, Sport>
-     * @psalm-return ArrayCollection<int|string, Sport>
-     */
-    public function getSports(): ArrayCollection|PersistentCollection
-    {
-        return $this->sports;
-    }
-
-    public function getSport(int $number): Sport
-    {
-        foreach ($this->getSports() as $sport) {
-            if ($sport->getNumber() === $number) {
-                return $sport;
-            }
-        }
-        throw new Exception('sport kan niet gevonden worden', E_ERROR);
-    }
-
-    /**
-     * @param list<SportGameAmountVariant> $sportVariants
-     */
-    protected function initSports(array $sportVariants): void
-    {
-        $this->sports = new ArrayCollection();
-        foreach ($sportVariants as $sportVariant) {
-            $sport = new Sport(
-                $this,
-                $this->sports->count() + 1,
-                $sportVariant->getGameMode(),
-                $sportVariant->getNrOfGamePlaces(),
-                $sportVariant->getGameAmount(),
-            );
-            $this->sports->add($sport);
-            for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportVariant->getNrOfFields() ; $fieldNrDelta++) {
-                new Field($sport);
-            }
-        }
-    }
-
-    /**
-     * @return list<Field>
-     */
-    public function getFields(): array
-    {
-        $fields = [];
-        foreach ($this->getSports() as $sport) {
-            foreach ($sport->getFields() as $field) {
-                array_push($fields, $field);
-            }
-        }
-        return $fields;
-    }
-
-    /**
-     * @phpstan-return ArrayCollection<int|string, Referee>|PersistentCollection<int|string, Referee>
-     * @psalm-return ArrayCollection<int|string, Referee>
-     */
-    public function getReferees(): ArrayCollection|PersistentCollection
-    {
-        return $this->referees;
-    }
-
-    protected function initReferees(int $nrOfReferees): void
-    {
-        $this->referees = new ArrayCollection();
-        for ($refereeNr = 1 ; $refereeNr <= $nrOfReferees ; $refereeNr++) {
-            $this->referees->add(new Referee($this, $refereeNr));
-        }
-    }
-
-    public function getReferee(int $refereeNr): Referee
-    {
-        foreach ($this->getReferees() as $referee) {
-            if ($referee->getNumber() === $refereeNr) {
-                return $referee;
-            }
-        }
-        throw new Exception('scheidsrechter kan niet gevonden worden', E_ERROR);
-    }
-
     public function createFirstBatch(): Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch
     {
         $games = $this->getGames(Game::ORDER_BY_BATCH);
         $batch = new Batch();
-        if ($this->getInput()->selfRefereeEnabled()) {
-            if ($this->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
+        if ($this->input->selfRefereeEnabled()) {
+            if ($this->input->getSelfReferee() === SelfReferee::SAMEPOULE) {
                 $batch = new SelfRefereeSamePouleBatch($batch);
             } else {
-                $poules = array_values($this->getPoules()->toArray());
+                $poules = array_values($this->input->getPoules()->toArray());
                 $batch = new SelfRefereeOtherPouleBatch($poules, $batch);
             }
         }
@@ -319,8 +195,8 @@ class Planning extends Identifiable
     public function getGames(int|null $order = null): array
     {
         $games = [];
-        foreach ($this->getPoules() as $poule) {
-            $games = array_merge($games, $poule->getGames());
+        foreach ($this->input->getPoules() as $poule) {
+            $games = array_merge($games, $this->getGamesForPoule($poule));
         }
         if ($order === Game::ORDER_BY_BATCH) {
             uasort($games, function (Game $g1, Game  $g2): int {
@@ -344,29 +220,51 @@ class Planning extends Identifiable
     }
 
     /**
-     * @return ArrayCollection<int|string, Place>
+     * @return list<AgainstGame|TogetherGame>
      */
-    public function getPlaces(): ArrayCollection
+    public function getGamesForPoule(Poule $poule): array
     {
-        /** @var ArrayCollection<int|string, Place> $places */
-        $places = new ArrayCollection();
-        foreach ($this->getPoules() as $poule) {
-            foreach ($poule->getPlaces() as $place) {
-                $places->add($place);
-            }
+        $pouleGamesMap = $this->getPouleGamesMap();
+        if(!isset($pouleGamesMap[$poule->getNumber()])) {
+            return [];
         }
-        return $places;
+        return $pouleGamesMap[$poule->getNumber()];
     }
 
-    public function getPlace(string $location): Place
+    /**
+     * @return array<int|string, list<AgainstGame|TogetherGame>>
+     */
+    protected function getPouleGamesMap(): array
     {
-        $pos = strpos($location, ".");
-        if ($pos === false) {
-            throw new Exception('geen punt gevonden in locatie', E_ERROR);
+        if( $this->pouleGamesMap === null ) {
+            $this->pouleGamesMap = [];
+            $games = array_merge($this->getAgainstGames()->toArray(), $this->getTogetherGames()->toArray());
+            foreach ($games as $game) {
+                if( !isset($this->pouleGamesMap[$game->getPoule()->getNumber()]) ) {
+                    $this->pouleGamesMap[$game->getPoule()->getNumber()] = [];
+                }
+                array_push($this->pouleGamesMap[$game->getPoule()->getNumber()], $game);
+            }
         }
-        $pouleNr = (int)substr($location, 0, $pos);
-        $placeNr = (int)substr($location, $pos + 1);
-        return $this->getPoule($pouleNr)->getPlace($placeNr);
+        return $this->pouleGamesMap;
+    }
+
+    /**
+     * @phpstan-return ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>
+     * @psalm-return ArrayCollection<int|string, AgainstGame>
+     */
+    public function getAgainstGames(): ArrayCollection|PersistentCollection
+    {
+        return $this->againstGames;
+    }
+
+    /**
+     * @phpstan-return ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>
+     * @psalm-return ArrayCollection<int|string, TogetherGame>
+     */
+    public function getTogetherGames(): ArrayCollection|PersistentCollection
+    {
+        return $this->togetherGames;
     }
 
     /**

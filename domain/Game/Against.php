@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use Exception;
 use SportsHelpers\Against\Side as AgainstSide;
@@ -13,6 +14,7 @@ use SportsPlanning\Place;
 use SportsPlanning\Game;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Poule;
+use SportsPlanning\Planning;
 
 class Against extends Game
 {
@@ -22,16 +24,21 @@ class Against extends Game
      */
     protected ArrayCollection|PersistentCollection $places;
 
-    public function __construct(Poule $poule, protected int $nrOfHeadtohead, Field $field)
+    public function __construct(
+        Planning $planning,
+        Poule $poule,
+        Field $field,
+        protected int $h2hNumber
+    )
     {
-        parent::__construct($poule, $field);
+        parent::__construct($planning, $poule, $field);
         $this->places = new ArrayCollection();
-        $this->poule->getAgainstGames()->add($this);
+        $this->planning->getAgainstGames()->add($this);
     }
 
-    public function getNrOfHeadtohead(): int
+    public function getH2hNumber(): int
     {
-        return $this->nrOfHeadtohead;
+        return $this->h2hNumber;
     }
 
     public function getBatchNr(): int
@@ -58,9 +65,9 @@ class Against extends Game
 
     /**
      * @param int|null $side
-     * @return ArrayCollection<int|string,AgainstGamePlace>
+     * @return Collection<int|string,AgainstGamePlace>
      */
-    public function getSidePlaces(int $side = null): ArrayCollection
+    public function getSidePlaces(int $side = null): Collection
     {
         if ($side === null) {
             return $this->getPlaces();
@@ -105,9 +112,9 @@ class Against extends Game
     }
 
     /**
-     * @return ArrayCollection<int|string,Place>
+     * @return Collection<int|string,Place>
      */
-    public function getPoulePlaces(): ArrayCollection
+    public function getPoulePlaces(): Collection
     {
         if ($this->poulePlaces === null) {
             $this->poulePlaces = $this->getPlaces()->map(function (AgainstGamePlace $gamePlace): Place {

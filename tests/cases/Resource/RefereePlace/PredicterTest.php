@@ -18,9 +18,9 @@ class PredicterTest extends TestCase
     public function testSamePouleEnoughRefereePlaces(): void
     {
         $planning = $this->createPlanning(
-            $this->createInputNew([3], null, null, SelfReferee::SAMEPOULE)
+            $this->createInput([3], null, null, SelfReferee::SAMEPOULE)
         );
-        $poules = array_values($planning->getPoules()->toArray());
+        $poules = array_values($planning->getInput()->getPoules()->toArray());
         $predicter = new Predicter($poules);
         $firstBatch = $planning->createFirstBatch();
         self::assertTrue($firstBatch instanceof SelfRefereeBatchSamePoule
@@ -33,16 +33,16 @@ class PredicterTest extends TestCase
     {
         self::expectException(\Exception::class);
         $this->createPlanning(
-            $this->createInputNew([2], null, null, SelfReferee::SAMEPOULE)
+            $this->createInput([2], null, null, SelfReferee::SAMEPOULE)
         );
     }
 
     public function testOtherPoulesEnoughRefereePlaces(): void
     {
         $planning = $this->createPlanning(
-            $this->createInputNew([3,3], null, null, SelfReferee::OTHERPOULES)
+            $this->createInput([3,3], null, null, SelfReferee::OTHERPOULES)
         );
-        $poules = array_values($planning->getPoules()->toArray());
+        $poules = array_values($planning->getInput()->getPoules()->toArray());
         $predicter = new Predicter($poules);
         $firstBatch = $planning->createFirstBatch();
         self::assertTrue($firstBatch instanceof SelfRefereeBatchSamePoule

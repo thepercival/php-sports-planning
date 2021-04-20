@@ -12,16 +12,16 @@ class PlaceCombinationTest extends TestCase
 
     public function testCount(): void
     {
-        $planning = $this->createPlanning($this->createInputNew([4]));
-        $places = array_values($planning->getPoule(1)->getPlaces()->toArray());
+        $planning = $this->createPlanning($this->createInput([4]));
+        $places = array_values($planning->getInput()->getPoule(1)->getPlaces()->toArray());
         $placeCombination = new PlaceCombination($places);
         self::assertSame(4, $placeCombination->count());
     }
 
     public function testNumber(): void
     {
-        $planning = $this->createPlanning($this->createInputNew([4]));
-        $places = array_values($planning->getPoule(1)->getPlaces()->toArray());
+        $planning = $this->createPlanning($this->createInput([4]));
+        $places = array_values($planning->getInput()->getPoule(1)->getPlaces()->toArray());
         $placeCombination = new PlaceCombination($places);
         self::assertSame(15, $placeCombination->getNumber());
     }

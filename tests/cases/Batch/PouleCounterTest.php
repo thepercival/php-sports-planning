@@ -16,11 +16,9 @@ class PouleCounterTest extends \PHPUnit\Framework\TestCase
 
     public function testCalculations(): void
     {
-        $planning = $this->createPlanning(
-            $this->createInputNew([3])
-        );
+        $planning = $this->createPlanning($this->createInput([3]));
 
-        $pouleOne = $planning->getPoule(1);
+        $pouleOne = $planning->getInput()->getPoule(1);
         $pouleCounter = new PouleCounter($pouleOne);
 
         $nrOfPlacesAssigned = 3;

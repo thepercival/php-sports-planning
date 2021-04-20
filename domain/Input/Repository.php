@@ -8,7 +8,6 @@ use Exception;
 use Doctrine\ORM\EntityRepository;
 use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\PouleStructure;
-use SportsHelpers\Sport\GameAmountVariant;
 use SportsHelpers\SportRange;
 use SportsPlanning\Input as InputBase;
 use SportsPlanning\Planning;
@@ -22,30 +21,9 @@ class Repository extends EntityRepository implements SaveRemoveRepository
 {
     use BaseRepository;
 
-    /**
-     * @param PouleStructure $pouleStructure
-     * @param list<GameAmountVariant> $sportVariants
-     * @param int $nrOfReferees
-     * @param int $selfReferee
-     * @return InputBase|null
-     */
-    public function get(
-        PouleStructure $pouleStructure,
-        array $sportVariants,
-        int $nrOfReferees,
-        int $selfReferee
-    ): ?InputBase {
-        $query = $this->createQueryBuilder('pi')
-            ->where('pi.pouleStructureDb = :pouleStructure')
-            ->andWhere('pi.sportConfigDb = :sportVariant')
-            ->andWhere('pi.nrOfReferees = :nrOfReferees')
-            ->andWhere('pi.selfReferee = :selfReferee')
-        ;
-
-        $query = $query->setParameter('pouleStructure', json_encode($pouleStructure->toArray()));
-        $query = $query->setParameter('sportVariant', json_encode($this->sportVariantsToArray($sportVariants)));
-        $query = $query->setParameter('nrOfReferees', $nrOfReferees);
-        $query = $query->setParameter('selfReferee', $selfReferee);
+    public function get(string $uniqueString): ?InputBase {
+        $query = $this->createQueryBuilder('pi')->where('pi.uniqueString = :uniqueString');
+        $query = $query->setParameter('uniqueString', $uniqueString);
 
         $query->setMaxResults(1);
         /** @var list<InputBase> $results */
@@ -54,25 +32,9 @@ class Repository extends EntityRepository implements SaveRemoveRepository
         return $first !== false ? $first : null;
     }
 
-    /**
-     * @param list<GameAmountVariant> $sportVariants
-     * @return list<array<string,int>>
-     */
-    protected function sportVariantsToArray(array $sportVariants): array
-    {
-        return array_values(array_map(function (GameAmountVariant $sportVariant): array {
-            return $sportVariant->toArray();
-        }, $sportVariants));
-    }
-
     public function getFromInput(InputBase $input): ?InputBase
     {
-        return $this->get(
-            $input->getPouleStructure(),
-            $input->getSportVariants(),
-            $input->getNrOfReferees(),
-            $input->getSelfReferee()
-        );
+        return $this->get($input->getUniqueString());
     }
 
     public function removePlannings(InputBase $planningInput): void

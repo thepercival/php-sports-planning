@@ -1,9 +1,9 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Input;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\GameMode;
 use SportsHelpers\Place\Range as PlaceRange;
 use SportsPlanning\Input\Iterator as InputIterator;
 use SportsHelpers\SportRange;
@@ -26,9 +26,9 @@ class IteratorTest extends TestCase
 
         $planningInput = $inputIterator->current();
         self::assertNotNull($planningInput);
-        self::assertGreaterThan(30, $inputIterator->key());
-        self::assertEquals([2], $planningInput->getPouleStructure()->toArray());
-        self::assertEquals(0, $planningInput->getNrOfReferees());
+        // self::assertGreaterThan(30, $inputIterator->key());
+        self::assertEquals([2], $planningInput->createPouleStructure()->toArray());
+        self::assertCount(0, $planningInput->getReferees());
         self::assertEquals(SelfReferee::DISABLED, $planningInput->getSelfReferee());
     }
 
@@ -69,6 +69,6 @@ class IteratorTest extends TestCase
         }
         $inputIterator->next(); // should do nothing
         self::assertFalse($inputIterator->valid());
-        self::assertEquals(744, $nrOfPossibilities);
+        self::assertEquals(918, $nrOfPossibilities);
     }
 }

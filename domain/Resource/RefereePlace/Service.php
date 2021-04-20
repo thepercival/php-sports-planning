@@ -24,7 +24,7 @@ class Service
 
     public function __construct(private Planning $planning)
     {
-        $this->nrOfPlaces = $this->planning->getPouleStructure()->getNrOfPlaces();
+        $this->nrOfPlaces = $this->planning->getInput()->getNrOfPlaces();
         $this->replacer = new Replacer($planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE);
         $this->throwOnTimeout = true;
     }
@@ -60,7 +60,7 @@ class Service
     protected function getRefereePlaceMap(): array
     {
         $refereePlaces = [];
-        foreach ($this->planning->getPlaces() as $place) {
+        foreach ($this->planning->getInput()->getPlaces() as $place) {
             $gameCounter = new PlaceGameCounter($place);
             $refereePlaces[$gameCounter->getIndex()] = $gameCounter;
         }

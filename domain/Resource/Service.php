@@ -32,8 +32,8 @@ class Service
 
     public function __construct(protected Planning $planning, protected LoggerInterface $logger)
     {
-        $this->nrOfPoules = $this->planning->getPoules()->count();
-        $poules = array_values($this->planning->getPoules()->toArray());
+        $this->nrOfPoules = $this->planning->getInput()->getPoules()->count();
+        $poules = array_values($this->planning->getInput()->getPoules()->toArray());
         $this->refereePlacePredicter = new Predicter($poules);
         $this->batchOutput = new BatchOutput($logger);
         $this->planningOutput = new PlanningOutput($logger);
@@ -60,7 +60,7 @@ class Service
             if ($this->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
                 $batch = new SelfRefereeSamePouleBatch($batch);
             } else {
-                $poules = array_values($this->planning->getPoules()->toArray());
+                $poules = array_values($this->planning->getInput()->getPoules()->toArray());
                 $batch = new SelfRefereeOtherPouleBatch($poules, $batch);
             }
         }
@@ -140,7 +140,7 @@ class Service
 
             $nextBatch = $this->toNextBatch($batch, $fieldResources, $games);
 
-//            $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber() );
+            // $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber() );
 
             if (count($gamesForBatch) === 0 && count($games) === 0) { // endsuccess
                 return true;
@@ -159,15 +159,18 @@ class Service
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $fieldResources, $nextBatch, $this->planning->getMaxNrOfBatchGames(), 0);
         }
         if ($this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
-//            throw new TimeoutException(
-//                "exceeded maximum duration of " . $this->planning->getTimeoutSeconds() . " seconds",
-//                E_ERROR
-//            );
+            throw new TimeoutException(
+                "exceeded maximum duration of " . $this->planning->getTimeoutSeconds() . " seconds",
+                E_ERROR
+            );
         }
         if ($nrOfGamesTried === count($gamesForBatch)) {
             return false;
         }
         $game = array_shift($gamesForBatch);
+        if ($game === null) {
+            return false;
+        }
         if ($this->isGameAssignable($batch, $game, $fieldResources)) {
             $newFieldResources = clone $fieldResources; // ->copy($this->planning);
             $this->assignGame($batch, $game, $newFieldResources);
@@ -183,13 +186,14 @@ class Service
             $this->releaseGame($batch, $game);
         }
         $gamesForBatch[] = $game;
+        ++$nrOfGamesTried;
         if ($this->assignBatchHelper(
             $games,
             $gamesForBatch,
             clone $fieldResources,
             $batch,
             $maxNrOfBatchGames,
-            ++$nrOfGamesTried
+            $nrOfGamesTried
         )) {
             return true;
         }
@@ -249,8 +253,7 @@ class Service
         Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch,
         TogetherGame|AgainstGame $game,
         Fields $fieldResources
-    ): bool
-    {
+    ): bool {
         if (!$fieldResources->isSomeFieldAssignable($game->getSport())) {
             return false;
         }
@@ -264,7 +267,7 @@ class Service
         Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch,
         TogetherGame|AgainstGame $game
     ): bool {
-        $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
+        $maxNrOfGamesInARow = $this->planning->getMaxNrOfGamesInARow();
         foreach ($game->getPoulePlaces() as $place) {
             if ($batch->isParticipating($place)) {
                 return false;
@@ -274,7 +277,7 @@ class Service
                 continue;
             }
             $nrOfGamesInARow = $previousBatch->getGamesInARow($place);
-            if ($nrOfGamesInARow < $maxNrOfGamesInARow || $maxNrOfGamesInARow === -1) {
+            if ($nrOfGamesInARow < $maxNrOfGamesInARow || $maxNrOfGamesInARow <= 0) {
                 continue;
             }
             return false;

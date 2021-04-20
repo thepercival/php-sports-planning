@@ -5,9 +5,10 @@ namespace SportsPlanning\Tests\GameGenerator;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\Sport\GameAmountVariant as SportGameAmountVariant;
-use SportsPlanning\GameGenerator\Against as AgainstGameGenerator;
+use SportsHelpers\SportRange;
+use SportsPlanning\GameGenerator\GameMode\Against as AgainstGameGenerator;
 use SportsPlanning\TestHelper\PlanningCreator;
+use SportsPlanning\Planning;
 
 class AgainstTest extends TestCase
 {
@@ -15,18 +16,15 @@ class AgainstTest extends TestCase
 
     public function testSimple(): void
     {
-        $sportVariants = [new SportGameAmountVariant(GameMode::AGAINST, 2, 2, 1)];
-        $planning = $this->createPlanning(
-            $this->createInputNew([5], $sportVariants)
-        );
+        $planning = new Planning($this->createInput([5]), new SportRange(1, 1), 0);
 
         // alle tests zitten ook in de validator, dus een beeteje dubbel om hier
         // ook nog eens alles te testen!!!!
-        $gameGenerator = new AgainstGameGenerator();
+        $gameGenerator = new AgainstGameGenerator($planning);
 
-        $poule = $planning->getPoule(1);
-        $sports = array_values($planning->getSports()->toArray());
-        $games = $gameGenerator->generate($poule, $sports);
+        $poule = $planning->getInput()->getPoule(1);
+        $sports = array_values($planning->getInput()->getSports()->toArray());
+        $gameGenerator->generate($poule, $sports);
 //        foreach( $games as $game ) {
 //            $output = "";
 //            $getPlacesDescription = function(PlaceCombination $placeCombination): string {
@@ -44,7 +42,7 @@ class AgainstTest extends TestCase
 
         // $maxNrOfGamesSim = $calculator->getMaxNrOfGames( $pouleStructure, $sportConfigs, false );
         // check if GameRoundGenerator should be removed !!!!!!!!!!!!!!!!!
-        self::assertCount(10, $games);
+        self::assertCount(10, $planning->getAgainstGames());
         // check if GameRoundGenerator should be removed !!!!!!!!!!!!!!!!!
     }
 }

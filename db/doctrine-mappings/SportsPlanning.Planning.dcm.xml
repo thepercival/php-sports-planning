@@ -13,19 +13,13 @@
         <join-column name="inputId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>
     </many-to-one>
-    <one-to-many field="poules" target-entity="SportsPlanning\Poule" mapped-by="planning" orphan-removal="true">
+    <one-to-many field="againstGames" target-entity="SportsPlanning\Game\Against" mapped-by="planning">
       <cascade>
         <cascade-persist/>
         <cascade-remove/>
       </cascade>
     </one-to-many>
-    <one-to-many field="sports" target-entity="SportsPlanning\Sport" mapped-by="planning" orphan-removal="true">
-      <cascade>
-        <cascade-persist/>
-        <cascade-remove/>
-      </cascade>
-    </one-to-many>
-    <one-to-many field="referees" target-entity="SportsPlanning\Referee" mapped-by="planning" orphan-removal="true">
+    <one-to-many field="togetherGames" target-entity="SportsPlanning\Game\Together" mapped-by="planning">
       <cascade>
         <cascade-persist/>
         <cascade-remove/>

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Identifiable;
 
 abstract class Game extends Identifiable
@@ -13,15 +14,20 @@ abstract class Game extends Identifiable
     protected Place|null $refereePlace = null;
     protected Referee|null $referee = null;
     /**
-     * @var ArrayCollection<int|string,Place>|null
+     * @var Collection<int|string,Place>|null
      */
-    protected ArrayCollection|null $poulePlaces = null;
+    protected Collection|null $poulePlaces = null;
 
     public const ORDER_BY_BATCH = 1;
     // public const ORDER_BY_GAMENUMBER = 2;
 
-    public function __construct(protected Poule $poule, protected Field $field)
+    public function __construct(protected Planning $planning, protected Poule $poule, protected Field $field)
     {
+    }
+
+    public function getPlanning(): Planning
+    {
+        return $this->planning;
     }
 
     public function getPoule(): Poule

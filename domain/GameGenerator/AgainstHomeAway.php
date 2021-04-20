@@ -1,22 +1,16 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\GameGenerator;
 
 use SportsHelpers\Against\Side as AgainstSide;
-use SportsPlanning\Sport;
 
 class AgainstHomeAway
 {
     public function __construct(
-        private Sport $sport,
         private PlaceCombination $home,
         private PlaceCombination $away
     ) {
-    }
-
-    public function getSport(): Sport
-    {
-        return $this->sport;
     }
 
     public function get(int $side): PlaceCombination

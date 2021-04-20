@@ -5,8 +5,9 @@ namespace SportsPlanning\Tests\GameGenerator;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\Sport\GameAmountVariant;
-use SportsPlanning\GameGenerator\Together as TogetherGameeGenerator;
+use SportsHelpers\SportRange;
+use SportsPlanning\GameGenerator\GameMode\Single as SingleGameGenerator;
+use SportsPlanning\Planning;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class TogetherTest extends TestCase
@@ -15,10 +16,11 @@ class TogetherTest extends TestCase
 
     public function testSimple(): void
     {
-        $sportVariants = [new GameAmountVariant(GameMode::TOGETHER, 2, 2, 3)];
-        $planning = $this->createPlanning(
-            $this->createInputNew([7], $sportVariants)
-        );
+        $sportVariant = $this->getSingleSportVariantWithFields(2, 3, 2);
+        $planning = new Planning(
+            $this->createInput([7], [$sportVariant]),
+            new SportRange(1, 1),
+            0);
 
 //        $getPlacesDescription = function (array $togetherGamePlaces): string {
 //            $description = "";
@@ -30,11 +32,11 @@ class TogetherTest extends TestCase
 
         // alle tests zitten ook in de validator, dus een beeteje dubbel om hier
         // ook nog eens alles te testen!!!!
-        $gameGenerator = new TogetherGameeGenerator();
+        $gameGenerator = new SingleGameGenerator($planning);
 
-        $poule = $planning->getPoule(1);
-        $sports = array_values($planning->getSports()->toArray());
-        $games = $gameGenerator->generate($poule, $sports);
+        $poule = $planning->getInput()->getPoule(1);
+        $sports = array_values($planning->getInput()->getSports()->toArray());
+        $gameGenerator->generate($poule, $sports);
 //        foreach( $games as $game ) {
 //            $output = "";
 //            $places = "places: " . $getPlacesDescription($game->getPlaces()->toArray());
@@ -44,7 +46,7 @@ class TogetherTest extends TestCase
 
         // $maxNrOfGamesSim = $calculator->getMaxNrOfGames( $pouleStructure, $sportConfigs, false );
         // check if GameRoundGenerator should be removed !!!!!!!!!!!!!!!!!
-        self::assertCount(11, $games);
+        self::assertCount(11, $planning->getTogetherGames());
         // check if GameRoundGenerator should be removed !!!!!!!!!!!!!!!!!
     }
 }
