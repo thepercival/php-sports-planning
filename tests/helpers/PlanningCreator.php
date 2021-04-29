@@ -20,24 +20,24 @@ use SportsHelpers\SelfReferee;
 
 trait PlanningCreator
 {
-    protected function getAgainstSportVariant(int $nrOfHomePlaces = 1, int $nrOfAwayPlaces = 1, int $nrOfH2H = 1): AgainstSportVariant
+    protected function getAgainstSportVariant(int $nrOfHomePlaces = 1, int $nrOfAwayPlaces = 1, int $nrOfH2H = 1, int $nrOfPartials = 0): AgainstSportVariant
     {
-        return new AgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H);
+        return new AgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfPartials);
     }
 
-    protected function getSingleSportVariant(int $gameAmount = 1, int $nrOfGamePlaces = 1): SingleSportVariant
+    protected function getSingleSportVariant(int $nrOfGameRounds = 1, int $nrOfGamePlaces = 1): SingleSportVariant
     {
-        return new SingleSportVariant($nrOfGamePlaces, $gameAmount);
+        return new SingleSportVariant($nrOfGamePlaces, $nrOfGameRounds);
     }
 
-    protected function getAgainstSportVariantWithFields(int $nrOfFields, int $nrOfHomePlaces = 1, int $nrOfAwayPlaces = 1, int $nrOfH2H = 1): SportVariantWithFields
+    protected function getAgainstSportVariantWithFields(int $nrOfFields, int $nrOfHomePlaces = 1, int $nrOfAwayPlaces = 1, int $nrOfH2H = 1, int $nrOfPartials = 0): SportVariantWithFields
     {
-        return new SportVariantWithFields($this->getAgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H), $nrOfFields);
+        return new SportVariantWithFields($this->getAgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfPartials), $nrOfFields);
     }
 
-    protected function getSingleSportVariantWithFields(int $nrOfFields, int $gameAmount = 1, int $nrOfGamePlaces = 1): SportVariantWithFields
+    protected function getSingleSportVariantWithFields(int $nrOfFields, int $nrOfGameRounds = 1, int $nrOfGamePlaces = 1): SportVariantWithFields
     {
-        return new SportVariantWithFields($this->getSingleSportVariant($gameAmount, $nrOfGamePlaces), $nrOfFields);
+        return new SportVariantWithFields($this->getSingleSportVariant($nrOfGameRounds, $nrOfGamePlaces), $nrOfFields);
     }
 
     protected function getLogger(): LoggerInterface
@@ -86,14 +86,16 @@ trait PlanningCreator
         );
     }
 
-    protected function createPlanning(Input $input, SportRange $range = null): Planning
+    protected function createPlanning(Input $input, SportRange $range = null, int $maxNrOfGamesInARow = 0): Planning
     {
         if ($range === null) {
             $range = new SportRange(1, 1);
         }
-        $planning = new Planning($input, $range, 0);
+        $planning = new Planning($input, $range, $maxNrOfGamesInARow);
         $gameCreator = new GameCreator($this->getLogger());
-        if (Planning::STATE_SUCCEEDED !== $gameCreator->createGames($planning)) {
+        // $gameCreator->disableThrowOnTimeout();
+        $gameCreator->createAssignedGames($planning);
+        if (Planning::STATE_SUCCEEDED !== $planning->getState()) {
             throw new Exception("planning could not be created", E_ERROR);
         }
         return $planning;

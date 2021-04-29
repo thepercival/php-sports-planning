@@ -97,7 +97,12 @@ class AgainstSportsIterator implements \Iterator
 
     protected function createAgainstSportVariantWithFields(): SportVariantWithFields
     {
-        $againstSportVariant = new AgainstSportVariant($this->nrOfHomePlaces, $this->nrOfAwayPlaces, $this->nrOfH2H);
+        if ($this->nrOfHomePlaces + $this->nrOfAwayPlaces > 2) {
+            $againstSportVariant = new AgainstSportVariant($this->nrOfHomePlaces, $this->nrOfAwayPlaces, 0, 1);
+        } else {
+            $againstSportVariant = new AgainstSportVariant($this->nrOfHomePlaces, $this->nrOfAwayPlaces, $this->nrOfH2H, 0);
+        }
+
         return new SportVariantWithFields($againstSportVariant, $this->nrOfFields);
     }
 

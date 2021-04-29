@@ -9,7 +9,6 @@ use SportsPlanning\Input as PlanningInput;
 use SportsHelpers\SportRange;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\PouleStructure\BalancedIterator as PouleStructureIterator;
-use SportsHelpers\Place\Range as PlaceRange;
 use SportsPlanning\Input\Service as PlanningInputService;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 
@@ -32,13 +31,14 @@ class Iterator implements \Iterator
     protected PlanningInput|null $current = null;
 
     public function __construct(
-        PlaceRange $rangePlaces,
+        SportRange $rangePlaces,
+        SportRange $rangePlacesPerPoule,
         SportRange $rangePoules,
         SportRange $rangeNrOfReferees,
         SportRange $rangeNrOfFields,
         SportRange $rangeGameAmount
     ) {
-        $this->structureIterator = new PouleStructureIterator($rangePlaces, $rangePoules);
+        $this->structureIterator = new PouleStructureIterator($rangePlaces, $rangePlacesPerPoule, $rangePoules);
         $this->sportsIterator = new AgainstSportsIterator($rangeNrOfFields, $rangeGameAmount);
         $this->rangeNrOfReferees = $rangeNrOfReferees;
         $this->planningInputService = new PlanningInputService();

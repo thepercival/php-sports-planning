@@ -35,8 +35,9 @@ class Validator
     public const UNEQUALLY_ASSIGNED_REFEREES = 4096;
     public const UNEQUALLY_ASSIGNED_REFEREEPLACES = 8192;
     public const INVALID_ASSIGNED_REFEREEPLACE = 16384;
+    public const UNEQUAL_PLACE_NROFHOMESIDES = 32768;
 
-    public const ALL_INVALID = 32767;
+    public const ALL_INVALID = 65535;
 
     public function __construct()
     {
@@ -76,6 +77,9 @@ class Validator
         }
         if (($validity & self::UNEQUAL_GAME_HOME_AWAY) === self::UNEQUAL_GAME_HOME_AWAY) {
             $invalidations[] = "the planning has a game with an unequal number of home- & awayplaces";
+        }
+        if (($validity & self::UNEQUAL_PLACE_NROFHOMESIDES) === self::UNEQUAL_PLACE_NROFHOMESIDES) {
+            $invalidations[] = "the planning has a places with too much difference in nrOfHomeSides";
         }
         if (($validity & self::EMPTY_PLACE) === self::EMPTY_PLACE) {
             $invalidations[] = "the planning has a game with an empty place";
@@ -147,6 +151,10 @@ class Validator
     protected function allPlacesInPouleSameNrOfGames(Planning $planning, Poule $poule): int
     {
         $nrOfGamesPerPlace = [];
+        $nrOfHomeSideGames = [];
+        foreach ($poule->getPlaces() as $place) {
+            $nrOfHomeSideGames[$place->getUniqueIndex()] = 0;
+        }
         foreach ($planning->getGamesForPoule($poule) as $game) {
             if ($game instanceof AgainstGame) {
                 $homePlaces = $game->getSidePlaces(AgainstSide::HOME);
@@ -156,6 +164,9 @@ class Validator
                 }
                 if (count($homePlaces) !== count($awayPlaces)) {
                     return self::UNEQUAL_GAME_HOME_AWAY;
+                }
+                foreach ($homePlaces as $homePlace) {
+                    $nrOfHomeSideGames[$homePlace->getPlace()->getUniqueIndex()]++;
                 }
             }
             if ($game->getPlaces()->count() === 0) {
@@ -196,6 +207,14 @@ class Validator
             }
         }
 
+        if (count($nrOfHomeSideGames) > 0) {
+            $minValue = min($nrOfHomeSideGames);
+            foreach ($nrOfHomeSideGames as $amount) {
+                if ($amount - $minValue > 1) {
+                    return self::UNEQUAL_PLACE_NROFHOMESIDES;
+                }
+            }
+        }
         return self::VALID;
     }
 

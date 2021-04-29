@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
 
@@ -45,7 +46,7 @@ class Seeker
     public function process(Input $input): void
     {
         try {
-            $this->planningOutput->outputInput($input, 'processing input: ', " ..");
+            $this->planningOutput->outputInput($input, 'processing input('.$input->getId().'): ', " ..");
             $this->processInput($input);
             // $this->inputRepos->save($input);
         } catch (Exception $e) {
@@ -61,8 +62,9 @@ class Seeker
             $this->batchGamesPostProcessor->updateOthers($planningToBeProcessed);
         }
 
-        $bestBatchGamePlanning = $input->getBestBatchGamesPlanning();
-        if ($bestBatchGamePlanning === null) {
+        $bestBatchGamePlannings = $input->getBatchGamesPlannings(Planning::STATE_SUCCEEDED);
+        $bestBatchGamePlanning = reset($bestBatchGamePlannings);
+        if ($bestBatchGamePlanning === false) {
             throw new Exception("input(" . ($input->getId() ?? '?') . ") should always have a best planning after processing", E_ERROR);
         }
 
@@ -104,9 +106,7 @@ class Seeker
         if (!$this->throwOnTimeout) {
             $gameCreator->disableThrowOnTimeout();
         }
-        $newState = $gameCreator->createGames($planning);
-
-        $planning->setState($newState);
+        $gameCreator->createAssignedGames($planning);
         $this->planningRepos->save($planning);
 
 //        $planningOutput = new PlanningOutput($this->logger);

@@ -131,9 +131,7 @@ class Predicter
             $pouleMax = $avgNrOfGamesForRefereePlace + self::SAME_POULE_MAX_DELTA;
             // $pouleMin = $avgNrOfGamesForRefereePlace - self::SAME_POULE_MAX_DELTA;
 
-            // naast de forced referee assignments heb je ook dat
-            // places niet beschikbaar zijn, omdat ze zelf moeten
-
+            // naast de forced referee assignments heb je ook dat places niet beschikbaar zijn, omdat ze zelf moeten
             // place met laagste nrOfForcedAssignment moet minimaal 1x beschikbaar zijn
             foreach ($poule->getPlaces() as $place) {
                 $nrOfForcedRefereePlaces = 0;

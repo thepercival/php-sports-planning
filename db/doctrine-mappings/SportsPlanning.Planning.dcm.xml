@@ -7,6 +7,7 @@
     <field name="createdDateTime" column="createdDateTime" type="datetime_immutable" nullable="false" unique="false"/>
     <field name="timeoutSeconds" column="timeoutSeconds" type="integer" nullable="true" unique="false"/>
     <field name="state" column="state" type="smallint" nullable="false" unique="false"/>
+    <field name="nrOfBatches" column="nrOfBatches" type="smallint" nullable="false" unique="false"/>
     <field name="validity" column="validity" type="integer" nullable="false" unique="false"/>
     <many-to-one field="input" target-entity="SportsPlanning\Input" inversed-by="plannings">
       <join-columns>

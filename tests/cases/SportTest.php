@@ -21,12 +21,13 @@ class SportTest extends TestCase
             1,
             1,
             0,
+            0,
             0
         );
         $sport = new Sport($input, $dbSportVariant);
         self::assertSame($input, $sport->getInput());
         self::assertSame(2, $sport->getNumber());
         self::assertSame(0, $sport->getNrOfGamePlaces());
-        self::assertSame(0, $sport->getGameAmount());
+        self::assertSame(0, $sport->getNrOfGamesPerPlace());
     }
 }

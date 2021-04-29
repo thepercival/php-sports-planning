@@ -20,35 +20,48 @@ class GameCreator
         $this->throwOnTimeout = true;
     }
 
-    public function createGames(Planning $planning): int
+    public function createAssignedGames(Planning $planning): void
     {
         $gameGenerator = new GameGenerator();
-        $gameGenerator->generateGames($planning);
+        if (!$this->throwOnTimeout) {
+            $gameGenerator->disableThrowOnTimeout();
+        }
+        $state = $gameGenerator->generateUnAssignedGames($planning);
+        if ($state === Planning::STATE_FAILED || $state === Planning::STATE_TIMEDOUT) {
+            $planning->getAgainstGames()->clear();
+            $planning->getTogetherGames()->clear();
+            $planning->setState($state);
+            return;
+        }
         $games = $planning->getGames(/*Game::ORDER_BY_GAMENUMBER*/);
 
         $resourceService = new ResourceService($planning, $this->logger);
         if (!$this->throwOnTimeout) {
             $resourceService->disableThrowOnTimeout();
         }
+
         $state = $resourceService->assign($games);
         if ($state === Planning::STATE_FAILED || $state === Planning::STATE_TIMEDOUT) {
             $planning->getAgainstGames()->clear();
             $planning->getTogetherGames()->clear();
-            return $state;
+            $planning->setState($state);
+            return;
         }
 
-        if (!$planning->getInput()->selfRefereeEnabled()) {
-            return $state;
-        }
         $firstBatch = $planning->createFirstBatch();
         if ($firstBatch instanceof SelfRefereeBatchOtherPoule || $firstBatch instanceof SelfRefereeBatchSamePoule) {
             $refereePlaceService = new RefereePlaceService($planning);
             if (!$this->throwOnTimeout) {
                 $refereePlaceService->disableThrowOnTimeout();
             }
-            return $refereePlaceService->assign($firstBatch);
+            $state = $refereePlaceService->assign($firstBatch);
+            if ($state === Planning::STATE_FAILED || $state === Planning::STATE_TIMEDOUT) {
+                $planning->setState($state);
+                return;
+            }
         }
-        return Planning::STATE_SUCCEEDED;
+        $planning->setState(Planning::STATE_SUCCEEDED);
+        $planning->setNrOfBatches($firstBatch->getLeaf()->getNumber());
     }
 
     public function disableThrowOnTimeout(): void

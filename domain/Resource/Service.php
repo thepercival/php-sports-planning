@@ -140,7 +140,12 @@ class Service
 
             $nextBatch = $this->toNextBatch($batch, $fieldResources, $games);
 
-            // $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber() );
+//            $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber() );
+//            $this->logger->info('unassinged games: ');
+//            $this->batchOutput->outputGames($games);
+//            if( $nextBatch->getNumber() === 10 ) {
+//                $er = 4;
+//            }
 
             if (count($gamesForBatch) === 0 && count($games) === 0) { // endsuccess
                 return true;

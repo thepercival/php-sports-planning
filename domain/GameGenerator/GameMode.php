@@ -12,5 +12,5 @@ interface GameMode
      * @param Poule $poule
      * @param list<Sport> $sports
      */
-    public function generate(Poule $poule, array $sports): void;
+    public function generate(Poule $poule, array $sports): int;
 }

@@ -5,4 +5,4 @@ parameters:
     paths:
         - domain/
         - tests/cases/
-        #- tests/helpers/
+        - tests/helpers/

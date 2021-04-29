@@ -40,6 +40,7 @@ class AgainstSportsIteratorTest extends TestCase
         $sportVariantWithFields = null;
         while ($sportsIterator->current() !== null) {
             $sportVariantWithFields = $sportsIterator->current();
+            // echo $sportVariantWithFields . PHP_EOL;
             $sportsIterator->next();
         }
         self::assertNotNull($sportVariantWithFields);
@@ -49,7 +50,8 @@ class AgainstSportsIteratorTest extends TestCase
         self::assertEquals(GameMode::AGAINST, $sportVariant->getGameMode());
         self::assertEquals(4, $sportVariant->getNrOfGamePlaces());
         self::assertEquals(2, $sportVariantWithFields->getNrOfFields());
-        self::assertEquals(2, $sportVariant->getNrOfH2H());
+        self::assertEquals(0, $sportVariant->getNrOfH2H());
+        self::assertEquals(1, $sportVariant->getNrOfPartials());
     }
 
     public function testCount(): void

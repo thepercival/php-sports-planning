@@ -24,6 +24,7 @@ class Planning extends Identifiable
     protected DateTimeImmutable $createdDateTime;
     protected int $timeoutSeconds;
     protected int $state;
+    protected int $nrOfBatches = 0;
     protected int $validity = -1;
     /**
      * @var array<int|string, list<AgainstGame|TogetherGame>>|null
@@ -101,10 +102,6 @@ class Planning extends Identifiable
         return $this->maxNrOfGamesInARow;
     }
 
-    public function setMaxNrOfGamesInARow(int $maxNrOfGamesInARow): void
-    {
-        $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
-    }
 
     public function isBatchGames(): bool
     {
@@ -150,6 +147,16 @@ class Planning extends Identifiable
     public function setState(int $state): void
     {
         $this->state = $state;
+    }
+
+    public function getNrOfBatches(): int
+    {
+        return $this->nrOfBatches;
+    }
+
+    public function setNrOfBatches(int $nrOfBatches): void
+    {
+        $this->nrOfBatches = $nrOfBatches;
     }
 
     public function getValidity(): int

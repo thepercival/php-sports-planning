@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning;
 
@@ -9,7 +10,9 @@ use Doctrine\ORM\PersistentCollection;
 use Exception;
 use SportsHelpers\Identifiable;
 use SportsHelpers\SelfReferee;
-use SportsHelpers\Sport\Variant as SportVariant;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\SportRange;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsHelpers\PouleStructure;
@@ -215,11 +218,11 @@ class Input extends Identifiable
     }
 
     /**
-     * @return Collection<int|string, SportVariant>
+     * @return Collection<int|string, SingleSportVariant|AgainstSportVariant|AllInOneGameSportVariant>
      */
     public function createSportVariants(): Collection
     {
-        return $this->sports->map(function (Sport $sport): SportVariant {
+        return $this->sports->map(function (Sport $sport): SingleSportVariant|AgainstSportVariant|AllInOneGameSportVariant {
             return $sport->createVariant();
         });
     }
@@ -426,19 +429,17 @@ class Input extends Identifiable
 
     public function getBestPlanning(): Planning
     {
-        $bestBatchGamesPlanning = $this->getBestBatchGamesPlanning();
-        if ($bestBatchGamesPlanning === null) {
+        $succeededPlannings = $this->getPlanningsWithState(Planning::STATE_SUCCEEDED);
+        $bestPlanning = $succeededPlannings->first();
+        if (!($bestPlanning instanceof Planning)) {
             throw new Exception('er kan geen planning worden gevonden', E_ERROR);
         }
-        return $bestBatchGamesPlanning->getBestGamesInARowPlanning();
-    }
-
-    public function getBestBatchGamesPlanning(): ?Planning
-    {
-        foreach ($this->getBatchGamesPlannings(Planning::STATE_SUCCEEDED) as $planning) {
-            return $planning;
+        foreach ($succeededPlannings as $succeededPlanning) {
+            if ($succeededPlanning->getNrOfBatches() < $bestPlanning->getNrOfBatches()) {
+                $bestPlanning = $succeededPlanning;
+            }
         }
-        return null;
+        return $bestPlanning;
     }
 
     protected function getSelfRefereeAsString(): string

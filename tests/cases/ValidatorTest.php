@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionObject;
+use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
 use SportsPlanning\Batch;
 use SportsHelpers\Against\Side as AgainstSide;
@@ -52,18 +54,21 @@ class ValidatorTest extends TestCase
             $this->createInput([5], null, null, SelfReferee::SAMEPOULE)
         );
 
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
         self::assertSame(PlanningValidator::VALID, $validity);
 
+        //(new PlanningOutput())->outputWithGames($planning, true);
+        // --------- BEGIN EDITING --------------
         /** @var AgainstGame $firstGame */
         $firstGame = $planning->getAgainstGames()->first();
         $firstGame->setRefereePlace(null);
 //        $firstBatch = $planning->createFirstBatch();
 //        $firstBatch->removeAsReferee( $firstGame->getRefereePlace()/*, $firstGame*/ );
-
-//        $planningOutput = new PlanningOutput();
-//        $planningOutput->outputWithGames($planning, true);
+// --------- BEGIN EDITING --------------
+        //(new PlanningOutput())->outputWithGames($planning, true);
 
         $validity = $planningValidator->validate($planning);
         self::assertSame(
@@ -92,7 +97,7 @@ class ValidatorTest extends TestCase
         $planning = new Planning($this->createInput([5], null, 0), new SportRange(1, 1), 1);
 
         $gameGenerator = new GameGenerator();
-        $gameGenerator->generateGames($planning);
+        $gameGenerator->generateUnAssignedGames($planning);
 
         $planningValidator = new PlanningValidator();
 
@@ -104,13 +109,26 @@ class ValidatorTest extends TestCase
 
     public function testGamesInARow(): void
     {
-        $planning = $this->createPlanning($this->createInput([5]));
+        $planning = $this->createPlanning($this->createInput([5]), null);
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
         self::assertSame(PlanningValidator::VALID, $validity);
 
-        $planning->setMaxNrOfGamesInARow(1);
+//        $planningOutput = new PlanningOutput();
+//        $planningOutput->outputWithGames($planning, true);
+
+        // ---------------- MAKE INVALID --------------------- //
+        $refObject   = new ReflectionObject($planning);
+        $refProperty = $refObject->getProperty('maxNrOfGamesInARow');
+        $refProperty->setAccessible(true);
+        $refProperty->setValue($planning, 1);
+        // ---------------- MAKE INVALID --------------------- //
+
+//        $planningOutput = new PlanningOutput();
+//        $planningOutput->outputWithGames($planning, true);
+
+
         $validity = $planningValidator->validate($planning);
         self::assertSame(
             PlanningValidator::TOO_MANY_GAMES_IN_A_ROW,
@@ -325,23 +343,15 @@ class ValidatorTest extends TestCase
         $refereePlaceService = new RefereePlaceService($planning);
         $refereePlaceService->assign($firstBatch);
 
-//        $planningOutput = new PlanningOutput();
-//        $planningOutput->outputWithGames($planning, true);
-
+        // ----------------- BEGIN EDITING --------------------------
+        // (new PlanningOutput())->outputWithGames($planning, true);
         $pouleOne = $planning->getInput()->getPoule(1);
         $gamesPouleOne = $planning->getGamesForPoule($pouleOne);
         $firstGame = $gamesPouleOne[0];
-        $secondGame = $gamesPouleOne[1];
-        $firstGame->setRefereePlace($secondGame->getRefereePlace());
-//        $this->replaceRefereePlace(
-//            $planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE,
-//            $planning->createFirstBatch(),
-//            $planning->getPoule(1)->getPlace(1),
-//            $planning->getPoule(1)->getPlace(4)
-//        );
-
-//        $planningOutput = new PlanningOutput();
-//        $planningOutput->outputWithGames($planning, true);
+        $lastGame = $gamesPouleOne[count($gamesPouleOne)-1];
+        $lastGame->setRefereePlace($firstGame->getRefereePlace());
+        // (new PlanningOutput())->outputWithGames($planning, true);
+        // ----------------- END EDITING --------------------------
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
@@ -377,7 +387,7 @@ class ValidatorTest extends TestCase
         $planningValidator = new PlanningValidator();
         $planningValidator->validate($planning);
         $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID, $planning);
-        self::assertCount(12, $descriptions);
+        self::assertCount(13, $descriptions);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -392,6 +402,40 @@ class ValidatorTest extends TestCase
         $planningValidator = new PlanningValidator();
         $planningValidator->validate($planning);
         $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID, $planning);
-        self::assertCount(12, $descriptions);
+        self::assertCount(13, $descriptions);
+    }
+
+    public function testNrOfHomeAwayH2H2(): void
+    {
+        $sportVariant = new SportVariantWithFields($this->getAgainstSportVariant(1, 1, 2), 2);
+        $planning = new Planning($this->createInput([3], [$sportVariant], 0), new SportRange(1, 1), 0);
+
+        $gameGenerator = new GameGenerator();
+        $gameGenerator->generateUnAssignedGames($planning);
+
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
+        // ---------------- MAKE INVALID --------------------- //
+        $planningGame = $planning->getAgainstGames()->first();
+        self::assertInstanceOf(AgainstGame::class, $planningGame);
+        $firstHomeGamePlace = $planningGame->getSidePlaces(AgainstSide::HOME)->first();
+        $firstAwayGamePlace = $planningGame->getSidePlaces(AgainstSide::AWAY)->first();
+        self::assertInstanceOf(AgainstGamePlace::class, $firstHomeGamePlace);
+        self::assertInstanceOf(AgainstGamePlace::class, $firstAwayGamePlace);
+        $planningGame->getPlaces()->removeElement($firstHomeGamePlace);
+        $planningGame->getPlaces()->removeElement($firstAwayGamePlace);
+        new AgainstGamePlace($planningGame, $firstAwayGamePlace->getPlace(), AgainstSide::HOME);
+        new AgainstGamePlace($planningGame, $firstHomeGamePlace->getPlace(), AgainstSide::AWAY);
+        // ---------------- MAKE INVALID --------------------- //
+
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
+        $planningValidator = new PlanningValidator();
+
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(
+            PlanningValidator::UNEQUAL_PLACE_NROFHOMESIDES,
+            $validity & PlanningValidator::UNEQUAL_PLACE_NROFHOMESIDES
+        );
     }
 }

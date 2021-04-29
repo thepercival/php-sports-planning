@@ -7,47 +7,56 @@ namespace SportsPlanning;
 use SportsHelpers\GameMode;
 use SportsPlanning\GameGenerator\GameMode as GameModeGenerator;
 use SportsHelpers\SportMath;
+use SportsPlanning\GameGenerator\GameMode\SingleHelper;
 
 class GameGenerator
 {
     protected SportMath $math;
+    protected bool $throwOnTimeout = true;
 
     public function __construct()
     {
         $this->math = new SportMath();
     }
 
-    public function generateGames(Planning $planning): void
+    public function generateUnAssignedGames(Planning $planning): int
     {
-        foreach ($planning->getInput()->getPoules() as $poule) {
-            $generatorMap = $this->getGenerators($planning);
-            foreach ([GameMode::ALL_IN_ONE_GAME, GameMode::AGAINST, GameMode::SINGLE] as $gameMode) {
-                $sports = $this->getSports($planning, $gameMode);
-                $generatorMap[$gameMode]->generate($poule, $sports);
+        try {
+            $singleHelper = new SingleHelper($planning);
+            foreach ($planning->getInput()->getPoules() as $poule) {
+                $generatorMap = $this->getGenerators($planning, $singleHelper);
+                foreach ([GameMode::ALL_IN_ONE_GAME, GameMode::AGAINST, GameMode::SINGLE, 0] as $gameMode) {
+                    $sports = $this->getSports($planning, $gameMode);
+                    $state = $generatorMap[$gameMode]->generate($poule, $sports);
+                    if ($state !== Planning::STATE_SUCCEEDED) {
+                        return $state;
+                    }
+                }
             }
+        } catch (TimeoutException $e) {
+            return Planning::STATE_TIMEDOUT;
         }
-
-        // hier moeten de games gegenereerd worden, op basis van creationstrategy
-//        public const StaticPouleSize = 1;
-//        public const StaticManual = 2;
-//        public const IncrementalRandom = 3;
-//        public const IncrementalRanking = 4;
+        return Planning::STATE_SUCCEEDED;
     }
 
     /**
      * @param Planning $planning
+     * @param SingleHelper $singleHelper
      * @return array<int, GameModeGenerator>
      */
-    protected function getGenerators(Planning $planning): array
+    protected function getGenerators(Planning $planning, SingleHelper $singleHelper): array
     {
         $generatorMap = [];
         $generatorMap[GameMode::ALL_IN_ONE_GAME] = new GameGenerator\GameMode\AllInOneGame($planning);
         $generatorMap[GameMode::AGAINST] = new GameGenerator\GameMode\Against($planning);
-        $generatorMap[GameMode::SINGLE] = new GameGenerator\GameMode\Single($planning);
+        $generatorMap[GameMode::SINGLE] = new GameGenerator\GameMode\Single($planning, $singleHelper);
+        $againstMixedGenerator = new GameGenerator\GameMode\AgainstMixed($planning);
+        if (!$this->throwOnTimeout) {
+            $againstMixedGenerator->disableThrowOnTimeout();
+        }
+        $generatorMap[0] = $againstMixedGenerator;
         return $generatorMap;
     }
-
-    // veld, sportsvariants
 
     /**
      * @param Planning $planning
@@ -56,8 +65,16 @@ class GameGenerator
      */
     protected function getSports(Planning $planning, int $gameMode): array
     {
+        if ($gameMode === 0) {
+            $gameMode = GameMode::AGAINST;
+        }
         return array_values($planning->getInput()->getSports()->filter(function (Sport $sport) use ($gameMode): bool {
             return $sport->getGameMode() === $gameMode;
         })->toArray());
+    }
+
+    public function disableThrowOnTimeout(): void
+    {
+        $this->throwOnTimeout = false;
     }
 }

@@ -3,14 +3,11 @@ declare(strict_types=1);
 
 namespace SportsPlanning\GameGenerator\GameMode;
 
-use SportsPlanning\Field;
 use SportsPlanning\GameGenerator\GameMode as GameModeGameGenerator;
 use SportsPlanning\GameGenerator\GameRoundPlace;
 use SportsPlanning\GameGenerator\PlaceCombination;
-use SportsPlanning\GameGenerator\GameMode\SingleHelper;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\Place;
-use SportsPlanning\Game\Together as TogetherGame;
 use drupol\phpermutations\Generators\Combinations as CombinationsGenerator;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
@@ -18,18 +15,17 @@ use SportsPlanning\Sport;
 
 class Single implements GameModeGameGenerator
 {
-    private SingleHelper $singleHelper;
-
-    public function __construct(protected Planning $planning)
+    public function __construct(protected Planning $planning, protected SingleHelper $singleHelper)
     {
-        $this->singleHelper = new SingleHelper($planning);
     }
 
     /**
      * @param Poule $poule
      * @param list<Sport> $sports
+     * @throws \Exception
+     * @return int
      */
-    public function generate(Poule $poule, array $sports): void
+    public function generate(Poule $poule, array $sports): int
     {
         $this->singleHelper->addPlaces($poule);
         foreach ($sports as $sport) {
@@ -40,6 +36,7 @@ class Single implements GameModeGameGenerator
             }
             $this->generateForSportVariant($poule, $sportVariant);
         }
+        return Planning::STATE_SUCCEEDED;
     }
 
     /**
@@ -52,10 +49,10 @@ class Single implements GameModeGameGenerator
 
         $gameRoundNumber = 1;
         $gameRoundPlaces = $this->createGameRoundPlaces(1, $places);
-        while (count($gameRoundPlaces) > 0 || $gameRoundNumber < $singleSportVariant->getGameAmount()) {
+        while (count($gameRoundPlaces) > 0 || $gameRoundNumber < $singleSportVariant->getNrOfGamesPerPlace()) {
             $nextGameRoundPlaces = null;
             if (count($gameRoundPlaces) < $singleSportVariant->getNrOfGamePlaces()) {
-                if (++$gameRoundNumber <= $singleSportVariant->getGameAmount()) {
+                if (++$gameRoundNumber <= $singleSportVariant->getNrOfGamesPerPlace()) {
                     $nextGameRoundPlaces = $this->createGameRoundPlaces($gameRoundNumber, $places);
                 }
             }
