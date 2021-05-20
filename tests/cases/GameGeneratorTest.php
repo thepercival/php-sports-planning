@@ -23,7 +23,7 @@ class GameGeneratorTest extends TestCase
             $this->createInput([2], null, 0)
         );
         $gameGenerator = new GameGenerator();
-        $gameGenerator->generateUnAssignedGames($planning);
+        $gameGenerator->generateUnassignedGames($planning);
         $games = $planning->getGames();
         self::assertInstanceOf(AgainstGame::class, reset($games));
     }
@@ -36,7 +36,7 @@ class GameGeneratorTest extends TestCase
         );
 
         $gameGenerator = new GameGenerator();
-        $gameGenerator->generateUnAssignedGames($planning);
+        $gameGenerator->generateUnassignedGames($planning);
         $games = $planning->getGames();
         self::assertInstanceOf(TogetherGame::class, reset($games));
     }
@@ -44,13 +44,32 @@ class GameGeneratorTest extends TestCase
     public function testMixedGameModes(): void
     {
         $sportVariants = [
-            $this->getAgainstSportVariantWithFields(2, 2, 2, 0, 4),
+            $this->getAgainstSportVariantWithFields(2, 2, 2, 0, 3),
             $this->getSingleSportVariantWithFields(2, 4, 2),
         ];
 
         $planning = $this->createPlanning($this->createInput([4], $sportVariants));
-        self::assertCount(4, $planning->getAgainstGames());
+        self::assertCount(3, $planning->getAgainstGames());
         self::assertCount(8, $planning->getTogetherGames());
+    }
+
+    public function testAgainstBasic(): void
+    {
+        $sportVariants = [
+            $this->getAgainstSportVariantWithFields(1, 1, 1, 1, 0),
+        ];
+        $planning = new Planning($this->createInput([5], $sportVariants), new SportRange(1, 1), 0);
+
+//        $gameGenerator = new GameGenerator();
+//        $gameGenerator->generateUnassignedGames($planning);
+//        (new PlanningOutput())->outputWithGames($planning, true);
+
+        $gameCreator = new GameCreator($this->getLogger());
+        $gameCreator->createAssignedGames($planning);
+
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
+        self::assertEquals(Planning::STATE_SUCCEEDED, $planning->getState());
     }
 
     public function testAgainst(): void
@@ -61,7 +80,7 @@ class GameGeneratorTest extends TestCase
         $planning = new Planning($this->createInput([5], $sportVariants), new SportRange(2, 2), 0);
 
 //        $gameGenerator = new GameGenerator();
-//        $gameGenerator->generateUnAssignedGames($planning);
+//        $gameGenerator->generateUnassignedGames($planning);
 //        (new PlanningOutput())->outputWithGames($planning, true);
 
         $gameCreator = new GameCreator($this->getLogger());
@@ -81,11 +100,10 @@ class GameGeneratorTest extends TestCase
 
 //        $gameGenerator = new GameGenerator();
 //        $gameGenerator->disableThrowOnTimeout();
-//        $gameGenerator->generateUnAssignedGames($planning);
+//        $gameGenerator->generateUnassignedGames($planning);
 //        (new PlanningOutput())->outputWithGames($planning, true);
 
         $gameCreator = new GameCreator($this->getLogger());
-        $gameCreator->disableThrowOnTimeout();
         $gameCreator->createAssignedGames($planning);
 //
          // (new PlanningOutput())->outputWithGames($planning, true);

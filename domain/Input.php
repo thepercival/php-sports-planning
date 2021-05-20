@@ -74,7 +74,7 @@ class Input extends Identifiable
             }
         }
         foreach ($sportVariantsWithFields as $sportVariantWithFields) {
-            $sport = new Sport($this, $sportVariantWithFields->getSportVariant()->createPersistVariant());
+            $sport = new Sport($this, $sportVariantWithFields->getSportVariant()->toPersistVariant());
             for ($fieldNr = 1 ; $fieldNr <= $sportVariantWithFields->getNrOfFields() ; $fieldNr++) {
                 new Field($sport);
             }
@@ -83,7 +83,7 @@ class Input extends Identifiable
         for ($refNr = 1 ; $refNr <= $nrOfReferees ; $refNr++) {
             new Referee($this);
         }
-        $this->uniqueString .= '-REF(' . $nrOfReferees;
+        $this->uniqueString .= '-ref(' . $nrOfReferees;
         $this->uniqueString .= ':' . $this->getSelfRefereeAsString() . ')';
     }
 
@@ -429,8 +429,11 @@ class Input extends Identifiable
 
     public function getBestPlanning(): Planning
     {
-        $succeededPlannings = $this->getPlanningsWithState(Planning::STATE_SUCCEEDED);
-        $bestPlanning = $succeededPlannings->first();
+        $succeededPlannings = $this->getPlanningsWithState(Planning::STATE_SUCCEEDED)->toArray();
+        uasort($succeededPlannings, function (Planning $first, Planning $second): int {
+            return $second->getMaxNrOfGamesInARow() - $first->getMaxNrOfGamesInARow();
+        });
+        $bestPlanning = reset($succeededPlannings);
         if (!($bestPlanning instanceof Planning)) {
             throw new Exception('er kan geen planning worden gevonden', E_ERROR);
         }

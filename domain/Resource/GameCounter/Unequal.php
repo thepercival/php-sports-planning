@@ -4,7 +4,7 @@ namespace SportsPlanning\Resource\GameCounter;
 
 use SportsPlanning\Resource\GameCounter;
 
-class Unequal
+class Unequal implements \Stringable
 {
     private int $pouleNr = 0;
 
@@ -61,5 +61,14 @@ class Unequal
     public function setPouleNr(int $pouleNr): void
     {
         $this->pouleNr = $pouleNr;
+    }
+
+    public function __toString(): string
+    {
+        $retVal = 'min:' . $this->getMinNrOfGames() . " => ";
+        $retVal .= join("&", $this->getMinGameCounters()) . ", ";
+        $retVal .= 'max:' . $this->getMaxNrOfGames() . " => ";
+        $retVal .= join("&", $this->getMaxGameCounters()) . ", ";
+        return $retVal;
     }
 }

@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests\GameGenerator;
 
 use PHPUnit\Framework\TestCase;
-use SportsPlanning\GameGenerator\PlaceCounter;
+use SportsPlanning\PlaceCounter;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class PlaceCounterTest extends TestCase
@@ -26,6 +27,6 @@ class PlaceCounterTest extends TestCase
         $placeCounter->increment();
         $placeCounter->increment();
         $placeCounter->increment();
-        self::assertSame(3, $placeCounter->getCounter());
+        self::assertCount(3, $placeCounter);
     }
 }

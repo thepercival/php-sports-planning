@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\GameGenerator\GameMode;
 
@@ -23,9 +24,8 @@ class AllInOneGame implements GameModeGameGenerator
     /**
      * @param Poule $poule
      * @param list<Sport> $sports
-     * @return int
      */
-    public function generate(Poule $poule, array $sports): int
+    public function generate(Poule $poule, array $sports): void
     {
         foreach ($sports as $sport) {
             $this->defaultField = $sport->getField(1);
@@ -35,7 +35,6 @@ class AllInOneGame implements GameModeGameGenerator
             }
             $this->generateForSportVariant($poule, $sportVariant);
         }
-        return Planning::STATE_SUCCEEDED;
     }
 
     /**
@@ -44,7 +43,7 @@ class AllInOneGame implements GameModeGameGenerator
      */
     protected function generateForSportVariant(Poule $poule, AllInOneGameSportVariant $sportVariant): void
     {
-        for ($gameRoundNumber = 1; $gameRoundNumber <= $sportVariant->getNrOfGames() ; $gameRoundNumber++) {
+        for ($gameRoundNumber = 1; $gameRoundNumber <= $sportVariant->getNrOfGamesPerPlace() ; $gameRoundNumber++) {
             $game = new TogetherGame($this->planning, $poule, $this->getDefaultField());
             foreach ($poule->getPlaces() as $place) {
                 new TogetherGamePlace($game, $place, $gameRoundNumber);

@@ -46,7 +46,7 @@ class Seeker
     public function process(Input $input): void
     {
         try {
-            $this->planningOutput->outputInput($input, 'processing input('.$input->getId().'): ', " ..");
+            $this->planningOutput->outputInput($input, 'processing input('.((string)$input->getId()).'): ', " ..");
             $this->processInput($input);
             // $this->inputRepos->save($input);
         } catch (Exception $e) {
@@ -103,7 +103,7 @@ class Seeker
         $this->planningOutput->output($planning, false, '   ', " trying .. ");
 
         $gameCreator = new GameCreator($this->logger);
-        if (!$this->throwOnTimeout) {
+        if( !$this->throwOnTimeout ) {
             $gameCreator->disableThrowOnTimeout();
         }
         $gameCreator->createAssignedGames($planning);

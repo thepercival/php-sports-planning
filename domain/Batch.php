@@ -1,15 +1,17 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning;
 
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Planning\ListNode;
 
-class Batch
+/**
+ * @template-extends ListNode<Batch>
+ */
+class Batch extends ListNode
 {
-    protected int $number;
-    protected Batch|null $previous;
-    protected Batch|null $next = null;
     /**
      * @var list<TogetherGame|AgainstGame>
      */
@@ -25,30 +27,7 @@ class Batch
 
     public function __construct(Batch|null $previous = null)
     {
-        $this->previous = $previous;
-        $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
-    }
-
-    public function getNumber(): int
-    {
-        return $this->number;
-    }
-
-    public function hasNext(): bool
-    {
-        return $this->next !== null;
-    }
-
-    public function getNext(): Batch|null
-    {
-        return $this->next;
-    }
-
-    public function createNext(): Batch
-    {
-        $this->next = new self($this);
-        $this->next->setPreviousGamesInARow($this->previousGamesInARowMap, $this->createMapGamesInARowMap());
-        return $this->next;
+        parent::__construct($previous);
     }
 
     /**
@@ -63,32 +42,13 @@ class Batch
         return $map;
     }
 
-
-    /*public function removeNext() {
-        $this->next = null;
-    }*/
-
-    public function hasPrevious(): bool
+    public function createNext(): Batch
     {
-        return $this->previous !== null;
+        $this->next = new Batch($this);
+        $this->next->setPreviousGamesInARow($this->previousGamesInARowMap, $this->createMapGamesInARowMap());
+        return $this->next;
     }
 
-    public function getPrevious(): Batch|null
-    {
-        return $this->previous;
-    }
-
-    public function getFirst(): Batch
-    {
-        $previous = $this->getPrevious();
-        return $previous !== null ? $previous->getFirst() : $this;
-    }
-
-    public function getLeaf(): Batch
-    {
-        $next = $this->getNext();
-        return $next !== null ? $next->getLeaf() : $this;
-    }
 
     public function getGamesInARow(Place $place): int
     {

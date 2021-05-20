@@ -7,7 +7,6 @@ use DateTimeImmutable;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Planning;
 use SportsPlanning\Place as PlanningPlace;
-use SportsPlanning\Resource\GameCounter\Unequal as UnequalGameCounter;
 use SportsPlanning\Resource\GameCounter\Unequal as UnequalResource;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;

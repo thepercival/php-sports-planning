@@ -8,9 +8,7 @@ use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
 
 /**
- * @template TKey
- * @template TValue
- * @implements \Iterator<TKey, TValue>
+ * @implements \Iterator<string, SportVariantWithFields|null>
  */
 class AgainstSportsIterator implements \Iterator
 {
@@ -20,10 +18,7 @@ class AgainstSportsIterator implements \Iterator
     protected int $nrOfHomePlaces;
     protected int $nrOfAwayPlaces;
     protected int $nrOfH2H;
-    /**
-     * @var SportVariantWithFields|null
-     */
-    protected $current;
+    protected SportVariantWithFields|null $current;
 
     public function __construct(
         protected SportRange $fieldRange,
@@ -62,7 +57,7 @@ class AgainstSportsIterator implements \Iterator
         $this->nrOfH2H = $this->nrOfH2HRange->getMin();
     }
 
-    public function current() : SportVariantWithFields|null
+    public function current(): SportVariantWithFields|null
     {
         return $this->current;
     }

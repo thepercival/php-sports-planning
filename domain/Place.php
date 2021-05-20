@@ -4,7 +4,7 @@ namespace SportsPlanning;
 
 use SportsHelpers\Identifiable;
 
-class Place extends Identifiable implements Resource
+class Place extends Identifiable implements Resource, \Stringable
 {
     protected int $number;
     protected string|null $location = null;
@@ -25,7 +25,8 @@ class Place extends Identifiable implements Resource
         return $this->number;
     }
 
-    public function getUniqueIndex(): string {
+    public function getUniqueIndex(): string
+    {
         return $this->getLocation();
     }
 
@@ -35,5 +36,10 @@ class Place extends Identifiable implements Resource
             $this->location = $this->poule->getNumber() . '.' . $this->number;
         }
         return $this->location;
+    }
+
+    public function __toString(): string
+    {
+        return $this->getLocation();
     }
 }

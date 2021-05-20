@@ -46,7 +46,7 @@ class Service
     {
         $smallestNrOfPlaces = $pouleStructure->getSmallestPoule();
         foreach ($sports as $sport) {
-            if ($sport->allPlacesParticipate($smallestNrOfPlaces)) {
+            if ($sport->allPlacesParticipateInGameRound($smallestNrOfPlaces)) {
                 return false;
             }
         }

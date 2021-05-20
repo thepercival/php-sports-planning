@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use Exception;
 use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsPlanning\Field;
 use SportsPlanning\Place;
 use SportsPlanning\Game;
@@ -29,8 +30,7 @@ class Against extends Game
         Poule $poule,
         Field $field,
         protected int $h2hNumber
-    )
-    {
+    ) {
         parent::__construct($planning, $poule, $field);
         $this->places = new ArrayCollection();
         $this->planning->getAgainstGames()->add($this);
@@ -122,5 +122,15 @@ class Against extends Game
             });
         }
         return $this->poulePlaces;
+    }
+
+    public function createVariant(): AgainstSportVariant
+    {
+        return new AgainstSportVariant(
+            $this->getSport()->getNrOfHomePlaces(),
+            $this->getSport()->getNrOfAwayPlaces(),
+            $this->getSport()->getNrOfH2H(),
+            $this->getSport()->getNrOfGamePlaces()
+        );
     }
 }

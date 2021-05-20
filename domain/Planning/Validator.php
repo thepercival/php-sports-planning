@@ -2,15 +2,17 @@
 
 namespace SportsPlanning\Planning;
 
-use \Exception;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Game;
+use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
+use SportsPlanning\Combinations\Validator\With as WithValidator;
 use SportsPlanning\Poule;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Place;
-use SportsPlanning\Field;
-use SportsPlanning\Referee;
+use SportsPlanning\Sport;
 use SportsPlanning\Validator\GameAssignments;
 use SportsPlanning\Planning;
 use SportsPlanning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
@@ -26,30 +28,38 @@ class Validator
     public const EMPTY_REFEREE = 8;
     public const EMPTY_REFEREEPLACE = 16;
     public const UNEQUAL_GAME_HOME_AWAY = 32;
-    public const NOT_EQUALLY_ASSIGNED_PLACES = 64;
-    public const TOO_MANY_GAMES_IN_A_ROW = 128;
-    public const MULTIPLE_ASSIGNED_FIELDS_IN_BATCH = 256;
-    public const MULTIPLE_ASSIGNED_REFEREES_IN_BATCH = 512;
-    public const MULTIPLE_ASSIGNED_PLACES_IN_BATCH = 1024;
-    public const UNEQUALLY_ASSIGNED_FIELDS = 2048;
-    public const UNEQUALLY_ASSIGNED_REFEREES = 4096;
-    public const UNEQUALLY_ASSIGNED_REFEREEPLACES = 8192;
-    public const INVALID_ASSIGNED_REFEREEPLACE = 16384;
-    public const UNEQUAL_PLACE_NROFHOMESIDES = 32768;
+    public const UNEQUAL_GAME_WITH_AGAINST = 64;
+    public const NOT_EQUALLY_ASSIGNED_PLACES = 128;
+    public const TOO_MANY_GAMES_IN_A_ROW = 256;
+    public const MULTIPLE_ASSIGNED_FIELDS_IN_BATCH = 512;
+    public const MULTIPLE_ASSIGNED_REFEREES_IN_BATCH = 1024;
+    public const MULTIPLE_ASSIGNED_PLACES_IN_BATCH = 2048;
+    public const UNEQUALLY_ASSIGNED_FIELDS = 4096;
+    public const UNEQUALLY_ASSIGNED_REFEREES = 8192;
+    public const UNEQUALLY_ASSIGNED_REFEREEPLACES = 16384;
+    public const INVALID_ASSIGNED_REFEREEPLACE = 32768;
+    public const UNEQUAL_PLACE_NROFHOMESIDES = 65536;
 
-    public const ALL_INVALID = 65535;
+    public const ALL_INVALID = 131071;
 
     public function __construct()
     {
     }
 
-    public function validate(Planning $planning): int
+    public function validate(Planning $planning, bool $onlyUnassigned = false): int
     {
         $validity = $this->validateGamesAndGamePlaces($planning);
         if (self::VALID !== $validity) {
             return $validity;
         }
         $validity = $this->validateGamesInARow($planning);
+        if (self::VALID !== $validity) {
+            return $validity;
+        }
+        if ($onlyUnassigned) {
+            return $validity;
+        }
+        $validity = $this->validateResourcesCorrectlyAssigned($planning);
         if (self::VALID !== $validity) {
             return $validity;
         }
@@ -76,7 +86,10 @@ class Validator
             $invalidations[] = "the planning has not enough games";
         }
         if (($validity & self::UNEQUAL_GAME_HOME_AWAY) === self::UNEQUAL_GAME_HOME_AWAY) {
-            $invalidations[] = "the planning has a game with an unequal number of home- & awayplaces";
+            $invalidations[] = "the planning an unequal number of home- or awayplaces";
+        }
+        if (($validity & self::UNEQUAL_GAME_WITH_AGAINST) === self::UNEQUAL_GAME_WITH_AGAINST) {
+            $invalidations[] = "the planning an unequal number of with- or againstplaces";
         }
         if (($validity & self::UNEQUAL_PLACE_NROFHOMESIDES) === self::UNEQUAL_PLACE_NROFHOMESIDES) {
             $invalidations[] = "the planning has a places with too much difference in nrOfHomeSides";
@@ -150,23 +163,85 @@ class Validator
 
     protected function allPlacesInPouleSameNrOfGames(Planning $planning, Poule $poule): int
     {
-        $nrOfGamesPerPlace = [];
-        $nrOfHomeSideGames = [];
-        foreach ($poule->getPlaces() as $place) {
-            $nrOfHomeSideGames[$place->getUniqueIndex()] = 0;
+        foreach ($planning->getInput()->getSports() as $sport) {
+            $invalid = $this->allPlacesInPouleSameNrOfSportGames($planning, $poule, $sport);
+            if ($invalid !== self::VALID) {
+                return $invalid;
+            }
         }
-        foreach ($planning->getGamesForPoule($poule) as $game) {
+        return self::VALID;
+    }
+
+    protected function allPlacesInPouleSameNrOfSportGames(Planning $planning, Poule $poule, Sport $sport): int
+    {
+        $nrOfGamesPerPlace = [];
+
+        /** @var non-empty-array<int, int> $nrOfHomeSideGames */
+        $nrOfHomeSideGames = [];
+        $sportVariant = $sport->createVariant();
+        if ($sportVariant instanceof AgainstSportVariant) {
+            foreach ($poule->getPlaces() as $place) {
+                $nrOfHomeSideGames[$place->getUniqueIndex()] = 0;
+            }
+            // Wanneer welke controles per plek??
+            // 1 aantal thuis- en uit(alleen niet als mixed en geen full serie
+            // 2 evenvaal met- en tegen elkaar(alleen h2h en serie, waarbij h2h2 moet aantal games goed zijn
+
+//            if ($sportVariant->equalWithAgainst($poule->getPlaces()->count())) {
+//                if ($sportVariant->getNrOfGamePlaces() > 2) {
+//                    $withValidator = new WithValidator($poule, $sport);
+//                    $withValidator->addGames($planning);
+//                    if (!$withValidator->balanced()) {
+//                        return self::UNEQUAL_GAME_WITH_AGAINST;
+//                    }
+//                }
+//                $againstValidator = new AgainstValidator($poule, $sport);
+//                $againstValidator->addGames($planning);
+//                if (!$againstValidator->balanced()) {
+//                    return self::UNEQUAL_GAME_WITH_AGAINST;
+//                }
+//            }
+        }
+
+        $sportGames = array_filter($planning->getGamesForPoule($poule), function (Game $game) use ($sport): bool {
+            return $game->getSport() === $sport;
+        });
+        foreach ($sportGames as $game) {
             if ($game instanceof AgainstGame) {
                 $homePlaces = $game->getSidePlaces(AgainstSide::HOME);
                 $awayPlaces = $game->getSidePlaces(AgainstSide::AWAY);
-                if (count($homePlaces) === 0 || count($awayPlaces) === 0) {
+                $nrOfHomePlaces = count($homePlaces);
+                $nrOfAwayPlaces = count($awayPlaces);
+                if ($nrOfHomePlaces === 0 || $nrOfAwayPlaces === 0) {
                     return self::EMPTY_PLACE;
                 }
-                if (count($homePlaces) !== count($awayPlaces)) {
-                    return self::UNEQUAL_GAME_HOME_AWAY;
+                $sportVariant = $game->createVariant();
+                if ($sportVariant->getNrOfHomePlaces() === $sportVariant->getNrOfAwayPlaces()) {
+                    if ($sportVariant->getNrOfHomePlaces() !== $nrOfHomePlaces
+                    || $sportVariant->getNrOfAwayPlaces() !== $nrOfAwayPlaces) {
+                        return self::UNEQUAL_GAME_HOME_AWAY;
+                    }
+                } else {
+                    if (
+                    ($sportVariant->getNrOfHomePlaces() !== $nrOfHomePlaces && $sportVariant->getNrOfAwayPlaces() !== $nrOfHomePlaces)
+                        ||
+                    ($sportVariant->getNrOfHomePlaces() !== $nrOfAwayPlaces && $sportVariant->getNrOfAwayPlaces() !== $nrOfAwayPlaces)) {
+                        return self::UNEQUAL_GAME_HOME_AWAY;
+                    }
                 }
+
                 foreach ($homePlaces as $homePlace) {
                     $nrOfHomeSideGames[$homePlace->getPlace()->getUniqueIndex()]++;
+                }
+            } else {
+                $sportVariant = $game->createVariant();
+                if ($sportVariant instanceof SingleSportVariant) {
+                    if ($sportVariant->getNrOfGamePlaces() !== $game->getPlaces()->count()) {
+                        return self::UNEQUAL_GAME_HOME_AWAY;
+                    }
+                }
+                if ($poule->getPlaces()->count() !== $game->getPlaces()->count()) {
+                    return self::UNEQUAL_GAME_HOME_AWAY;
                 }
             }
             if ($game->getPlaces()->count() === 0) {
@@ -179,6 +254,43 @@ class Validator
                 }
                 $nrOfGamesPerPlace[$place->getLocation()]++;
             }
+        }
+        $nrOfGamesFirstPlace = reset($nrOfGamesPerPlace);
+        foreach ($nrOfGamesPerPlace as $nrOfGamesSomePlace) {
+            if ($nrOfGamesFirstPlace !== $nrOfGamesSomePlace) {
+                return self::NOT_EQUALLY_ASSIGNED_PLACES;
+            }
+        }
+
+        if (!($sportVariant instanceof AgainstSportVariant)) {
+            return self::VALID;
+        }
+//        if ($sportVariant->equalNrOfHomeAwaysOneSerie($poule->getPlaces()->count())) {
+//            $minValue = min($nrOfHomeSideGames);
+//            foreach ($nrOfHomeSideGames as $amount) {
+//                if ($amount - $minValue > 1) {
+//                    return self::UNEQUAL_PLACE_NROFHOMESIDES;
+//                }
+//            }
+//        }
+
+        return self::VALID;
+    }
+
+    protected function validateResourcesCorrectlyAssigned(Planning $planning): int
+    {
+        foreach ($planning->getInput()->getPoules() as $poule) {
+            $validity = $this->validateResourcesCorrectlyAssignedHelper($planning, $poule);
+            if ($validity !== self::VALID) {
+                return $validity;
+            }
+        }
+        return self::VALID;
+    }
+
+    protected function validateResourcesCorrectlyAssignedHelper(Planning $planning, Poule $poule): int
+    {
+        foreach ($planning->getGamesForPoule($poule) as $game) {
             if ($planning->getInput()->selfRefereeEnabled()) {
                 $refereePlace = $game->getRefereePlace();
                 if ($refereePlace === null) {
@@ -197,21 +309,6 @@ class Validator
                     if ($game->getReferee() === null) {
                         return self::EMPTY_REFEREE;
                     }
-                }
-            }
-        }
-        $nrOfGamesFirstPlace = reset($nrOfGamesPerPlace);
-        foreach ($nrOfGamesPerPlace as $nrOfGamesSomePlace) {
-            if ($nrOfGamesFirstPlace !== $nrOfGamesSomePlace) {
-                return self::NOT_EQUALLY_ASSIGNED_PLACES;
-            }
-        }
-
-        if (count($nrOfHomeSideGames) > 0) {
-            $minValue = min($nrOfHomeSideGames);
-            foreach ($nrOfHomeSideGames as $amount) {
-                if ($amount - $minValue > 1) {
-                    return self::UNEQUAL_PLACE_NROFHOMESIDES;
                 }
             }
         }

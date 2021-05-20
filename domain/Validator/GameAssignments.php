@@ -228,21 +228,6 @@ class GameAssignments
     protected function getUnequalDescription(UnequalGameCounter $unequal, string $suffix): string
     {
         $retVal = "too much difference(" . $unequal->getDifference() . ") in number of games for " . $suffix;
-
-        $minGameCounters = array_map(
-            function (GameCounter $gameCounter): string {
-                return $gameCounter->getIndex();
-            },
-            $unequal->getMinGameCounters()
-        );
-        $maxGameCounters = array_map(
-            function (GameCounter $gameCounter): string {
-                return $gameCounter->getIndex();
-            },
-            $unequal->getMaxGameCounters()
-        );
-        $retVal .= "(" . $unequal->getMinNrOfGames() . ": " . join("&", $minGameCounters) . ", ";
-        $retVal .= $unequal->getMaxNrOfGames() . ": " . join("&", $maxGameCounters) . ")";
-        return $retVal;
+        return $retVal . '(' . $unequal . ')';
     }
 }

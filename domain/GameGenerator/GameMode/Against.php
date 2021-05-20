@@ -1,25 +1,23 @@
 <?php
-
 declare(strict_types=1);
 
 namespace SportsPlanning\GameGenerator\GameMode;
 
 use Exception;
 use SportsHelpers\Against\Side as AgainstSide;
+use SportsPlanning\Combinations\AgainstHomeAway;
+use SportsPlanning\Combinations\AgainstSerie;
+use SportsPlanning\Combinations\GameRound;
 use SportsPlanning\Field;
-use SportsPlanning\GameGenerator\AgainstHomeAway;
-use SportsPlanning\GameGenerator\AssignedCounterMap;
-use SportsPlanning\GameGenerator\HomeAwayList;
-use SportsPlanning\GameGenerator\PlaceAssignedCounter;
-use SportsPlanning\GameGenerator\PlaceCombination;
-use SportsPlanning\Place;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
-use drupol\phpermutations\Generators\Combinations as CombinationsGenerator;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Sport;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsPlanning\Combinations\AgainstSerie\OneVersusOne as OneVersusOneSerie;
+use SportsPlanning\Combinations\AgainstSerie\OneVersusTwo as OneVersusTwoSerie;
+use SportsPlanning\Combinations\AgainstSerie\TwoVersusTwo as TwoVersusTwoSerie;
 use SportsPlanning\GameGenerator\GameMode as GameModeGameGenerator;
 
 class Against implements GameModeGameGenerator
@@ -33,27 +31,82 @@ class Against implements GameModeGameGenerator
     /**
      * @param Poule $poule
      * @param list<Sport> $sports
-     * @return int
      */
-    public function generate(Poule $poule, array $sports): int
+    public function generate(Poule $poule, array $sports): void
     {
-        $nrOfH2H = 1;
-        while ($sports = $this->filterSports($sports, $nrOfH2H)) {
-            foreach ($sports as $sport) {
-                $this->defaultField = $sport->getField(1);
-                $sportVariant = $sport->createVariant();
-                if (!($sportVariant instanceof AgainstSportVariant)) {
-                    throw new Exception('only against-sport-variant accepted', E_ERROR);
-                }
-                if ($sportVariant->isMixed()) {
-                    continue;
-                }
-                $homeAways = $this->generateHomeAways($poule, $sportVariant);
-                $this->toGames($poule, $homeAways, $nrOfH2H);
+        foreach ($sports as $sport) {
+            $this->defaultField = $sport->getField(1);
+            $sportVariant = $sport->createVariant();
+            if (!($sportVariant instanceof AgainstSportVariant)) {
+                throw new Exception('only against-sport-variant accepted', E_ERROR);
             }
-            $nrOfH2H++;
+            $this->homeAwaysToGames($poule, $this->getHomeAways($poule, $sportVariant));
         }
-        return Planning::STATE_SUCCEEDED;
+    }
+
+    /**
+     * @param Poule $poule
+     * @param AgainstSportVariant $sportVariant
+     * @return list<AgainstHomeAway>
+     */
+    protected function getHomeAways(Poule $poule, AgainstSportVariant $sportVariant): array
+    {
+        return [];
+        //$homeAwayCreator = new HomeAwayCreator($sportVariant);
+        //
+        // write tests before continue;
+//        $homeAways = $homeAwayCreator->createForOneH2H($poule);
+//        $gameRoundCreator = new GameRoundCreator();
+//        $firstGameRound = $gameRoundCreator->createGameRound($homeAways);
+//        if($firstGameRound === null) {
+//            throw new \Exception('could not create gameroundswith homeaways', E_ERROR);
+//        }
+//        if ($sportVariant->getNrOfHomePlaces() === 1 && $sportVariant->getNrOfAwayPlaces() === 1) {
+//            $againstSerie = new OneVersusOneSerie($poule, $sportVariant);
+//        } elseif ($sportVariant->getNrOfHomePlaces() !== $sportVariant->getNrOfAwayPlaces()) {
+//            $againstSerie = new OneVersusTwoSerie($poule, $sportVariant);
+//        } else {
+//            $againstSerie = new TwoVersusTwoSerie($poule, $sportVariant);
+//        }
+        // return $this->gameRoundToHomeAways($firstGameRound);
+    }
+
+//    /**
+//     * @param Poule $poule
+//     * @param AgainstSportVariant $sportVariant
+//     * @param AgainstSerie $againstSerie
+//     * @return list<AgainstHomeAway>
+//     */
+//    protected function getHomeAwaysHelper(
+//        Poule $poule,
+//        AgainstSportVariant $sportVariant,
+//        AgainstSerie $againstSerie
+//    ): array {
+//        $homeAways = [];
+//
+//        $nrOfHomeAways = $sportVariant->getTotalNrOfGames($poule->getPlaces()->count());
+//        $itNr = 1;
+//        while ($nrOfHomeAways > 0) {
+//            // $swapHomeAways = $itNr++ % 2 === 0;
+//            $serieHomeAways = $againstSerie->getHomeAways($nrOfHomeAways/*, $swapHomeAways*/);
+//            $homeAways = array_merge($homeAways, $serieHomeAways);
+//            $nrOfHomeAways -= count($serieHomeAways);
+//        }
+//        return $homeAways;
+//    }
+
+    /**
+     * @param GameRound $gameRound
+     * @return list<AgainstHomeAway>
+     */
+    protected function gameRoundToHomeAways(GameRound $gameRound): array {
+        $homeAways = $gameRound->getHomeAways();
+        while( $gameRound = $gameRound->getNext() ) {
+            foreach ($gameRound->getHomeAways() as $homeAway) {
+                array_push($homeAways, $homeAway);
+            }
+        }
+        return $homeAways;
     }
 
     /**
@@ -68,164 +121,31 @@ class Against implements GameModeGameGenerator
         }));
     }
 
-    /**
-     * @param Poule $poule
-     * @param AgainstSportVariant $sportVariant
-     * @return list<AgainstHomeAway>
-     */
-    public function generateHomeAways(Poule $poule, AgainstSportVariant $sportVariant): array
-    {
-        $places = array_values($poule->getPlaces()->toArray());
-        $homeCombinations = $this->toPlaceCombinations(
-            new CombinationsGenerator($places, $sportVariant->getNrOfHomePlaces())
-        );
-
-        $awayCombinationsMap = [];
-        foreach ($homeCombinations as $homeCombination) {
-            $awayCombinationsMap[$homeCombination->getNumber()] = [];
-
-            $availableAwayPlaces = $this->getOtherPlaces($places, $homeCombination);
-            $awayCombinations = $this->toPlaceCombinations(
-                new CombinationsGenerator($availableAwayPlaces, $sportVariant->getNrOfAwayPlaces())
-            );
-            foreach ($awayCombinations as $awayCombination) {
-                if ($homeCombination->hasOverlap($awayCombination)) {
-                    continue;
-                }
-                array_push($awayCombinationsMap[$homeCombination->getNumber()], $awayCombination);
-            }
-        }
-        $assignedCounterMap = new AssignedCounterMap($poule, $sportVariant);
-        $games = [];
-        while ($homeCombination = array_shift($homeCombinations)) {
-            $awayCombination = array_shift($awayCombinationsMap[$homeCombination->getNumber()]);
-            if ($awayCombination === null) {
-                continue;
-            }
-            $swap = count($awayCombinationsMap[$homeCombination->getNumber()]) % 2 === 0;
-            if (!$this->gameExists($games, $homeCombination, $awayCombination)) {
-                $game = $assignedCounterMap->createGame($homeCombination, $awayCombination);
-                $swap ? array_unshift($games, $game) : array_push($games, $game);
-            }
-            array_push($homeCombinations, $homeCombination);
-        }
-        // echo $this->outputHomeAways($games, 'SHUFFLED HOMEAWAYS');
-        return $games;
-
-//        $homeAwayList = new HomeAwayList($games);
-//        echo $this->outputHomeAways($games, 'GENERATED HOMEAWAYS');
-//        $newGames = $homeAwayList->getHomeAways();
-//        echo $this->outputHomeAways($newGames, 'SHUFFLED HOMEAWAYS');
-//        return $newGames;
-    }
-
-    /**
-     * @param list<AgainstHomeAway> $homeAwys
-     * @param string $header
-     * @return string
-     */
-    protected function outputHomeAways(array $homeAwys, string $header): string
-    {
-        $output = $header . PHP_EOL;
-        foreach ($homeAwys as $game) {
-            $home = join(
-                ' & ',
-                array_map(
-                    function ($place): string {
-                        return $place->getLocation();
-                    },
-                    $game->get(AgainstSide::HOME)->getPlaces()
-                )
-            );
-            $away = join(
-                ' & ',
-                array_map(
-                    function ($place): string {
-                        return $place->getLocation();
-                    },
-                    $game->get(AgainstSide::AWAY)->getPlaces()
-                )
-            );
-            $output .= $home . ' vs ' . $away . PHP_EOL;
-        }
-        return $output;
-    }
-
-
-    /**
-     * @param CombinationsGenerator $combinations
-     * @return list<PlaceCombination>
-     */
-    protected function toPlaceCombinations(CombinationsGenerator $combinations): array
-    {
-        /** @var array<int, list<Place>> $combinationsTmp */
-        $combinationsTmp = $combinations->toArray();
-        return array_values(array_map(
-            function (array $placeCombination): PlaceCombination {
-                return new PlaceCombination($placeCombination);
-            },
-            $combinationsTmp
-        ));
-    }
-
     public function getSwappedSide(int $side): int
     {
         return $side === AgainstSide::HOME ? AgainstSide::AWAY : AgainstSide::HOME;
     }
 
-
-
-    /**
-     * @param list<AgainstHomeAway> $games
-     * @param PlaceCombination $home
-     * @param PlaceCombination $away
-     * @return bool
-     */
-    protected function gameExists(array $games, PlaceCombination $home, PlaceCombination $away): bool
-    {
-        $game = new AgainstHomeAway($home, $away);
-        foreach ($games as $gameIt) {
-            if ($gameIt->equals($game)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @param list<Place> $places
-     * @param PlaceCombination $placeCombination
-     * @return list<Place>
-     */
-    protected function getOtherPlaces(array $places, PlaceCombination $placeCombination): array
-    {
-        return array_values(array_filter(
-            $places,
-            function (Place $placeIt) use ($placeCombination): bool {
-                return !$placeCombination->has($placeIt);
-            }
-        ));
-    }
-
     /**
      * @param Poule $poule
      * @param list<AgainstHomeAway> $homeAways
-     * @param int $nrOfH2H
+     * @throws Exception
      */
-    protected function toGames(Poule $poule, array $homeAways, int $nrOfH2H): void
+    protected function homeAwaysToGames(Poule $poule, array $homeAways): void
     {
-        if (($nrOfH2H % 2) === 0) {
-            $homeAways = array_values(array_reverse($homeAways));
-        }
         foreach ($homeAways as $homeAway) {
-            $game = new AgainstGame($this->planning, $poule, $this->getDefaultField(), $nrOfH2H);
-            foreach ([AgainstSide::HOME, AgainstSide::AWAY] as $homeAwayValue) {
-                foreach ($homeAway->get($homeAwayValue)->getPlaces() as $place) {
-                    $validHomeAway = (($nrOfH2H % 2) === 1) ? $homeAwayValue : $this->getSwappedSide($homeAwayValue);
-                    new AgainstGamePlace($game, $place, $validHomeAway);
+            $game = new AgainstGame($this->planning, $poule, $this->getDefaultField(), 0);
+            foreach ([AgainstSide::HOME, AgainstSide::AWAY] as $side) {
+                foreach ($homeAway->get($side)->getPlaces() as $place) {
+                    // $validSide = (($h2HNr % 2) === 1) ? $side : $this->getSwappedSide($side);
+                    new AgainstGamePlace($game, $place, $side);
                 }
             }
         }
+//        $nextPartial = $partial->getNext();
+//        if ($nextPartial !== null) {
+//            $this->partialToGames($poule, $nextPartial, $h2HNr);
+//        }
     }
 
     protected function getDefaultField(): Field

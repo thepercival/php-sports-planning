@@ -20,9 +20,6 @@ use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 class Iterator implements \Iterator
 {
     protected PouleStructureIterator $structureIterator;
-    /**
-     * @implements AgainstSportsIterator<string, SportVariantWithFields>
-     */
     protected AgainstSportsIterator $sportsIterator;
     protected SportRange $rangeNrOfReferees;
     protected PlanningInputService $planningInputService;

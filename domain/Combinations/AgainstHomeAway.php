@@ -1,11 +1,12 @@
 <?php
 declare(strict_types=1);
 
-namespace SportsPlanning\GameGenerator;
+namespace SportsPlanning\Combinations;
 
 use SportsHelpers\Against\Side as AgainstSide;
+use SportsPlanning\Place;
 
-class AgainstHomeAway
+class AgainstHomeAway implements \Stringable
 {
     public function __construct(
         private PlaceCombination $home,
@@ -28,6 +29,14 @@ class AgainstHomeAway
         return $this->away;
     }
 
+    /**
+     * @return list<Place>
+     */
+    public function getPlaces(): array {
+        $places = array_merge($this->home->getPlaces(), $this->away->getPlaces());
+        return array_values($places);
+    }
+
     public function equals(AgainstHomeAway $game): bool
     {
         return ($game->getAway()->getNumber() === $this->getHome()->getNumber()
@@ -43,5 +52,13 @@ class AgainstHomeAway
             || $game->getHome()->hasOverlap($this->getHome())
             || $game->getHome()->hasOverlap($this->getAway())
             ;
+    }
+
+    public function swap(): self {
+        return new AgainstHomeAway($this->getAway(), $this->getHome());
+    }
+
+    public function __toString(): string {
+        return $this->get(AgainstSide::HOME) . ' vs ' . $this->get(AgainstSide::AWAY);
     }
 }

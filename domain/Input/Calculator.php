@@ -78,7 +78,7 @@ class Calculator
         $nrOfRestPlaces = $nrOfPlaces - $maxNrOfBatchPlaces;
         if ($nrOfRestPlaces <= 0) {
             $sportVariants = array_values($input->createSportVariants()->toArray());
-            return $this->sportGamePlaceCalculator->getNrOfGamesPerPlace($nrOfPlaces, $sportVariants);
+            return $this->sportGamePlaceCalculator->getMaxNrOfGamesPerPlace($nrOfPlaces, $sportVariants);
         }
         return (int)ceil($nrOfPlaces / $nrOfRestPlaces);
     }

@@ -97,7 +97,7 @@ class ValidatorTest extends TestCase
         $planning = new Planning($this->createInput([5], null, 0), new SportRange(1, 1), 1);
 
         $gameGenerator = new GameGenerator();
-        $gameGenerator->generateUnAssignedGames($planning);
+        $gameGenerator->generateUnassignedGames($planning);
 
         $planningValidator = new PlanningValidator();
 
@@ -411,7 +411,7 @@ class ValidatorTest extends TestCase
         $planning = new Planning($this->createInput([3], [$sportVariant], 0), new SportRange(1, 1), 0);
 
         $gameGenerator = new GameGenerator();
-        $gameGenerator->generateUnAssignedGames($planning);
+        $gameGenerator->generateUnassignedGames($planning);
 
         // (new PlanningOutput())->outputWithGames($planning, true);
 

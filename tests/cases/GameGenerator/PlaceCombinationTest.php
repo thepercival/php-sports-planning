@@ -1,9 +1,10 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Tests\GameGenerator;
 
 use PHPUnit\Framework\TestCase;
-use SportsPlanning\GameGenerator\PlaceCombination;
+use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class PlaceCombinationTest extends TestCase

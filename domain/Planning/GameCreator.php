@@ -22,24 +22,16 @@ class GameCreator
 
     public function createAssignedGames(Planning $planning): void
     {
-        $gameGenerator = new GameGenerator();
-        if (!$this->throwOnTimeout) {
-            $gameGenerator->disableThrowOnTimeout();
-        }
-        $state = $gameGenerator->generateUnAssignedGames($planning);
-        if ($state === Planning::STATE_FAILED || $state === Planning::STATE_TIMEDOUT) {
-            $planning->getAgainstGames()->clear();
-            $planning->getTogetherGames()->clear();
-            $planning->setState($state);
-            return;
-        }
+        (new GameGenerator())->generateUnassignedGames($planning);
+
+        // hier genereren voor een x aantal partials!!!
+
         $games = $planning->getGames(/*Game::ORDER_BY_GAMENUMBER*/);
 
         $resourceService = new ResourceService($planning, $this->logger);
         if (!$this->throwOnTimeout) {
             $resourceService->disableThrowOnTimeout();
         }
-
         $state = $resourceService->assign($games);
         if ($state === Planning::STATE_FAILED || $state === Planning::STATE_TIMEDOUT) {
             $planning->getAgainstGames()->clear();

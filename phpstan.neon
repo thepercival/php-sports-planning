@@ -4,5 +4,5 @@ parameters:
         true
     paths:
         - domain/
-        - tests/cases/
-        - tests/helpers/
+#        - tests/cases/
+#        - tests/helpers/

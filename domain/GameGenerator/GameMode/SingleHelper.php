@@ -9,7 +9,7 @@ use SportsPlanning\Field;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\GameGenerator\GameRoundPlace;
-use SportsPlanning\GameGenerator\PlaceCounter;
+use SportsPlanning\PlaceCounter;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
@@ -122,7 +122,7 @@ class SingleHelper
     {
         $score = 0;
         foreach ($basePlaces as $basePlace) {
-            $score += $this->getPlaceCounter($place, $basePlace)->getCounter();
+            $score += $this->getPlaceCounter($place, $basePlace)->count();
         }
         return $score;
     }

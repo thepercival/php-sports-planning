@@ -5,7 +5,7 @@ namespace SportsPlanning\GameGenerator\GameMode;
 
 use SportsPlanning\GameGenerator\GameMode as GameModeGameGenerator;
 use SportsPlanning\GameGenerator\GameRoundPlace;
-use SportsPlanning\GameGenerator\PlaceCombination;
+use SportsPlanning\Combinations\PlaceCombination;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\Place;
 use drupol\phpermutations\Generators\Combinations as CombinationsGenerator;
@@ -23,9 +23,8 @@ class Single implements GameModeGameGenerator
      * @param Poule $poule
      * @param list<Sport> $sports
      * @throws \Exception
-     * @return int
      */
-    public function generate(Poule $poule, array $sports): int
+    public function generate(Poule $poule, array $sports): void
     {
         $this->singleHelper->addPlaces($poule);
         foreach ($sports as $sport) {
@@ -36,7 +35,6 @@ class Single implements GameModeGameGenerator
             }
             $this->generateForSportVariant($poule, $sportVariant);
         }
-        return Planning::STATE_SUCCEEDED;
     }
 
     /**
@@ -45,7 +43,7 @@ class Single implements GameModeGameGenerator
      */
     protected function generateForSportVariant(Poule $poule, SingleSportVariant $singleSportVariant): void
     {
-        $places = array_values($poule->getPlaces()->toArray());
+        $places = $poule->getPlaceList();
 
         $gameRoundNumber = 1;
         $gameRoundPlaces = $this->createGameRoundPlaces(1, $places);

@@ -7,6 +7,9 @@ namespace SportsPlanning\Game;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
+use SportsHelpers\GameMode;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\Field;
 use SportsPlanning\Game as GameBase;
 use SportsPlanning\Place;
@@ -113,5 +116,14 @@ class Together extends GameBase
             });
         }
         return $this->poulePlaces;
+    }
+
+    public function createVariant(): SingleSportVariant|AllInOneGameSportVariant
+    {
+        if ($this->getSport()->getGameMode() === GameMode::SINGLE) {
+            return new SingleSportVariant($this->getSport()->getNrOfGamePlaces(), $this->getSport()->getNrOfGamesPerPlace());
+        }
+        return new AllInOneGameSportVariant($this->getSport()->getNrOfGamePlaces());
+
     }
 }

@@ -4,7 +4,7 @@ namespace SportsPlanning\Resource;
 
 use SportsPlanning\Resource as PlanningResource;
 
-class GameCounter
+class GameCounter implements \Stringable
 {
     protected int $nrOfGames;
 
@@ -31,5 +31,10 @@ class GameCounter
     public function getNrOfGames(): int
     {
         return $this->nrOfGames;
+    }
+
+    public function __toString(): string
+    {
+        return $this->getIndex() . ':' . $this->getNrOfGames();
     }
 }

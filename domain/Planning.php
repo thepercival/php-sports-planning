@@ -208,7 +208,10 @@ class Planning extends Identifiable
         if ($order === Game::ORDER_BY_BATCH) {
             uasort($games, function (Game $g1, Game  $g2): int {
                 if ($g1->getBatchNr() === $g2->getBatchNr()) {
-                    return $g1->getField()->getUniqueIndex() <= $g2->getField()->getUniqueIndex() ? -1 : 1;
+                    if( $g1->getField()->getUniqueIndex() === $g2->getField()->getUniqueIndex() ) {
+                        return 0;
+                    }
+                    return $g1->getField()->getUniqueIndex() < $g2->getField()->getUniqueIndex() ? -1 : 1;
                 }
                 return $g1->getBatchNr() - $g2->getBatchNr();
             });
@@ -266,12 +269,34 @@ class Planning extends Identifiable
     }
 
     /**
+     * @return list<AgainstGame>
+     */
+    public function getAgainstGamesForPoule(Poule $poule): array
+    {
+        $games = $this->getGamesForPoule($poule);
+        return array_values(array_filter($games, function($game): bool {
+            return $game instanceof AgainstGame;
+        }));
+    }
+
+    /**
      * @phpstan-return ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>
      * @psalm-return ArrayCollection<int|string, TogetherGame>
      */
     public function getTogetherGames(): ArrayCollection|PersistentCollection
     {
         return $this->togetherGames;
+    }
+
+    /**
+     * @return list<TogetherGame>
+     */
+    public function getTogetherGamesForPoule(Poule $poule): array
+    {
+        $games = $this->getGamesForPoule($poule);
+        return array_values(array_filter($games, function($game): bool {
+            return $game instanceof TogetherGame;
+        }));
     }
 
     /**

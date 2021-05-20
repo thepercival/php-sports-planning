@@ -6,6 +6,7 @@ use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
+use SportsPlanning\Place;
 use SportsPlanning\Resource\Fields as FieldResources;
 use SportsPlanning\Planning;
 use SportsPlanning\Game\Together as TogetherGame;
@@ -153,15 +154,18 @@ class Service
 //            $this->logger->info(' nr of games to process before gamesinarow-filter(max '.$this->planning->getMaxNrOfGamesInARow().') : '  . count($games) );
 //            $this->gameOutput->outputGames($games);
 
-            $gamesForBatchTmp = array_values(array_filter(
+            $gamesForBatchTmp = array_filter(
                 $games,
                 function (TogetherGame|AgainstGame $game) use ($nextBatch): bool {
                     return $this->areAllPlacesAssignableByGamesInARow($nextBatch, $game);
                 }
-            ));
+            );
+            $this->sortGamesByNotInPreviousBatch($batch, $gamesForBatchTmp);
+
 //            $this->logger->info(' nr of games to process after gamesinarow-filter(max '.$this->planning->getMaxNrOfGamesInARow().') : '  . count($gamesForBatchTmp) );
 //            $this->gameOutput->outputGames($gamesForBatchTmp);
-            return $this->assignBatchHelper($games, $gamesForBatchTmp, $fieldResources, $nextBatch, $this->planning->getMaxNrOfBatchGames(), 0);
+            $gamesList = array_values($gamesForBatchTmp);
+            return $this->assignBatchHelper($games, $gamesList, $fieldResources, $nextBatch, $this->planning->getMaxNrOfBatchGames(), 0);
         }
         if ($this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
             throw new TimeoutException(
@@ -224,6 +228,25 @@ class Service
     ): void {
         $fieldResources->assignToGame($game);
         $batch->add($game);
+    }
+
+    /**
+     * @param Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $previousBatch
+     * @param array<Place> $gamesForBatchTmp
+     */
+    protected function sortGamesByNotInPreviousBatch(
+        Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $previousBatch,
+        array &$gamesForBatchTmp
+    ): void {
+        uasort($gamesForBatchTmp, function (TogetherGame|AgainstGame $gameA, TogetherGame|AgainstGame $gameB) use ($previousBatch): int {
+            $amountA = count($gameA->getPoulePlaces()->filter(function (Place $place) use ($previousBatch): bool {
+                return !$previousBatch->isParticipating($place);
+            }));
+            $amountB = count($gameB->getPoulePlaces()->filter(function (Place $place) use ($previousBatch): bool {
+                return !$previousBatch->isParticipating($place);
+            }));
+            return $amountB - $amountA;
+        });
     }
 
     protected function releaseGame(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch, TogetherGame|AgainstGame $game): void

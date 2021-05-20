@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-namespace SportsPlanning\GameGenerator;
+namespace SportsPlanning\Combinations;
 
 use SportsPlanning\Place;
 
-class PlaceCombination
+class PlaceCombination implements \Stringable
 {
     /**
      * @param list<Place> $places
@@ -51,9 +51,13 @@ class PlaceCombination
         return ($this->getNumber() & $placeCombination->getNumber()) > 0;
     }
 
-//    public function equals(PlaceCombination $placeCombination): bool
-//    {
-//        return ($combinationNumber->getAway() === $this->getHome() || $combinationNumber->getHome() === $this->getHome())
-//            && ($combinationNumber->getAway() === $this->getAway() || $combinationNumber->getHome() === $this->getAway());
-//    }
+    public function equals(PlaceCombination $placeCombination): bool
+    {
+        return ($this->getNumber() === $placeCombination->getNumber());
+    }
+
+    public function __toString(): string
+    {
+        return join(' & ', $this->places);
+    }
 }
