@@ -5,7 +5,6 @@ namespace SportsPlanning\Combinations;
 
 use drupol\phpermutations\Iterators\Combinations as CombinationIt;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVaritant;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
@@ -22,25 +21,25 @@ class HomeAwayCreator
     public function createForOneH2H(Poule $poule): array
     {
         $homeAways = [];
-        // $placeNrs = $this->getPlaceNrs($poule->getPlaceList());
+        // $nrOfHomeAwaysOneH2H = $this->sportVariant->getNrOfGamesOneH2H($poule->getPlaces()->count());
 
-        /** @var \Iterator<string, list<Place>> $it */
-        $it = new CombinationIt($poule->getPlaceList(), $this->sportVariant->getNrOfGamePlaces());
-        while ($it->valid()) {
-            $uniqueCombinations = $this->getUniqueCombinations($it->current());
-            foreach ($uniqueCombinations as $uniqueCombination) {
-                $placeCombination = new PlaceCombination($uniqueCombination);
-                $homeAway = $this->convertPlaceCombinationToHomeAway($placeCombination);
-                array_push($homeAways, $homeAway);
+        /** @var \Iterator<string, list<Place>> $homeIt */
+        $homeIt = new CombinationIt($poule->getPlaceList(), $this->sportVariant->getNrOfHomePlaces());
+        while ($homeIt->valid()) {
+            $homePlaceCombination = new PlaceCombination($homeIt->current());
+            $awayPlaces = array_diff( $poule->getPlaceList(), $homeIt->current());
+            /** @var \Iterator<string, list<Place>> $awayIt */
+            $awayIt = new CombinationIt($awayPlaces, $this->sportVariant->getNrOfAwayPlaces());
+            while ($awayIt->valid()) {
+                $awayPlaceCombination = new PlaceCombination($awayIt->current());
+                if( $homePlaceCombination->getNumber() < $awayPlaceCombination->getNumber() ) {
+                    $homeAway = new AgainstHomeAway($homePlaceCombination, $awayPlaceCombination);
+                    array_push($homeAways, $homeAway);
+                }
+                $awayIt->next();
             }
-            $it->next();
+            $homeIt->next();
         }
-
-        // for 1vs2 ok
-        // for 1vs1 ok
-        // for 2vs2 to times 3
-
-
         return $homeAways;
     }
 
