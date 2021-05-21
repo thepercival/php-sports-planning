@@ -47,7 +47,7 @@ class AgainstTest extends TestCase
         $gameGenerator->generateUnassignedGames($planning);
         //(new PlanningOutput())->outputWithGames($planning, true);
 
-        self::assertCount(1, $planning->getAgainstGames());
+        self::assertCount(3, $planning->getAgainstGames());
         $validator = new PlanningValidator();
         self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
     }

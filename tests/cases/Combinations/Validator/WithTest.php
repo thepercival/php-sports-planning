@@ -86,7 +86,7 @@ class WithTest extends TestCase
 
     public function test5Places2VS2(): void
     {
-        $sportVariant = $this->getAgainstSportVariantWithFields(1, 2, 2, 0, 3);
+        $sportVariant = $this->getAgainstSportVariantWithFields(1, 2, 2, 0, 12);
         $input = $this->createInput([5], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 

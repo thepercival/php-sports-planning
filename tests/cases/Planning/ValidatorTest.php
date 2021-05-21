@@ -42,10 +42,13 @@ class ValidatorTest extends TestCase
 
     public function testHasEmptyGamePlace(): void
     {
-        $planning = $this->createPlanning($this->createInput([5]));
+        $sportVariant = $this->getAgainstSportVariantWithFields(2, 2, 2, 0, 3);
+        $planning = $this->createPlanning($this->createInput([5], [$sportVariant]));
         $firstGame = $planning->getAgainstGames()->first();
         self::assertNotFalse($firstGame);
         $firstGame->getPlaces()->clear();
+
+        //(new PlanningOutput())->outputWithGames($planning, true);
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
@@ -108,19 +111,21 @@ class ValidatorTest extends TestCase
         /** @var AgainstGame $planningGame */
         $planningGame = $planning->getAgainstGames()->first();
         $planning->getAgainstGames()->removeElement($planningGame);
-        self::assertSame(PlanningValidator::NOT_EQUALLY_ASSIGNED_PLACES, $planningValidator->validate($planning));
+
+        //        (new PlanningOutput())->outputWithGames($planning, true);
+
+        self::assertSame(PlanningValidator::UNEQUAL_GAME_WITH_AGAINST, $planningValidator->validate($planning));
     }
 
     public function testGamesInARow(): void
     {
-        $planning = $this->createPlanning($this->createInput([5]), null);
+        $planning = $this->createPlanning($this->createInput([4]), null);
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
         self::assertSame(PlanningValidator::VALID, $validity);
 
-//        $planningOutput = new PlanningOutput();
-//        $planningOutput->outputWithGames($planning, true);
+//        (new PlanningOutput())->outputWithGames($planning, true);
 
         // ---------------- MAKE INVALID --------------------- //
         $refObject   = new ReflectionObject($planning);
@@ -129,8 +134,7 @@ class ValidatorTest extends TestCase
         $refProperty->setValue($planning, 1);
         // ---------------- MAKE INVALID --------------------- //
 
-//        $planningOutput = new PlanningOutput();
-//        $planningOutput->outputWithGames($planning, true);
+//        (new PlanningOutput())->outputWithGames($planning, true);
 
 
         $validity = $planningValidator->validate($planning);
@@ -391,7 +395,7 @@ class ValidatorTest extends TestCase
         $planningValidator = new PlanningValidator();
         $planningValidator->validate($planning);
         $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID, $planning);
-        self::assertCount(13, $descriptions);
+        self::assertCount(14, $descriptions);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -406,7 +410,7 @@ class ValidatorTest extends TestCase
         $planningValidator = new PlanningValidator();
         $planningValidator->validate($planning);
         $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID, $planning);
-        self::assertCount(13, $descriptions);
+        self::assertCount(14, $descriptions);
     }
 
     public function testNrOfHomeAwayH2H2(): void
