@@ -232,7 +232,7 @@ class Service
 
     /**
      * @param Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $previousBatch
-     * @param array<Place> $gamesForBatchTmp
+     * @param array<TogetherGame|AgainstGame> $gamesForBatchTmp
      */
     protected function sortGamesByNotInPreviousBatch(
         Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $previousBatch,

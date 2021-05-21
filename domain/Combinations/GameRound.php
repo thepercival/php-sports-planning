@@ -136,10 +136,15 @@ class GameRound extends ListNode
     }
 
     /**
+     * @param bool $swap
      * @return list<AgainstHomeAway>
      */
-    public function getHomeAways(): array {
-        return $this->homeAways;
+    public function getHomeAways(bool $swap = false): array
+    {
+        if ($swap === false) {
+            return $this->homeAways;
+        }
+        return array_map(fn (AgainstHomeAway $homeAway) => $homeAway->swap(), $this->homeAways);
     }
 //    /**
 //     * @return list<TogetherGame|AgainstGame>

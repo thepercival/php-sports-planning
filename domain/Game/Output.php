@@ -89,7 +89,7 @@ class Output extends OutputHelper
 
         $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
         $placesAsArrayOfStrings = $gamePlaces->map(
-            function ($gamePlace) use ($useColors, $batch): string {
+            function (AgainstGamePlace $gamePlace) use ($useColors, $batch): string {
                 $colorNumber = $useColors ? $gamePlace->getPlace()->getNumber() : -1;
                 $gamesInARow = $batch !== null ? ('(' . $batch->getGamesInARow($gamePlace->getPlace()) . ')') : '';
                 return $this->outputColor($colorNumber, $gamePlace->getPlace()->getLocation() . $gamesInARow);
@@ -115,7 +115,7 @@ class Output extends OutputHelper
 
         $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
         $placesAsArrayOfStrings = $gamePlaces->map(
-            function ($gamePlace) use ($useColors, $batch): string {
+            function (TogetherGamePlace $gamePlace) use ($useColors, $batch): string {
                 $colorNumber = $useColors ? $gamePlace->getPlace()->getNumber() : -1;
                 $gamesInARow = $batch !== null ? ('(' . $batch->getGamesInARow($gamePlace->getPlace()) . ')') : '';
                 return $this->outputColor($colorNumber, $gamePlace->getPlace()->getLocation() . $gamesInARow);

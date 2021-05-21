@@ -22,7 +22,7 @@ class GameCreator
 
     public function createAssignedGames(Planning $planning): void
     {
-        (new GameGenerator())->generateUnassignedGames($planning);
+        (new GameGenerator($this->logger))->generateUnassignedGames($planning);
 
         // hier genereren voor een x aantal partials!!!
 

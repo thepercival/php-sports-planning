@@ -30,9 +30,12 @@ trait PlanningCreator
         return new SingleSportVariant($nrOfGamePlaces, $nrOfGameRounds);
     }
 
-    protected function getAgainstSportVariantWithFields(int $nrOfFields, int $nrOfHomePlaces = 1, int $nrOfAwayPlaces = 1, int $nrOfH2H = 1, int $nrOfPartials = 0): SportVariantWithFields
+    protected function getAgainstSportVariantWithFields(
+        int $nrOfFields,
+        int $nrOfHomePlaces = 1, int $nrOfAwayPlaces = 1,
+        int $nrOfH2H = 1, int $nrOfGamesPerPlace = 0): SportVariantWithFields
     {
-        return new SportVariantWithFields($this->getAgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfPartials), $nrOfFields);
+        return new SportVariantWithFields($this->getAgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfGamesPerPlace), $nrOfFields);
     }
 
     protected function getSingleSportVariantWithFields(int $nrOfFields, int $nrOfGameRounds = 1, int $nrOfGamePlaces = 1): SportVariantWithFields

@@ -130,7 +130,7 @@ class Against extends Game
             $this->getSport()->getNrOfHomePlaces(),
             $this->getSport()->getNrOfAwayPlaces(),
             $this->getSport()->getNrOfH2H(),
-            $this->getSport()->getNrOfGamePlaces()
+            $this->getSport()->getNrOfGamesPerPlace()
         );
     }
 }

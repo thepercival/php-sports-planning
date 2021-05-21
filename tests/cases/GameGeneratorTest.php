@@ -3,7 +3,11 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Tests;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use SportsHelpers\SportRange;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
@@ -22,7 +26,7 @@ class GameGeneratorTest extends TestCase
         $planning = $this->createPlanning(
             $this->createInput([2], null, 0)
         );
-        $gameGenerator = new GameGenerator();
+        $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
         $games = $planning->getGames();
         self::assertInstanceOf(AgainstGame::class, reset($games));
@@ -35,7 +39,7 @@ class GameGeneratorTest extends TestCase
             $this->createInput([2], [$singleSportVariantWithFields], 0)
         );
 
-        $gameGenerator = new GameGenerator();
+        $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
         $games = $planning->getGames();
         self::assertInstanceOf(TogetherGame::class, reset($games));
@@ -109,5 +113,15 @@ class GameGeneratorTest extends TestCase
          // (new PlanningOutput())->outputWithGames($planning, true);
 //
         self::assertEquals(Planning::STATE_SUCCEEDED, $planning->getState());
+    }
+
+    protected function getLogger(): LoggerInterface {
+        $logger = new Logger("test-logger");
+        $processor = new UidProcessor();
+        $logger->pushProcessor($processor);
+
+        $handler = new StreamHandler('php://stdout', LOG_INFO);
+        $logger->pushHandler($handler);
+        return $logger;
     }
 }

@@ -4,10 +4,13 @@ declare(strict_types=1);
 namespace SportsPlanning\GameGenerator\GameMode;
 
 use Exception;
+use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\AgainstSerie;
 use SportsPlanning\Combinations\GameRound;
+use SportsPlanning\Combinations\GameRoundCreator;
+use SportsPlanning\Combinations\HomeAwayCreator;
 use SportsPlanning\Field;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
@@ -24,7 +27,7 @@ class Against implements GameModeGameGenerator
 {
     protected Field|null $defaultField = null;
 
-    public function __construct(protected Planning $planning)
+    public function __construct(protected Planning $planning, protected LoggerInterface $logger)
     {
     }
 
@@ -40,35 +43,31 @@ class Against implements GameModeGameGenerator
             if (!($sportVariant instanceof AgainstSportVariant)) {
                 throw new Exception('only against-sport-variant accepted', E_ERROR);
             }
-            $this->homeAwaysToGames($poule, $this->getHomeAways($poule, $sportVariant));
+
+            $totalNrOfGamesPerPlace = $sportVariant->getTotalNrOfGamesPerPlace($poule->getPlaces()->count());
+            $nrOfGamesPerPlaceOneH2H = $sportVariant->getNrOfGamesPerPlaceOneH2H($poule->getPlaces()->count());
+            $swap = false;
+            while ($totalNrOfGamesPerPlace > 0) {
+                if ($totalNrOfGamesPerPlace > $nrOfGamesPerPlaceOneH2H) {
+                    $nrOfGamesPerPlace = $nrOfGamesPerPlaceOneH2H;
+                } else {
+                    $nrOfGamesPerPlace = $totalNrOfGamesPerPlace;
+                }
+                $totalNrOfGamesPerPlace -= $nrOfGamesPerPlaceOneH2H;
+
+                $gameRound = $this->getGameRound($poule, $sportVariant, $nrOfGamesPerPlace);
+                $this->gameRoundsToGames($poule, $gameRound, $swap);
+                $swap = !$swap;
+            }
         }
     }
 
-    /**
-     * @param Poule $poule
-     * @param AgainstSportVariant $sportVariant
-     * @return list<AgainstHomeAway>
-     */
-    protected function getHomeAways(Poule $poule, AgainstSportVariant $sportVariant): array
+    protected function getGameRound(Poule $poule, AgainstSportVariant $sportVariant, int $nrOfGamesPerPlace): GameRound
     {
-        return [];
-        //$homeAwayCreator = new HomeAwayCreator($sportVariant);
-        //
-        // write tests before continue;
-//        $homeAways = $homeAwayCreator->createForOneH2H($poule);
-//        $gameRoundCreator = new GameRoundCreator();
-//        $firstGameRound = $gameRoundCreator->createGameRound($homeAways);
-//        if($firstGameRound === null) {
-//            throw new \Exception('could not create gameroundswith homeaways', E_ERROR);
-//        }
-//        if ($sportVariant->getNrOfHomePlaces() === 1 && $sportVariant->getNrOfAwayPlaces() === 1) {
-//            $againstSerie = new OneVersusOneSerie($poule, $sportVariant);
-//        } elseif ($sportVariant->getNrOfHomePlaces() !== $sportVariant->getNrOfAwayPlaces()) {
-//            $againstSerie = new OneVersusTwoSerie($poule, $sportVariant);
-//        } else {
-//            $againstSerie = new TwoVersusTwoSerie($poule, $sportVariant);
-//        }
-        // return $this->gameRoundToHomeAways($firstGameRound);
+        $homeAwayCreator = new HomeAwayCreator($sportVariant);
+        $homeAways = $homeAwayCreator->createForOneH2H($poule);
+        $gameRoundCreator = new GameRoundCreator($sportVariant, $this->logger);
+        return $gameRoundCreator->createGameRound($poule, $homeAways, $nrOfGamesPerPlace);
     }
 
 //    /**
@@ -95,19 +94,20 @@ class Against implements GameModeGameGenerator
 //        return $homeAways;
 //    }
 
-    /**
-     * @param GameRound $gameRound
-     * @return list<AgainstHomeAway>
-     */
-    protected function gameRoundToHomeAways(GameRound $gameRound): array {
-        $homeAways = $gameRound->getHomeAways();
-        while( $gameRound = $gameRound->getNext() ) {
-            foreach ($gameRound->getHomeAways() as $homeAway) {
-                array_push($homeAways, $homeAway);
-            }
-        }
-        return $homeAways;
-    }
+//    /**
+//     * @param GameRound $gameRound
+//     * @return list<AgainstHomeAway>
+//     */
+//    protected function gameRoundToHomeAways(GameRound $gameRound): array
+//    {
+//        $homeAways = $gameRound->getHomeAways();
+//        while ($gameRound = $gameRound->getNext()) {
+//            foreach ($gameRound->getHomeAways() as $homeAway) {
+//                array_push($homeAways, $homeAway);
+//            }
+//        }
+//        return $homeAways;
+//    }
 
     /**
      * @param list<Sport> $sports
@@ -128,19 +128,23 @@ class Against implements GameModeGameGenerator
 
     /**
      * @param Poule $poule
-     * @param list<AgainstHomeAway> $homeAways
+     * @param GameRound $gameRound
+     * @param bool $swap
      * @throws Exception
      */
-    protected function homeAwaysToGames(Poule $poule, array $homeAways): void
+    protected function gameRoundsToGames(Poule $poule, GameRound $gameRound, bool $swap): void
     {
-        foreach ($homeAways as $homeAway) {
-            $game = new AgainstGame($this->planning, $poule, $this->getDefaultField(), 0);
-            foreach ([AgainstSide::HOME, AgainstSide::AWAY] as $side) {
-                foreach ($homeAway->get($side)->getPlaces() as $place) {
-                    // $validSide = (($h2HNr % 2) === 1) ? $side : $this->getSwappedSide($side);
-                    new AgainstGamePlace($game, $place, $side);
+        while ($gameRound !== null) {
+            foreach ($gameRound->getHomeAways($swap) as $homeAway) {
+                $game = new AgainstGame($this->planning, $poule, $this->getDefaultField(), 0);
+                foreach ([AgainstSide::HOME, AgainstSide::AWAY] as $side) {
+                    foreach ($homeAway->get($side)->getPlaces() as $place) {
+                        // $validSide = (($h2HNr % 2) === 1) ? $side : $this->getSwappedSide($side);
+                        new AgainstGamePlace($game, $place, $side);
+                    }
                 }
             }
+            $gameRound = $gameRound->getNext();
         }
 //        $nextPartial = $partial->getNext();
 //        if ($nextPartial !== null) {

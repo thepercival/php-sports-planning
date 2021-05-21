@@ -19,15 +19,17 @@ class SportTest extends TestCase
             GameMode::AGAINST,
             1,
             1,
+            0,
             1,
-            0,
-            0,
             0
         );
         $sport = new Sport($input, $dbSportVariant);
         self::assertSame($input, $sport->getInput());
         self::assertSame(2, $sport->getNumber());
+        self::assertSame(1, $sport->getNrOfHomePlaces());
+        self::assertSame(1, $sport->getNrOfAwayPlaces());
         self::assertSame(0, $sport->getNrOfGamePlaces());
+        self::assertSame(1, $sport->getNrOfH2H());
         self::assertSame(0, $sport->getNrOfGamesPerPlace());
     }
 }

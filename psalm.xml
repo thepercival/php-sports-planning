@@ -8,8 +8,8 @@
 >
     <projectFiles>
         <directory name="domain"/>
-<!--        <directory name="tests/cases"/>-->
-<!--        <directory name="tests/helpers"/>-->
+        <directory name="tests/cases"/>
+        <directory name="tests/helpers"/>
         <ignoreFiles>
             <directory name="vendor"/>
         </ignoreFiles>

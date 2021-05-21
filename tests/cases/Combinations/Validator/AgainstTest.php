@@ -1,18 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace SportsPlanning\Tests\Planning;
+namespace SportsPlanning\Tests\Combinations\Validator;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\SportMath;
 use SportsHelpers\SportRange;
 use SportsPlanning\GameGenerator;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\Output as PlanningOutput;
-use SportsPlanning\Planning\WithAndAgainstCounter;
+use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class WithAndAgainstCounterTest extends TestCase
+class AgainstTest extends TestCase
 {
     use PlanningCreator;
 
@@ -22,13 +21,13 @@ class WithAndAgainstCounterTest extends TestCase
         $input = $this->createInput([2], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator();
+        $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
-        (new PlanningOutput())->outputWithGames($planning, true);
+        //(new PlanningOutput())->outputWithGames($planning, true);
 
-        $counter = new WithAndAgainstCounter($input->getPoule(1), $input->getSport(1));
+        $counter = new AgainstValidator($input->getPoule(1), $input->getSport(1));
         $counter->addGames($planning);
-        echo $counter;
+        //echo $counter;
 
         self::assertTrue($counter->balanced());
     }
@@ -39,13 +38,13 @@ class WithAndAgainstCounterTest extends TestCase
         $input = $this->createInput([4], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator();
+        $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
-        (new PlanningOutput())->outputWithGames($planning, true);
+        //(new PlanningOutput())->outputWithGames($planning, true);
 
-        $counter = new WithAndAgainstCounter($input->getPoule(1), $input->getSport(1));
+        $counter = new AgainstValidator($input->getPoule(1), $input->getSport(1));
         $counter->addGames($planning);
-        echo $counter;
+        //echo $counter;
 
         self::assertTrue($counter->balanced());
     }
@@ -56,13 +55,13 @@ class WithAndAgainstCounterTest extends TestCase
         $input = $this->createInput([5], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator();
+        $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
-        (new PlanningOutput())->outputWithGames($planning, true);
+        //(new PlanningOutput())->outputWithGames($planning, true);
 
-        $counter = new WithAndAgainstCounter($input->getPoule(1), $input->getSport(1));
+        $counter = new AgainstValidator($input->getPoule(1), $input->getSport(1));
         $counter->addGames($planning);
-        echo $counter;
+        //echo $counter;
 
         self::assertTrue($counter->balanced());
     }
@@ -73,30 +72,29 @@ class WithAndAgainstCounterTest extends TestCase
         $input = $this->createInput([6], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator();
+        $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
-        (new PlanningOutput())->outputWithGames($planning, true);
+        //(new PlanningOutput())->outputWithGames($planning, true);
 
-        $counter = new WithAndAgainstCounter($input->getPoule(1), $input->getSport(1));
+        $counter = new AgainstValidator($input->getPoule(1), $input->getSport(1));
         $counter->addGames($planning);
-        echo $counter;
+        //echo $counter;
 
         self::assertTrue($counter->balanced());
     }
 
     public function test5Places2VS2(): void
     {
-        $sportVariant = $this->getAgainstSportVariantWithFields(1, 2, 2, 0, 3);
+        $sportVariant = $this->getAgainstSportVariantWithFields(1, 2, 2, 0, 12);
         $input = $this->createInput([5], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator();
+        $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
-        (new PlanningOutput())->outputWithGames($planning, true);
-
-        $counter = new WithAndAgainstCounter($input->getPoule(1), $input->getSport(1));
+//        (new PlanningOutput())->outputWithGames($planning, true);
+        $counter = new AgainstValidator($input->getPoule(1), $input->getSport(1));
         $counter->addGames($planning);
-        echo $counter;
+        //echo $counter;
 
         self::assertTrue($counter->balanced());
     }
@@ -111,7 +109,7 @@ class WithAndAgainstCounterTest extends TestCase
 //        $gameGenerator->generateUnassignedGames($planning);
 //        // (new PlanningOutput())->outputWithGames($planning, true);
 //
-//        $counter = new WithAndAgainstCounter($input->getPoule(1), $input->getSport(1));
+//        $counter = new AgainstAndAgainstCounter($input->getPoule(1), $input->getSport(1));
 //        $counter->addGames($planning);
 //        echo $counter;
 //

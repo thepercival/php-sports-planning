@@ -51,7 +51,7 @@ class AgainstSportsIteratorTest extends TestCase
         self::assertEquals(4, $sportVariant->getNrOfGamePlaces());
         self::assertEquals(2, $sportVariantWithFields->getNrOfFields());
         self::assertEquals(0, $sportVariant->getNrOfH2H());
-        self::assertEquals(1, $sportVariant->getNrOfPartials());
+        self::assertEquals(1, $sportVariant->getNrOfGamesPerPlace());
     }
 
     public function testCount(): void

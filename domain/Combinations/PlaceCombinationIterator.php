@@ -27,16 +27,12 @@ class PlaceCombinationIterator implements Iterator
      */
     public function __construct(Poule $poule, array $startPlaces, protected int $maxNrOfIncrements)
     {
-        $this->placeIterators = array_map(function (Place $place) use ($poule): PlaceIterator {
-            return new PlaceIterator($poule, $place->getNumber());
-        }, $startPlaces);
+        $this->placeIterators = array_map(fn (Place $place) => new PlaceIterator($poule, $place->getNumber()), $startPlaces);
     }
 
     public function current(): PlaceCombination
     {
-        $places = array_map(function (PlaceIterator $placeIterator): Place {
-            return $placeIterator->current();
-        }, $this->placeIterators);
+        $places = array_map(fn (PlaceIterator $placeIterator) => $placeIterator->current(), $this->placeIterators);
         return new PlaceCombination($places);
     }
 

@@ -3,7 +3,11 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Tests;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use ReflectionObject;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
@@ -96,7 +100,7 @@ class ValidatorTest extends TestCase
     {
         $planning = new Planning($this->createInput([5], null, 0), new SportRange(1, 1), 1);
 
-        $gameGenerator = new GameGenerator();
+        $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
 
         $planningValidator = new PlanningValidator();
@@ -410,7 +414,7 @@ class ValidatorTest extends TestCase
         $sportVariant = new SportVariantWithFields($this->getAgainstSportVariant(1, 1, 2), 2);
         $planning = new Planning($this->createInput([3], [$sportVariant], 0), new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator();
+        $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
 
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -437,5 +441,15 @@ class ValidatorTest extends TestCase
             PlanningValidator::UNEQUAL_PLACE_NROFHOMESIDES,
             $validity & PlanningValidator::UNEQUAL_PLACE_NROFHOMESIDES
         );
+    }
+
+    protected function getLogger(): LoggerInterface {
+        $logger = new Logger("test-logger");
+        $processor = new UidProcessor();
+        $logger->pushProcessor($processor);
+
+        $handler = new StreamHandler('php://stdout', LOG_INFO);
+        $logger->pushHandler($handler);
+        return $logger;
     }
 }

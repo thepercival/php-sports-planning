@@ -1,16 +1,16 @@
 <?php
-
 declare(strict_types=1);
 
 namespace SportsPlanning;
 
+use Psr\Log\LoggerInterface;
 use SportsHelpers\GameMode;
 use SportsPlanning\GameGenerator\GameMode as GameModeGenerator;
 use SportsPlanning\GameGenerator\GameMode\SingleHelper;
 
 class GameGenerator
 {
-    public function __construct()
+    public function __construct(protected LoggerInterface $logger)
     {
     }
 
@@ -35,7 +35,7 @@ class GameGenerator
     {
         $generatorMap = [];
         $generatorMap[GameMode::ALL_IN_ONE_GAME] = new GameGenerator\GameMode\AllInOneGame($planning);
-        $generatorMap[GameMode::AGAINST] = new GameGenerator\GameMode\Against($planning);
+        $generatorMap[GameMode::AGAINST] = new GameGenerator\GameMode\Against($planning, $this->logger);
         $generatorMap[GameMode::SINGLE] = new GameGenerator\GameMode\Single($planning, $singleHelper);
         return $generatorMap;
     }

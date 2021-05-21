@@ -3,10 +3,14 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Combinations;
 
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
+use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsPlanning\Combinations\HomeAwayCreator;
-use SportsPlanning\Poule;
+use SportsPlanning\Combinations\Output\HomeAway as HomeAwayOutput;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class HomeAwayCreatorTest extends TestCase
@@ -21,7 +25,7 @@ class HomeAwayCreatorTest extends TestCase
         $input = $this->createInput([2]);
         $poule = $input->getPoule(1);
         $homeAways = $creator->createForOneH2H($poule);
-        $this->homeAwaysToString('', $homeAways);
+        //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(1, $homeAways);
     }
 
@@ -33,7 +37,7 @@ class HomeAwayCreatorTest extends TestCase
         $input = $this->createInput([3]);
         $poule = $input->getPoule(1);
         $homeAways = $creator->createForOneH2H($poule);
-        $this->homeAwaysToString('', $homeAways);
+        //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(3, $homeAways);
     }
 
@@ -45,7 +49,7 @@ class HomeAwayCreatorTest extends TestCase
         $input = $this->createInput([4]);
         $poule = $input->getPoule(1);
         $homeAways = $creator->createForOneH2H($poule);
-        $this->homeAwaysToString('', $homeAways);
+        //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(6, $homeAways);
     }
 
@@ -57,11 +61,11 @@ class HomeAwayCreatorTest extends TestCase
         $input = $this->createInput([5]);
         $poule = $input->getPoule(1);
         $homeAways = $creator->createForOneH2H($poule);
-        $this->homeAwaysToString('', $homeAways);
+        //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(10, $homeAways);
     }
 
-    public function testSimple1VS2Pl3GamesPerPlace1(): void
+    public function testSimple1VS2Pl3(): void
     {
         $sportVariant = new AgainstSportVariant(1, 2, 0, 1);
         $creator = new HomeAwayCreator($sportVariant);
@@ -69,27 +73,77 @@ class HomeAwayCreatorTest extends TestCase
         $input = $this->createInput([3]);
         $poule = $input->getPoule(1);
         $homeAways = $creator->createForOneH2H($poule);
-        $this->homeAwaysToString('', $homeAways);
-        self::assertCount(1, $homeAways);
+        //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
+        self::assertCount(3, $homeAways);
     }
 
-    public function testSimple1VS2Pl3GamesPerPlace2(): void
+    public function testSimple1VS2Pl4(): void
     {
-        $sportVariant = new AgainstSportVariant(1, 2, 0, 2);
+        $sportVariant = new AgainstSportVariant(1, 2, 0, 1);
         $creator = new HomeAwayCreator($sportVariant);
 
-        $input = $this->createInput([3]);
+        $input = $this->createInput([4]);
         $poule = $input->getPoule(1);
         $homeAways = $creator->createForOneH2H($poule);
-        $this->homeAwaysToString('', $homeAways);
-        self::assertCount(2, $homeAways);
+        //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
+        self::assertCount(12, $homeAways);
     }
 
-    protected function homeAwaysToString(string $header, array $homeAways): void
+    public function testSimple2VS2Pl4(): void
     {
-        echo '----------- ' . $header . ' -------------' . PHP_EOL;
-        foreach ($homeAways as $homeAway) {
-            echo $homeAway . PHP_EOL;
-        }
+        $sportVariant = new AgainstSportVariant(2, 2, 0, 1);
+        $creator = new HomeAwayCreator($sportVariant);
+
+        $input = $this->createInput([4]);
+        $poule = $input->getPoule(1);
+        $homeAways = $creator->createForOneH2H($poule);
+        //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
+        self::assertCount(3, $homeAways);
+    }
+
+    public function testSimple2VS2Pl5(): void
+    {
+        $sportVariant = new AgainstSportVariant(2, 2, 0, 1);
+        $creator = new HomeAwayCreator($sportVariant);
+
+        $input = $this->createInput([5]);
+        $poule = $input->getPoule(1);
+        $homeAways = $creator->createForOneH2H($poule);
+        //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
+        self::assertCount(15, $homeAways);
+    }
+
+    public function testSimple2VS2Pl6(): void
+    {
+        $sportVariant = new AgainstSportVariant(2, 2, 0, 1);
+        $creator = new HomeAwayCreator($sportVariant);
+
+        $input = $this->createInput([6]);
+        $poule = $input->getPoule(1);
+        $homeAways = $creator->createForOneH2H($poule);
+        //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
+        self::assertCount(45, $homeAways);
+    }
+
+    public function testSimple2VS2Pl7(): void
+    {
+        $sportVariant = new AgainstSportVariant(2, 2, 0, 1);
+        $creator = new HomeAwayCreator($sportVariant);
+
+        $input = $this->createInput([7]);
+        $poule = $input->getPoule(1);
+        $homeAways = $creator->createForOneH2H($poule);
+        //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
+        self::assertCount(105, $homeAways);
+    }
+
+    protected function getLogger(): LoggerInterface {
+        $logger = new Logger("test-logger");
+        $processor = new UidProcessor();
+        $logger->pushProcessor($processor);
+
+        $handler = new StreamHandler('php://stdout', LOG_INFO);
+        $logger->pushHandler($handler);
+        return $logger;
     }
 }
