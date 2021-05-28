@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\Planning;
 
 use PHPUnit\Framework\TestCase;
+use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input\Service as InputService;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -15,7 +16,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([3, 2, 2], [$sportVariantWithFields], 0);
+        $input = $this->createInput([3, 2, 2], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, 0);
 
         self::assertTrue(
             $inputService->canSelfRefereeBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
@@ -26,7 +27,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([2], [$sportVariantWithFields], 0);
+        $input = $this->createInput([2], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, 0);
 
         self::assertFalse(
             $inputService->canSelfRefereeBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
@@ -37,7 +38,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([2, 2], [$sportVariantWithFields], 0);
+        $input = $this->createInput([2, 2], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, 0);
 
         self::assertFalse(
             $inputService->canSelfRefereeSamePouleBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
@@ -48,7 +49,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([3, 2], [$sportVariantWithFields], 0);
+        $input = $this->createInput([3, 2], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, 0);
 
         self::assertFalse(
             $inputService->canSelfRefereeSamePouleBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
@@ -59,7 +60,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([3, 3], [$sportVariantWithFields], 0);
+        $input = $this->createInput([3, 3], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, 0);
 
         self::assertTrue(
             $inputService->canSelfRefereeSamePouleBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
@@ -70,7 +71,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([3], [$sportVariantWithFields], 0);
+        $input = $this->createInput([3], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, 0);
 
         self::assertFalse(
             $inputService->canSelfRefereeOtherPoulesBeAvailable($input->createPouleStructure())
@@ -81,7 +82,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([2, 2], [$sportVariantWithFields], 0);
+        $input = $this->createInput([2, 2], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, 0);
 
         self::assertTrue(
             $inputService->canSelfRefereeOtherPoulesBeAvailable($input->createPouleStructure())

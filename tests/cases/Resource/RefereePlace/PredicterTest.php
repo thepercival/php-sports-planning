@@ -6,6 +6,7 @@ namespace SportsPlanning\Tests\Resource\RefereePlace;
 use PHPUnit\Framework\TestCase;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
+use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Resource\RefereePlace\Predicter;
 use SportsHelpers\SelfReferee;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -18,7 +19,7 @@ class PredicterTest extends TestCase
     public function testSamePouleEnoughRefereePlaces(): void
     {
         $planning = $this->createPlanning(
-            $this->createInput([3], null, null, SelfReferee::SAMEPOULE)
+            $this->createInput([3], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SAMEPOULE)
         );
         $poules = array_values($planning->getInput()->getPoules()->toArray());
         $predicter = new Predicter($poules);
@@ -33,14 +34,14 @@ class PredicterTest extends TestCase
     {
         self::expectException(\Exception::class);
         $this->createPlanning(
-            $this->createInput([2], null, null, SelfReferee::SAMEPOULE)
+            $this->createInput([2], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SAMEPOULE)
         );
     }
 
     public function testOtherPoulesEnoughRefereePlaces(): void
     {
         $planning = $this->createPlanning(
-            $this->createInput([3,3], null, null, SelfReferee::OTHERPOULES)
+            $this->createInput([3,3], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::OTHERPOULES)
         );
         $poules = array_values($planning->getInput()->getPoules()->toArray());
         $predicter = new Predicter($poules);

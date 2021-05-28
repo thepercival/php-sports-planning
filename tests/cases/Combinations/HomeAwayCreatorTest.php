@@ -20,11 +20,10 @@ class HomeAwayCreatorTest extends TestCase
     public function testSimple1VS1Pl2(): void
     {
         $sportVariant = new AgainstSportVariant(1, 1, 1, 0);
-        $creator = new HomeAwayCreator($sportVariant);
-
         $input = $this->createInput([2]);
         $poule = $input->getPoule(1);
-        $homeAways = $creator->createForOneH2H($poule);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(1, $homeAways);
     }
@@ -32,11 +31,10 @@ class HomeAwayCreatorTest extends TestCase
     public function testSimple1VS1Pl3(): void
     {
         $sportVariant = new AgainstSportVariant(1, 1, 1, 0);
-        $creator = new HomeAwayCreator($sportVariant);
-
         $input = $this->createInput([3]);
         $poule = $input->getPoule(1);
-        $homeAways = $creator->createForOneH2H($poule);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(3, $homeAways);
     }
@@ -44,11 +42,10 @@ class HomeAwayCreatorTest extends TestCase
     public function testSimple1VS1Pl4(): void
     {
         $sportVariant = new AgainstSportVariant(1, 1, 1, 0);
-        $creator = new HomeAwayCreator($sportVariant);
-
         $input = $this->createInput([4]);
         $poule = $input->getPoule(1);
-        $homeAways = $creator->createForOneH2H($poule);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(6, $homeAways);
     }
@@ -56,11 +53,10 @@ class HomeAwayCreatorTest extends TestCase
     public function testSimple1VS1Pl5(): void
     {
         $sportVariant = new AgainstSportVariant(1, 1, 1, 0);
-        $creator = new HomeAwayCreator($sportVariant);
-
         $input = $this->createInput([5]);
         $poule = $input->getPoule(1);
-        $homeAways = $creator->createForOneH2H($poule);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(10, $homeAways);
     }
@@ -68,11 +64,10 @@ class HomeAwayCreatorTest extends TestCase
     public function testSimple1VS2Pl3(): void
     {
         $sportVariant = new AgainstSportVariant(1, 2, 0, 1);
-        $creator = new HomeAwayCreator($sportVariant);
-
         $input = $this->createInput([3]);
         $poule = $input->getPoule(1);
-        $homeAways = $creator->createForOneH2H($poule);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(3, $homeAways);
     }
@@ -80,11 +75,10 @@ class HomeAwayCreatorTest extends TestCase
     public function testSimple1VS2Pl4(): void
     {
         $sportVariant = new AgainstSportVariant(1, 2, 0, 1);
-        $creator = new HomeAwayCreator($sportVariant);
-
         $input = $this->createInput([4]);
         $poule = $input->getPoule(1);
-        $homeAways = $creator->createForOneH2H($poule);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(12, $homeAways);
     }
@@ -92,11 +86,10 @@ class HomeAwayCreatorTest extends TestCase
     public function testSimple2VS2Pl4(): void
     {
         $sportVariant = new AgainstSportVariant(2, 2, 0, 1);
-        $creator = new HomeAwayCreator($sportVariant);
-
         $input = $this->createInput([4]);
         $poule = $input->getPoule(1);
-        $homeAways = $creator->createForOneH2H($poule);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(3, $homeAways);
     }
@@ -104,11 +97,10 @@ class HomeAwayCreatorTest extends TestCase
     public function testSimple2VS2Pl5(): void
     {
         $sportVariant = new AgainstSportVariant(2, 2, 0, 1);
-        $creator = new HomeAwayCreator($sportVariant);
-
         $input = $this->createInput([5]);
         $poule = $input->getPoule(1);
-        $homeAways = $creator->createForOneH2H($poule);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(15, $homeAways);
     }
@@ -116,11 +108,10 @@ class HomeAwayCreatorTest extends TestCase
     public function testSimple2VS2Pl6(): void
     {
         $sportVariant = new AgainstSportVariant(2, 2, 0, 1);
-        $creator = new HomeAwayCreator($sportVariant);
-
         $input = $this->createInput([6]);
         $poule = $input->getPoule(1);
-        $homeAways = $creator->createForOneH2H($poule);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(45, $homeAways);
     }
@@ -128,11 +119,10 @@ class HomeAwayCreatorTest extends TestCase
     public function testSimple2VS2Pl7(): void
     {
         $sportVariant = new AgainstSportVariant(2, 2, 0, 1);
-        $creator = new HomeAwayCreator($sportVariant);
-
         $input = $this->createInput([7]);
         $poule = $input->getPoule(1);
-        $homeAways = $creator->createForOneH2H($poule);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(105, $homeAways);
     }

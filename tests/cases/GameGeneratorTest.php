@@ -24,7 +24,7 @@ class GameGeneratorTest extends TestCase
     public function testGameInstanceAgainst(): void
     {
         $planning = $this->createPlanning(
-            $this->createInput([2], null, 0)
+            $this->createInput([2], null, null, 0)
         );
         $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
@@ -36,7 +36,7 @@ class GameGeneratorTest extends TestCase
     {
         $singleSportVariantWithFields = $this->getSingleSportVariantWithFields(2);
         $planning = $this->createPlanning(
-            $this->createInput([2], [$singleSportVariantWithFields], 0)
+            $this->createInput([2], [$singleSportVariantWithFields], null, 0)
         );
 
         $gameGenerator = new GameGenerator($this->getLogger());
@@ -102,8 +102,7 @@ class GameGeneratorTest extends TestCase
         ];
         $planning = new Planning($this->createInput([5], $sportVariants), new SportRange(1, 1), 4);
 
-//        $gameGenerator = new GameGenerator();
-//        $gameGenerator->disableThrowOnTimeout();
+//        $gameGenerator = new GameGenerator($this->getLogger());
 //        $gameGenerator->generateUnassignedGames($planning);
 //        (new PlanningOutput())->outputWithGames($planning, true);
 

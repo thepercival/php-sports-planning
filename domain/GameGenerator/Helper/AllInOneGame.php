@@ -1,17 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace SportsPlanning\GameGenerator\GameMode;
+namespace SportsPlanning\GameGenerator\Helper;
 
 use Exception;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsPlanning\Field;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\GameGenerator\AssignedCounter;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Sport;
-use SportsPlanning\GameGenerator\GameMode as GameModeGameGenerator;
+use SportsPlanning\GameGenerator\Helper as GameModeGameGenerator;
 
 class AllInOneGame implements GameModeGameGenerator
 {
@@ -24,8 +25,9 @@ class AllInOneGame implements GameModeGameGenerator
     /**
      * @param Poule $poule
      * @param list<Sport> $sports
+     * @param AssignedCounter $assignedCounter
      */
-    public function generate(Poule $poule, array $sports): void
+    public function generate(Poule $poule, array $sports, AssignedCounter $assignedCounter): void
     {
         foreach ($sports as $sport) {
             $this->defaultField = $sport->getField(1);

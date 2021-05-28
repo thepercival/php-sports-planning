@@ -6,11 +6,12 @@ namespace SportsPlanning\GameGenerator;
 use SportsPlanning\Poule;
 use SportsPlanning\Sport;
 
-interface GameMode
+interface Helper
 {
     /**
      * @param Poule $poule
      * @param list<Sport> $sports
+     * @param AssignedCounter $assignedCounter
      */
-    public function generate(Poule $poule, array $sports): void;
+    public function generate(Poule $poule, array $sports, AssignedCounter $assignedCounter): void;
 }

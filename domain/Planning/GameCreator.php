@@ -24,8 +24,6 @@ class GameCreator
     {
         (new GameGenerator($this->logger))->generateUnassignedGames($planning);
 
-        // hier genereren voor een x aantal partials!!!
-
         $games = $planning->getGames(/*Game::ORDER_BY_GAMENUMBER*/);
 
         $resourceService = new ResourceService($planning, $this->logger);

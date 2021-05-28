@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace SportsPlanning\Game;
@@ -29,16 +28,16 @@ class Against extends Game
         Planning $planning,
         Poule $poule,
         Field $field,
-        protected int $h2hNumber
+        protected int $gameRoundNumber
     ) {
         parent::__construct($planning, $poule, $field);
         $this->places = new ArrayCollection();
         $this->planning->getAgainstGames()->add($this);
     }
 
-    public function getH2hNumber(): int
+    public function getGameRoundNumber(): int
     {
-        return $this->h2hNumber;
+        return $this->gameRoundNumber;
     }
 
     public function getBatchNr(): int
@@ -78,14 +77,6 @@ class Against extends Game
             }
         );
     }
-
-//    /**
-//     * @param ArrayCollection | GamePlace[] $places
-//     */
-//    public function setPlaces(ArrayCollection $places)
-//    {
-//        $this->places = $places;
-//    }
 
     public function addPlace(Place $place, int $side): AgainstGamePlace
     {

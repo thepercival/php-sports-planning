@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SportsPlanning\Tests\GameGenerator\GameMode;
+namespace SportsPlanning\Tests\GameGenerator\Helper\Against;
 
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 
-class AgainstTest extends TestCase
+class EquallyAssignedTest extends TestCase
 {
     use PlanningCreator;
 
@@ -158,7 +158,7 @@ class AgainstTest extends TestCase
 
         $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
-        //(new PlanningOutput())->outputWithGames($planning, true);
+//        (new PlanningOutput())->outputWithGames($planning, true);
 
         self::assertCount(4, $planning->getAgainstGames());
         $validator = new PlanningValidator();

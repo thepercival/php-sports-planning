@@ -5,39 +5,60 @@ namespace SportsPlanning;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\GameMode;
-use SportsPlanning\GameGenerator\GameMode as GameModeGenerator;
-use SportsPlanning\GameGenerator\GameMode\SingleHelper;
+use SportsPlanning\Combinations\GamePlaceStrategy;
+use SportsPlanning\GameGenerator\AssignedCounter;
+use SportsPlanning\GameGenerator\Helper as GameGeneratorHelper;
 
 class GameGenerator
 {
+    /**
+     * @var array<int, GameGeneratorHelper>|null
+     */
+    protected array|null $generatorMap = null;
+
     public function __construct(protected LoggerInterface $logger)
     {
     }
 
     public function generateUnassignedGames(Planning $planning): void
     {
-        $singleHelper = new SingleHelper($planning);
+        $gamePlaceStrategy = $planning->getInput()->getGamePlaceStrategy();
+        $sportVariants = array_values($planning->getInput()->createSportVariants()->toArray());
         foreach ($planning->getInput()->getPoules() as $poule) {
-            $generatorMap = $this->getGenerators($planning, $singleHelper);
+            $assignedCounter = new AssignedCounter($poule, $sportVariants);
             foreach ([GameMode::ALL_IN_ONE_GAME, GameMode::AGAINST, GameMode::SINGLE] as $gameMode) {
                 $sports = $this->getSports($planning, $gameMode);
-                $generatorMap[$gameMode]->generate($poule, $sports);
+                $generator = $this->getGenerator($planning, $gameMode, $gamePlaceStrategy);
+                $generator->generate($poule, $sports, $assignedCounter);
             }
         }
     }
 
     /**
      * @param Planning $planning
-     * @param SingleHelper $singleHelper
-     * @return array<int, GameModeGenerator>
+     * @param int $gameMode
+     * @param int $gamePlaceStrategy
+     * @return GameGeneratorHelper
      */
-    protected function getGenerators(Planning $planning, SingleHelper $singleHelper): array
+    protected function getGenerator(Planning $planning, int $gameMode, int $gamePlaceStrategy): GameGeneratorHelper
     {
-        $generatorMap = [];
-        $generatorMap[GameMode::ALL_IN_ONE_GAME] = new GameGenerator\GameMode\AllInOneGame($planning);
-        $generatorMap[GameMode::AGAINST] = new GameGenerator\GameMode\Against($planning, $this->logger);
-        $generatorMap[GameMode::SINGLE] = new GameGenerator\GameMode\Single($planning, $singleHelper);
-        return $generatorMap;
+        $generatorMap = $this->getGeneratorMap($planning);
+        return $generatorMap[$gameMode];
+    }
+
+    /**
+     * @param Planning $planning
+     * @return array<int, GameGeneratorHelper>
+     */
+    protected function getGeneratorMap(Planning $planning): array {
+        if($this->generatorMap !== null) {
+            return $this->generatorMap;
+        }
+        $this->generatorMap = [];
+        $this->generatorMap[GameMode::ALL_IN_ONE_GAME] = new GameGenerator\Helper\AllInOneGame($planning);
+        $this->generatorMap[GameMode::AGAINST] = new GameGenerator\Helper\Against($planning, $this->logger);
+        $this->generatorMap[GameMode::SINGLE] = new GameGenerator\Helper\Single($planning, $this->logger);
+        return $this->generatorMap;
     }
 
     /**

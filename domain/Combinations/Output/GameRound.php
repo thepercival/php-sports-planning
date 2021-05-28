@@ -6,10 +6,9 @@ namespace SportsPlanning\Combinations\Output;
 use Psr\Log\LoggerInterface;
 
 use SportsHelpers\Output as OutputHelper;
-use SportsPlanning\Batch as BatchBase;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\Output\HomeAway as HomeAwayOutput;
-use SportsPlanning\Combinations\GameRound as GameRoundBase;
+use SportsPlanning\GameRound\AgainstGameRound;
 
 class GameRound extends OutputHelper
 {
@@ -22,7 +21,7 @@ class GameRound extends OutputHelper
     }
 
     public function output(
-        GameRoundBase $gameRound,
+        AgainstGameRound $gameRound,
         string $title = null,
         int $max = null,
         int $min = null
@@ -38,7 +37,7 @@ class GameRound extends OutputHelper
     }
 
     protected function outputHelper(
-        GameRoundBase $gameRound,
+        AgainstGameRound $gameRound,
         int|null $min = null,
         int|null $max = null
     ): void {
@@ -62,12 +61,12 @@ class GameRound extends OutputHelper
 
     /**
      * @param list<AgainstHomeAway> $homeAways
-     * @param GameRoundBase|null $gameRound
+     * @param AgainstGameRound|null $gameRound
      * @return void
      */
-    public function outputHomeAways(array $homeAways,GameRoundBase|null $gameRound = null, string|null $header = null): void
+    public function outputHomeAways(array $homeAways, AgainstGameRound|null $gameRound = null, string|null $header = null): void
     {
-        if( $header !== null ) {
+        if ($header !== null) {
             $this->logger->info($header);
         }
         foreach ($homeAways as $homeAway) {

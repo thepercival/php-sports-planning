@@ -70,6 +70,6 @@ class IteratorTest extends TestCase
         }
         $inputIterator->next(); // should do nothing
         self::assertFalse($inputIterator->valid());
-        self::assertEquals(978, $nrOfPossibilities);
+        self::assertEquals(1956, $nrOfPossibilities);
     }
 }

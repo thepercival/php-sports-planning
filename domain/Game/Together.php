@@ -19,7 +19,6 @@ use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 
 class Together extends GameBase
 {
-    // protected int $gameAmountNumber;
     /**
      * @phpstan-var ArrayCollection<int|string, TogetherGamePlace>|PersistentCollection<int|string, TogetherGamePlace>
      * @psalm-var ArrayCollection<int|string, TogetherGamePlace>

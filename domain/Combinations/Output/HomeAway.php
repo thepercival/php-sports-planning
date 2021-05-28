@@ -6,7 +6,7 @@ namespace SportsPlanning\Combinations\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Combinations\AgainstHomeAway;
-use SportsPlanning\Combinations\GameRound;
+use SportsPlanning\GameRound\AgainstGameRound;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Place;
 
@@ -29,7 +29,7 @@ class HomeAway extends OutputHelper
         }
     }
 
-    public function output(AgainstHomeAway $homeAway, GameRound|null $gameRound = null, string|null $prefix = null): void
+    public function output(AgainstHomeAway $homeAway, AgainstGameRound|null $gameRound = null, string|null $prefix = null): void
     {
         $useColors = $this->useColors();
         $gameRoundColor = ($useColors && $gameRound !== null) ? ($gameRound->getNumber() % 10) : -1;
@@ -41,7 +41,7 @@ class HomeAway extends OutputHelper
         );
     }
 
-    protected function outputPlaces(AgainstHomeAway $homeAway, GameRound|null $gameRound = null): string
+    protected function outputPlaces(AgainstHomeAway $homeAway, AgainstGameRound|null $gameRound = null): string
     {
         $homeGamePlaces = $this->outputPlacesHelper($homeAway->getHome());
         $awayGamePlaces = $this->outputPlacesHelper($homeAway->getAway());

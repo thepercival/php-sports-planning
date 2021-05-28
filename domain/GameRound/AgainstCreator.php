@@ -1,16 +1,25 @@
 <?php
 declare(strict_types=1);
 
-namespace SportsPlanning\Combinations;
+namespace SportsPlanning\GameRound;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsPlanning\Combinations\HomeAwayCreator;
+use SportsPlanning\GameRound\AgainstGameRound;
+use SportsPlanning\Combinations\AgainstHomeAway;
+use SportsPlanning\Combinations\Output\GameRound as GameRoundOutput;
+use SportsPlanning\Combinations\PlaceCombinationCounter;
+use SportsPlanning\GameGenerator\AssignedCounter;
+use SportsPlanning\GameRound\GameRoundCreator;
+use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
-use SportsPlanning\Place;
-use SportsPlanning\Combinations\Output\GameRound as GameRoundOutput;
 
-class GameRoundCreator
+/**
+ * @template-implements GameRoundCreator<AgainstGameRound>
+ */
+class AgainstCreator implements GameRoundCreator
 {
     protected int $nrOfGamesPerGameRound = 0;
     protected int $totalNrOfGamesPerPlace = 0;
@@ -21,74 +30,43 @@ class GameRoundCreator
         $this->gameRoundOutput = new GameRoundOutput($logger);
     }
 
-    /**
-     * @param Poule $poule
-     * @return array<int, PlaceCounter>
-     */
-    protected function initAssignedMap(Poule $poule): array
-    {
-        $assignedMap = [];
-        foreach ($poule->getPlaces() as $place) {
-            $assignedMap[$place->getNumber()] = new PlaceCounter($place);
-        }
-        return $assignedMap;
-    }
-
-    /**
-     * @param list<AgainstHomeAway> $homeAways
-     * @return array<int, PlaceCombinationCounter>
-     */
-    protected function initWithAssignedMap(array $homeAways): array
-    {
-        $assignedMap = [];
-        foreach ($homeAways as $homeAway) {
-            $home = $homeAway->getHome();
-            if( !isset($assignedMap[$home->getNumber()])) {
-                $assignedMap[$home->getNumber()] = new PlaceCombinationCounter($home);
-            }
-            $away = $homeAway->getAway();
-            if( !isset($assignedMap[$away->getNumber()])) {
-                $assignedMap[$away->getNumber()] = new PlaceCombinationCounter($away);
-            }
-        }
-        return $assignedMap;
-    }
-
-    /**
-     * @param Poule $poule
-     * @param list<AgainstHomeAway> $homeAways
-     * @return GameRound
-     */
-    public function createGameRound(Poule $poule, array $homeAways, int $nrOfGamesPerPlace): GameRound
-    {
+    public function createGameRound(
+        Poule $poule,
+        AssignedCounter $assignedCounter,
+        int $totalNrOfGamesPerPlace
+    ): AgainstGameRound {
         $this->nrOfGamesPerGameRound = $this->sportVariant->getNrOfGamesOneGameRound($poule->getPlaces()->count());
-        $this->totalNrOfGamesPerPlace = $nrOfGamesPerPlace;
+        $this->totalNrOfGamesPerPlace = $totalNrOfGamesPerPlace;
 
-        $gameRound = new GameRound();
-        $assignedMap = $this->initAssignedMap($poule);
-        $assignedWithMap = $this->initWithAssignedMap($homeAways);
-        $assignedHomeMap = $this->initAssignedMap($poule);
-        if ($this->assignGameRound($homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap, $gameRound) === false) {
+        $gameRound = new AgainstGameRound();
+        $assignedMap = $assignedCounter->getAssignedMap();
+        $assignedWithMap = $assignedCounter->getAssignedWithMap();
+        $assignedHomeMap = $assignedCounter->getAssignedHomeMap();
+        $homeAwayCreator = new HomeAwayCreator($poule, $this->sportVariant);
+
+        if ($this->assignGameRound($homeAwayCreator, [], $assignedMap, $assignedWithMap, $assignedHomeMap, $gameRound) === false) {
             throw new \Exception('creation of homeaway can not be false', E_ERROR);
         }
         return $gameRound;
     }
 
     /**
+     * @param HomeAwayCreator $homeAwayCreator
      * @param list<AgainstHomeAway> $homeAways
      * @param array<int, PlaceCounter> $assignedMap
      * @param array<int, PlaceCombinationCounter> $assignedWithMap
      * @param array<int, PlaceCounter> $assignedHomeMap
-     * @param GameRound $gameRound
+     * @param AgainstGameRound $gameRound
      * @param int $nrOfHomeAwaysTried
      * @return bool
      */
     protected function assignGameRound(
+        HomeAwayCreator $homeAwayCreator,
         array $homeAways,
         array $assignedMap,
         array $assignedWithMap,
         array $assignedHomeMap,
-        GameRound $gameRound,
+        AgainstGameRound $gameRound,
         int $nrOfHomeAwaysTried = 0
     ): bool {
 //        if ($this->isCompleted($assignedMap)) {
@@ -96,6 +74,9 @@ class GameRoundCreator
 //        }
         if ($this->isCompleted($assignedMap)) {
             return true;
+        }
+        if (count($homeAways) === 0) {
+            $homeAways = $homeAwayCreator->createForOneH2H();
         }
         if ($this->gameRoundCompleted($gameRound)) {
 //            if( $gameRound->getNumber() === 10 ) {
@@ -110,7 +91,7 @@ class GameRoundCreator
             $homeAways = $this->sortHomeAways($homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap);
 //            $this->gameRoundOutput->outputHomeAways($homeAways, null, 'postsort after gameround ' . $gameRound->getNumber() . ' completed');
             // $gamesList = array_values($gamesForBatchTmp);
-            return $this->assignGameRound($homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap, $nextGameRound);
+            return $this->assignGameRound($homeAwayCreator, $homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap, $nextGameRound);
         }
 
         if ($nrOfHomeAwaysTried === count($homeAways)) {
@@ -132,7 +113,7 @@ class GameRoundCreator
 //                                                     return $this->areAllPlacesAssignable($batch, $game);
 //                                                 }
 //                                             ));
-            if ($this->assignGameRound($homeAways, $assignedMapTry, $assignedWithMapTry, $assignedHomeMapTry, $gameRound, $nrOfHomeAwaysTried)) {
+            if ($this->assignGameRound($homeAwayCreator, $homeAways, $assignedMapTry, $assignedWithMapTry, $assignedHomeMapTry, $gameRound, $nrOfHomeAwaysTried)) {
                 return true;
             }
             $this->releaseHomeAway($gameRound, $homeAway);
@@ -140,6 +121,7 @@ class GameRoundCreator
         $homeAways[] = $homeAway;
         ++$nrOfHomeAwaysTried;
         return $this->assignGameRound(
+            $homeAwayCreator,
             $homeAways,
             $assignedMap,
             $assignedWithMap,
@@ -167,7 +149,7 @@ class GameRoundCreator
         return array_map(fn (PlaceCombinationCounter $placeCombinationCounter) => clone $placeCombinationCounter, $placeCombinationCounters);
     }
 
-    protected function gameRoundCompleted(GameRound $gameRound): bool
+    protected function gameRoundCompleted(AgainstGameRound $gameRound): bool
     {
         return count($gameRound->getHomeAways()) === $this->nrOfGamesPerGameRound;
     }
@@ -187,14 +169,14 @@ class GameRoundCreator
     }
 
     /**
-     * @param GameRound $gameRound
+     * @param AgainstGameRound $gameRound
      * @param AgainstHomeAway $homeAway
      * @param array<int, PlaceCounter> $assignedMap
      * @param array<int, PlaceCombinationCounter> $assignedWithMap
      * @param array<int, PlaceCounter> $assignedHomeMap
      */
     protected function assignHomeAway(
-        GameRound $gameRound,
+        AgainstGameRound $gameRound,
         AgainstHomeAway $homeAway,
         array $assignedMap,
         array $assignedWithMap,
@@ -230,11 +212,11 @@ class GameRoundCreator
                 if ($nrOfPlacesA === $nrOfPlacesB) {
                     $amountWithA = $this->getWithAmountAssigned($homeAwayA, $assignedWithMap);
                     $amountWithB = $this->getWithAmountAssigned($homeAwayB, $assignedWithMap);
-                    if($amountWithA === $amountWithB) {
+                    if ($amountWithA === $amountWithB) {
                         list($amountHomeA, $nrOfPlacesHomeA) = $this->getLeastAmountAssigned($homeAwayA, $assignedHomeMap);
                         list($amountHomeB, $nrOfPlacesHomeB) = $this->getLeastAmountAssigned($homeAwayB, $assignedHomeMap);
                         if ($amountHomeA === $amountHomeB) {
-                            return $nrOfPlacesHomeB - $nrOfPlacesHomeA;
+                            return $nrOfPlacesHomeA - $nrOfPlacesHomeB;
                         }
                         return $amountHomeA - $amountHomeB;
                     }
@@ -281,18 +263,18 @@ class GameRoundCreator
         return $homeWithAmountAssigned + $awayWithAmountAssigned;
     }
 
-    protected function releaseHomeAway(GameRound $gameRound, AgainstHomeAway $homeAway): void
+    protected function releaseHomeAway(AgainstGameRound $gameRound, AgainstHomeAway $homeAway): void
     {
         $gameRound->remove($homeAway);
     }
 
     /**
-     * @param GameRound $gameRound
+     * @param AgainstGameRound $gameRound
      * @param AgainstHomeAway $homeAway
      * @param array<int, PlaceCounter> $assignedMap
      * @return bool
      */
-    private function isHomeAwayAssignable(GameRound $gameRound, AgainstHomeAway $homeAway, array $assignedMap): bool
+    private function isHomeAwayAssignable(AgainstGameRound $gameRound, AgainstHomeAway $homeAway, array $assignedMap): bool
     {
         foreach ($homeAway->getPlaces() as $place) {
             if ($gameRound->isParticipating($place) || $this->willBeOverAssigned($place, $assignedMap)) {

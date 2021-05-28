@@ -12,6 +12,7 @@ use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\SportRange;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
+use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\GameCreator;
 use SportsPlanning\Input;
@@ -20,9 +21,9 @@ use SportsHelpers\SelfReferee;
 
 trait PlanningCreator
 {
-    protected function getAgainstSportVariant(int $nrOfHomePlaces = 1, int $nrOfAwayPlaces = 1, int $nrOfH2H = 1, int $nrOfPartials = 0): AgainstSportVariant
+    protected function getAgainstSportVariant(int $nrOfHomePlaces = 1, int $nrOfAwayPlaces = 1, int $nrOfH2H = 1, int $nrOfGamesPerPlace = 0): AgainstSportVariant
     {
-        return new AgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfPartials);
+        return new AgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfGamesPerPlace);
     }
 
     protected function getSingleSportVariant(int $nrOfGameRounds = 1, int $nrOfGamePlaces = 1): SingleSportVariant
@@ -69,11 +70,15 @@ trait PlanningCreator
     protected function createInput(
         array $pouleStructureAsArray,
         array $sportVariantsWithFields = null,
+        int $gamePlaceStrategy = null,
         int $nrOfReferees = null,
         int $selfReferee = null
     ) {
         if ($sportVariantsWithFields === null) {
             $sportVariantsWithFields = [$this->getAgainstSportVariantWithFields(2)];
+        }
+        if ($gamePlaceStrategy === null) {
+            $gamePlaceStrategy = GamePlaceStrategy::EquallyAssigned;
         }
         if ($nrOfReferees === null) {
             $nrOfReferees = $this->getDefaultNrOfReferees();
@@ -84,6 +89,7 @@ trait PlanningCreator
         return new Input(
             new PouleStructure(...$pouleStructureAsArray),
             $sportVariantsWithFields,
+            $gamePlaceStrategy,
             $nrOfReferees,
             $selfReferee
         );
