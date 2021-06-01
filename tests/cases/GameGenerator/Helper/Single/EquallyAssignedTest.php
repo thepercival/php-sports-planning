@@ -6,9 +6,8 @@ namespace SportsPlanning\Tests\GameGenerator\Helper\Single;
 use SportsPlanning\GameGenerator\AssignedCounter;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\GameMode;
 use SportsHelpers\SportRange;
-use SportsPlanning\GameGenerator\Helper\Single\EquallyAssigned as EquallyAssignedGameGeneratorHelper;
+use SportsPlanning\GameGenerator\Helper\Single as SingleGameGeneratorHelper;
 use SportsPlanning\Planning;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -24,7 +23,7 @@ class EquallyAssignedTest extends TestCase
             new SportRange(1, 1),
             0);
 
-        $gameGenerator = new EquallyAssignedGameGeneratorHelper($planning, $this->getLogger());
+        $gameGenerator = new SingleGameGeneratorHelper($planning, $this->getLogger());
         $poule = $planning->getInput()->getPoule(1);
         $sports = array_values($planning->getInput()->getSports()->toArray());
         $sportVariants = array_values($planning->getInput()->createSportVariants()->toArray());
@@ -53,7 +52,7 @@ class EquallyAssignedTest extends TestCase
 
         // alle tests zitten ook in de validator, dus een beeteje dubbel om hier
         // ook nog eens alles te testen!!!!
-        $gameGenerator = new EquallyAssignedGameGeneratorHelper($planning, $this->getLogger());
+        $gameGenerator = new SingleGameGeneratorHelper($planning, $this->getLogger());
         $poule = $planning->getInput()->getPoule(1);
         $sports = array_values($planning->getInput()->getSports()->toArray());
         $sportVariants = array_values($planning->getInput()->createSportVariants()->toArray());

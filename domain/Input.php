@@ -14,6 +14,7 @@ use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\SportRange;
+use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
@@ -85,6 +86,10 @@ class Input extends Identifiable
         for ($refNr = 1 ; $refNr <= $nrOfReferees ; $refNr++) {
             new Referee($this);
         }
+
+        $strat = $this->gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned ? 'rndm' : 'eql';
+        $this->uniqueString .= '-strat=>' . $strat;
+
         $this->uniqueString .= '-ref(' . $nrOfReferees;
         $this->uniqueString .= ':' . $this->getSelfRefereeAsString() . ')';
     }
