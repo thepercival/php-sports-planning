@@ -36,14 +36,20 @@ class SingleCreator implements GameRoundCreator
         int $totalNrOfGamesPerPlace
     ): SingleGameRound {
         $gameRound = new SingleGameRound();
+        $gamePlaceStrategy = $poule->getInput()->getGamePlaceStrategy();
         $this->assignedTogetherMap = $assignedCounter->getAssignedTogetherMap();
         $places = $poule->getPlaces()->toArray();
+        $remainingPlaces = [];
         for ($i = 1 ; $i <= $totalNrOfGamesPerPlace ; $i++) {
-            if ($poule->getInput()->getGamePlaceStrategy() === GamePlaceStrategy::RandomlyAssigned) {
+            if ($gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned) {
                 shuffle($places);
             }
-            $this->assignGameRound(array_values($places), $gameRound);
+            $remainingPlaces = $this->assignGameRound(array_values($places), $remainingPlaces, $gameRound, $gamePlaceStrategy);
+
             $gameRound = $gameRound->createNext();
+        }
+        if (count($remainingPlaces) > 0) {
+            $this->assignGameRound($remainingPlaces, [], $gameRound, $gamePlaceStrategy, true);
         }
         return $gameRound->getFirst();
     }
@@ -51,12 +57,23 @@ class SingleCreator implements GameRoundCreator
 
     /**
      * @param list<Place> $unSortedPlaces
+     * @param list<Place> $remainingPlaces
      * @param SingleGameRound $gameRound
+     * @param int $gamePlaceStrategy
+     * @param bool $finalGameRound
+     * @return list<Place>
      */
-    protected function assignGameRound(array $unSortedPlaces, SingleGameRound $gameRound): void
-    {
+    protected function assignGameRound(
+        array $unSortedPlaces,
+        array $remainingPlaces,
+        SingleGameRound $gameRound,
+        int $gamePlaceStrategy,
+        bool $finalGameRound = false
+    ): array {
         $gamePlaces = [];
         $places = $this->sortPlaces($unSortedPlaces);
+        $remainingPlaces = $this->sortPlaces($remainingPlaces);
+        $places = array_values(array_merge($places, $remainingPlaces));
         while (count($places) > 0) {
             $bestPlace = $this->getBestPlace($gamePlaces, $places);
             if ($bestPlace === null) {
@@ -74,11 +91,15 @@ class SingleCreator implements GameRoundCreator
                 $gamePlaces = [];
             }
         }
-        if (count($gamePlaces) > 0) {
+        if ($gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned) {
+            return [];
+        }
+        if( $finalGameRound && count($gamePlaces) > 0 ) {
             $placeCombination = new PlaceCombination($gamePlaces);
             $gameRound->add($placeCombination);
             $this->assignPlaceCombination($placeCombination);
         }
+        return $gamePlaces;
     }
 
     /**
@@ -154,7 +175,8 @@ class SingleCreator implements GameRoundCreator
     {
         $score = 0;
         foreach ($gamePlaces as $gamePlace) {
-            $score += $this->getPlaceCounter($place, $gamePlace)->count();
+            $placeCounter = $this->getPlaceCounter($place, $gamePlace);
+            $score += $placeCounter !== null ? $placeCounter->count() : 0;
         }
         return $score;
     }
@@ -162,10 +184,14 @@ class SingleCreator implements GameRoundCreator
     /**
      * @param Place $place
      * @param Place $coPlace
-     * @return PlaceCounter
+     * @return PlaceCounter|null
      */
-    protected function getPlaceCounter(Place $place, Place $coPlace): PlaceCounter
+    protected function getPlaceCounter(Place $place, Place $coPlace): PlaceCounter|null
     {
+        if (!isset($this->assignedTogetherMap[$place->getLocation()])
+        || !isset($this->assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()])) {
+            return null;
+        }
         return $this->assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()];
     }
 
@@ -181,7 +207,7 @@ class SingleCreator implements GameRoundCreator
                 if ($coPlace === $placeIt) {
                     continue;
                 }
-                $this->getPlaceCounter($placeIt, $coPlace)->increment();
+                $this->getPlaceCounter($placeIt, $coPlace)?->increment();
             }
         }
     }

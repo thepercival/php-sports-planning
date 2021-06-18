@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SportsPlanning\Tests\GameGenerator\Helper\Against;
+namespace SportsPlanning\Tests\GameGenerator\Helper;
 
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -16,7 +16,7 @@ use PHPUnit\Framework\TestCase;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 
-class EquallyAssignedTest extends TestCase
+class AgainstTest extends TestCase
 {
     use PlanningCreator;
 
