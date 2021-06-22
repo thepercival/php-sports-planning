@@ -68,6 +68,6 @@ class AgainstSportsIteratorTest extends TestCase
         }
         $sportsIterator->next(); // should do nothing
         self::assertFalse($sportsIterator->valid());
-        self::assertEquals(16, $nrOfPossibilities);
+        self::assertEquals(12, $nrOfPossibilities);
     }
 }

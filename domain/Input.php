@@ -77,7 +77,12 @@ class Input extends Identifiable
             }
         }
         foreach ($sportVariantsWithFields as $sportVariantWithFields) {
-            $sport = new Sport($this, $sportVariantWithFields->getSportVariant()->toPersistVariant());
+            $sportVariant = $sportVariantWithFields->getSportVariant();
+            if (($sportVariant instanceof AgainstSportVariant || $sportVariant instanceof SingleSportVariant)
+                && $sportVariant->getNrOfGamePlaces() > $pouleStructure->getSmallestPoule()) {
+                throw new Exception('te weinig plekken om wedstrijden te kunnen plannen', E_ERROR);
+            }
+            $sport = new Sport($this, $sportVariant->toPersistVariant());
             for ($fieldNr = 1 ; $fieldNr <= $sportVariantWithFields->getNrOfFields() ; $fieldNr++) {
                 new Field($sport);
             }

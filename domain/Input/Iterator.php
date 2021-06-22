@@ -12,6 +12,8 @@ use SportsHelpers\SelfReferee;
 use SportsHelpers\PouleStructure\BalancedIterator as PouleStructureIterator;
 use SportsPlanning\Input\Service as PlanningInputService;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 
 /**
  * @template TKey
@@ -227,14 +229,23 @@ class Iterator implements \Iterator
     protected function incrementSports(): bool
     {
         $this->sportsIterator->next();
-        if (!$this->sportsIterator->valid()) {
+        $sportVariantWithFields = $this->sportsIterator->current();
+        if ($sportVariantWithFields === null) {
             return $this->incrementStructure();
         }
+        $sportVariant = $sportVariantWithFields->getSportVariant();
+        $pouleStructure = $this->structureIterator->current();
+        if ($pouleStructure === null) {
+            return $this->incrementStructure();
+        }
+        if (($sportVariant instanceof AgainstSportVariant || $sportVariant instanceof SingleSportVariant)
+            && $sportVariant->getNrOfGamePlaces() > $pouleStructure->getSmallestPoule()) {
+            return $this->incrementSports();
+        }
+
         $this->rewindGamePlaceStrategy();
         return true;
     }
-
-
 
     protected function incrementStructure(): bool
     {

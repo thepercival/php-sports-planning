@@ -49,6 +49,9 @@ class AgainstSportsIterator implements \Iterator
         if ($this->nrOfAwayPlaces < 1) {
             $this->nrOfAwayPlaces = 1;
         }
+        if ($this->nrOfAwayPlaces < $this->nrOfHomePlaces) {
+            $this->nrOfAwayPlaces = $this->nrOfHomePlaces;
+        }
         $this->rewindNrOfH2H();
     }
 

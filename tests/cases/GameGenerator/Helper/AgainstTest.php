@@ -213,6 +213,31 @@ class AgainstTest extends TestCase
         self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
     }
 
+    public function test1VS2Places3GamesPerPlace3(): void
+    {
+        $sportVariants = [
+            $this->getAgainstSportVariantWithFields(1, 1, 2, 0, 3),
+        ];
+        $planning = new Planning($this->createInput([3], $sportVariants), new SportRange(1, 1), 0);
+
+        $gameGenerator = new GameGenerator($this->getLogger());
+        $gameGenerator->generateUnassignedGames($planning);
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
+        self::assertCount(3, $planning->getAgainstGames());
+        $validator = new PlanningValidator();
+        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
+    }
+
+    public function test1VS2Places2GamesPerPlace1(): void
+    {
+        $sportVariants = [
+            $this->getAgainstSportVariantWithFields(1, 1, 2, 0, 1),
+        ];
+        self::expectException(\Exception::class);
+        new Planning($this->createInput([2], $sportVariants), new SportRange(1, 1), 0);
+    }
+
     // commented for performance reasons
 //    public function test2VS2Places7GamesPerPlace60(): void
 //    {
