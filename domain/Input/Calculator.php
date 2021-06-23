@@ -98,9 +98,10 @@ class Calculator
         $nrOfPlaces = $input->getNrOfPlaces();
         while ($nrOfPlaces > 0 && count($sports) > 0) {
             $sport = array_shift($sports);
+            $sportNrOfGamePlaces = $sport->createVariant()->getNrOfGamePlaces() + ($selfReferee ? 1 : 0);
             $nrOfFields = $sport->getNrOfFields();
             while ($nrOfPlaces > 0 && $nrOfFields-- > 0) {
-                $nrOfGamePlaces = ($sport->getNrOfGamePlaces() + ($selfReferee ? 1 : 0));
+                $nrOfGamePlaces = $sportNrOfGamePlaces + ($selfReferee ? 1 : 0);
                 $nrOfPlaces -= $nrOfGamePlaces;
                 $nrOfBatchPlaces += $nrOfGamePlaces;
             }

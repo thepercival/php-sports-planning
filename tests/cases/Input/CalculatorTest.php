@@ -31,4 +31,13 @@ class CalculatorTest extends TestCase
 //        $maxNrOfGamesSim = $calculator->getMaxNrOfGamesPerBatch($input, false);
 //        self::assertSame(4, $maxNrOfGamesSim);
 //    }
+
+    public function testGetMaxNrOfGamesInARow(): void
+    {
+        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
+        $input = $this->createInput([6], [$sportVariantWithFields]);
+        $calculator = new InputCalculator();
+        $maxNrOfGamesInARow = $calculator->getMaxNrOfGamesInARow($input, false);
+        self::assertSame(3, $maxNrOfGamesInARow);
+    }
 }

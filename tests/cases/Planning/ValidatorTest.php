@@ -22,6 +22,7 @@ use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\GameGenerator;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
+use SportsPlanning\Planning\GameCreator;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
@@ -454,6 +455,25 @@ class ValidatorTest extends TestCase
             PlanningValidator::UNEQUAL_PLACE_NROFHOMESIDES,
             $validity & PlanningValidator::UNEQUAL_PLACE_NROFHOMESIDES
         );
+    }
+
+    public function test6Places2FieldsMax2GamesInARow(): void
+    {
+        $sportVariant = new SportVariantWithFields($this->getAgainstSportVariant(1, 1, 1), 2);
+        $planning = new Planning($this->createInput([6], [$sportVariant], GamePlaceStrategy::EquallyAssigned, 0), new SportRange(2, 2), 2);
+
+        $gameCreator = new GameCreator($this->getLogger());
+        // $gameCreator->disableThrowOnTimeout();
+        $gameCreator->createAssignedGames($planning);
+
+        (new PlanningOutput())->outputWithGames($planning, true);
+
+        self::assertSame(Planning::STATE_SUCCEEDED, $planning->getState());
+
+        $planningValidator = new PlanningValidator();
+
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::VALID, $validity);
     }
 
     protected function getLogger(): LoggerInterface

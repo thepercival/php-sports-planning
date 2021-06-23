@@ -59,7 +59,7 @@ class Repository extends EntityRepository implements SaveRemoveRepository
 //    {
 //        $query = $this->createQueryBuilder('p')
 //            ->join("p.input", "pi")
-//            ->where('pi.pouleStructureDb = :pouleStructure')
+//            ->where('pi.structureConfig = :pouleStructure')
 //            ->andWhere('pi.sportConfigDb = :sportConfig')
 //            ->andWhere('pi.nrOfReferees = :nrOfReferees')
 //            ->andWhere('pi.teamup = :teamup')
@@ -87,7 +87,7 @@ class Repository extends EntityRepository implements SaveRemoveRepository
 //    {
 //        $query = $this->createQueryBuilder('p')
 //            ->join("p.input", "pi")
-//            ->where('pi.pouleStructureDb = :pouleStructure')
+//            ->where('pi.structureConfig = :pouleStructure')
 //            ->andWhere('pi.sportConfigDb = :sportConfig')
 //            ->andWhere('pi.nrOfReferees = :nrOfReferees')
 //            ->andWhere('pi.teamup = :teamup')
@@ -97,7 +97,7 @@ class Repository extends EntityRepository implements SaveRemoveRepository
 //            ->andWhere('p.maxNrOfBatchGames = :maxNrOfBatchGames')
 //        ;
 //
-//        $query = $query->setParameter('pouleStructure', json_encode($input->getPouleStructure()->toArray()));
+//        $query = $query->setParameter('structureConfig', json_encode($input->getPouleStructure()->toArray()));
 //        $query = $query->setParameter('sportConfig', $this->sportConfigsToString($input));
 //        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
 //        $query = $query->setParameter('teamup', $input->getTeamup());
