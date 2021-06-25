@@ -466,7 +466,7 @@ class ValidatorTest extends TestCase
         // $gameCreator->disableThrowOnTimeout();
         $gameCreator->createAssignedGames($planning);
 
-        (new PlanningOutput())->outputWithGames($planning, true);
+        // (new PlanningOutput())->outputWithGames($planning, true);
 
         self::assertSame(Planning::STATE_SUCCEEDED, $planning->getState());
 

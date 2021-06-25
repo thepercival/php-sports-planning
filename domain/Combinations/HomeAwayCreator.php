@@ -74,10 +74,14 @@ class HomeAwayCreator
             }
             $homeIt->next();
         }
-        $this->swap = !$this->swap;
         if ($this->poule->getInput()->getGamePlaceStrategy() === GamePlaceStrategy::RandomlyAssigned) {
             shuffle($homeAways);
+            return $homeAways;
         }
+        if( $this->swap  === true) {
+            $homeAways = $this->swapHomeAways($homeAways);
+        }
+        $this->swap = !$this->swap;
         return array_values($homeAways);
     }
 
@@ -99,9 +103,6 @@ class HomeAwayCreator
         }
         foreach ($away->getPlaces() as $awayPlace) {
             $this->gameCounterMap[$awayPlace->getNumber()]->increment();
-        }
-        if ($this->swap) {
-            return new AgainstHomeAway($away, $home);
         }
         return new AgainstHomeAway($home, $away);
     }
@@ -159,5 +160,17 @@ class HomeAwayCreator
     protected function getNrOfHomeGamesForPlace(Place $place): int
     {
         return $this->homeCounterMap[$place->getNumber()]->count();
+    }
+
+    /**
+     * @param list<AgainstHomeAway> $homeAways
+     * @return list<AgainstHomeAway>
+     */
+    protected function swapHomeAways(array $homeAways): array {
+        $swapped = [];
+        foreach( $homeAways as $homeAway) {
+            array_push($swapped, $homeAway->swap());
+        }
+        return $swapped;
     }
 }

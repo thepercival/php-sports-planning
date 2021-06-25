@@ -7,6 +7,7 @@ use SportsHelpers\PouleStructure;
 use SportsHelpers\Sport\GamePlaceCalculator;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsPlanning\Input;
 use SportsPlanning\Sport;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
@@ -32,6 +33,7 @@ class Calculator
     public function getMaxNrOfGamesPerBatch(
         PouleStructure $pouleStructure,
         array $sportVariantsWithFields,
+        int $nrOfReferees,
         bool $selfReferee
     ): int {
         // sort by lowest nrOfGamePlaces first
@@ -43,13 +45,14 @@ class Calculator
 
         $nrOfBatchGames = 0;
         $nrOfPlaces = $pouleStructure->getNrOfPlaces();
-        while ($nrOfPlaces > 0 && count($sportVariantsWithFields) > 0) {
+        $doRefereeCheck = $selfReferee || $nrOfReferees > 0;
+        while ($nrOfPlaces > 0 && count($sportVariantsWithFields) > 0 && (!$doRefereeCheck || $nrOfReferees > 0)) {
             $sportVariantWithFields = array_shift($sportVariantsWithFields);
             $nrOfFields = $sportVariantWithFields->getNrOfFields();
             $nrOfGamePlaces = $this->getNrOfGamePlaces($pouleStructure, $sportVariantWithFields->getSportVariant());
             $nrOfGamePlaces += ($selfReferee ? 1 : 0);
 
-            while ($nrOfPlaces > 0 && $nrOfFields-- > 0) {
+            while ($nrOfPlaces > 0 && $nrOfFields-- > 0 && (!$doRefereeCheck || $nrOfReferees-- > 0)) {
                 $nrOfPlaces -= $nrOfGamePlaces;
                 if ($nrOfPlaces >= 0) {
                     $nrOfBatchGames++;
@@ -98,7 +101,11 @@ class Calculator
         $nrOfPlaces = $input->getNrOfPlaces();
         while ($nrOfPlaces > 0 && count($sports) > 0) {
             $sport = array_shift($sports);
-            $sportNrOfGamePlaces = $sport->createVariant()->getNrOfGamePlaces() + ($selfReferee ? 1 : 0);
+            $sportVariant = $sport->createVariant();
+            if ($sportVariant instanceof AllInOneGameSportVariant) {
+                return $input->getPoule(1)->getPlaces()->count();
+            }
+            $sportNrOfGamePlaces = $sportVariant->getNrOfGamePlaces() + ($selfReferee ? 1 : 0);
             $nrOfFields = $sport->getNrOfFields();
             while ($nrOfPlaces > 0 && $nrOfFields-- > 0) {
                 $nrOfGamePlaces = $sportNrOfGamePlaces + ($selfReferee ? 1 : 0);

@@ -3,6 +3,7 @@
 namespace SportsPlanning\Planning;
 
 use SportsHelpers\Against\Side as AgainstSide;
+use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Game;
 use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
 use SportsPlanning\Combinations\Validator\With as WithValidator;
@@ -264,6 +265,10 @@ class Validator
         if (!($sportVariant instanceof AgainstSportVariant)) {
             return self::VALID;
         }
+        if ($planning->getInput()->getGamePlaceStrategy() === GamePlaceStrategy::RandomlyAssigned) {
+            return self::VALID;
+        }
+
         if ($sportVariant->homeAwayMustBeQuallyAssigned()) {
             $minValue = min($nrOfHomeSideGames);
             foreach ($nrOfHomeSideGames as $amount) {

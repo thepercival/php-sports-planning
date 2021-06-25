@@ -336,6 +336,7 @@ class Input extends Identifiable
         return $inputCalculator->getMaxNrOfGamesPerBatch(
             $this->createPouleStructure(),
             $sportVariantsWithFields,
+            $this->getReferees()->count(),
             $this->selfRefereeEnabled()
         );
     }

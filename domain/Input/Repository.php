@@ -190,8 +190,8 @@ class Repository extends EntityRepository implements SaveRemoveRepository
 
         if ($pouleStructure !== null) {
             $query = $query
-                ->andWhere('pi.uniqueString = :pouleStructure')
-                ->setParameter('pouleStructure', json_encode($pouleStructure->toArray()));
+                ->andWhere('pi.uniqueString LIKE :pouleStructure')
+                ->setParameter('pouleStructure', json_encode($pouleStructure->toArray()) . '%');
         }
 
         $query->setMaxResults(1);

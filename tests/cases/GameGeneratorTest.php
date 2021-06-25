@@ -15,6 +15,7 @@ use SportsPlanning\GameGenerator;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\GameCreator;
 use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class GameGeneratorTest extends TestCase
@@ -94,6 +95,24 @@ class GameGeneratorTest extends TestCase
 
         self::assertEquals(Planning::STATE_SUCCEEDED, $planning->getState());
     }
+
+    // [3]-against : 1vs1 : h2h-nrofgamesperplace => 2-0 f(1)-strat=>eql-ref(0:), batchGames 1->1, gamesInARow 2
+    public function testAgainstH2H2(): void
+    {
+        $sportVariants = [
+            $this->getAgainstSportVariantWithFields(1, 1, 1, 2),
+        ];
+        $planning = new Planning($this->createInput([3], $sportVariants, null, 0), new SportRange(1, 1), 0);
+
+        $gameGenerator = new GameGenerator($this->getLogger());
+        $gameGenerator->generateUnassignedGames($planning);
+        (new PlanningOutput())->outputWithGames($planning, true);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning, true);
+        self::assertSame(PlanningValidator::VALID, $validity);
+    }
+
 
     public function testAgainstMixed(): void
     {
