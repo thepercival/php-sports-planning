@@ -161,7 +161,7 @@ class GameAssignments
     }
 
     /**
-     * @return array<int,array<int,PlaceGameCounter>>
+     * @return array<int,array<string|int,PlaceGameCounter>>
      */
     protected function getRefereePlacesPerPoule(): array
     {
@@ -174,7 +174,7 @@ class GameAssignments
             if (!array_key_exists($pouleNr, $refereePlacesPerPoule)) {
                 $refereePlacesPerPoule[$pouleNr] = [];
             }
-            $refereePlacesPerPoule[$pouleNr][] = $gameCounter;
+            $refereePlacesPerPoule[$pouleNr][$gameCounter->getIndex()] = $gameCounter;
         }
         return $refereePlacesPerPoule;
     }
@@ -186,43 +186,51 @@ class GameAssignments
     protected function getMaxUnequal(array $gameCounters): UnequalGameCounter|null
     {
         /**
-         * @return list<int|list<int>>
+         * @var int|null $minNrOfGames
+         * @var int|null $maxNrOfGames
+         * @var array<int|string,GameCounter> $maxGameCounters
          */
-        $setCounters = function () use ($gameCounters) : array {
-            $minNrOfGames = null;
-            $maxNrOfGames = null;
-            $maxGameCounters = [];
-            foreach ($gameCounters as $gameCounter) {
-                $nrOfGames = $gameCounter->getNrOfGames();
-                if ($minNrOfGames === null || $nrOfGames < $minNrOfGames) {
-                    $minNrOfGames = $nrOfGames;
-                }
-                if ($maxNrOfGames === null || $nrOfGames >= $maxNrOfGames) {
-                    if ($nrOfGames > $maxNrOfGames) {
-                        $maxGameCounters = [];
-                    }
-                    $maxGameCounters[] = $gameCounter;
-                    $maxNrOfGames = $nrOfGames;
-                }
-            }
-            return array($minNrOfGames,$maxNrOfGames,$maxGameCounters);
-        };
-        list($minNrOfGames, $maxNrOfGames, $maxGameCounters) = $setCounters();
+        list($minNrOfGames, $maxNrOfGames, $maxGameCounters) = $this->setCounters($gameCounters);
         if ($minNrOfGames === null || $maxNrOfGames === null || $maxNrOfGames - $minNrOfGames <= 1) {
             return null;
         }
         $otherGameCounters = array_filter($gameCounters, function (GameCounter $gameCounterIt) use ($maxNrOfGames): bool {
             return ($gameCounterIt->getNrOfGames() + 1) < $maxNrOfGames;
         });
-        uasort($otherGameCounters, function (GameCounter $a, GameCounter $b): int {
-            return $a->getNrOfGames() < $b->getNrOfGames() ? -1 : 1;
-        });
+//        uasort($otherGameCounters, function (GameCounter $a, GameCounter $b): int {
+//            return $a->getNrOfGames() < $b->getNrOfGames() ? -1 : 1;
+//        });
         return new UnequalGameCounter(
             $minNrOfGames,
             $otherGameCounters,
             $maxNrOfGames,
             $maxGameCounters
         );
+    }
+
+    /**
+     * @param array<int|string,GameCounter> $gameCounters
+     * @return list<int|null|array<int|string,GameCounter>>
+     */
+    protected function setCounters(array $gameCounters): array
+    {
+        $minNrOfGames = null;
+        $maxNrOfGames = null;
+        $maxGameCounters = [];
+        foreach ($gameCounters as $gameCounter) {
+            $nrOfGames = $gameCounter->getNrOfGames();
+            if ($minNrOfGames === null || $nrOfGames < $minNrOfGames) {
+                $minNrOfGames = $nrOfGames;
+            }
+            if ($maxNrOfGames === null || $nrOfGames >= $maxNrOfGames) {
+                if ($nrOfGames > $maxNrOfGames) {
+                    $maxGameCounters = [];
+                }
+                $maxGameCounters[$gameCounter->getIndex()] = $gameCounter;
+                $maxNrOfGames = $nrOfGames;
+            }
+        }
+        return array($minNrOfGames,$maxNrOfGames,$maxGameCounters);
     }
 
     protected function getUnequalDescription(UnequalGameCounter $unequal, string $suffix): string

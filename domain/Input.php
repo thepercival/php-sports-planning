@@ -69,7 +69,6 @@ class Input extends Identifiable
         $this->plannings = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
 
-        $this->uniqueString = '['. $pouleStructure . ']-';
         foreach ($pouleStructure->toArray() as $nrOfPoulePlaces) {
             $poule = new Poule($this);
             for ($placeNr = 1 ; $placeNr <= $nrOfPoulePlaces ; $placeNr++) {
@@ -87,16 +86,18 @@ class Input extends Identifiable
                 new Field($sport);
             }
         }
-        $this->uniqueString .= join(' & ', $this->sports->toArray());
         for ($refNr = 1 ; $refNr <= $nrOfReferees ; $refNr++) {
             new Referee($this);
         }
 
         $strat = $this->gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned ? 'rndm' : 'eql';
-        $this->uniqueString .= '-strat=>' . $strat;
-
-        $this->uniqueString .= '-ref(' . $nrOfReferees;
-        $this->uniqueString .= ':' . $this->getSelfRefereeAsString() . ')';
+        $uniqueStrings = [
+            '['. $pouleStructure . ']',
+            '[' . join(' & ', $this->sports->toArray()) . ']',
+            'gpstrat=>' . $strat,
+            'ref=>' . $nrOfReferees . ':' . $this->getSelfRefereeAsString()
+        ];
+        $this->uniqueString = join(' - ', $uniqueStrings);
     }
 
     public function getGamePlaceStrategy(): int
@@ -468,9 +469,9 @@ class Input extends Identifiable
         if ($this->selfReferee === SelfReferee::DISABLED) {
             return '';
         } elseif ($this->selfReferee === SelfReferee::OTHERPOULES) {
-            return 'O';
+            return 'OP';
         } elseif ($this->selfReferee === SelfReferee::SAMEPOULE) {
-            return 'S';
+            return 'SP';
         }
         return '?';
     }

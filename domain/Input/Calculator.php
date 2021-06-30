@@ -45,7 +45,7 @@ class Calculator
 
         $nrOfBatchGames = 0;
         $nrOfPlaces = $pouleStructure->getNrOfPlaces();
-        $doRefereeCheck = $selfReferee || $nrOfReferees > 0;
+        $doRefereeCheck = $nrOfReferees > 0;
         while ($nrOfPlaces > 0 && count($sportVariantsWithFields) > 0 && (!$doRefereeCheck || $nrOfReferees > 0)) {
             $sportVariantWithFields = array_shift($sportVariantsWithFields);
             $nrOfFields = $sportVariantWithFields->getNrOfFields();

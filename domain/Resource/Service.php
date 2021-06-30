@@ -139,7 +139,7 @@ class Service
                 return false;
             }
 
-            $nextBatch = $this->toNextBatch($batch, $fieldResources, $games);
+            $this->setGamesBatchNr($batch);
 
 //            $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber() );
 //            $this->logger->info('unassinged games: ');
@@ -151,6 +151,7 @@ class Service
             if (count($gamesForBatch) === 0 && count($games) === 0) { // endsuccess
                 return true;
             }
+            $nextBatch = $this->toNextBatch($batch, $fieldResources, $games);
 //            $this->logger->info(' nr of games to process before gamesinarow-filter(max '.$this->planning->getMaxNrOfGamesInARow().') : '  . count($games) );
 //            $this->gameOutput->outputGames($games);
 
@@ -256,6 +257,17 @@ class Service
 
     /**
      * @param Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch
+     */
+    protected function setGamesBatchNr(
+        Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch
+    ): void {
+        foreach ($batch->getGames() as $game) {
+            $game->setBatchNr($batch->getNumber());
+        }
+    }
+
+    /**
+     * @param Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch
      * @param FieldResources $fieldResources
      * @param list<TogetherGame|AgainstGame> $games
      * @return Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch
@@ -267,7 +279,6 @@ class Service
     ): Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch {
         $fieldResources->fill();
         foreach ($batch->getGames() as $game) {
-            $game->setBatchNr($batch->getNumber());
             $foundGameIndex = array_search($game, $games, true);
             if ($foundGameIndex !== false) {
                 array_splice($games, $foundGameIndex, 1);

@@ -208,24 +208,14 @@ class Planning extends Identifiable
         if ($order === Game::ORDER_BY_BATCH) {
             uasort($games, function (Game $g1, Game  $g2): int {
                 if ($g1->getBatchNr() === $g2->getBatchNr()) {
-                    if( $g1->getField()->getUniqueIndex() === $g2->getField()->getUniqueIndex() ) {
+                    if ($g1->getField()->getUniqueIndex() === $g2->getField()->getUniqueIndex()) {
                         return 0;
                     }
                     return $g1->getField()->getUniqueIndex() < $g2->getField()->getUniqueIndex() ? -1 : 1;
                 }
                 return $g1->getBatchNr() - $g2->getBatchNr();
             });
-        } /*elseif ($order === Game::ORDER_BY_GAMENUMBER) {
-            uasort($games, function (Game $g1, Game $g2): int {
-                if ($g1->getRoundNr() !== $g2->getRoundNr()) {
-                    return $g1->getRoundNr() - $g2->getRoundNr();
-                }
-                if ($g1->getSubNr() !== $g2->getSubNr()) {
-                    return $g1->getSubNr() - $g2->getSubNr();
-                }
-                return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
-            });
-        }*/
+        }
         return array_values($games);
     }
 
@@ -235,7 +225,7 @@ class Planning extends Identifiable
     public function getGamesForPoule(Poule $poule): array
     {
         $pouleGamesMap = $this->getPouleGamesMap();
-        if(!isset($pouleGamesMap[$poule->getNumber()])) {
+        if (!isset($pouleGamesMap[$poule->getNumber()])) {
             return [];
         }
         return $pouleGamesMap[$poule->getNumber()];
@@ -246,11 +236,11 @@ class Planning extends Identifiable
      */
     protected function getPouleGamesMap(): array
     {
-        if( $this->pouleGamesMap === null ) {
+        if ($this->pouleGamesMap === null) {
             $this->pouleGamesMap = [];
             $games = array_merge($this->getAgainstGames()->toArray(), $this->getTogetherGames()->toArray());
             foreach ($games as $game) {
-                if( !isset($this->pouleGamesMap[$game->getPoule()->getNumber()]) ) {
+                if (!isset($this->pouleGamesMap[$game->getPoule()->getNumber()])) {
                     $this->pouleGamesMap[$game->getPoule()->getNumber()] = [];
                 }
                 array_push($this->pouleGamesMap[$game->getPoule()->getNumber()], $game);
@@ -274,7 +264,7 @@ class Planning extends Identifiable
     public function getAgainstGamesForPoule(Poule $poule): array
     {
         $games = $this->getGamesForPoule($poule);
-        return array_values(array_filter($games, function($game): bool {
+        return array_values(array_filter($games, function ($game): bool {
             return $game instanceof AgainstGame;
         }));
     }
@@ -294,7 +284,7 @@ class Planning extends Identifiable
     public function getTogetherGamesForPoule(Poule $poule): array
     {
         $games = $this->getGamesForPoule($poule);
-        return array_values(array_filter($games, function($game): bool {
+        return array_values(array_filter($games, function ($game): bool {
             return $game instanceof TogetherGame;
         }));
     }

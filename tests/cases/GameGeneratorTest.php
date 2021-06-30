@@ -106,7 +106,7 @@ class GameGeneratorTest extends TestCase
 
         $gameGenerator = new GameGenerator($this->getLogger());
         $gameGenerator->generateUnassignedGames($planning);
-        (new PlanningOutput())->outputWithGames($planning, true);
+        // (new PlanningOutput())->outputWithGames($planning, true);
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning, true);
