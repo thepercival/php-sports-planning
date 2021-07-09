@@ -36,20 +36,26 @@ class Against implements Helper
      */
     public function generate(Poule $poule, array $sports, AssignedCounter $assignedCounter): void
     {
+        $maxNrOfGamesPerPlace = 0;
         foreach ($sports as $sport) {
             $this->defaultField = $sport->getField(1);
             $sportVariant = $sport->createVariant();
             if (!($sportVariant instanceof AgainstSportVariant)) {
                 throw new Exception('only against-sport-variant accepted', E_ERROR);
             }
-            $this->generateGames($poule, $sportVariant, $assignedCounter);
+            $maxNrOfGamesPerPlace += $sportVariant->getTotalNrOfGamesPerPlace($poule->getPlaces()->count());
+            $this->generateGames($poule, $sportVariant, $assignedCounter, $maxNrOfGamesPerPlace);
         }
     }
 
-    protected function generateGames(Poule $poule, AgainstSportVariant $sportVariant, AssignedCounter $assignedCounter): void
+    protected function generateGames(
+        Poule $poule,
+        AgainstSportVariant $sportVariant,
+        AssignedCounter $assignedCounter,
+        int $maxNrOfGamesPerPlace
+    ): void
     {
-        $totalNrOfGamesPerPlace = $sportVariant->getTotalNrOfGamesPerPlace($poule->getPlaces()->count());
-        $gameRound = $this->getGameRound($poule, $sportVariant, $assignedCounter, $totalNrOfGamesPerPlace);
+        $gameRound = $this->getGameRound($poule, $sportVariant, $assignedCounter, $maxNrOfGamesPerPlace);
         $this->assignHomeAways($assignedCounter, $gameRound);
         $this->gameRoundsToGames($poule, $gameRound);
     }

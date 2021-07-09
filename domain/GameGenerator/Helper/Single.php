@@ -18,6 +18,7 @@ use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\GameRound\SingleGameRound;
 use SportsPlanning\Place;
 use drupol\phpermutations\Generators\Combinations as CombinationsGenerator;
+use SportsPlanning\PlaceCounter;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Sport;
@@ -74,11 +75,13 @@ class Single implements GameGeneratorHelper
      */
     protected function gameRoundsToGames(Poule $poule, SingleGameRound $gameRound): void
     {
+        $placeCounterMap = $this->getPlaceCounterMap($poule);
         while ($gameRound !== null) {
             foreach ($gameRound->getPlaceCombinations() as $placeCombination) {
                 $game = new TogetherGame($this->planning, $poule, $this->getDefaultField());
                 foreach ($placeCombination->getPlaces() as $place) {
-                    new TogetherGamePlace($game, $place, $gameRound->getNumber());
+                    $placeCounter = $placeCounterMap[$place->getNumber()];
+                    new TogetherGamePlace($game, $place, $placeCounter->increment());
                 }
             }
             $gameRound = $gameRound->getNext();
@@ -121,45 +124,18 @@ class Single implements GameGeneratorHelper
         return $placeCombinations;
     }
 
-
-
-//    /**
-//     * @param list<GameRoundPlace> $nextGameRoundPlaces
-//     * @param list<GameRoundPlace> $gameRoundPlaces
-//     * @return list<GameRoundPlace>
-//     */
-//    protected function removeSameLocation(array &$nextGameRoundPlaces, array $gameRoundPlaces): array
-//    {
-//        $nrOfPlaces = count($nextGameRoundPlaces);
-//        $removed = [];
-//        for ($idx = 0 ; $idx < $nrOfPlaces ; $idx++) {
-//            $nextGameRoundPlace = array_shift($nextGameRoundPlaces);
-//            if ($nextGameRoundPlace === null) {
-//                break;
-//            }
-//            if ($this->hasSameLocation($nextGameRoundPlace, $gameRoundPlaces)) {
-//                $removed[] = $nextGameRoundPlace;
-//            } else {
-//                array_push($nextGameRoundPlaces, $nextGameRoundPlace);
-//            }
-//        }
-//        return $removed;
-//    }
-//
-//    /**
-//     * @param GameRoundPlace $nextGameRoundPlace
-//     * @param list<GameRoundPlace> $gameRoundPlaces
-//     * @return bool
-//     */
-//    protected function hasSameLocation(GameRoundPlace $nextGameRoundPlace, array $gameRoundPlaces): bool
-//    {
-//        foreach ($gameRoundPlaces as $gameRoundPlace) {
-//            if ($gameRoundPlace->getPlace()->getLocation() === $nextGameRoundPlace->getPlace()->getLocation()) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    /**
+     * @param Poule $poule
+     * @return array<string|int, PlaceCounter>
+     */
+    protected function getPlaceCounterMap(Poule $poule): array
+    {
+        $placeCounterMap = [];
+        foreach ($poule->getPlaces() as $place) {
+            $placeCounterMap[$place->getNumber()] = new PlaceCounter($place);
+        }
+        return $placeCounterMap;
+    }
 
     protected function getDefaultField(): Field
     {

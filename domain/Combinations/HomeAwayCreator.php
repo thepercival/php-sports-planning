@@ -27,8 +27,7 @@ class HomeAwayCreator
     public function __construct(
         protected Poule $poule,
         protected AgainstSportVariant $sportVariant
-    )
-    {
+    ) {
     }
 
     /**
@@ -78,7 +77,7 @@ class HomeAwayCreator
             shuffle($homeAways);
             return $homeAways;
         }
-        if( $this->swap  === true) {
+        if ($this->swap  === true) {
             $homeAways = $this->swapHomeAways($homeAways);
         }
         $this->swap = !$this->swap;
@@ -166,9 +165,10 @@ class HomeAwayCreator
      * @param list<AgainstHomeAway> $homeAways
      * @return list<AgainstHomeAway>
      */
-    protected function swapHomeAways(array $homeAways): array {
+    protected function swapHomeAways(array $homeAways): array
+    {
         $swapped = [];
-        foreach( $homeAways as $homeAway) {
+        foreach ($homeAways as $homeAway) {
             array_push($swapped, $homeAway->swap());
         }
         return $swapped;

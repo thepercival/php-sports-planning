@@ -4,10 +4,13 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\GameGenerator\Helper;
 
 use SportsPlanning\Combinations\GamePlaceStrategy;
+use SportsPlanning\GameGenerator;
 use SportsPlanning\GameGenerator\AssignedCounter;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportRange;
+use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\GameGenerator\Helper\Single as SingleGameGeneratorHelper;
 use SportsPlanning\Planning;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -119,5 +122,55 @@ class SingleTest extends TestCase
 
         self::assertCount(6, $planning->getTogetherGames());
         // check if GameRoundGenerator should be removed !!!!!!!!!!!!!!!!!
+    }
+
+    public function test4Places1GamePlaces1GamesPerPlace(): void
+    {
+        $sportVariants = [
+            $this->getSingleSportVariantWithFields(1, 1, 1),
+            $this->getSingleSportVariantWithFields(1, 1, 1)
+        ];
+        $planning = new Planning(
+            $this->createInput([4], $sportVariants),
+            new SportRange(1, 1),
+            0);
+
+        $gameGenerator = new GameGenerator($this->getLogger());
+        $gameGenerator->generateUnassignedGames($planning);
+
+        // (new PlanningOutput())->outputWithGames($planning, true);
+        self::assertCount(8, $planning->getTogetherGames());
+    }
+
+
+
+    public function test3Places2GamePlaces1GamesPerPlace(): void
+    {
+        $sportVariants = [
+            $this->getSingleSportVariantWithFields(1, 1, 2)
+        ];
+        $planning = new Planning(
+            $this->createInput([3], $sportVariants),
+            new SportRange(1, 1),
+            0);
+
+        $gameGenerator = new GameGenerator($this->getLogger());
+        $gameGenerator->generateUnassignedGames($planning);
+
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
+        $place3 = $planning->getInput()->getPoule(1)->getPlace(3);
+
+        $togetherGames = $planning->getTogetherGames();
+        self::assertCount(2, $togetherGames);
+
+        $secondGame = $togetherGames->last();
+        self::assertInstanceOf(TogetherGame::class, $secondGame);
+        $gamePlaces = $secondGame->getPlaces();
+        $gamePlace3 = $gamePlaces->first();
+        self::assertInstanceOf(TogetherGamePlace::class, $gamePlace3);
+        self::assertSame($gamePlace3->getPlace(), $place3);
+
+        self::assertSame(1, $gamePlace3->getGameRoundNumber());
     }
 }

@@ -1,8 +1,11 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\Sport\Variant as SportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\PouleStructure;
 
 class Service
@@ -23,12 +26,12 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportVariant> $sports
+     * @param list<AgainstSportVariant|SingleSportVariant|AllInOneGameSportVariant> $sportVariants
      * @return bool
      */
-    public function canSelfRefereeBeAvailable(PouleStructure $pouleStructure, array $sports): bool
+    public function canSelfRefereeBeAvailable(PouleStructure $pouleStructure, array $sportVariants): bool
     {
-        return $this->canSelfRefereeSamePouleBeAvailable($pouleStructure, $sports)
+        return $this->canSelfRefereeSamePouleBeAvailable($pouleStructure, $sportVariants)
             || $this->canSelfRefereeOtherPoulesBeAvailable($pouleStructure);
     }
 
@@ -39,14 +42,17 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportVariant> $sports
+     * @param list<AgainstSportVariant|SingleSportVariant|AllInOneGameSportVariant> $sportVariants
      * @return bool
      */
-    public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, array $sports): bool
+    public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, array $sportVariants): bool
     {
         $smallestNrOfPlaces = $pouleStructure->getSmallestPoule();
-        foreach ($sports as $sport) {
-            if ($sport->allPlacesParticipateInGameRound($smallestNrOfPlaces)) {
+        foreach ($sportVariants as $sportVariant) {
+            if ($sportVariant instanceof AllInOneGameSportVariant) {
+                return false;
+            }
+            if ($sportVariant->getNrOfGamePlaces() >= $smallestNrOfPlaces) {
                 return false;
             }
         }
