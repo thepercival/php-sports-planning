@@ -1,31 +1,26 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Resource;
 
-use SportsPlanning\Planning;
 use SportsPlanning\Input;
 use SportsPlanning\Batch;
 use SportsPlanning\Referee;
 
 class RefereeService
 {
-    public function __construct(private Planning $planning)
+    public function __construct(private Input $input)
     {
-    }
-
-    protected function getInput(): Input
-    {
-        return $this->planning->getInput();
     }
 
     protected function refereesEnabled(): bool
     {
-        return !$this->getInput()->selfRefereeEnabled() && $this->getInput()->getReferees()->count() > 0;
+        return !$this->input->selfRefereeEnabled() && $this->input->getReferees()->count() > 0;
     }
 
     public function assign(Batch $batch): void
     {
-        $referees = array_values($this->planning->getInput()->getReferees()->toArray());
+        $referees = array_values($this->input->getReferees()->toArray());
         $this->assignBatch($batch->getFirst(), $referees);
     }
 

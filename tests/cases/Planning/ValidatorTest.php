@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SportsPlanning\Tests;
+namespace SportsPlanning\Tests\Planning;
 
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;

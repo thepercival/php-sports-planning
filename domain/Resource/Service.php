@@ -22,7 +22,6 @@ use SportsPlanning\TimeoutException;
 
 class Service
 {
-    private int $nrOfPoules;
     private DateTimeImmutable|null $timeoutDateTime = null;
     private Predicter $refereePlacePredicter;
     protected BatchOutput $batchOutput;
@@ -33,8 +32,7 @@ class Service
 
     public function __construct(protected Planning $planning, protected LoggerInterface $logger)
     {
-        $this->nrOfPoules = $this->planning->getInput()->getPoules()->count();
-        $poules = array_values($this->planning->getInput()->getPoules()->toArray());
+        $poules = array_values($this->getInput()->getPoules()->toArray());
         $this->refereePlacePredicter = new Predicter($poules);
         $this->batchOutput = new BatchOutput($logger);
         $this->planningOutput = new PlanningOutput($logger);
@@ -61,19 +59,19 @@ class Service
             if ($this->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
                 $batch = new SelfRefereeSamePouleBatch($batch);
             } else {
-                $poules = array_values($this->planning->getInput()->getPoules()->toArray());
+                $poules = array_values($this->getInput()->getPoules()->toArray());
                 $batch = new SelfRefereeOtherPouleBatch($poules, $batch);
             }
         }
 
         try {
-            $fieldResources = new FieldResources($this->planning);
+            $fieldResources = new FieldResources($this->getInput());
             $assignedBatch = $this->assignBatch($games, $fieldResources, $batch);
             if ($assignedBatch === null) {
                 return Planning::STATE_FAILED;
             }
             if ($assignedBatch instanceof Batch) {
-                $refereeService = new RefereeService($this->planning);
+                $refereeService = new RefereeService($this->getInput());
                 $refereeService->assign($assignedBatch->getFirst());
             }
 
@@ -293,7 +291,7 @@ class Service
         TogetherGame|AgainstGame $game,
         Fields $fieldResources
     ): bool {
-        if (!$fieldResources->isSomeFieldAssignable($game->getSport())) {
+        if (!$fieldResources->isSomeFieldAssignable($game->getSport(), $game->getPoule())) {
             return false;
         }
         return $this->areAllPlacesAssignable($batch, $game);
