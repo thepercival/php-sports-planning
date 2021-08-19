@@ -95,12 +95,15 @@ trait PlanningCreator
         );
     }
 
-    protected function createPlanning(Input $input, SportRange $range = null, int $maxNrOfGamesInARow = 0): Planning
+    protected function createPlanning(
+        Input $input,
+        SportRange $nrOfGamesPerBatchRange = null,
+        int $maxNrOfGamesInARow = 0): Planning
     {
-        if ($range === null) {
-            $range = new SportRange(1, 1);
+        if ($nrOfGamesPerBatchRange === null) {
+            $nrOfGamesPerBatchRange = new SportRange(1, 1);
         }
-        $planning = new Planning($input, $range, $maxNrOfGamesInARow);
+        $planning = new Planning($input, $nrOfGamesPerBatchRange, $maxNrOfGamesInARow);
         $gameCreator = new GameCreator($this->getLogger());
         // $gameCreator->disableThrowOnTimeout();
         $gameCreator->createAssignedGames($planning);

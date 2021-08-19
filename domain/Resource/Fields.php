@@ -35,16 +35,16 @@ class Fields
 
     private function initFieldPouleMap(Input $input): void
     {
-        if ($input->hasMultipleSports()) {
+        if ($input->hasMultipleSports() || !$input->createPouleStructure()->isBalanced()) {
             return;
         }
-        $this->fieldPouleMap = [];
         $fields = $input->getFields();
         $poules = $input->getPoules();
         $nrOfFields = count($fields);
         $nrOfPoules = count($poules);
         // poules A,B en fields 1,2,3,4,5,6    :   A1, A2, A3, B4, B5, B6
         if ($nrOfFields >= $nrOfPoules && ($nrOfFields % $nrOfPoules) === 0) {
+            $this->fieldPouleMap = [];
             $nrOfFieldsPerPoule = (int)($nrOfFields / $nrOfPoules);
             foreach ($fields as $field) {
                 $rest = $field->getNumber() % $nrOfFieldsPerPoule;
@@ -54,10 +54,9 @@ class Fields
                 $index = $this->getFieldPouleMapIndex($field, $poule);
                 $this->fieldPouleMap[$index] = true;
             }
-        }
-
-        // poules A,B,C,D en fields 1, 2   :   A1, B1, C2, D2
-        if ($nrOfFields < $nrOfPoules && ($nrOfPoules % $nrOfFields) === 0) {
+        } elseif ($nrOfFields < $nrOfPoules && ($nrOfPoules % $nrOfFields) === 0) {
+            // poules A,B,C,D en fields 1, 2   :   A1, B1, C2, D2
+            $this->fieldPouleMap = [];
             $sport = $input->getSport(1);
             $nrOfPoulesPerField = (int)($nrOfPoules / $nrOfFields);
             foreach ($poules as $poule) {

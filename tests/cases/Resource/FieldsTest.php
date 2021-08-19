@@ -4,9 +4,11 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\Resource;
 
 use PHPUnit\Framework\TestCase;
+use SportsHelpers\SportRange;
 use SportsPlanning\Resource\Fields ;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
+use SportsPlanning\Planning\Output as PlanningOutput;
 
 class FieldsTest extends TestCase
 {
@@ -41,7 +43,10 @@ class FieldsTest extends TestCase
     public function testSixPoulesTwoFields(): void
     {
         $input = $this->createInput([2,2,2,2,2,2]);
-        $planning = $this->createPlanning($input);
+        $nrOfGamesPerBatchRange = new SportRange(2, 2);
+        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange);
+
+        // (new PlanningOutput())->outputWithGames($planning, true);
 
         $fields = new Fields($planning->getInput());
         $lastGame = $planning->getAgainstGames()->last();
