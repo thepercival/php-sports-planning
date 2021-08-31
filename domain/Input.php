@@ -44,10 +44,6 @@ class Input extends Identifiable
      */
     protected ArrayCollection|PersistentCollection $plannings;
     protected int|null $maxNrOfGamesInARow = null;
-    protected bool $teamupDep = false; // DEPRECATED
-    protected int $nrOfHeadtoheadDep = 1; // DEPRECATED
-    protected string|null $pouleStructureDep = null; // DEPRECATED
-    protected string|null $sportConfigDep = null; // DEPRECATED
 
     /**
      * @param PouleStructure $pouleStructure

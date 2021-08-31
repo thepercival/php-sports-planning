@@ -61,7 +61,7 @@ class GameCreator
      * @param Planning $planning
      * @return list<AgainstGame|TogetherGame>
      */
-    protected function getGamesByGameNumber(Planning $planning): array
+    /*protected function getGamesByGameNumber(Planning $planning): array
     {
         $games = $planning->getGames();
         uasort($games, function (AgainstGame|TogetherGame $g1, AgainstGame|TogetherGame $g2): int {
@@ -71,6 +71,45 @@ class GameCreator
             return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
         });
         return array_values($games);
+    }
+
+    protected function getDefaultGameNumber(TogetherGame|AgainstGame $game): int
+    {
+        if ($game instanceof AgainstGame) {
+            return $game->getGameRoundNumber();
+        }
+        $firstGamePlace = $game->getPlaces()->first();
+        return $firstGamePlace !== false ? $firstGamePlace->getGameRoundNumber() : 0;
+    }*/
+
+    /**
+     * @param Planning $planning
+     * @return list<AgainstGame|TogetherGame>
+     */
+    protected function getGamesByGameNumber(Planning $planning): array
+    {
+        $games = $planning->getGames();
+        uasort($games, function (AgainstGame|TogetherGame $g1, AgainstGame|TogetherGame $g2): int {
+            if ($this->getDefaultGameNumber($g1) !== $this->getDefaultGameNumber($g2)) {
+                return $this->getDefaultGameNumber($g1) - $this->getDefaultGameNumber($g2);
+            }
+            $sumPlaceNrs1 = $this->getSumPlaceNrs($g1);
+            $sumPlaceNrs2 = $this->getSumPlaceNrs($g2);
+            if ($sumPlaceNrs1 !== $sumPlaceNrs2) {
+                return $sumPlaceNrs1 - $sumPlaceNrs2;
+            }
+            return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
+        });
+        return array_values($games);
+    }
+
+    protected function getSumPlaceNrs(AgainstGame|TogetherGame $game): int
+    {
+        $total = 0;
+        foreach( $game->getPlaces() as $gamePlace ) {
+            $total += $gamePlace->getPlace()->getNumber();
+        }
+        return $total;
     }
 
     protected function getDefaultGameNumber(TogetherGame|AgainstGame $game): int

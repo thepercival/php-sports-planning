@@ -5,7 +5,8 @@ namespace SportsPlanning\Tests\Resource;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportRange;
-use SportsPlanning\Resource\Fields ;
+use SportsPlanning\Resource\Fields;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
 use SportsPlanning\Planning\Output as PlanningOutput;
@@ -50,6 +51,7 @@ class FieldsTest extends TestCase
 
         $fields = new Fields($planning->getInput());
         $lastGame = $planning->getAgainstGames()->last();
+        self::assertInstanceOf(AgainstGame::class, $lastGame);
         $fields->assignToGame($lastGame);
 
         $sport = $input->getSport(1);

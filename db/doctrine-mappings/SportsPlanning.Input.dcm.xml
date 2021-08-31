@@ -5,10 +5,6 @@
     <field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
     <field name="uniqueString" column="uniqueString" type="string" length="512" nullable="false" unique="false"/>
     <field name="gamePlaceStrategy" column="gamePlaceStrategy" type="smallint" nullable="false" unique="false"/>
-    <field name="pouleStructureDep" column="structureConfig" type="json" nullable="true" unique="false"/>
-    <field name="sportConfigDep" column="sportConfig" type="json" nullable="true" unique="false"/>
-    <field name="teamupDep" column="teamup" type="boolean" nullable="false" unique="false"/>
-    <field name="nrOfHeadtoheadDep" column="nrOfHeadtohead" type="smallint" nullable="false" unique="false"/>
 
     <one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="input">
       <cascade>

@@ -108,7 +108,7 @@ class Validator
             $invalidations[] = "not all places within poule have same number of games";
         }
         if (($validity & self::TOO_MANY_GAMES_IN_A_ROW) === self::TOO_MANY_GAMES_IN_A_ROW) {
-            $invalidations[] = "more than allowed numberr of games in a row";
+            $invalidations[] = "more than allowed number of games in a row";
         }
         if (($validity & self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH) === self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH) {
             $invalidations[] = "multiple assigned fields in batch";

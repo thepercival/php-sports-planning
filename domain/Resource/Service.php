@@ -205,8 +205,9 @@ class Service
         )) {
             return true;
         }
-        if ($maxNrOfBatchGames === $this->planning->getMaxNrOfBatchGames() && $this->planning->getNrOfBatchGames(
-            )->difference() > 0) {
+        if ($this->planning->getNrOfBatchGames()->difference() > 0
+            && $maxNrOfBatchGames > $this->planning->getMinNrOfBatchGames() ) {
+            $gamesForBatch[] = $game;
             if ($this->assignBatchHelper(
                 $games,
                 $gamesForBatch,
