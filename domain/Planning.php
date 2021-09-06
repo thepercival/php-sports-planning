@@ -27,10 +27,6 @@ class Planning extends Identifiable
     protected int $nrOfBatches = 0;
     protected int $validity = -1;
     /**
-     * @var array<int|string, list<AgainstGame|TogetherGame>>|null
-     */
-    protected array|null $pouleGamesMap = null;
-    /**
      * @phpstan-var ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>
      * @psalm-var ArrayCollection<int|string, AgainstGame>
      */
@@ -224,29 +220,8 @@ class Planning extends Identifiable
      */
     public function getGamesForPoule(Poule $poule): array
     {
-        $pouleGamesMap = $this->getPouleGamesMap();
-        if (!isset($pouleGamesMap[$poule->getNumber()])) {
-            return [];
-        }
-        return $pouleGamesMap[$poule->getNumber()];
-    }
-
-    /**
-     * @return array<int|string, list<AgainstGame|TogetherGame>>
-     */
-    protected function getPouleGamesMap(): array
-    {
-        if ($this->pouleGamesMap === null) {
-            $this->pouleGamesMap = [];
-            $games = array_merge($this->getAgainstGames()->toArray(), $this->getTogetherGames()->toArray());
-            foreach ($games as $game) {
-                if (!isset($this->pouleGamesMap[$game->getPoule()->getNumber()])) {
-                    $this->pouleGamesMap[$game->getPoule()->getNumber()] = [];
-                }
-                array_push($this->pouleGamesMap[$game->getPoule()->getNumber()], $game);
-            }
-        }
-        return $this->pouleGamesMap;
+        $allGames = array_merge($this->getAgainstGames()->toArray(), $this->getTogetherGames()->toArray());
+        return array_values( array_filter($allGames, fn ($game) => $game->getPoule() === $poule) );
     }
 
     /**
