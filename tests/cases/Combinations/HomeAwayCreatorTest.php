@@ -127,7 +127,25 @@ class HomeAwayCreatorTest extends TestCase
         self::assertCount(105, $homeAways);
     }
 
-    protected function getLogger(): LoggerInterface {
+//    public function test1Poule12Places(): void
+//    {
+//        $sportVariant = new AgainstSportVariant(1, 1, 1, 0);
+//        $input = $this->createInput([7]);
+//        $poule = $input->getPoule(1);
+//        $creator = new HomeAwayCreator($poule, $sportVariant);
+//        $homeAways = $creator->createForOneH2H();
+//        (new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
+//        (new HomeAwayOutput($this->getLogger()))->outputTotals($homeAways);
+//        // self::assertCount(66, $homeAways);
+//
+////        $place11 = $poule->getPlace(11);
+////        $homes = array_filter($homeAways, fn ($homeAway) => $homeAway->getHome()->has($place11));
+////
+////        self::assertCount(6, $homes);
+//    }
+
+    protected function getLogger(): LoggerInterface
+    {
         $logger = new Logger("test-logger");
         $processor = new UidProcessor();
         $logger->pushProcessor($processor);

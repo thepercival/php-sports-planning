@@ -111,6 +111,9 @@ class HomeAwayCreator
         if ($this->sportVariant->getNrOfHomePlaces() !== $this->sportVariant->getNrOfAwayPlaces()) {
             return false;
         }
+        if ($this->sportVariant->getNrOfHomePlaces() === 1) {
+            return $this->arePlaceNumbersEqualOrUnequal($home, $away);
+        }
         if ($this->mustBeHome($home)) {
             return false;
         }
@@ -118,6 +121,21 @@ class HomeAwayCreator
             return true;
         }
         return $this->getNrOfHomeGames($home) > $this->getNrOfHomeGames($away);
+    }
+
+    public function arePlaceNumbersEqualOrUnequal(PlaceCombination $home, PlaceCombination $away): bool
+    {
+        return (($this->getPlaceNumbers($home) % 2) === 1 && ($this->getPlaceNumbers($away) % 2) === 1)
+        || (($this->getPlaceNumbers($home) % 2) === 0 && ($this->getPlaceNumbers($away) % 2) === 0);
+    }
+
+    public function getPlaceNumbers(PlaceCombination $combination): int
+    {
+        $number = 0;
+        foreach ($combination->getPlaces() as $place) {
+            $number += $place->getNumber();
+        }
+        return $number;
     }
 
     protected function mustBeHome(PlaceCombination $placeCombination): bool

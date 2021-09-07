@@ -9,6 +9,7 @@ use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\GameRound\AgainstGameRound;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Place;
+use SportsPlanning\PlaceCounter;
 
 class HomeAway extends OutputHelper
 {
@@ -27,6 +28,28 @@ class HomeAway extends OutputHelper
         foreach ($homeAways as $homeAway) {
             $this->output($homeAway, null, $prefix);
         }
+    }
+
+    /**
+     * @param list<AgainstHomeAway> $homeAways
+     * @return void
+     */
+    public function outputTotals(array $homeAways): void
+    {
+        $map = [];
+        foreach ($homeAways as $homeAway) {
+            foreach ($homeAway->getHome()->getPlaces() as $place) {
+                if (!isset($map[$place->getNumber()])) {
+                    $map[$place->getNumber()] = 0;
+                }
+                $map[$place->getNumber()]++;
+            }
+        }
+        $output = 'places nr of home games:';
+        foreach ($map as $placeNr => $count) {
+            $output .= $placeNr . ':' . $count . ', ';
+        }
+        $this->logger->info($output);
     }
 
     public function output(AgainstHomeAway $homeAway, AgainstGameRound|null $gameRound = null, string|null $prefix = null): void
@@ -50,14 +73,19 @@ class HomeAway extends OutputHelper
 
     protected function outputPlacesHelper(PlaceCombination $placeCombination): string
     {
-        $useColors = $this->useColors();
         $placesAsArrayOfStrings = array_map(
-            function (Place $place) use ($useColors): string {
-                $colorNumber = $useColors ? $place->getNumber() : -1;
-                return $this->outputColor($colorNumber, $place->getLocation());
+            function (Place $place): string {
+                return $this->outputPlace($place);
             },
             $placeCombination->getPlaces()
         );
         return implode(' & ', $placesAsArrayOfStrings);
+    }
+
+    protected function outputPlace(Place $place): string
+    {
+        $useColors = $this->useColors();
+        $colorNumber = $useColors ? $place->getNumber() : -1;
+        return $this->outputColor($colorNumber, $place->getLocation());
     }
 }

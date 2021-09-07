@@ -133,6 +133,23 @@ class GameGeneratorTest extends TestCase
         self::assertEquals(Planning::STATE_SUCCEEDED, $planning->getState());
     }
 
+    public function test1Poule12Places(): void
+    {
+        $sportVariants = [
+            $this->getAgainstSportVariantWithFields(6, 1, 1, 1),
+        ];
+        $planning = new Planning($this->createInput([14], $sportVariants), new SportRange(6, 6), 0);
+
+        $gameGenerator = new GameGenerator($this->getLogger());
+        $gameGenerator->generateUnassignedGames($planning);
+//        (new PlanningOutput())->outputWithGames($planning, true);
+//        (new PlanningOutput())->outputWithTotals($planning, false);
+
+        $validator = new PlanningValidator();
+
+        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
+    }
+
     protected function getLogger(): LoggerInterface {
         $logger = new Logger("test-logger");
         $processor = new UidProcessor();

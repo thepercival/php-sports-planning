@@ -94,7 +94,7 @@ class Validator
             $invalidations[] = "the planning an unequal number of with- or againstplaces";
         }
         if (($validity & self::UNEQUAL_PLACE_NROFHOMESIDES) === self::UNEQUAL_PLACE_NROFHOMESIDES) {
-            $invalidations[] = "the planning has a places with too much difference in nrOfHomeSides";
+            $invalidations[] = "the planning has places with too much difference in nrOfHomeSides";
         }
         if (($validity & self::EMPTY_PLACE) === self::EMPTY_PLACE) {
             $invalidations[] = "the planning has a game with an empty place";
