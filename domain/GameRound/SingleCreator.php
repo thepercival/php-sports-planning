@@ -94,7 +94,7 @@ class SingleCreator implements GameRoundCreator
         if ($gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned) {
             return [];
         }
-        if( $finalGameRound && count($gamePlaces) > 0 ) {
+        if ($finalGameRound && count($gamePlaces) > 0) {
             $placeCombination = new PlaceCombination($gamePlaces);
             $gameRound->add($placeCombination);
             $this->assignPlaceCombination($placeCombination);
@@ -175,6 +175,9 @@ class SingleCreator implements GameRoundCreator
     {
         $score = 0;
         foreach ($gamePlaces as $gamePlace) {
+            if ($place === $gamePlace) {
+                return 100000;
+            }
             $placeCounter = $this->getPlaceCounter($place, $gamePlace);
             $score += $placeCounter !== null ? $placeCounter->count() : 0;
         }

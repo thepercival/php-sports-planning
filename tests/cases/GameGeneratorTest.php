@@ -128,7 +128,7 @@ class GameGeneratorTest extends TestCase
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createAssignedGames($planning);
 //
-         // (new PlanningOutput())->outputWithGames($planning, true);
+        // (new PlanningOutput())->outputWithGames($planning, true);
 //
         self::assertEquals(Planning::STATE_SUCCEEDED, $planning->getState());
     }
@@ -150,7 +150,26 @@ class GameGeneratorTest extends TestCase
         self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
     }
 
-    protected function getLogger(): LoggerInterface {
+    public function testSportSingle2Poules6Places(): void
+    {
+        // [6,6] - [single(4) gpp=>2 f(2)] - gpstrat=>eql - ref=>0:
+        $sportVariants = [
+            $this->getSingleSportVariantWithFields(2, 2, 4),
+        ];
+        $planning = new Planning($this->createInput([6,6], $sportVariants), new SportRange(1, 2), 0);
+
+        $gameGenerator = new GameGenerator($this->getLogger());
+        $gameGenerator->generateUnassignedGames($planning);
+//        (new PlanningOutput())->outputWithGames($planning, true);
+//        (new PlanningOutput())->outputWithTotals($planning, false);
+
+        $validator = new PlanningValidator();
+
+        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
+    }
+
+    protected function getLogger(): LoggerInterface
+    {
         $logger = new Logger("test-logger");
         $processor = new UidProcessor();
         $logger->pushProcessor($processor);
