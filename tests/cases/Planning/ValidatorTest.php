@@ -405,7 +405,7 @@ class ValidatorTest extends TestCase
         $planningValidator = new PlanningValidator();
         $planningValidator->validate($planning);
         $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID, $planning);
-        self::assertCount(14, $descriptions);
+        self::assertCount(15, $descriptions);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -420,7 +420,7 @@ class ValidatorTest extends TestCase
         $planningValidator = new PlanningValidator();
         $planningValidator->validate($planning);
         $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID, $planning);
-        self::assertCount(14, $descriptions);
+        self::assertCount(15, $descriptions);
     }
 
     public function testNrOfHomeAwayH2H2(): void

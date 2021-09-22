@@ -8,6 +8,7 @@ use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Game;
 use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
 use SportsPlanning\Combinations\Validator\With as WithValidator;
+use SportsPlanning\Input;
 use SportsPlanning\Poule;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
@@ -41,8 +42,9 @@ class Validator
     public const UNEQUALLY_ASSIGNED_REFEREEPLACES = 16384;
     public const INVALID_ASSIGNED_REFEREEPLACE = 32768;
     public const UNEQUAL_PLACE_NROFHOMESIDES = 65536;
+    public const INVALID_REFEREESELF_AND_REFEREES = 131072;
 
-    public const ALL_INVALID = 131071;
+    public const ALL_INVALID = 262143;
 
     public function __construct()
     {
@@ -50,6 +52,10 @@ class Validator
 
     public function validate(Planning $planning, bool $onlyUnassigned = false): int
     {
+        $validity = $this->validateRefereesWithSelf($planning->getInput());
+        if (self::VALID !== $validity) {
+            return $validity;
+        }
         $validity = $this->validateGamesAndGamePlaces($planning);
         if (self::VALID !== $validity) {
             return $validity;
@@ -123,6 +129,9 @@ class Validator
         if (($validity & self::INVALID_ASSIGNED_REFEREEPLACE) === self::INVALID_ASSIGNED_REFEREEPLACE) {
             $invalidations[] = "refereeplace should (not) be referee in same poule";
         }
+        if (($validity & self::INVALID_REFEREESELF_AND_REFEREES) === self::INVALID_REFEREESELF_AND_REFEREES) {
+            $invalidations[] = "nrofreferees should we 0 when selfreferee is enabled";
+        }
         if ($planning !== null) {
             if ((($validity & self::UNEQUALLY_ASSIGNED_FIELDS) === self::UNEQUALLY_ASSIGNED_FIELDS
                 || ($validity & self::UNEQUALLY_ASSIGNED_REFEREES) === self::UNEQUALLY_ASSIGNED_REFEREES
@@ -135,16 +144,10 @@ class Validator
         return $invalidations;
     }
 
-    protected function validateAgainstGamesAndGamePlaces(Planning $planning): int
+    protected function validateRefereesWithSelf(Input $input): int
     {
-        foreach ($planning->getInput()->getPoules() as $poule) {
-            if (count($planning->getGamesForPoule($poule)) === 0) {
-                return self::NO_GAMES;
-            }
-            $validity = $this->allPlacesInPouleSameNrOfGames($planning, $poule);
-            if ($validity !== self::VALID) {
-                return $validity;
-            }
+        if( $input->selfRefereeEnabled() && $input->getReferees()->count() > 0) {
+            return self::INVALID_REFEREESELF_AND_REFEREES;
         }
         return self::VALID;
     }

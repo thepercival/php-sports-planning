@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\Repository\SaveRemove as SaveRemoveRepository;
 use Exception;
 use Doctrine\ORM\EntityRepository;
 use SportsHelpers\Repository as BaseRepository;
@@ -15,10 +14,12 @@ use SportsPlanning\Planning\Validator;
 
 /**
  * @template-extends EntityRepository<InputBase>
- * @template-implements SaveRemoveRepository<InputBase>
  */
-class Repository extends EntityRepository implements SaveRemoveRepository
+class Repository extends EntityRepository
 {
+    /**
+     * @use BaseRepository<InputBase>
+     */
     use BaseRepository;
 
     public function get(string $uniqueString): ?InputBase {

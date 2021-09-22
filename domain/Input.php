@@ -82,8 +82,10 @@ class Input extends Identifiable
                 new Field($sport);
             }
         }
-        for ($refNr = 1 ; $refNr <= $nrOfReferees ; $refNr++) {
-            new Referee($this);
+        if ($selfReferee === SelfReferee::DISABLED) {
+            for ($refNr = 1 ; $refNr <= $nrOfReferees ; $refNr++) {
+                new Referee($this);
+            }
         }
 
         $strat = $this->gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned ? 'rndm' : 'eql';
@@ -91,7 +93,7 @@ class Input extends Identifiable
             '['. $pouleStructure . ']',
             '[' . join(' & ', $this->sports->toArray()) . ']',
             'gpstrat=>' . $strat,
-            'ref=>' . $nrOfReferees . ':' . $this->getSelfRefereeAsString()
+            'ref=>' . $this->getReferees()->count() . ':' . $this->getSelfRefereeAsString()
         ];
         $this->uniqueString = join(' - ', $uniqueStrings);
     }

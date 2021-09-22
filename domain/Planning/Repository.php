@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
 
-use SportsHelpers\Repository\SaveRemove as SaveRemoveRepository;
 use Doctrine\ORM\EntityRepository;
 use Exception;
 use SportsHelpers\Repository as BaseRepository;
@@ -11,10 +10,12 @@ use SportsPlanning\Planning as PlanningBase;
 
 /**
  * @template-extends EntityRepository<PlanningBase>
- * @template-implements SaveRemoveRepository<PlanningBase>
  */
-class Repository extends EntityRepository implements SaveRemoveRepository
+class Repository extends EntityRepository
 {
+    /**
+     * @use BaseRepository<PlanningBase>
+     */
     use BaseRepository;
 
     public function resetBatchGamePlanning(PlanningBase $planning, int $state): void
@@ -25,12 +26,12 @@ class Repository extends EntityRepository implements SaveRemoveRepository
         $againstGames = $planning->getAgainstGames();
         while ($game = $againstGames->first()) {
             $againstGames->removeElement($game);
-            $this->remove($game);
+            $this->_em->remove($game);
         }
         $togetherGames = $planning->getTogetherGames();
         while ($game = $togetherGames->first()) {
             $togetherGames->removeElement($game);
-            $this->remove($game);
+            $this->_em->remove($game);
         }
 
         $this->save($planning);

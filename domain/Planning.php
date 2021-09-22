@@ -49,7 +49,7 @@ class Planning extends Identifiable
     const STATE_GREATER_GAMESINAROW_TIMEDOUT = 512;
 
     const TIMEOUT_MULTIPLIER = 6;
-    const DEFAULT_TIMEOUTSECONDS = 5;
+    const MINIMUM_TIMEOUTSECONDS = 5;
 
     public function __construct(protected Input $input, SportRange $nrOfBatchGames, protected int $maxNrOfGamesInARow)
     {
@@ -127,12 +127,14 @@ class Planning extends Identifiable
 
     protected function getDefaultTimeoutSeconds(): int
     {
-        $defaultTimeoutSecondds = Planning::DEFAULT_TIMEOUTSECONDS;
         $sportVariants = array_values($this->input->createSportVariants()->toArray());
-        if ($this->input->createPouleStructure()->getTotalNrOfGames($sportVariants) > 50) {
-            $defaultTimeoutSecondds *= 2;
+        $totalNrOfGames = $this->input->createPouleStructure()->getTotalNrOfGames($sportVariants);
+        $nrOfGamesPerSecond = 10;
+        $nrOfSeconds = (int) ceil($totalNrOfGames / $nrOfGamesPerSecond);
+        if ($nrOfSeconds < self::MINIMUM_TIMEOUTSECONDS) {
+            $nrOfSeconds = self::MINIMUM_TIMEOUTSECONDS;
         }
-        return $defaultTimeoutSecondds;
+        return $nrOfSeconds;
     }
 
     public function getState(): int
@@ -221,7 +223,7 @@ class Planning extends Identifiable
     public function getGamesForPoule(Poule $poule): array
     {
         $allGames = array_merge($this->getAgainstGames()->toArray(), $this->getTogetherGames()->toArray());
-        return array_values( array_filter($allGames, fn ($game) => $game->getPoule() === $poule) );
+        return array_values(array_filter($allGames, fn ($game) => $game->getPoule() === $poule));
     }
 
     /**

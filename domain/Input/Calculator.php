@@ -8,6 +8,7 @@ use SportsHelpers\Sport\GamePlaceCalculator;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\SelfReferee;
 use SportsPlanning\Input;
 use SportsPlanning\Sport;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
@@ -45,7 +46,7 @@ class Calculator
 
         $nrOfBatchGames = 0;
         $nrOfPlaces = $pouleStructure->getNrOfPlaces();
-        $doRefereeCheck = $nrOfReferees > 0;
+        $doRefereeCheck = !$selfReferee && $nrOfReferees > 0;
         while ($nrOfPlaces > 0 && count($sportVariantsWithFields) > 0 && (!$doRefereeCheck || $nrOfReferees > 0)) {
             $sportVariantWithFields = array_shift($sportVariantsWithFields);
             $nrOfFields = $sportVariantWithFields->getNrOfFields();
