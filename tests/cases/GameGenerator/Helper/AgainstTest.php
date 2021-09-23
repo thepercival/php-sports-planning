@@ -252,6 +252,21 @@ class AgainstTest extends TestCase
         self::assertCount(12, $planning->getAgainstGames());
     }
 
+    public function test2Sports1UnequallyAssigned(): void
+    {
+        $sportVariants = [
+            $this->getAgainstSportVariantWithFields(1, 2, 2, 0, 1),
+            $this->getAgainstSportVariantWithFields(1, 1, 1, 1, 0),
+        ];
+        $planning = new Planning($this->createInput([5], $sportVariants), new SportRange(1, 1), 0);
+
+        $gameGenerator = new GameGenerator($this->getLogger());
+        $gameGenerator->generateUnassignedGames($planning);
+        // (new PlanningOutput())->outputWithGames($planning, true);
+        self::assertCount(12, $planning->getAgainstGames());
+    }
+
+
     // commented for performance reasons
 //    public function test2VS2Places7GamesPerPlace60(): void
 //    {

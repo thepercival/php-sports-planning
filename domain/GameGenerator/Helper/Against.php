@@ -37,7 +37,8 @@ class Against implements Helper
     public function generate(Poule $poule, array $sports, AssignedCounter $assignedCounter): void
     {
         $maxNrOfGamesPerPlace = 0;
-        foreach ($sports as $sport) {
+        $sortedSports = $this->sortSportsByEquallyAssigned($poule, $sports);
+        foreach ($sortedSports as $sport) {
             $this->defaultField = $sport->getField(1);
             $sportVariant = $sport->createVariant();
             if (!($sportVariant instanceof AgainstSportVariant)) {
@@ -48,13 +49,35 @@ class Against implements Helper
         }
     }
 
+    /**
+     * @param Poule $poule
+     * @param list<Sport> $sports
+     * @return list<Sport>
+     */
+    protected function sortSportsByEquallyAssigned(Poule $poule, array $sports): array
+    {
+        uasort($sports, function (Sport $sportA, Sport $sportB) use ($poule): int {
+            $sportVariantA = $sportA->createVariant();
+            $sportVariantB = $sportB->createVariant();
+            if (!($sportVariantA instanceof AgainstSportVariant) || !($sportVariantB instanceof AgainstSportVariant)) {
+                return 0;
+            }
+            $equallyAssignA = $sportVariantA->mustBeEquallyAssigned($poule->getPlaces()->count());
+            $equallyAssignB = $sportVariantB->mustBeEquallyAssigned($poule->getPlaces()->count());
+            if (($equallyAssignA && $equallyAssignB) || (!$equallyAssignA && !$equallyAssignB)) {
+                return 0;
+            }
+            return $equallyAssignA ? -1 : 1;
+        });
+        return array_values($sports);
+    }
+
     protected function generateGames(
         Poule $poule,
         AgainstSportVariant $sportVariant,
         AssignedCounter $assignedCounter,
         int $maxNrOfGamesPerPlace
-    ): void
-    {
+    ): void {
         $gameRound = $this->getGameRound($poule, $sportVariant, $assignedCounter, $maxNrOfGamesPerPlace);
         $this->assignHomeAways($assignedCounter, $gameRound);
         $this->gameRoundsToGames($poule, $gameRound);
