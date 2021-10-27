@@ -25,6 +25,11 @@ class Place extends Identifiable implements Resource, \Stringable
         return $this->number;
     }
 
+    public function getUniqueNumber(): int
+    {
+        return (int)pow(2, $this->getNumber() - 1);
+    }
+
     public function getUniqueIndex(): string
     {
         return $this->getLocation();

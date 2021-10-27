@@ -24,22 +24,22 @@ class Input extends Identifiable
     protected string $uniqueString;
     protected DateTimeImmutable $createdAt;
     /**
-     * @phpstan-var ArrayCollection<int|string, Poule>|PersistentCollection<int|string, Poule>
+     * @phpstan-var ArrayCollection<int|string, Poule>|PersistentCollection<int|string, Poule>|Poule[]
      * @psalm-var ArrayCollection<int|string, Poule>
      */
     protected ArrayCollection|PersistentCollection $poules;
     /**
-     * @phpstan-var ArrayCollection<int|string, Sport>|PersistentCollection<int|string, Sport>
+     * @phpstan-var ArrayCollection<int|string, Sport>|PersistentCollection<int|string, Sport>|Sport[]
      * @psalm-var ArrayCollection<int|string, Sport>
      */
     protected ArrayCollection|PersistentCollection $sports;
     /**
-     * @phpstan-var ArrayCollection<int|string, Referee>|PersistentCollection<int|string, Referee>
+     * @phpstan-var ArrayCollection<int|string, Referee>|PersistentCollection<int|string, Referee>|Referee[]
      * @psalm-var ArrayCollection<int|string, Referee>
      */
     protected ArrayCollection|PersistentCollection $referees;
     /**
-     * @phpstan-var ArrayCollection<int|string, Planning>|PersistentCollection<int|string, Planning>
+     * @phpstan-var ArrayCollection<int|string, Planning>|PersistentCollection<int|string, Planning>|Planning[]
      * @psalm-var ArrayCollection<int|string, Planning>
      */
     protected ArrayCollection|PersistentCollection $plannings;
@@ -109,7 +109,7 @@ class Input extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Poule>|PersistentCollection<int|string, Poule>
+     * @phpstan-return ArrayCollection<int|string, Poule>|PersistentCollection<int|string, Poule>|Poule[]
      * @psalm-return ArrayCollection<int|string, Poule>
      */
     public function getPoules(): ArrayCollection|PersistentCollection
@@ -184,7 +184,7 @@ class Input extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Sport>|PersistentCollection<int|string, Sport>
+     * @phpstan-return ArrayCollection<int|string, Sport>|PersistentCollection<int|string, Sport>|Sport[]
      * @psalm-return ArrayCollection<int|string, Sport>
      */
     public function getSports(): ArrayCollection|PersistentCollection
@@ -258,7 +258,7 @@ class Input extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Referee>|PersistentCollection<int|string, Referee>
+     * @phpstan-return ArrayCollection<int|string, Referee>|PersistentCollection<int|string, Referee>|Referee[]
      * @psalm-return ArrayCollection<int|string, Referee>
      */
     public function getReferees(): ArrayCollection|PersistentCollection
@@ -375,7 +375,7 @@ class Input extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Planning>|PersistentCollection<int|string, Planning>
+     * @phpstan-return ArrayCollection<int|string, Planning>|PersistentCollection<int|string, Planning>|Planning[]
      * @psalm-return ArrayCollection<int|string, Planning>
      */
     public function getPlannings(): ArrayCollection|PersistentCollection

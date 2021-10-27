@@ -20,7 +20,7 @@ use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 class Together extends GameBase
 {
     /**
-     * @phpstan-var ArrayCollection<int|string, TogetherGamePlace>|PersistentCollection<int|string, TogetherGamePlace>
+     * @phpstan-var ArrayCollection<int|string, TogetherGamePlace>|PersistentCollection<int|string, TogetherGamePlace>|TogetherGamePlace[]
      * @psalm-var ArrayCollection<int|string, TogetherGamePlace>
      */
     protected ArrayCollection|PersistentCollection $places;
@@ -43,7 +43,7 @@ class Together extends GameBase
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, TogetherGamePlace>|PersistentCollection<int|string, TogetherGamePlace>
+     * @phpstan-return ArrayCollection<int|string, TogetherGamePlace>|PersistentCollection<int|string, TogetherGamePlace>|TogetherGamePlace[]
      * @psalm-return ArrayCollection<int|string, TogetherGamePlace>
      */
     public function getPlaces(): ArrayCollection|PersistentCollection

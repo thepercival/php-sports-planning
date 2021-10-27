@@ -27,12 +27,12 @@ class Planning extends Identifiable
     protected int $nrOfBatches = 0;
     protected int $validity = -1;
     /**
-     * @phpstan-var ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>
+     * @phpstan-var ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>|AgainstGame[]
      * @psalm-var ArrayCollection<int|string, AgainstGame>
      */
     protected ArrayCollection|PersistentCollection $againstGames;
     /**
-     * @phpstan-var ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>
+     * @phpstan-var ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>|TogetherGame[]
      * @psalm-var ArrayCollection<int|string, TogetherGame>
      */
     protected ArrayCollection|PersistentCollection $togetherGames;
@@ -227,7 +227,7 @@ class Planning extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>
+     * @phpstan-return ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>|AgainstGame[]
      * @psalm-return ArrayCollection<int|string, AgainstGame>
      */
     public function getAgainstGames(): ArrayCollection|PersistentCollection
@@ -247,7 +247,7 @@ class Planning extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>
+     * @phpstan-return ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>|TogetherGame[]
      * @psalm-return ArrayCollection<int|string, TogetherGame>
      */
     public function getTogetherGames(): ArrayCollection|PersistentCollection

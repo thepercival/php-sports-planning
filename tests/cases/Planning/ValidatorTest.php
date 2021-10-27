@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Planning;
@@ -19,10 +20,10 @@ use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsHelpers\SelfReferee;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
-use SportsPlanning\GameGenerator;
-use SportsPlanning\Place;
+use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
+use SportsPlanning\Game\Assigner as GameAssigner;
 use SportsPlanning\Planning;
-use SportsPlanning\Planning\GameCreator;
+use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
@@ -32,7 +33,8 @@ use SportsPlanning\Referee as PlanningReferee;
 
 class ValidatorTest extends TestCase
 {
-    use PlanningCreator, PlanningReplacer;
+    use PlanningCreator;
+    use PlanningReplacer;
 
     public function testHasEnoughTotalNrOfGames(): void
     {
@@ -104,10 +106,14 @@ class ValidatorTest extends TestCase
 
     public function testAllPlacesSameNrOfGames(): void
     {
-        $planning = new Planning($this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, 0), new SportRange(1, 1), 1);
+        $input = $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, 0);
+        $planning = new Planning($input, new SportRange(1, 1), 1);
 
-        $gameGenerator = new GameGenerator($this->getLogger());
-        $gameGenerator->generateUnassignedGames($planning);
+        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
+        $schedules = $scheduleCreatorService->createSchedules($input);
+
+        $gameCreator = new GameCreator($this->getLogger());
+        $gameCreator->createGames($planning, $schedules);
 
         $planningValidator = new PlanningValidator();
 
@@ -363,7 +369,7 @@ class ValidatorTest extends TestCase
         $refReplaced = false;
         while (!$refReplaced && $refereePlaceTooMuch !== null) {
             $gamePouleOne = array_pop($gamesPouleOne);
-            if (!$gamePouleOne->isParticipating($refereePlaceTooMuch)) {
+            if ($gamePouleOne !== null && !$gamePouleOne->isParticipating($refereePlaceTooMuch)) {
                 $gamePouleOne->setRefereePlace($refereePlaceTooMuch);
                 $refReplaced = true;
             }
@@ -426,10 +432,14 @@ class ValidatorTest extends TestCase
     public function testNrOfHomeAwayH2H2(): void
     {
         $sportVariant = new SportVariantWithFields($this->getAgainstSportVariant(1, 1, 2), 2);
-        $planning = new Planning($this->createInput([3], [$sportVariant], GamePlaceStrategy::EquallyAssigned, 0), new SportRange(1, 1), 0);
+        $input = $this->createInput([3], [$sportVariant], GamePlaceStrategy::EquallyAssigned, 0);
+        $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator($this->getLogger());
-        $gameGenerator->generateUnassignedGames($planning);
+        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
+        $schedules = $scheduleCreatorService->createSchedules($input);
+
+        $gameCreator = new GameCreator($this->getLogger());
+        $gameCreator->createGames($planning, $schedules);
 
         // (new PlanningOutput())->outputWithGames($planning, true);
 
@@ -460,11 +470,18 @@ class ValidatorTest extends TestCase
     public function test6Places2FieldsMax2GamesInARow(): void
     {
         $sportVariant = new SportVariantWithFields($this->getAgainstSportVariant(1, 1, 1), 2);
-        $planning = new Planning($this->createInput([6], [$sportVariant], GamePlaceStrategy::EquallyAssigned, 0), new SportRange(2, 2), 2);
+        $input = $this->createInput([6], [$sportVariant], GamePlaceStrategy::EquallyAssigned, 0);
+        $planning = new Planning($input, new SportRange(2, 2), 2);
+
+        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
+        $schedules = $scheduleCreatorService->createSchedules($input);
 
         $gameCreator = new GameCreator($this->getLogger());
-        // $gameCreator->disableThrowOnTimeout();
-        $gameCreator->createAssignedGames($planning);
+        $gameCreator->createGames($planning, $schedules);
+
+        $gameAssigner = new GameAssigner($this->getLogger());
+        // $gameAssigner->disableThrowOnTimeout();
+        $gameAssigner->assignGames($planning);
 
         // (new PlanningOutput())->outputWithGames($planning, true);
 
@@ -482,7 +499,7 @@ class ValidatorTest extends TestCase
         $processor = new UidProcessor();
         $logger->pushProcessor($processor);
 
-        $handler = new StreamHandler('php://stdout', LOG_INFO);
+        $handler = new StreamHandler('php://stdout', Logger::INFO);
         $logger->pushHandler($handler);
         return $logger;
     }

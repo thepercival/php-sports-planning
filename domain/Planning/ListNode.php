@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
@@ -71,5 +72,18 @@ class ListNode
     {
         $next = $this->getNext();
         return $next instanceof self ? $next->getLeaf() : $this;
+    }
+
+    public function detachFromNext(): void
+    {
+        $this->next = null;
+    }
+
+    public function detachFromPrevious(): void
+    {
+        $previous = $this->getPrevious();
+        if ($previous instanceof self) {
+            $previous->detachFromNext();
+        }
     }
 }

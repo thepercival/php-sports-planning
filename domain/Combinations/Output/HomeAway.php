@@ -6,7 +6,7 @@ namespace SportsPlanning\Combinations\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Combinations\AgainstHomeAway;
-use SportsPlanning\GameRound\AgainstGameRound;
+use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;

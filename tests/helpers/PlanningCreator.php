@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\TestHelper;
@@ -13,8 +14,10 @@ use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\SportRange;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsPlanning\Combinations\GamePlaceStrategy;
+use SportsPlanning\Game\Assigner as GameAssigner;
 use SportsPlanning\Planning;
-use SportsPlanning\Planning\GameCreator;
+use SportsPlanning\Game\Creator as GameCreator;
+use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 use SportsPlanning\Input;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
@@ -33,8 +36,11 @@ trait PlanningCreator
 
     protected function getAgainstSportVariantWithFields(
         int $nrOfFields,
-        int $nrOfHomePlaces = 1, int $nrOfAwayPlaces = 1,
-        int $nrOfH2H = 1, int $nrOfGamesPerPlace = 0): SportVariantWithFields
+        int $nrOfHomePlaces = 1,
+        int $nrOfAwayPlaces = 1,
+        int $nrOfH2H = 1,
+        int $nrOfGamesPerPlace = 0
+    ): SportVariantWithFields
     {
         return new SportVariantWithFields($this->getAgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfGamesPerPlace), $nrOfFields);
     }
@@ -47,10 +53,10 @@ trait PlanningCreator
     protected function getLogger(): LoggerInterface
     {
         $logger = new Logger("test-logger");
-        $processor = new UidProcessor();
-        $logger->pushProcessor($processor);
+//        $processor = new UidProcessor();
+//        $logger->pushProcessor($processor);
 
-        $handler = new StreamHandler('php://stdout', LOG_INFO);
+        $handler = new StreamHandler('php://stdout', Logger::INFO);
         $logger->pushHandler($handler);
         return $logger;
     }
@@ -86,27 +92,38 @@ trait PlanningCreator
         if ($selfReferee === null) {
             $selfReferee = SelfReferee::DISABLED;
         }
-        return new Input(
+        $input = new Input(
             new PouleStructure(...$pouleStructureAsArray),
             $sportVariantsWithFields,
             $gamePlaceStrategy,
             $nrOfReferees,
             $selfReferee
         );
+
+        return $input;
     }
 
     protected function createPlanning(
         Input $input,
         SportRange $nrOfGamesPerBatchRange = null,
-        int $maxNrOfGamesInARow = 0): Planning
+        int $maxNrOfGamesInARow = 0
+    ): Planning
     {
         if ($nrOfGamesPerBatchRange === null) {
             $nrOfGamesPerBatchRange = new SportRange(1, 1);
         }
         $planning = new Planning($input, $nrOfGamesPerBatchRange, $maxNrOfGamesInARow);
+
+        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
+        $schedules = $scheduleCreatorService->createSchedules($input);
+
         $gameCreator = new GameCreator($this->getLogger());
         // $gameCreator->disableThrowOnTimeout();
-        $gameCreator->createAssignedGames($planning);
+        $gameCreator->createGames($planning, $schedules);
+
+        $gameAssigner = new GameAssigner($this->getLogger());
+        $gameAssigner->assignGames($planning);
+
         if (Planning::STATE_SUCCEEDED !== $planning->getState()) {
             throw new Exception("planning could not be created", E_ERROR);
         }

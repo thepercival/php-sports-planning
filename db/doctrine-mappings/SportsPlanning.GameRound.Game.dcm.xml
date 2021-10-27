@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="SportsPlanning\GameRound\Game" table="planningGameRoundGames" repository-class="SportsPlanning\GameRound\Game\Repository">
+    <field name="gameRoundNumber" column="gameRoundNumber" type="smallint" nullable="false" unique="false"/>
+    <many-to-one field="sportSchedule" target-entity="SportsPlanning\Schedule\Sport" inversed-by="games">
+      <join-columns>
+        <join-column name="sportScheduleId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+      </join-columns>
+    </many-to-one>
+    <one-to-many field="places" target-entity="SportsPlanning\GameRound\GamePlace" mapped-by="game">
+      <cascade>
+        <cascade-persist/>
+        <cascade-remove/>
+      </cascade>
+    </one-to-many>
+  </entity>
+</doctrine-mapping>

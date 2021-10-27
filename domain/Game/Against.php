@@ -19,7 +19,7 @@ use SportsPlanning\Planning;
 class Against extends Game
 {
     /**
-     * @phpstan-var ArrayCollection<int|string, AgainstGamePlace>|PersistentCollection<int|string, AgainstGamePlace>
+     * @phpstan-var ArrayCollection<int|string, AgainstGamePlace>|PersistentCollection<int|string, AgainstGamePlace>|AgainstGamePlace[]
      * @psalm-var ArrayCollection<int|string, AgainstGamePlace>
      */
     protected ArrayCollection|PersistentCollection $places;
@@ -54,7 +54,7 @@ class Against extends Game
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, AgainstGamePlace>|PersistentCollection<int|string, AgainstGamePlace>
+     * @phpstan-return ArrayCollection<int|string, AgainstGamePlace>|PersistentCollection<int|string, AgainstGamePlace>|AgainstGamePlace[]
      * @psalm-return ArrayCollection<int|string, AgainstGamePlace>
      */
     public function getPlaces(): ArrayCollection|PersistentCollection

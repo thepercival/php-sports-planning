@@ -12,7 +12,7 @@ use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 class Sport extends PersistVariant implements \Stringable
 {
     /**
-     * @phpstan-var ArrayCollection<int|string, Field>|PersistentCollection<int|string, Field>
+     * @phpstan-var ArrayCollection<int|string, Field>|PersistentCollection<int|string, Field>|Field[]
      * @psalm-var ArrayCollection<int|string, Field>
      */
     protected ArrayCollection|PersistentCollection $fields;
@@ -44,7 +44,7 @@ class Sport extends PersistVariant implements \Stringable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Field>|PersistentCollection<int|string, Field>
+     * @phpstan-return ArrayCollection<int|string, Field>|PersistentCollection<int|string, Field>|Field[]
      * @psalm-return ArrayCollection<int|string, Field>
      */
     public function getFields(): ArrayCollection|PersistentCollection

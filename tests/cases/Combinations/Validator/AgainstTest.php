@@ -6,6 +6,8 @@ namespace SportsPlanning\Tests\Combinations\Validator;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportRange;
 use SportsPlanning\GameGenerator;
+use SportsPlanning\Schedule\Creator\Against as AgainstScheduleCreator;
+use SportsPlanning\Schedule\Creator\AssignedCounter;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
@@ -21,8 +23,12 @@ class AgainstTest extends TestCase
         $input = $this->createInput([2], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator($this->getLogger());
-        $gameGenerator->generateUnassignedGames($planning);
+        $scheduleCreator = new AgainstScheduleCreator($this->getLogger());
+        $poule = $planning->getInput()->getPoule(1);
+        $sports = array_values($planning->getInput()->getSports()->toArray());
+        $sportVariants = array_values($planning->getInput()->createSportVariants()->toArray());
+        $assignedCounter = new AssignedCounter($poule, $sportVariants);
+        $scheduleCreator->create($poule, $sports, $assignedCounter);
         //(new PlanningOutput())->outputWithGames($planning, true);
 
         $counter = new AgainstValidator($input->getPoule(1), $input->getSport(1));
@@ -38,8 +44,12 @@ class AgainstTest extends TestCase
         $input = $this->createInput([4], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator($this->getLogger());
-        $gameGenerator->generateUnassignedGames($planning);
+        $scheduleCreator = new AgainstScheduleCreator($this->getLogger());
+        $poule = $planning->getInput()->getPoule(1);
+        $sports = array_values($planning->getInput()->getSports()->toArray());
+        $sportVariants = array_values($planning->getInput()->createSportVariants()->toArray());
+        $assignedCounter = new AssignedCounter($poule, $sportVariants);
+        $scheduleCreator->create($poule, $sports, $assignedCounter);
         //(new PlanningOutput())->outputWithGames($planning, true);
 
         $counter = new AgainstValidator($input->getPoule(1), $input->getSport(1));
@@ -55,8 +65,12 @@ class AgainstTest extends TestCase
         $input = $this->createInput([5], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator($this->getLogger());
-        $gameGenerator->generateUnassignedGames($planning);
+        $scheduleCreator = new AgainstScheduleCreator($this->getLogger());
+        $poule = $planning->getInput()->getPoule(1);
+        $sports = array_values($planning->getInput()->getSports()->toArray());
+        $sportVariants = array_values($planning->getInput()->createSportVariants()->toArray());
+        $assignedCounter = new AssignedCounter($poule, $sportVariants);
+        $scheduleCreator->create($poule, $sports, $assignedCounter);
         //(new PlanningOutput())->outputWithGames($planning, true);
 
         $counter = new AgainstValidator($input->getPoule(1), $input->getSport(1));
@@ -72,8 +86,12 @@ class AgainstTest extends TestCase
         $input = $this->createInput([6], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator($this->getLogger());
-        $gameGenerator->generateUnassignedGames($planning);
+        $scheduleCreator = new AgainstScheduleCreator($this->getLogger());
+        $poule = $planning->getInput()->getPoule(1);
+        $sports = array_values($planning->getInput()->getSports()->toArray());
+        $sportVariants = array_values($planning->getInput()->createSportVariants()->toArray());
+        $assignedCounter = new AssignedCounter($poule, $sportVariants);
+        $scheduleCreator->create($poule, $sports, $assignedCounter);
         //(new PlanningOutput())->outputWithGames($planning, true);
 
         $counter = new AgainstValidator($input->getPoule(1), $input->getSport(1));
@@ -89,8 +107,12 @@ class AgainstTest extends TestCase
         $input = $this->createInput([5], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $gameGenerator = new GameGenerator($this->getLogger());
-        $gameGenerator->generateUnassignedGames($planning);
+        $scheduleCreator = new AgainstScheduleCreator($this->getLogger());
+        $poule = $planning->getInput()->getPoule(1);
+        $sports = array_values($planning->getInput()->getSports()->toArray());
+        $sportVariants = array_values($planning->getInput()->createSportVariants()->toArray());
+        $assignedCounter = new AssignedCounter($poule, $sportVariants);
+        $scheduleCreator->create($poule, $sports, $assignedCounter);
 //        (new PlanningOutput())->outputWithGames($planning, true);
         $counter = new AgainstValidator($input->getPoule(1), $input->getSport(1));
         $counter->addGames($planning);

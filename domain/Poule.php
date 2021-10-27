@@ -15,7 +15,7 @@ class Poule extends Identifiable
     protected int $number;
 
     /**
-     * @phpstan-var ArrayCollection<int|string, Place>|PersistentCollection<int|string, Place>
+     * @phpstan-var ArrayCollection<int|string, Place>|PersistentCollection<int|string, Place>|Place[]
      * @psalm-var ArrayCollection<int|string, Place>
      */
     protected ArrayCollection|PersistentCollection $places;
@@ -38,7 +38,7 @@ class Poule extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Place>|PersistentCollection<int|string, Place>
+     * @phpstan-return ArrayCollection<int|string, Place>|PersistentCollection<int|string, Place>|Place[]
      * @psalm-return ArrayCollection<int|string, Place>
      */
     public function getPlaces(): ArrayCollection|PersistentCollection
