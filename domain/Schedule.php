@@ -1,17 +1,19 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
+use SportsHelpers\Identifiable;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 
-class Schedule
+class Schedule extends Identifiable
 {
     protected int $gamePlaceStrategy;
     protected string $sportsConfigName;
