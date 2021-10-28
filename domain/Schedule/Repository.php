@@ -21,25 +21,12 @@ class Repository extends EntityRepository
      */
     use BaseRepository;
 
-    public function hasSchedules(Input $input): bool
-    {
-        try {
-            $this->findByInput($input);
-            return true;
-        } catch( \Exception $e ) {
-
-        }
-        return false;
-    }
-
     /**
      * @param Input $input
      * @return list<Schedule>
      */
     public function findByInput(Input $input): array
     {
-        // @TODO CDK doe meerdere sql-statements hier!!!
-
         $sportVariants = array_values($input->createSportVariants()->toArray());
         $scheduleName = (string)new ScheduleName($sportVariants);
 
@@ -59,9 +46,15 @@ class Repository extends EntityRepository
         /** @var list<Schedule> $schedules */
         $schedules = $query->getQuery()->getResult();
 
-        if (count($pouleNrOfPlaces) !== count($schedules)) {
-            throw new \Exception('the distinct nrOfPlaces-amount should be equal to nrOfSchedules', E_ERROR);
-        }
         return $schedules;
+    }
+
+    public function getDistinctNrOfPoulePlaces(Input $input): int
+    {
+        return count(array_unique(
+            $input->getPoules()->map(function (Poule $poule): int {
+                return $poule->getPlaces()->count();
+            })->toArray()
+        ));
     }
 }

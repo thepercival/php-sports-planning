@@ -37,6 +37,16 @@ class Schedule extends Identifiable
         return $this->nrOfPlaces;
     }
 
+    public function getGamePlaceStrategy(): int
+    {
+        return $this->gamePlaceStrategy;
+    }
+
+    public function getSportsConfigName(): string
+    {
+        return $this->sportsConfigName;
+    }
+
     /**
      * @phpstan-return ArrayCollection<int|string, SportSchedule>|PersistentCollection<int|string, SportSchedule>|SportSchedule[]
      * @psalm-return ArrayCollection<int|string, SportSchedule>

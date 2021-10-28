@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\GameMode;
 use SportsPlanning\Schedule;
 use SportsPlanning\Input;
-use SportsPlanning\Planning;
+use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Sport;
 
 class Service
@@ -17,6 +17,10 @@ class Service
      * @var array<int, CreatorInterface>|null
      */
     protected array|null $generatorMap = null;
+    /**
+     * @var list<Schedule>|null
+     */
+    protected array|null $existingSchedules = null;
 
     public function __construct(protected LoggerInterface $logger)
     {
@@ -31,9 +35,13 @@ class Service
         /** @var array<int, Schedule> $schedules */
         $schedules = [];
         $gamePlaceStrategy = $input->getGamePlaceStrategy();
+        $sportConfigsName = new ScheduleName(array_values($input->createSportVariants()->toArray()));
         $sportVariants = array_values($input->createSportVariants()->toArray());
         foreach ($input->getPoules() as $poule) {
             $nrOfPlaces = $poule->getPlaces()->count();
+            if ($this->isScheduleAlreadyCreated($nrOfPlaces, $gamePlaceStrategy, (string)$sportConfigsName)) {
+                continue;
+            }
             if (!array_key_exists($nrOfPlaces, $schedules)) {
                 $schedule = new Schedule($nrOfPlaces, $poule->getInput());
                 $schedules[$nrOfPlaces] = $schedule;
@@ -105,5 +113,28 @@ class Service
         return array_values($input->getSports()->filter(function (Sport $sport) use ($gameMode): bool {
             return $sport->getGameMode() === $gameMode;
         })->toArray());
+    }
+
+    /**
+     * @param list<Schedule> $existingSchedules
+     */
+    public function setExistingSchedules(array $existingSchedules): void
+    {
+        $this->existingSchedules = $existingSchedules;
+    }
+
+    public function isScheduleAlreadyCreated(int $nrOfPlaces, int $gamePlaceStrategy, string $sportConfigsName): bool
+    {
+        if ($this->existingSchedules === null) {
+            return false;
+        }
+        foreach ($this->existingSchedules as $existingSchedule) {
+            if ($nrOfPlaces === $existingSchedule->getNrOfPlaces()
+                && $gamePlaceStrategy === $existingSchedule->getGamePlaceStrategy()
+                && $sportConfigsName === $existingSchedule->getSportsConfigName()) {
+                return true;
+            }
+        }
+        return false;
     }
 }
