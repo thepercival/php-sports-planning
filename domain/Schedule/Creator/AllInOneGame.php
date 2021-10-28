@@ -24,17 +24,14 @@ class AllInOneGame implements CreatorInterface
     }
 
     /**
+     * @param Schedule $schedule
      * @param Poule $poule
      * @param list<Sport> $sports
      * @param AssignedCounter $assignedCounter
-     * @return Schedule
      * @throws Exception
      */
-    public function create(Poule $poule, array $sports, AssignedCounter $assignedCounter): Schedule
+    public function createSportSchedules(Schedule $schedule, Poule $poule, array $sports, AssignedCounter $assignedCounter): void
     {
-        $nrOfPlaces = $poule->getPlaces()->count();
-        $schedule = new Schedule($nrOfPlaces, $poule->getInput());
-
         foreach ($sports as $sport) {
             // $this->defaultField = $sport->getField(1);
             $sportVariant = $sport->createVariant();
@@ -46,7 +43,6 @@ class AllInOneGame implements CreatorInterface
             $gameRound = $this->generateGameRounds($poule, $sportVariant);
             $this->createGames($sportSchedule, $gameRound);
         }
-        return $schedule;
     }
 
     protected function generateGameRounds(Poule $poule, AllInOneGameSportVariant $sportVariant): TogetherGameRound

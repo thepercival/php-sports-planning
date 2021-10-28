@@ -28,38 +28,40 @@ class Service
      */
     public function createSchedules(Input $input): array
     {
-        /** @var array<int, list<Schedule>> $schedules */
+        /** @var array<int, Schedule> $schedules */
         $schedules = [];
         $gamePlaceStrategy = $input->getGamePlaceStrategy();
         $sportVariants = array_values($input->createSportVariants()->toArray());
         foreach ($input->getPoules() as $poule) {
             $nrOfPlaces = $poule->getPlaces()->count();
-            if (array_key_exists($nrOfPlaces, $schedules)) {
-                continue;
+            if (!array_key_exists($nrOfPlaces, $schedules)) {
+                $schedule = new Schedule($nrOfPlaces, $poule->getInput());
+                $schedules[$nrOfPlaces] = $schedule;
+            } else {
+                $schedule = $schedules[$nrOfPlaces];
             }
-            $schedules[$nrOfPlaces] = [];
             $assignedCounter = new AssignedCounter($poule, $sportVariants);
-            $schedulesForSportVariant = [];
             foreach ([GameMode::ALL_IN_ONE_GAME, GameMode::AGAINST, GameMode::SINGLE] as $gameMode) {
                 $sports = $this->getSports($input, $gameMode);
                 if (count($sports) === 0) {
                     continue;
                 }
                 $scheduleCreator = $this->getScheduleCreator($input, $gameMode, $gamePlaceStrategy);
-                $schedulesForSportVariant[] = $scheduleCreator->create($poule, $sports, $assignedCounter);
+                // $schedulesForSportVariant[] = $scheduleCreator->create($poule, $sports, $assignedCounter);
+                $scheduleCreator->createSportSchedules($schedule, $poule, $sports, $assignedCounter);
             }
-            foreach ($schedulesForSportVariant as $scheduleForSportVariant) {
-                $schedules[$nrOfPlaces][] = $scheduleForSportVariant;
-            }
+//            foreach ($schedulesForSportVariant as $scheduleForSportVariant) {
+//                $schedules[$nrOfPlaces][] = $scheduleForSportVariant;
+//            }
         }
         // flatten
-        $flattenSchedules = [];
-        foreach ($schedules as $schedulesPerNrOfPlaces) {
-            foreach ($schedulesPerNrOfPlaces as $schedulePerNrOfPlaces) {
-                $flattenSchedules[] = $schedulePerNrOfPlaces;
-            }
-        }
-        return $flattenSchedules;
+//        $flattenSchedules = [];
+//        foreach ($schedules as $schedulesPerNrOfPlaces) {
+//            foreach ($schedulesPerNrOfPlaces as $schedulePerNrOfPlaces) {
+//                $flattenSchedules[] = $schedulePerNrOfPlaces;
+//            }
+//        }
+        return array_values($schedules);
     }
 
     /**

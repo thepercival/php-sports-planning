@@ -134,10 +134,9 @@ class SingleTest extends TestCase
 
         $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
         $schedules = $scheduleCreatorService->createSchedules($input);
-        (new ScheduleOutput($this->getLogger()))->output($schedules);
+        // (new ScheduleOutput($this->getLogger()))->output($schedules);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
-
         // (new PlanningOutput())->outputWithGames($planning, true);
 
         $place3 = $input->getPoule(1)->getPlace(3);

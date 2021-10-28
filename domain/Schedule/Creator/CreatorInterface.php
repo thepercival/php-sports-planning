@@ -10,10 +10,10 @@ use SportsPlanning\Sport;
 interface CreatorInterface
 {
     /**
+     * @param Schedule $schedule
      * @param Poule $poule
      * @param list<Sport> $sports
      * @param AssignedCounter $assignedCounter
-     * @return Schedule
      */
-    public function create(Poule $poule, array $sports, AssignedCounter $assignedCounter): Schedule;
+    public function createSportSchedules(Schedule $schedule, Poule $poule, array $sports, AssignedCounter $assignedCounter): void;
 }

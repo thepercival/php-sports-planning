@@ -25,17 +25,15 @@ class Against implements CreatorInterface
     }
 
     /**
+     * @param Schedule $schedule
      * @param Poule $poule
      * @param list<Sport> $sports
      * @param AssignedCounter $assignedCounter
-     * @return Schedule
      * @throws Exception
      */
-    public function create(Poule $poule, array $sports, AssignedCounter $assignedCounter): Schedule
+    public function createSportSchedules(Schedule $schedule, Poule $poule, array $sports, AssignedCounter $assignedCounter): void
     {
         $nrOfPlaces = $poule->getPlaces()->count();
-        $schedule = new Schedule($nrOfPlaces, $poule->getInput());
-
         $maxNrOfGamesPerPlace = 0;
         $sortedSports = $this->sortSportsByEquallyAssigned($poule, $sports);
         foreach ($sortedSports as $sport) {
@@ -48,7 +46,6 @@ class Against implements CreatorInterface
             $gameRound = $this->generateGameRounds($poule, $sportVariant, $assignedCounter, $maxNrOfGamesPerPlace);
             $this->createGames($sportSchedule, $gameRound);
         }
-        return $schedule;
     }
 
     /**

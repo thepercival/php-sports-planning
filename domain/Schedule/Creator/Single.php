@@ -28,17 +28,14 @@ class Single implements CreatorInterface
     }
 
     /**
+     * @param Schedule $schedule
      * @param Poule $poule
      * @param list<Sport> $sports
      * @param AssignedCounter $assignedCounter
-     * @return Schedule
      * @throws Exception
      */
-    public function create(Poule $poule, array $sports, AssignedCounter $assignedCounter): Schedule
+    public function createSportSchedules(Schedule $schedule, Poule $poule, array $sports, AssignedCounter $assignedCounter): void
     {
-        $nrOfPlaces = $poule->getPlaces()->count();
-        $schedule = new Schedule($nrOfPlaces, $poule->getInput());
-
         foreach ($sports as $sport) {
             $sportVariant = $sport->createVariant();
             if (!($sportVariant instanceof SingleSportVariant)) {
@@ -48,7 +45,6 @@ class Single implements CreatorInterface
             $gameRound = $this->generateGameRounds($poule, $sportVariant, $assignedCounter);
             $this->createGames($sportSchedule, $gameRound);
         }
-        return $schedule;
     }
 
     protected function generateGameRounds(
