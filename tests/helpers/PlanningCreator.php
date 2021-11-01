@@ -11,6 +11,7 @@ use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\SportRange;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsPlanning\Combinations\GamePlaceStrategy;
@@ -34,6 +35,11 @@ trait PlanningCreator
         return new SingleSportVariant($nrOfGamePlaces, $nrOfGameRounds);
     }
 
+    protected function getAllInOneGameSportVariant(int $nrOfGameRounds = 1): AllInOneGameSportVariant
+    {
+        return new AllInOneGameSportVariant($nrOfGameRounds);
+    }
+
     protected function getAgainstSportVariantWithFields(
         int $nrOfFields,
         int $nrOfHomePlaces = 1,
@@ -48,6 +54,11 @@ trait PlanningCreator
     protected function getSingleSportVariantWithFields(int $nrOfFields, int $nrOfGameRounds = 1, int $nrOfGamePlaces = 1): SportVariantWithFields
     {
         return new SportVariantWithFields($this->getSingleSportVariant($nrOfGameRounds, $nrOfGamePlaces), $nrOfFields);
+    }
+
+    protected function getAllInOneGameSportVariantWithFields(int $nrOfFields, int $nrOfGameRounds = 1): SportVariantWithFields
+    {
+        return new SportVariantWithFields($this->getAllInOneGameSportVariant($nrOfGameRounds), $nrOfFields);
     }
 
     protected function getLogger(): LoggerInterface

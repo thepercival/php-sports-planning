@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace SportsPlanning\Schedule\Creator;
@@ -13,7 +12,6 @@ use SportsPlanning\Schedule\GamePlace;
 use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 use SportsPlanning\GameRound\Together as TogetherGameRound;
-use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Sport;
 
@@ -67,29 +65,6 @@ class AllInOneGame implements CreatorInterface
         return $gameRound->getFirst();
     }
 
-
-//    /**
-//     * @param Poule $poule
-//     * @param AllInOneGameSportVariant $sportVariant
-//     */
-//    protected function generateForSportVariant(Poule $poule, AllInOneGameSportVariant $sportVariant): void
-//    {
-//        for ($gameRoundNumber = 1; $gameRoundNumber <= $sportVariant->getNrOfGamesPerPlace() ; $gameRoundNumber++) {
-//            $game = new TogetherGame($this->planning, $poule, $this->getDefaultField());
-//            foreach ($poule->getPlaces() as $place) {
-//                new TogetherGamePlace($game, $place, $gameRoundNumber);
-//            }
-//        }
-//    }
-//
-//    protected function getDefaultField(): Field
-//    {
-//        if ($this->defaultField === null) {
-//            throw new Exception('geen standaard veld gedefinieerd', E_ERROR);
-//        }
-//        return $this->defaultField;
-//    }
-
     protected function createGames(SportSchedule $sportSchedule, TogetherGameRound $gameRound): void
     {
         while ($gameRound !== null) {
@@ -97,7 +72,7 @@ class AllInOneGame implements CreatorInterface
                 $game = new Game($sportSchedule);
                 foreach ($gameRoundGame->getGamePlaces() as $gameRoundGamePlace) {
                     $gamePlace = new GamePlace($game, $gameRoundGamePlace->getPlace()->getNumber());
-                    $gamePlace->setGameRoundNumber($gamePlace->getGameRoundNumber());
+                    $gamePlace->setGameRoundNumber($gameRoundGamePlace->getGameRoundNumber());
                 }
             }
             $gameRound = $gameRound->getNext();

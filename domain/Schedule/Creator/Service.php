@@ -55,20 +55,9 @@ class Service
                     continue;
                 }
                 $scheduleCreator = $this->getScheduleCreator($input, $gameMode, $gamePlaceStrategy);
-                // $schedulesForSportVariant[] = $scheduleCreator->create($poule, $sports, $assignedCounter);
                 $scheduleCreator->createSportSchedules($schedule, $poule, $sports, $assignedCounter);
             }
-//            foreach ($schedulesForSportVariant as $scheduleForSportVariant) {
-//                $schedules[$nrOfPlaces][] = $scheduleForSportVariant;
-//            }
         }
-        // flatten
-//        $flattenSchedules = [];
-//        foreach ($schedules as $schedulesPerNrOfPlaces) {
-//            foreach ($schedulesPerNrOfPlaces as $schedulePerNrOfPlaces) {
-//                $flattenSchedules[] = $schedulePerNrOfPlaces;
-//            }
-//        }
         return array_values($schedules);
     }
 

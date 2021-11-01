@@ -29,7 +29,7 @@ class Game extends Identifiable
     public function getGameRoundNumber(): int
     {
         if ($this->gameRoundNumber === null) {
-            throw new \Exception('schedule-game->gameRoundNumber can not ne null', E_ERROR);
+            throw new \Exception('schedule-game->gameRoundNumber can not be null', E_ERROR);
         }
         return $this->gameRoundNumber;
     }

@@ -27,7 +27,7 @@ class GamePlace extends Identifiable
     public function getGameRoundNumber(): int
     {
         if ($this->gameRoundNumber === null) {
-            throw new \Exception('schedule-gameplace->gameRoundNumber can not ne null', E_ERROR);
+            throw new \Exception('schedule-gameplace->gameRoundNumber can not be null', E_ERROR);
         }
         return $this->gameRoundNumber;
     }
@@ -40,7 +40,7 @@ class GamePlace extends Identifiable
     public function getAgainstSide(): int
     {
         if ($this->againstSide === null) {
-            throw new \Exception('gameround-gameplace->againstside can not ne null', E_ERROR);
+            throw new \Exception('gameround-gameplace->againstside can not be null', E_ERROR);
         }
         return $this->againstSide;
     }
