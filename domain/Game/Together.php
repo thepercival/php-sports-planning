@@ -6,24 +6,22 @@ namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\PersistentCollection;
 use SportsHelpers\GameMode;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\Field;
 use SportsPlanning\Game as GameBase;
+use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 
 class Together extends GameBase
 {
     /**
-     * @phpstan-var ArrayCollection<int|string, TogetherGamePlace>|PersistentCollection<int|string, TogetherGamePlace>|TogetherGamePlace[]
-     * @psalm-var ArrayCollection<int|string, TogetherGamePlace>
+     * @var Collection<int|string, TogetherGamePlace>
      */
-    protected ArrayCollection|PersistentCollection $places;
+    protected Collection $places;
 
     public function __construct(Planning $planning, Poule $poule, Field $field)
     {
@@ -43,10 +41,9 @@ class Together extends GameBase
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, TogetherGamePlace>|PersistentCollection<int|string, TogetherGamePlace>|TogetherGamePlace[]
-     * @psalm-return ArrayCollection<int|string, TogetherGamePlace>
+     * @return Collection<int|string, TogetherGamePlace>
      */
-    public function getPlaces(): ArrayCollection|PersistentCollection
+    public function getPlaces(): Collection
     {
         return $this->places;
     }

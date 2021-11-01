@@ -3,22 +3,19 @@ declare(strict_types=1);
 
 namespace SportsPlanning;
 
-use \Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\PersistentCollection;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Exception;
 use SportsHelpers\Identifiable;
-use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Game\Against as AgainstGame;
 
 class Poule extends Identifiable
 {
     protected int $number;
 
     /**
-     * @phpstan-var ArrayCollection<int|string, Place>|PersistentCollection<int|string, Place>|Place[]
-     * @psalm-var ArrayCollection<int|string, Place>
+     * @var Collection<int|string, Place>
      */
-    protected ArrayCollection|PersistentCollection $places;
+    protected Collection $places;
 
     public function __construct(protected Input $input)
     {
@@ -38,10 +35,9 @@ class Poule extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Place>|PersistentCollection<int|string, Place>|Place[]
-     * @psalm-return ArrayCollection<int|string, Place>
+     * @return Collection<int|string, Place>
      */
-    public function getPlaces(): ArrayCollection|PersistentCollection
+    public function getPlaces(): Collection
     {
         return $this->places;
     }

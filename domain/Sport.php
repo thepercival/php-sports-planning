@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace SportsPlanning;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\PersistentCollection;
+use Doctrine\Common\Collections\Collection;
 use Exception;
 use SportsHelpers\Sport\PersistVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
@@ -12,10 +12,9 @@ use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 class Sport extends PersistVariant implements \Stringable
 {
     /**
-     * @phpstan-var ArrayCollection<int|string, Field>|PersistentCollection<int|string, Field>|Field[]
-     * @psalm-var ArrayCollection<int|string, Field>
+     * @var Collection<int|string, Field>
      */
-    protected ArrayCollection|PersistentCollection $fields;
+    protected Collection $fields;
     protected int $number;
 
     public function __construct(protected Input $input, PersistVariant $sportVariant)
@@ -44,10 +43,9 @@ class Sport extends PersistVariant implements \Stringable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Field>|PersistentCollection<int|string, Field>|Field[]
-     * @psalm-return ArrayCollection<int|string, Field>
+     * @return Collection<int|string, Field>
      */
-    public function getFields(): ArrayCollection|PersistentCollection
+    public function getFields(): Collection
     {
         return $this->fields;
     }

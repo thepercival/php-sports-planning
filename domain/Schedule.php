@@ -8,9 +8,9 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use SportsHelpers\Identifiable;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsPlanning\Schedule\Name as ScheduleName;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 
 class Schedule extends Identifiable
@@ -48,10 +48,9 @@ class Schedule extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, SportSchedule>|PersistentCollection<int|string, SportSchedule>|SportSchedule[]
-     * @psalm-return ArrayCollection<int|string, SportSchedule>
+     * @return Collection<int|string, SportSchedule>
      */
-    public function getSportSchedules(): ArrayCollection|PersistentCollection
+    public function getSportSchedules(): Collection
     {
         return $this->sportSchedules;
     }

@@ -1,22 +1,21 @@
 <?php
+declare(strict_types=1);
 
 namespace SportsPlanning\Schedule;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\PersistentCollection;
-use SportsHelpers\Against\Side as AgainstSide;
+use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Identifiable;
-use SportsPlanning\Schedule\Sport as SportSchedule;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
+use SportsPlanning\Schedule\Sport as SportSchedule;
 
 class Game extends Identifiable
 {
     /**
-     * @phpstan-var ArrayCollection<int|string, GamePlace>|PersistentCollection<int|string, GamePlace>|GamePlace[]
-     * @psalm-var ArrayCollection<int|string, GamePlace>
+     * @var Collection<int|string, GamePlace>
      */
-    protected ArrayCollection|PersistentCollection $places;
+    protected Collection $places;
 
     public function __construct(protected SportSchedule $sportSchedule, protected int|null $gameRoundNumber = null)
     {
@@ -35,10 +34,9 @@ class Game extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, GamePlace>|PersistentCollection<int|string, GamePlace>|GamePlace[]
-     * @psalm-return ArrayCollection<int|string, GamePlace>
+     * @return Collection<int|string, GamePlace>
      */
-    public function getGamePlaces(): ArrayCollection|PersistentCollection
+    public function getGamePlaces(): Collection
     {
         return $this->places;
     }

@@ -1,13 +1,11 @@
 <?php
-
 declare(strict_types=1);
 
 namespace SportsPlanning;
 
 use DateTimeImmutable;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\PersistentCollection;
+use Doctrine\Common\Collections\Collection;
 use Exception;
 use SportsHelpers\Identifiable;
 use SportsHelpers\SelfReferee;
@@ -27,15 +25,13 @@ class Planning extends Identifiable
     protected int $nrOfBatches = 0;
     protected int $validity = -1;
     /**
-     * @phpstan-var ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>|AgainstGame[]
-     * @psalm-var ArrayCollection<int|string, AgainstGame>
+     * @var Collection<int|string, AgainstGame>
      */
-    protected ArrayCollection|PersistentCollection $againstGames;
+    protected Collection $againstGames;
     /**
-     * @phpstan-var ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>|TogetherGame[]
-     * @psalm-var ArrayCollection<int|string, TogetherGame>
+     * @psalm-var Collection<int|string, TogetherGame>
      */
-    protected ArrayCollection|PersistentCollection $togetherGames;
+    protected Collection $togetherGames;
 
     const STATE_TOBEPROCESSED = 1;
     const STATE_SUCCEEDED = 2;
@@ -227,10 +223,9 @@ class Planning extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, AgainstGame>|PersistentCollection<int|string, AgainstGame>|AgainstGame[]
-     * @psalm-return ArrayCollection<int|string, AgainstGame>
+     * @return Collection<int|string, AgainstGame>
      */
-    public function getAgainstGames(): ArrayCollection|PersistentCollection
+    public function getAgainstGames(): Collection
     {
         return $this->againstGames;
     }
@@ -247,10 +242,9 @@ class Planning extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, TogetherGame>|PersistentCollection<int|string, TogetherGame>|TogetherGame[]
-     * @psalm-return ArrayCollection<int|string, TogetherGame>
+     * @return Collection<int|string, TogetherGame>
      */
-    public function getTogetherGames(): ArrayCollection|PersistentCollection
+    public function getTogetherGames(): Collection
     {
         return $this->togetherGames;
     }

@@ -6,43 +6,38 @@ namespace SportsPlanning;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\PersistentCollection;
 use Exception;
 use SportsHelpers\Identifiable;
+use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input\Calculator as InputCalculator;
-use SportsHelpers\PouleStructure;
-use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 
 class Input extends Identifiable
 {
     protected string $uniqueString;
     protected DateTimeImmutable $createdAt;
     /**
-     * @phpstan-var ArrayCollection<int|string, Poule>|PersistentCollection<int|string, Poule>|Poule[]
-     * @psalm-var ArrayCollection<int|string, Poule>
+     * @var Collection<int|string, Poule>
      */
-    protected ArrayCollection|PersistentCollection $poules;
+    protected Collection $poules;
     /**
-     * @phpstan-var ArrayCollection<int|string, Sport>|PersistentCollection<int|string, Sport>|Sport[]
-     * @psalm-var ArrayCollection<int|string, Sport>
+     * @var Collection<int|string, Sport>
      */
-    protected ArrayCollection|PersistentCollection $sports;
+    protected Collection $sports;
     /**
-     * @phpstan-var ArrayCollection<int|string, Referee>|PersistentCollection<int|string, Referee>|Referee[]
-     * @psalm-var ArrayCollection<int|string, Referee>
+     * @var Collection<int|string, Referee>
      */
-    protected ArrayCollection|PersistentCollection $referees;
+    protected Collection $referees;
     /**
-     * @phpstan-var ArrayCollection<int|string, Planning>|PersistentCollection<int|string, Planning>|Planning[]
-     * @psalm-var ArrayCollection<int|string, Planning>
+     * @var Collection<int|string, Planning>
      */
-    protected ArrayCollection|PersistentCollection $plannings;
+    protected Collection $plannings;
     protected int|null $maxNrOfGamesInARow = null;
 
     /**
@@ -109,10 +104,9 @@ class Input extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Poule>|PersistentCollection<int|string, Poule>|Poule[]
-     * @psalm-return ArrayCollection<int|string, Poule>
+     * @return Collection<int|string, Poule>
      */
-    public function getPoules(): ArrayCollection|PersistentCollection
+    public function getPoules(): Collection
     {
         return $this->poules;
     }
@@ -184,10 +178,9 @@ class Input extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Sport>|PersistentCollection<int|string, Sport>|Sport[]
-     * @psalm-return ArrayCollection<int|string, Sport>
+     * @return Collection<int|string, Sport>
      */
-    public function getSports(): ArrayCollection|PersistentCollection
+    public function getSports(): Collection
     {
         return $this->sports;
     }
@@ -258,10 +251,9 @@ class Input extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Referee>|PersistentCollection<int|string, Referee>|Referee[]
-     * @psalm-return ArrayCollection<int|string, Referee>
+     * @return Collection<int|string, Referee>
      */
-    public function getReferees(): ArrayCollection|PersistentCollection
+    public function getReferees(): Collection
     {
         return $this->referees;
     }
@@ -375,10 +367,9 @@ class Input extends Identifiable
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Planning>|PersistentCollection<int|string, Planning>|Planning[]
-     * @psalm-return ArrayCollection<int|string, Planning>
+     * @return Collection<int|string, Planning>
      */
-    public function getPlannings(): ArrayCollection|PersistentCollection
+    public function getPlannings(): Collection
     {
         return $this->plannings;
     }

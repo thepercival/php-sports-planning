@@ -5,24 +5,22 @@ namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\PersistentCollection;
 use Exception;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsPlanning\Field;
-use SportsPlanning\Place;
 use SportsPlanning\Game;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
-use SportsPlanning\Poule;
+use SportsPlanning\Place;
 use SportsPlanning\Planning;
+use SportsPlanning\Poule;
 
 class Against extends Game
 {
     /**
-     * @phpstan-var ArrayCollection<int|string, AgainstGamePlace>|PersistentCollection<int|string, AgainstGamePlace>|AgainstGamePlace[]
-     * @psalm-var ArrayCollection<int|string, AgainstGamePlace>
+     * @psalm-var Collection<int|string, AgainstGamePlace>
      */
-    protected ArrayCollection|PersistentCollection $places;
+    protected Collection $places;
 
     public function __construct(
         Planning $planning,
@@ -54,10 +52,9 @@ class Against extends Game
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, AgainstGamePlace>|PersistentCollection<int|string, AgainstGamePlace>|AgainstGamePlace[]
-     * @psalm-return ArrayCollection<int|string, AgainstGamePlace>
+     * @return Collection<int|string, AgainstGamePlace>
      */
-    public function getPlaces(): ArrayCollection|PersistentCollection
+    public function getPlaces(): Collection
     {
         return $this->places;
     }

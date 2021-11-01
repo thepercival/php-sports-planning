@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace SportsPlanning\Schedule;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\PersistentCollection;
+use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Sport\PersistVariant;
 use SportsPlanning\Schedule;
 
 class Sport extends PersistVariant
 {
     /**
-     * @phpstan-var ArrayCollection<int|string, Game>|PersistentCollection<int|string, Game>|Game[]
-     * @psalm-var ArrayCollection<int|string, Game>
+     * @var Collection<int|string, Game>
      */
-    protected ArrayCollection|PersistentCollection $games;
+    protected Collection $games;
 
     public function __construct(protected Schedule $schedule, protected int $number, PersistVariant $sportVariant)
     {
@@ -38,10 +37,9 @@ class Sport extends PersistVariant
     }
 
     /**
-     * @phpstan-return ArrayCollection<int|string, Game>|PersistentCollection<int|string, Game>|Game[]
-     * @psalm-return ArrayCollection<int|string, Game>
+     * @return Collection<int|string, Game>
      */
-    public function getGames(): ArrayCollection|PersistentCollection
+    public function getGames(): Collection
     {
         return $this->games;
     }
