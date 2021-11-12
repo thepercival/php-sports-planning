@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
@@ -16,7 +17,7 @@ use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Place;
 use SportsPlanning\Sport;
-use SportsPlanning\Validator\GameAssignments;
+use SportsPlanning\Planning\Validator\GameAssignments;
 use SportsPlanning\Planning;
 use SportsPlanning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
 use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
@@ -90,6 +91,9 @@ class Validator
     public function getValidityDescriptions(int $validity, Planning|null $planning = null): array
     {
         $invalidations = [];
+        if ($validity === 0) {
+            return $invalidations;
+        }
         if (($validity & self::NO_GAMES) === self::NO_GAMES) {
             $invalidations[] = "the planning has not enough games";
         }
@@ -140,13 +144,16 @@ class Validator
                 $invalidations[] = $this->getUnqualAssignedDescription($planning);
             }
         }
+        if (count($invalidations) === 0) {
+            throw new \Exception('an unknown invalid: ' . $validity, E_ERROR);
+        }
 
         return $invalidations;
     }
 
     protected function validateRefereesWithSelf(Input $input): int
     {
-        if( $input->selfRefereeEnabled() && $input->getReferees()->count() > 0) {
+        if ($input->selfRefereeEnabled() && $input->getReferees()->count() > 0) {
             return self::INVALID_REFEREESELF_AND_REFEREES;
         }
         return self::VALID;

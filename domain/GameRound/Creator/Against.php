@@ -6,11 +6,14 @@ namespace SportsPlanning\GameRound\Creator;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Combinations\HomeAwayCreator;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\Output\GameRound as GameRoundOutput;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
+use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\GameRound\CreatorInterface;
 use SportsPlanning\Schedule\Creator\AssignedCounter;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
@@ -82,20 +85,31 @@ class Against implements CreatorInterface
         }
         if (count($homeAways) === 0) {
             $homeAways = $homeAwayCreator->createForOneH2H();
+
+//            if( $this->sportVariant->getNrOfHomePlaces() >= 2 && $this->sportVariant->getNrOfAwayPlaces() >= 2
+//            && count($homeAways) > 200 ) {
+//                $homeAways = array_splice($homeAways, 0, 200 );
+//            }
         }
         if ($this->isGameRoundCompleted($gameRound)) {
-//            if( $gameRound->getNumber() === 10 ) {
+//            $this->logger->info("gameround " . $gameRound->getNumber() . " completed");
+//            if ($gameRound->getNumber() === 36) {
 //                $this->gameRoundOutput->output($gameRound);
-//                $qw = 12;
+            ////                $qw = 12;
 //            }
 
             $nextGameRound = $gameRound->createNext();
 
-//            $this->gameRoundOutput->output($gameRound);
-//            $this->gameRoundOutput->outputHomeAways($homeAways, null, 'presort after gameround ' . $gameRound->getNumber() . ' completed');
+            //if ($this->getDifferenceNrOfGameRounds($assignedMap) >= 5) {
+            //                $this->gameRoundOutput->output($gameRound);
+            //                $this->gameRoundOutput->outputHomeAways($homeAways, $gameRound, 'presort after gameround ' . $gameRound->getNumber() . ' completed');
             $homeAways = $this->sortHomeAways($homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap);
+            //                $this->gameRoundOutput->outputHomeAways($homeAways, $gameRound, 'postsort after gameround ' . $gameRound->getNumber() . ' completed');
+            //}
+
 //            $this->gameRoundOutput->outputHomeAways($homeAways, null, 'postsort after gameround ' . $gameRound->getNumber() . ' completed');
             // $gamesList = array_values($gamesForBatchTmp);
+//            shuffle($homeAways);
             return $this->assignGameRound($homeAwayCreator, $homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap, $nextGameRound);
         }
 
@@ -180,6 +194,46 @@ class Against implements CreatorInterface
             }
         }
         return true;
+    }
+
+    /**
+     * @param array<int, PlaceCounter> $assignedMap
+     * @return int
+     */
+    protected function getDifferenceNrOfGameRounds(array $assignedMap): int
+    {
+        $min = null;
+        $max = null;
+        foreach ($assignedMap as $assignedCounter) {
+            $count = $assignedCounter->count();
+            if ($min === null && $max === null) {
+                $min = $count;
+                $max = $count;
+            }
+            if ($count < $min) {
+                $min = $count;
+            }
+            if ($count > $max) {
+                $max = $count;
+            }
+        }
+        return (int)$max - (int)$min;
+    }
+
+    /**
+     * @param array<int, PlaceCounter> $assignedMap
+     * @return int
+     */
+    protected function getMaxNrOfGameRounds(array $assignedMap): int
+    {
+        $max = null;
+        foreach ($assignedMap as $assignedCounter) {
+            $count = $assignedCounter->count();
+            if ($max === null || $count > $max) {
+                $max = $count;
+            }
+        }
+        return (int)$max;
     }
 
     /**

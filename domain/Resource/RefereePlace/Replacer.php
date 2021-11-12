@@ -11,7 +11,7 @@ use SportsPlanning\Resource\GameCounter\Unequal as UnequalResource;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
 use SportsPlanning\TimeoutException;
-use SportsPlanning\Validator\GameAssignments as GameAssignmentValidator;
+use SportsPlanning\Planning\Validator\GameAssignments as GameAssignmentValidator;
 use SportsPlanning\Batch\Output as BatchOutput;
 
 class Replacer

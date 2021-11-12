@@ -121,6 +121,16 @@ class Input extends Identifiable
         throw new Exception('de poule kan niet gevonden worden', E_ERROR);
     }
 
+    public function getFirstPoule(): Poule
+    {
+        return $this->getPoule(1);
+    }
+
+    public function getLastPoule(): Poule
+    {
+        return $this->getPoule($this->getPoules()->count());
+    }
+
     /**
      * @return ArrayCollection<int|string, Place>
      */

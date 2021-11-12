@@ -253,6 +253,14 @@ abstract class SelfReferee
         return $this->pouleCounterMap;
     }
 
+    protected function getNrOfPlacesParticipatingHelper(Poule $poule, bool $addRefereePlace): int
+    {
+        if (!isset($this->pouleCounterMap[$poule->getNumber()])) {
+            return 0;
+        }
+        return $this->pouleCounterMap[$poule->getNumber()]->getNrOfPlacesAssigned($addRefereePlace);
+    }
+
     public function add(TogetherGame|AgainstGame $game): void
     {
         $this->batch->add($game);

@@ -7,14 +7,16 @@ use Psr\Log\LoggerInterface;
 use SportsPlanning\Planning\Repository as PlanningRepository;
 use SportsPlanning\Planning;
 use SportsPlanning\Input;
+use SportsHelpers\Output;
 use SportsPlanning\Planning\Output as PlanningOutput;
 
-class BatchGamesPostProcessor
+class BatchGamesPostProcessor extends Output
 {
     protected PlanningOutput $planningOutput;
 
-    public function __construct(protected LoggerInterface $logger, protected PlanningRepository $planningRepos)
+    public function __construct(LoggerInterface $logger, protected PlanningRepository $planningRepos)
     {
+        parent::__construct($logger);
         $this->planningOutput = new PlanningOutput($this->logger);
     }
 
@@ -43,12 +45,7 @@ class BatchGamesPostProcessor
             return;
         }
         $this->planningRepos->resetBatchGamePlanning($planning, Planning::STATE_LESSER_NROFBATCHES_SUCCEEDED);
-        $this->planningOutput->output(
-            $planning,
-            false,
-            '   ',
-            " state => LESSER_NROFBATCHES_SUCCEEDED (gamesinarow removed)"
-        );
+        $this->output($planning,' LESSER_NROFBATCHES_SUCCEEDED (gamesinarow removed)');
     }
 
     protected function updateSucceededSameBatchGamesPlannings(Input $input): void
@@ -67,12 +64,7 @@ class BatchGamesPostProcessor
                 continue;
             }
             $this->planningRepos->resetBatchGamePlanning($lessNrOfBatchesPlanning, Planning::STATE_GREATER_NROFBATCHES_FAILED);
-            $this->planningOutput->output(
-                $lessNrOfBatchesPlanning,
-                false,
-                '   ',
-                " state => GREATER_NROFBATCHES_FAILED (gamesinarow removed)"
-            );
+            $this->output($lessNrOfBatchesPlanning,' GREATER_NROFBATCHES_FAILED (gamesinarow removed)');
         }
     }
 
@@ -87,12 +79,7 @@ class BatchGamesPostProcessor
             $planningIt->setState(Planning::STATE_GREATER_NROFBATCHES_TIMEDOUT);
             $planningIt->setTimeoutSeconds($planningProcessed->getTimeoutSeconds());
             $this->planningRepos->save($planningIt);
-            $this->planningOutput->output(
-                $planningIt,
-                false,
-                '   ',
-                " state => GREATER_NROFBATCHES_TIMEDOUT"
-            );
+            $this->output($planningIt,' GREATER_NROFBATCHES_TIMEDOUT');
         }
     }
 
@@ -134,5 +121,16 @@ class BatchGamesPostProcessor
                         && $planningToBeProcessed->getMinNrOfBatchGames() >= $planningProcessed->getMinNrOfBatchGames();
             }
         ));
+    }
+
+    protected function output(Planning $planning, string $suffix): void
+    {
+        $this->planningOutput->output(
+            $planning,
+            false,
+            '   ',
+            ' state => ' . $suffix,
+            $this->useColors() ? Output::COLOR_GRAY : -1
+        );
     }
 }

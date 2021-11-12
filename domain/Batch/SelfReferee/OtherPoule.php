@@ -16,7 +16,6 @@ class OtherPoule extends Batch\SelfReferee
     public function __construct(protected array $poules, Batch $batch, OtherPoule|null $previous = null)
     {
         parent::__construct($batch, $previous);
-        $this->poules = $poules;
 
         $nextBatch = $this->getBase()->getNext();
         if ($nextBatch !== null) {
@@ -102,5 +101,10 @@ class OtherPoule extends Batch\SelfReferee
             $availableRefereePlaces[] = $otherPoulePlace;
         }
         return $availableRefereePlaces;
+    }
+
+    public function getNrOfPlacesParticipating(Poule $poule): int
+    {
+        return $this->getNrOfPlacesParticipatingHelper($poule, false);
     }
 }

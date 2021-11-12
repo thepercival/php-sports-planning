@@ -251,6 +251,29 @@ class AgainstTest extends TestCase
         self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
     }
 
+//    public function test2VS2Places10GamesPerPlace3(): void
+//    {
+//        // $time_start = microtime(true);
+//        $sportVariants = [
+//            $this->getAgainstSportVariantWithFields(5, 2, 2, 0, 30),
+//        ];
+//        $input = $this->createInput([10], $sportVariants);
+//        $planning = new Planning($input, new SportRange(1, 1), 0);
+//
+//        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
+//        $schedules = $scheduleCreatorService->createSchedules($input);
+//        $gameCreator = new GameCreator($this->getLogger());
+//        $gameCreator->createGames($planning, $schedules);
+//        // (new PlanningOutput())->outputWithGames($planning, true);
+//
+//        // echo 'Total Execution Time: '. (microtime(true) - $time_start);
+//        // self::assertTrue((microtime(true) - $time_start) < 0.3);
+//
+////        self::assertCount(45, $planning->getAgainstGames());
+//        $validator = new PlanningValidator();
+//        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
+//    }
+
     public function test1VS2Places3GamesPerPlace3(): void
     {
         $sportVariants = [

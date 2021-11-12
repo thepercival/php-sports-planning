@@ -4,13 +4,18 @@ namespace SportsPlanning\Resource;
 
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
+use SportsHelpers\PlaceRanges;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Place;
+use SportsPlanning\Poule;
 use SportsPlanning\Resource\Fields as FieldResources;
 use SportsPlanning\Planning;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Against as AgainstGame;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\SelfReferee;
 use SportsPlanning\Input;
 use SportsPlanning\Batch;
@@ -18,6 +23,7 @@ use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Game\Output as GameOutput;
 use SportsPlanning\Resource\RefereePlace\Predicter;
+use SportsPlanning\Sport;
 use SportsPlanning\TimeoutException;
 
 class Service
@@ -28,6 +34,10 @@ class Service
     protected PlanningOutput $planningOutput;
     protected GameOutput $gameOutput;
     protected bool $throwOnTimeout;
+    /**
+     * @var array<int, AgainstSportVariant|SingleSportVariant>
+     */
+    protected array $sportVariantMap;
     protected int $debugIterations = 0;
 
     public function __construct(protected Planning $planning, protected LoggerInterface $logger)
@@ -37,6 +47,7 @@ class Service
         $this->batchOutput = new BatchOutput($logger);
         $this->planningOutput = new PlanningOutput($logger);
         $this->gameOutput = new GameOutput($logger);
+        $this->initSportVariantMap($planning->getInput());
         $this->throwOnTimeout = true;
     }
 
@@ -149,9 +160,22 @@ class Service
             if (count($gamesForBatch) === 0 && count($games) === 0) { // endsuccess
                 return true;
             }
+
             $nextBatch = $this->toNextBatch($batch, $fieldResources, $games);
-//            $this->logger->info(' nr of games to process before gamesinarow-filter(max '.$this->planning->getMaxNrOfGamesInARow().') : '  . count($games) );
-//            $this->gameOutput->outputGames($games);
+
+            if (!$this->isPlanningAssignableToMinNrOfBatchGames($games)) {
+                return false;
+            }
+            // ------------- BEGIN: OUTPUT --------------- //
+//            if ($nextBatch->getNumber() === 10) {
+//                $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber());
+//                $this->logger->info('unassinged games: ');
+//                $this->batchOutput->outputGames($games);
+//            }
+            // ------------- END: OUTPUT --------------- //
+
+            //            $this->logger->info(' nr of games to process before gamesinarow-filter(max '.$this->planning->getMaxNrOfGamesInARow().') : '  . count($games) );
+            //            $this->gameOutput->outputGames($games);
 
             $gamesForBatchTmp = array_filter(
                 $games,
@@ -164,9 +188,9 @@ class Service
 //            $this->logger->info(' nr of games to process after gamesinarow-filter(max '.$this->planning->getMaxNrOfGamesInARow().') : '  . count($gamesForBatchTmp) );
 //            $this->gameOutput->outputGames($gamesForBatchTmp);
             $gamesList = array_values($gamesForBatchTmp);
-            return $this->assignBatchHelper($games, $gamesList, $fieldResources, $nextBatch, $this->planning->getMaxNrOfBatchGames(), 0);
+            return $this->assignBatchHelper($games, $gamesList, $fieldResources, $nextBatch, $this->planning->getMaxNrOfBatchGames());
         }
-        if ($this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
+        if ($this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) {
             throw new TimeoutException(
                 "exceeded maximum duration of " . $this->planning->getTimeoutSeconds() . " seconds",
                 E_ERROR
@@ -206,7 +230,7 @@ class Service
             return true;
         }
         if ($this->planning->getNrOfBatchGames()->difference() > 0
-            && $maxNrOfBatchGames > $this->planning->getMinNrOfBatchGames() ) {
+            && $maxNrOfBatchGames > $this->planning->getMinNrOfBatchGames()) {
             $gamesForBatch[] = $game;
             if ($this->assignBatchHelper(
                 $games,
@@ -295,7 +319,13 @@ class Service
         if (!$fieldResources->isSomeFieldAssignable($game->getSport(), $game->getPoule())) {
             return false;
         }
-        return $this->areAllPlacesAssignable($batch, $game);
+        if (!$this->areAllPlacesAssignable($batch, $game)) {
+            return false;
+        }
+        if (!($batch instanceof SelfRefereeSamePouleBatch)) {
+            return true;
+        }
+        return $this->hasPouleRefereePlaceAvailable($batch, $game);
     }
 
     // de wedstrijd is assignbaar als
@@ -327,18 +357,100 @@ class Service
         Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch,
         TogetherGame|AgainstGame $game
     ): bool {
+        if ($this->planning->getMaxNrOfGamesInARow() === 0) {
+            return true;
+        }
         foreach ($game->getPoulePlaces() as $place) {
             $previousBatch = $batch->getPrevious();
             if ($previousBatch === null) {
                 continue;
             }
-            $nrOfGamesInARow = $previousBatch->getGamesInARow($place);
-            $nrOfGamesInARow += 1;
-            if ($this->planning->getMaxNrOfGamesInARow() > 0 && $nrOfGamesInARow > $this->planning->getMaxNrOfGamesInARow()) {
+            $nrOfGamesInARow = $previousBatch->getGamesInARow($place) + 1;
+            if ($nrOfGamesInARow > $this->planning->getMaxNrOfGamesInARow()) {
                 return false;
             }
         }
         return true;
+    }
+
+    protected function hasPouleRefereePlaceAvailable(
+        SelfRefereeSamePouleBatch $batch,
+        TogetherGame|AgainstGame $game
+    ): bool {
+        $poule = $game->getPoule();
+        $nrAvailable = $poule->getPlaces()->count() - $batch->getNrOfPlacesParticipating($poule);
+        $selfRefereePlace = 1;
+        return $nrAvailable >= ($this->getSportVariant($game->getSport())->getNrOfGamePlaces() + $selfRefereePlace);
+    }
+
+    /**
+     * @param list<TogetherGame|AgainstGame> $games
+     * @return bool
+     */
+    protected function isPlanningAssignableToMinNrOfBatchGames(array $games): bool
+    {
+        if ($this->getInput()->hasMultipleSports()) {
+            return true;
+        }
+        $biggestPoule = $this->getInput()->getFirstPoule();
+        $smallestPoule = $this->getInput()->getLastPoule();
+        if ($biggestPoule === $smallestPoule) {
+            return true;
+        }
+
+        $nrOfPlaces = $biggestPoule->getPlaces()->count();
+        $gamesForPoule = $this->getGamesForPoule($biggestPoule, $games);
+
+        $game = reset($games);
+        if ($game === false) {
+            return true;
+        }
+
+        // aantal wedstrijden per batch
+        $selfRefereeSamePoule = $this->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE;
+        $sportVariant = $game->getSport()->createVariant();
+        $nrOfGamePlaces = $this->getNrOfGamePlaces($sportVariant, $nrOfPlaces, $selfRefereeSamePoule);
+
+        $maxNrOfGamesSim = (int)floor($nrOfPlaces / $nrOfGamePlaces);
+
+        $maxNrOfPouleGamesPerBatch = $this->getInput()->getMaxNrOfBatchGames();
+        if ($maxNrOfGamesSim < $maxNrOfPouleGamesPerBatch) {
+            $maxNrOfPouleGamesPerBatch = $maxNrOfGamesSim;
+        }
+        $nrOfBatchesNeeded = (int)ceil(count($gamesForPoule) / $maxNrOfPouleGamesPerBatch);
+
+        $nrOfOtherPoulesGames = count($games) - count($gamesForPoule);
+        // stel 7 te gaan en max. 1 wedstrijd per batch dan heb je 7 batches nodig
+        // dan nodig aan andere wedstrijden 7 * ($this->planning->getMinNrOfBatchGames() - (1 wedstrijd per batch)) =
+
+        // $this->planning->getMinNrOfBatchGames()
+        return $nrOfOtherPoulesGames >= ($nrOfBatchesNeeded * ($this->planning->getMinNrOfBatchGames() - 1));
+    }
+
+    protected function getNrOfGamePlaces(
+        SingleSportVariant | AgainstSportVariant | AllInOneGameSportVariant $sportVariant,
+        int $nrOfPlaces,
+        bool $selfRefereeSamePoule
+    ): int
+    {
+        if ($sportVariant instanceof AgainstSportVariant) {
+            return $sportVariant->getNrOfGamePlaces() + ($selfRefereeSamePoule ? 1 : 0);
+        } elseif ($sportVariant instanceof SingleSportVariant) {
+            return $sportVariant->getNrOfGamePlaces() + ($selfRefereeSamePoule ? 1 : 0);
+        }
+        return $nrOfPlaces;
+    }
+
+    /**
+     * @param Poule $poule
+     * @param list<TogetherGame|AgainstGame> $games
+     * @return list<TogetherGame|AgainstGame>
+     */
+    protected function getGamesForPoule(Poule $poule, array $games): array
+    {
+        return array_values(array_filter($games, function ($game) use ($poule): bool {
+            return $game->getPoule() === $poule;
+        }));
     }
 
     protected function refereePlacesCanBeAssigned(Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch): bool
@@ -349,6 +461,23 @@ class Service
             return $this->refereePlacePredicter->canStillAssign($batch, $this->getInput()->getSelfReferee());
         }
         return true;
+    }
+
+    private function initSportVariantMap(Input $input): void
+    {
+        $this->sportVariantMap = [];
+        foreach ($input->getSports() as $sport) {
+            $variant = $sport->createVariant();
+            if ($variant instanceof AllInOneGameSportVariant) {
+                continue;
+            }
+            $this->sportVariantMap[$sport->getNumber()] = $variant;
+        }
+    }
+
+    public function getSportVariant(Sport $sport): AgainstSportVariant|SingleSportVariant
+    {
+        return $this->sportVariantMap[$sport->getNumber()];
     }
 
     public function disableThrowOnTimeout(): void

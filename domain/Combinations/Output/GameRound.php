@@ -69,8 +69,9 @@ class GameRound extends OutputHelper
         if ($header !== null) {
             $this->logger->info($header);
         }
+        $prefix = ''; // $gameRound->getNumber() . ' : ';
         foreach ($homeAways as $homeAway) {
-            $this->homeAwayOutput->output($homeAway, $gameRound);
+            $this->homeAwayOutput->output($homeAway, $gameRound, $prefix);
         }
     }
 }

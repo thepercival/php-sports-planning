@@ -4,8 +4,10 @@ declare(strict_types=1);
 namespace SportsPlanning\Planning;
 
 use Doctrine\ORM\EntityRepository;
-use Exception;
 use SportsHelpers\Repository as BaseRepository;
+use SportsHelpers\SportRange;
+use SportsPlanning\Input;
+use SportsPlanning\Planning;
 use SportsPlanning\Planning as PlanningBase;
 
 /**
@@ -20,8 +22,14 @@ class Repository extends EntityRepository
 
     public function resetBatchGamePlanning(PlanningBase $planning, int $state): void
     {
-        $planning->setState($state);
+        $this->resetPlanning($planning, $state);
         $this->removeGamesInARowPlannings($planning);
+        $this->save($planning);
+    }
+
+    public function resetPlanning(PlanningBase $planning, int $state): void
+    {
+        $planning->setState($state);
 
         $againstGames = $planning->getAgainstGames();
         while ($game = $againstGames->first()) {
@@ -114,36 +122,28 @@ class Repository extends EntityRepository
 //        return count($x) === 1;
 //    }
 //
-//    public function get(Input $input, Range $nrOfBatchGamesRange, int $maxNrOfGamesInARow): Planning
-//    {
-//        $query = $this->createQueryBuilder('p')
-//            ->join("p.input", "pi")
-//            ->where('pi.pouleStructureDb = :pouleStructure')
-//            ->andWhere('pi.sportConfigDb = :sportConfig')
-//            ->andWhere('pi.nrOfReferees = :nrOfReferees')
-//            ->andWhere('pi.teamup = :teamup')
-//            ->andWhere('pi.selfReferee = :selfReferee')
-//            ->andWhere('pi.nrOfHeadtohead = :nrOfHeadtohead')
-//            ->andWhere('p.minNrOfBatchGames = :minNrOfBatchGames')
-//            ->andWhere('p.maxNrOfBatchGames = :maxNrOfBatchGames')
-//            ->andWhere('p.maxNrOfGamesInARow = :maxNrOfGamesInARow')
-//        ;
-//
-//        $query = $query->setParameter('pouleStructure', json_encode($input->getPouleStructure()->toArray()));
-//        $query = $query->setParameter('sportConfig', $this->sportConfigsToString($input));
-//        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
-//        $query = $query->setParameter('teamup', $input->getTeamup());
-//        $query = $query->setParameter('selfReferee', $input->getSelfReferee());
-//        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead());
-//        $query = $query->setParameter('minNrOfBatchGames', $nrOfBatchGamesRange->min);
-//        $query = $query->setParameter('maxNrOfBatchGames', $nrOfBatchGamesRange->max);
-//        $query = $query->setParameter('maxNrOfGamesInARow', $maxNrOfGamesInARow);
-//
-//        $query->setMaxResults(1);
-//
-//        return $query->getQuery()->getResult()->first();
-//    }
-//
+    public function findOneByExt(Input $input, SportRange $nrOfBatchGamesRange, int $maxNrOfGamesInARow): Planning|null
+    {
+        $query = $this->createQueryBuilder('p')
+            ->where('p.input = :input')
+            ->andWhere('p.minNrOfBatchGames = :minNrOfBatchGames')
+            ->andWhere('p.maxNrOfBatchGames = :maxNrOfBatchGames')
+            ->andWhere('p.maxNrOfGamesInARow = :maxNrOfGamesInARow')
+        ;
+
+        $query = $query->setParameter('input', $input);
+        $query = $query->setParameter('minNrOfBatchGames', $nrOfBatchGamesRange->getMin());
+        $query = $query->setParameter('maxNrOfBatchGames', $nrOfBatchGamesRange->getMax());
+        $query = $query->setParameter('maxNrOfGamesInARow', $maxNrOfGamesInARow);
+
+        $query->setMaxResults(1);
+
+        /** @var list<Planning> $results */
+        $results = $query->getQuery()->getResult();
+        $first = reset($results);
+        return $first !== false ? $first : null;
+    }
+
 
 //
 //    /**

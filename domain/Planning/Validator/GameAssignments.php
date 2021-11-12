@@ -1,7 +1,8 @@
 <?php
+
 declare(strict_types=1);
 
-namespace SportsPlanning\Validator;
+namespace SportsPlanning\Planning\Validator;
 
 use SportsPlanning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
 use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
@@ -29,9 +30,9 @@ class GameAssignments
      */
     protected array $refereePlaceMap;
 
-    const FIELDS = 1;
-    const REFEREES = 2;
-    const REFEREEPLACES = 4;
+    public const FIELDS = 1;
+    public const REFEREES = 2;
+    public const REFEREEPLACES = 4;
 
     public function __construct(protected Planning $planning)
     {
@@ -95,9 +96,11 @@ class GameAssignments
 
     public function validate(): void
     {
-        $unequalFields = $this->getMaxUnequal($this->fieldMap);
-        if ($unequalFields !== null) {
-            throw new UnequalAssignedFieldsException($this->getUnequalDescription($unequalFields, "fields"), E_ERROR);
+        if (!$this->planning->getInput()->hasMultipleSports()) {
+            $unequalFields = $this->getMaxUnequal($this->fieldMap);
+            if ($unequalFields !== null) {
+                throw new UnequalAssignedFieldsException($this->getUnequalDescription($unequalFields, "fields"), E_ERROR);
+            }
         }
 
         $unequalReferees = $this->getMaxUnequal($this->refereeMap);

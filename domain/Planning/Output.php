@@ -9,7 +9,7 @@ use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Planning;
 use SportsPlanning\Input as PlanningInput;
-use SportsPlanning\Validator\GameAssignments as GameAssignmentsValidator;
+use SportsPlanning\Planning\Validator\GameAssignments as GameAssignmentsValidator;
 
 class Output extends OutputHelper
 {
@@ -18,9 +18,9 @@ class Output extends OutputHelper
         parent::__construct($logger);
     }
 
-    public function output(Planning $planning, bool $withInput, string $prefix = null, string $suffix = null): void
+    public function output(Planning $planning, bool $withInput, string $prefix = null, string $suffix = null, int $colorNr = -1): void
     {
-        $this->outputHelper($planning, $withInput, false, false, $prefix, $suffix);
+        $this->outputHelper($planning, $withInput, false, false, $prefix, $suffix, $colorNr);
     }
 
     public function outputWithGames(
@@ -47,7 +47,8 @@ class Output extends OutputHelper
         bool $withGames,
         bool $withTotals,
         string $prefix = null,
-        string $suffix = null
+        string $suffix = null,
+        int $colorNr = -1
     ): void {
         $output = 'batchGames ' . $planning->getNrOfBatchGames()->getMin()
             . '->' . $planning->getNrOfBatchGames()->getMax()
@@ -56,7 +57,8 @@ class Output extends OutputHelper
         if ($withInput) {
             $output = $this->getInputAsString($planning->getInput()) . ', ' . $output;
         }
-        $this->logger->info(($prefix ?? '') . $output . ($suffix ?? ''));
+        $output = $this->getColored($colorNr, ($prefix ?? '') . $output . ($suffix ?? ''));
+        $this->logger->info($output);
         if ($withGames) {
             $batchOutput = new BatchOutput($this->logger);
             $batchOutput->output($planning->createFirstBatch());

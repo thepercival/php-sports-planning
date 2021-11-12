@@ -1,25 +1,26 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Validator;
 
-use \Exception;
+use Exception;
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\GameMode;
 use SportsHelpers\SelfReferee;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Resource\GameCounter;
-use SportsPlanning\Validator\GameAssignments as GameAssignmentValidator;
+use SportsPlanning\Planning\Validator\GameAssignments as GameAssignmentValidator;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
 use SportsPlanning\Planning\Output as PlanningOutput;
 
 class GameAssignmentsTest extends TestCase
 {
-    use PlanningCreator, PlanningReplacer;
+    use PlanningCreator;
+    use PlanningReplacer;
 
     public function testGetCountersFields(): void
     {
@@ -210,6 +211,19 @@ class GameAssignmentsTest extends TestCase
 
         $validator = new GameAssignmentValidator($planning);
         self::expectException(Exception::class);
+        $validator->validate();
+    }
+
+    public function testEquallyAssignedFieldsMultipleSport(): void
+    {
+        $sportVariant1 = $this->getAgainstSportVariantWithFields(4);
+        $sportVariant2 = $this->getAgainstSportVariantWithFields(1);
+        $planning = $this->createPlanning(
+            $this->createInput([5], [$sportVariant1, $sportVariant2])
+        );
+
+        $validator = new GameAssignmentValidator($planning);
+        self::expectNotToPerformAssertions();
         $validator->validate();
     }
 

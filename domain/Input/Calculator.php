@@ -118,6 +118,6 @@ class Calculator
         if ($nrOfPlaces < 0) {
             $nrOfBatchPlaces += $nrOfPlaces;
         }
-        return $nrOfBatchPlaces === 0 ? 1 : (int)$nrOfBatchPlaces;
+        return $nrOfBatchPlaces === 0 ? 1 : $nrOfBatchPlaces;
     }
 }

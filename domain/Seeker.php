@@ -1,10 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning;
 
 use Exception;
 use Psr\Log\LoggerInterface;
+use SportsHelpers\Output\Color;
 use SportsPlanning\Input\Service as InputService;
 use SportsPlanning\Input\Repository as InputRepository;
 use SportsPlanning\Planning\Repository as PlanningRepository;
@@ -15,7 +17,6 @@ use SportsPlanning\Seeker\NextBatchGamesPlanningCalculator;
 use SportsPlanning\Seeker\NextGamesInARowPlanningCalculator;
 use SportsPlanning\Schedule\Repository as ScheduleRepository;
 
-
 class Seeker
 {
     protected int $maxTimeoutSeconds = 0;
@@ -23,6 +24,8 @@ class Seeker
     protected PlanningOutput $planningOutput;
     protected Seeker\BatchGamesPostProcessor $batchGamesPostProcessor;
     protected bool $throwOnTimeout;
+
+    use Color;
 
     public function __construct(
         protected LoggerInterface $logger,
@@ -46,12 +49,12 @@ class Seeker
         return $this->maxTimeoutSeconds > 0;
     }
 
-    public function process(Input $input): void
+    public function processInput(Input $input): void
     {
         try {
             $this->planningOutput->outputInput($input, 'processing input('.((string)$input->getId()).'): ', " ..");
             $schedules = $this->scheduleRepos->findByInput($input);
-            $this->processInput($input, $schedules);
+            $this->processInputHelper($input, $schedules);
             // $this->inputRepos->save($input);
         } catch (Exception $e) {
             $this->logger->error('   ' . '   ' . " => " . $e->getMessage());
@@ -63,11 +66,12 @@ class Seeker
      * @param list<Schedule> $schedules
      * @throws Exception
      */
-    protected function processInput(Input $input, array $schedules): void
+    protected function processInputHelper(Input $input, array $schedules): void
     {
         $nextBatchGamesPlanningCalculator = new NextBatchGamesPlanningCalculator($input, $this->maxTimeoutSeconds);
+        $this->logger->info('       -- ---------- start processing batchGames-plannings ----------');
         while ($planningToBeProcessed = $nextBatchGamesPlanningCalculator->next()) {
-            $this->processPlanning($planningToBeProcessed, $schedules);
+            $this->processPlanningHelper($planningToBeProcessed, $schedules);
             $this->batchGamesPostProcessor->updateOthers($planningToBeProcessed);
         }
 
@@ -90,8 +94,9 @@ class Seeker
             $bestBatchGamePlanning,
             $this->maxTimeoutSeconds
         );
+        $this->logger->info('       -- ---------- start processing gamesInARow-plannings ----------');
         while ($planningToBeProcessed = $nextGamesInARowPlanningCalculator->next()) {
-            $this->processPlanning($planningToBeProcessed, $schedules);
+            $this->processPlanningHelper($planningToBeProcessed, $schedules);
             $gamesInARowPostProcessor->updateOthers($planningToBeProcessed);
         }
     }
@@ -101,7 +106,29 @@ class Seeker
      * @param list<Schedule> $schedules
      * @throws Exception
      */
-    protected function processPlanning(Planning $planning, array $schedules): void
+    public function processPlanning(Planning $planning, array $schedules): void
+    {
+        $this->planningRepos->resetPlanning($planning, Planning::STATE_TOBEPROCESSED);
+        if ($planning->isBatchGames()) {
+            $this->processPlanningHelper($planning, $schedules);
+            $this->batchGamesPostProcessor->updateOthers($planning);
+            return;
+        }
+        $gamesInARowPostProcessor = new Seeker\GamesInARowPostProcessor(
+            $planning,
+            $this->logger,
+            $this->planningRepos
+        );
+        $this->processPlanningHelper($planning, $schedules);
+        $gamesInARowPostProcessor->updateOthers($planning);
+    }
+
+    /**
+     * @param Planning $planning
+     * @param list<Schedule> $schedules
+     * @throws Exception
+     */
+    protected function processPlanningHelper(Planning $planning, array $schedules): void
     {
         // $planning->setState( Planning::STATE_PROCESSING );
         if ($this->processTimedout()) {

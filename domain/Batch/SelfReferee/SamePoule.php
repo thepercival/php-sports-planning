@@ -3,6 +3,7 @@
 namespace SportsPlanning\Batch\SelfReferee;
 
 use SportsPlanning\Batch;
+use SportsPlanning\Poule;
 
 class SamePoule extends Batch\SelfReferee
 {
@@ -52,5 +53,10 @@ class SamePoule extends Batch\SelfReferee
             }
         }
         return $forcedRefereePlacesMap;
+    }
+
+    public function getNrOfPlacesParticipating(Poule $poule): int
+    {
+        return $this->getNrOfPlacesParticipatingHelper($poule, true);
     }
 }
