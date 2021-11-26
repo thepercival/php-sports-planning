@@ -5,6 +5,7 @@ namespace SportsPlanning\Resource;
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\PlaceRanges;
+use SportsHelpers\PouleStructure\Balanced as BalancedPouleStructure;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Place;
@@ -33,6 +34,7 @@ class Service
     protected BatchOutput $batchOutput;
     protected PlanningOutput $planningOutput;
     protected GameOutput $gameOutput;
+    protected bool $balancedStructure;
     protected bool $throwOnTimeout;
     /**
      * @var array<int, AgainstSportVariant|SingleSportVariant>
@@ -48,6 +50,7 @@ class Service
         $this->planningOutput = new PlanningOutput($logger);
         $this->gameOutput = new GameOutput($logger);
         $this->initSportVariantMap($planning->getInput());
+        $this->balancedStructure = $this->getInput()->createPouleStructure() instanceof BalancedPouleStructure;
         $this->throwOnTimeout = true;
     }
 
@@ -163,7 +166,7 @@ class Service
 
             $nextBatch = $this->toNextBatch($batch, $fieldResources, $games);
 
-            if (!$this->isPlanningAssignableToMinNrOfBatchGames($games)) {
+            if (!$this->balancedStructure && !$this->isPlanningAssignableToMinNrOfBatchGames($games)) {
                 return false;
             }
             // ------------- BEGIN: OUTPUT --------------- //
@@ -420,19 +423,16 @@ class Service
         $nrOfBatchesNeeded = (int)ceil(count($gamesForPoule) / $maxNrOfPouleGamesPerBatch);
 
         $nrOfOtherPoulesGames = count($games) - count($gamesForPoule);
-        // stel 7 te gaan en max. 1 wedstrijd per batch dan heb je 7 batches nodig
-        // dan nodig aan andere wedstrijden 7 * ($this->planning->getMinNrOfBatchGames() - (1 wedstrijd per batch)) =
-
-        // $this->planning->getMinNrOfBatchGames()
-        return $nrOfOtherPoulesGames >= ($nrOfBatchesNeeded * ($this->planning->getMinNrOfBatchGames() - 1));
+        $minNrOfOtherPoulesGamesPerBatch = $this->planning->getMinNrOfBatchGames() - $maxNrOfPouleGamesPerBatch;
+        $nrOfOtherPoulesGamesNeeded = $nrOfBatchesNeeded * $minNrOfOtherPoulesGamesPerBatch;
+        return $nrOfOtherPoulesGames >= $nrOfOtherPoulesGamesNeeded;
     }
 
     protected function getNrOfGamePlaces(
         SingleSportVariant | AgainstSportVariant | AllInOneGameSportVariant $sportVariant,
         int $nrOfPlaces,
         bool $selfRefereeSamePoule
-    ): int
-    {
+    ): int {
         if ($sportVariant instanceof AgainstSportVariant) {
             return $sportVariant->getNrOfGamePlaces() + ($selfRefereeSamePoule ? 1 : 0);
         } elseif ($sportVariant instanceof SingleSportVariant) {

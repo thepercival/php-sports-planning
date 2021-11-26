@@ -13,7 +13,7 @@ use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 
-class Schedule extends Identifiable
+class Schedule extends Identifiable implements \Stringable
 {
     protected int $gamePlaceStrategy;
     protected string $sportsConfigName;
@@ -63,5 +63,15 @@ class Schedule extends Identifiable
         return $this->sportSchedules->map(function (SportSchedule $sportSchedule): SingleSportVariant|AgainstSportVariant|AllInOneGameSportVariant {
             return $sportSchedule->createVariant();
         });
+    }
+
+    public function __toString()
+    {
+        $json = json_encode( [
+            "nrOfPlaces" => $this->nrOfPlaces,
+            "gamePlaceStrategy" => $this->gamePlaceStrategy,
+            "sportsConfigName" => new ScheduleName(array_values( $this->createSportVariants()->toArray() ) )
+        ] );
+        return $json ? $json : '';
     }
 }

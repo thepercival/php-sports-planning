@@ -42,12 +42,12 @@ class Service
             if ($this->isScheduleAlreadyCreated($nrOfPlaces, $gamePlaceStrategy, (string)$sportConfigsName)) {
                 continue;
             }
-            if (!array_key_exists($nrOfPlaces, $schedules)) {
-                $schedule = new Schedule($nrOfPlaces, $poule->getInput());
-                $schedules[$nrOfPlaces] = $schedule;
-            } else {
-                $schedule = $schedules[$nrOfPlaces];
+            if (array_key_exists($nrOfPlaces, $schedules)) {
+                continue;
             }
+            $schedule = new Schedule($nrOfPlaces, $poule->getInput());
+            $schedules[$nrOfPlaces] = $schedule;
+
             $assignedCounter = new AssignedCounter($poule, $sportVariants);
             foreach ([GameMode::ALL_IN_ONE_GAME, GameMode::AGAINST, GameMode::SINGLE] as $gameMode) {
                 $sports = $this->getSports($input, $gameMode);
