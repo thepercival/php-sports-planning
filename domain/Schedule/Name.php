@@ -34,7 +34,7 @@ class Name implements \Stringable
                 if ($sportVariant->getNrOfH2H() > 0) {
                     $name['nrOfH2H'] = $sportVariant->getNrOfH2H();
                 } else {
-                    $name['nrOfGamesPerPlace'] = $sportVariant->getNrOfGamePlaces();
+                    $name['nrOfGamesPerPlace'] = $sportVariant->getNrOfGamesPerPlace();
                 }
             } else {
                 $name = ['nrOfGamesPerPlace' => $sportVariant->getNrOfGamesPerPlace()];

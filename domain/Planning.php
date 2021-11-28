@@ -44,7 +44,6 @@ class Planning extends Identifiable
     const STATE_GREATER_NROFBATCHES_TIMEDOUT = 256;
     const STATE_GREATER_GAMESINAROW_TIMEDOUT = 512;
 
-    const TIMEOUT_MULTIPLIER = 6;
     const MINIMUM_TIMEOUTSECONDS = 5;
 
     public function __construct(protected Input $input, SportRange $nrOfBatchGames, protected int $maxNrOfGamesInARow)
