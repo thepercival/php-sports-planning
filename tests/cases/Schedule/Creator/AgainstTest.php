@@ -6,17 +6,14 @@ namespace SportsPlanning\Tests\Schedule\Creator;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
+use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\SportRange;
-use SportsPlanning\Schedule\Creator\Against as AgainstScheduleCreator;
-use SportsPlanning\Schedule\Creator\AssignedCounter;
-use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
-use SportsPlanning\Planning;
 use SportsPlanning\Game\Creator as GameCreator;
-use SportsPlanning\Planning\Output as PlanningOutput;
-use PHPUnit\Framework\TestCase;
-use SportsPlanning\TestHelper\PlanningCreator;
+use SportsPlanning\Planning;
 use SportsPlanning\Planning\Validator as PlanningValidator;
+use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
+use SportsPlanning\TestHelper\PlanningCreator;
 
 class AgainstTest extends TestCase
 {
@@ -339,41 +336,30 @@ class AgainstTest extends TestCase
     }
 
 
+
+
     // commented for performance reasons
-//    public function test2VS2Places7GamesPerPlace60(): void
+//    public function test2VS2Places10GamesPerPlace50(): void
 //    {
 //        $sportVariants = [
-//            $this->getAgainstSportVariantWithFields(1, 2, 2, 0, 60),
+//            $this->getAgainstSportVariantWithFields(1, 2, 2, 0, 50),
 //        ];
-//        $planning = new Planning($this->createInput([7], $sportVariants), new SportRange(1, 1), 0);
+//        $input = $this->createInput([10], $sportVariants);
+//        $planning = new Planning($input, new SportRange(1, 1), 0);
 //
-//        $gameGenerator = new GameGenerator($this->getLogger());
-//        $gameGenerator->generateUnassignedGames($planning);
-//        //(new PlanningOutput())->outputWithGames($planning, true);
+//        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
+//        $schedules = $scheduleCreatorService->createSchedules($input);
+//        $gameCreator = new GameCreator($this->getLogger());
+//        $gameCreator->createGames($planning, $schedules);
 //
-//        self::assertCount(105, $planning->getAgainstGames());
-//        $validator = new PlanningValidator();
-//        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
-//    }
+//        (new PlanningOutput())->outputWithGames($planning, true);
 //
-//    public function test2VS2Places8GamesPerPlace105(): void
-//    {
-//        $sportVariants = [
-//            $this->getAgainstSportVariantWithFields(1, 2, 2, 0, 105),
-//        ];
-//        $planning = new Planning($this->createInput([7], $sportVariants), new SportRange(1, 1), 0);
-//
-//        $gameGenerator = new GameGenerator($this->getLogger());
-//        $gameGenerator->generateUnassignedGames($planning);
-//        //(new PlanningOutput())->outputWithGames($planning, true);
-//
-//        self::assertCount(210, $planning->getAgainstGames());
-//        $validator = new PlanningValidator();
-//        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
+//        self::assertCount(125, $planning->getAgainstGames());
 //    }
 
 
-    protected function getLogger(): LoggerInterface {
+    protected function getLogger(): LoggerInterface
+    {
         $logger = new Logger("test-logger");
         $processor = new UidProcessor();
         $logger->pushProcessor($processor);

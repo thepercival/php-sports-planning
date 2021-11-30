@@ -7,15 +7,15 @@ namespace SportsPlanning;
 use Exception;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output\Color;
-use SportsPlanning\Input\Service as InputService;
-use SportsPlanning\Input\Repository as InputRepository;
-use SportsPlanning\Planning\Repository as PlanningRepository;
-use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Game\Assigner as GameAssigner;
+use SportsPlanning\Game\Creator as GameCreator;
+use SportsPlanning\Input\Repository as InputRepository;
+use SportsPlanning\Input\Service as InputService;
 use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Planning\Repository as PlanningRepository;
+use SportsPlanning\Schedule\Repository as ScheduleRepository;
 use SportsPlanning\Seeker\NextBatchGamesPlanningCalculator;
 use SportsPlanning\Seeker\NextGamesInARowPlanningCalculator;
-use SportsPlanning\Schedule\Repository as ScheduleRepository;
 
 class Seeker
 {
@@ -24,6 +24,8 @@ class Seeker
     protected PlanningOutput $planningOutput;
     protected Seeker\BatchGamesPostProcessor $batchGamesPostProcessor;
     protected bool $throwOnTimeout;
+
+    private const TIMEOUT_MULTIPLIER = 6;
 
     use Color;
 
@@ -136,9 +138,9 @@ class Seeker
                 $planning,
                 false,
                 '   ',
-                " timeout => " . $planning->getTimeoutSeconds() * Planning::TIMEOUT_MULTIPLIER
+                " timeout => " . $planning->getTimeoutSeconds() * Seeker::TIMEOUT_MULTIPLIER
             );
-            $planning->setTimeoutSeconds($planning->getTimeoutSeconds() * Planning::TIMEOUT_MULTIPLIER);
+            $planning->setTimeoutSeconds($planning->getTimeoutSeconds() * Seeker::TIMEOUT_MULTIPLIER);
             $this->planningRepos->save($planning);
         }
         $this->planningOutput->output($planning, false, '   ', " trying .. ");

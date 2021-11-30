@@ -58,6 +58,16 @@ class Against extends ListNode
         if ($swap === false) {
             return $this->homeAways;
         }
-        return array_map(fn (AgainstHomeAway $homeAway) => $homeAway->swap(), $this->homeAways);
+        return array_map(fn(AgainstHomeAway $homeAway) => $homeAway->swap(), $this->homeAways);
+    }
+
+    public function isHomeAwayPlaceParticipating(AgainstHomeAway $homeAway): bool
+    {
+        foreach ($homeAway->getPlaces() as $place) {
+            if ($this->isParticipating($place)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

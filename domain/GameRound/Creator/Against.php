@@ -6,20 +6,17 @@ namespace SportsPlanning\GameRound\Creator;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\SportRange;
+use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Combinations\HomeAwayCreator;
-use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\Output\GameRound as GameRoundOutput;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\GameRound\CreatorInterface;
-use SportsPlanning\Schedule\Creator\AssignedCounter;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
+use SportsPlanning\GameRound\CreatorInterface;
 use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
+use SportsPlanning\Schedule\Creator\AssignedCounter;
 
 /**
  * @template-implements CreatorInterface<AgainstGameRound>
@@ -42,7 +39,8 @@ class Against implements CreatorInterface
         Poule $poule,
         AssignedCounter $assignedCounter,
         int $totalNrOfGamesPerPlace,
-    ): AgainstGameRound {
+    ): AgainstGameRound
+    {
         $this->nrOfGamesPerGameRound = $this->sportVariant->getNrOfGamesOneGameRound($poule->getPlaces()->count());
         $this->totalNrOfGamesPerPlace = $totalNrOfGamesPerPlace;
 
@@ -51,8 +49,16 @@ class Against implements CreatorInterface
         $assignedWithMap = $assignedCounter->getAssignedWithMap();
         $assignedHomeMap = $assignedCounter->getAssignedHomeMap();
         $homeAwayCreator = new HomeAwayCreator($poule, $this->sportVariant);
-
-        if ($this->assignGameRound($homeAwayCreator, [], $assignedMap, $assignedWithMap, $assignedHomeMap, $gameRound) === false) {
+        $homeAways = $homeAwayCreator->createForOneH2H();
+        if ($this->assignGameRound(
+                $homeAwayCreator,
+                $homeAways,
+                $homeAways,
+                $assignedMap,
+                $assignedWithMap,
+                $assignedHomeMap,
+                $gameRound
+            ) === false) {
             throw new \Exception('creation of homeaway can not be false', E_ERROR);
         }
         return $gameRound;
@@ -60,6 +66,7 @@ class Against implements CreatorInterface
 
     /**
      * @param HomeAwayCreator $homeAwayCreator
+     * @param list<AgainstHomeAway> $homeAwaysForGameRound
      * @param list<AgainstHomeAway> $homeAways
      * @param array<int, PlaceCounter> $assignedMap
      * @param array<int, PlaceCombinationCounter> $assignedWithMap
@@ -70,6 +77,7 @@ class Against implements CreatorInterface
      */
     protected function assignGameRound(
         HomeAwayCreator $homeAwayCreator,
+        array $homeAwaysForGameRound,
         array $homeAways,
         array $assignedMap,
         array $assignedWithMap,
@@ -80,43 +88,51 @@ class Against implements CreatorInterface
 //        if ($this->isCompleted($assignedMap)) {
 //            $er = 12;
 //        }
+
+//        $this->gameRoundOutput->outputHomeAways($gameRound->getHomeAways(), $gameRound);
+//        $this->gameRoundOutput->outputHomeAways($homeAwaysForGameRound, null, "unassigned");
+
         if ($this->isCompleted($assignedMap)) {
             return true;
         }
-        if (count($homeAways) === 0) {
-            $homeAways = $homeAwayCreator->createForOneH2H();
 
-//            if( $this->sportVariant->getNrOfHomePlaces() >= 2 && $this->sportVariant->getNrOfAwayPlaces() >= 2
-//            && count($homeAways) > 200 ) {
-//                $homeAways = array_splice($homeAways, 0, 200 );
-//            }
-        }
         if ($this->isGameRoundCompleted($gameRound)) {
 //            $this->logger->info("gameround " . $gameRound->getNumber() . " completed");
-//            if ($gameRound->getNumber() === 36) {
-//                $this->gameRoundOutput->output($gameRound);
-            ////                $qw = 12;
-//            }
 
-            $nextGameRound = $gameRound->createNext();
+            $nextGameRound = $this->toNextGameRound($gameRound, $homeAways);
+            if (count($homeAways) === 0) {
+                $homeAways = $homeAwayCreator->createForOneH2H();
+            }
+//            if ($gameRound->getNumber() === 2) {
+//                $this->gameRoundOutput->output($gameRound);
+//                $qw = 12;
+//            }
 
             //if ($this->getDifferenceNrOfGameRounds($assignedMap) >= 5) {
             //                $this->gameRoundOutput->output($gameRound);
             //                $this->gameRoundOutput->outputHomeAways($homeAways, $gameRound, 'presort after gameround ' . $gameRound->getNumber() . ' completed');
-            $homeAways = $this->sortHomeAways($homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap);
+            $sortedHomeAways = $this->sortHomeAways($homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap);
             //                $this->gameRoundOutput->outputHomeAways($homeAways, $gameRound, 'postsort after gameround ' . $gameRound->getNumber() . ' completed');
             //}
 
 //            $this->gameRoundOutput->outputHomeAways($homeAways, null, 'postsort after gameround ' . $gameRound->getNumber() . ' completed');
             // $gamesList = array_values($gamesForBatchTmp);
 //            shuffle($homeAways);
-            return $this->assignGameRound($homeAwayCreator, $homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap, $nextGameRound);
+            return $this->assignGameRound(
+                $homeAwayCreator,
+                $sortedHomeAways,
+                $homeAways,
+                $assignedMap,
+                $assignedWithMap,
+                $assignedHomeMap,
+                $nextGameRound
+            );
         }
 
-        if ($nrOfHomeAwaysTried === count($homeAways)) {
+        if ($nrOfHomeAwaysTried === count($homeAwaysForGameRound)) {
             return false;
         }
-        $homeAway = array_shift($homeAways);
+        $homeAway = array_shift($homeAwaysForGameRound);
         if ($homeAway === null) {
             return false;
         }
@@ -126,21 +142,33 @@ class Against implements CreatorInterface
             $assignedWithMapTry = $this->copyWithCounters($assignedWithMap);
             $assignedHomeMapTry = $this->copyCounters($assignedHomeMap);
             $this->assignHomeAway($gameRound, $homeAway, $assignedMapTry, $assignedWithMapTry, $assignedHomeMapTry);
-//            $homeAwaysForBatchTmp = array_values(array_filter(
-//                                                 $gamesForBatch,
-//                                                 function (TogetherGame|AgainstGame $game) use ($batch): bool {
-//                                                     return $this->areAllPlacesAssignable($batch, $game);
-//                                                 }
-//                                             ));
-            if ($this->assignGameRound($homeAwayCreator, $homeAways, $assignedMapTry, $assignedWithMapTry, $assignedHomeMapTry, $gameRound, $nrOfHomeAwaysTried)) {
+            $homeAwaysForGameRoundTmp = array_values(
+                array_filter(
+                    $homeAwaysForGameRound,
+                    function (AgainstHomeAway $homeAway) use ($gameRound/*,$assignedMap*/): bool {
+                        return $gameRound->isHomeAwayPlaceParticipating($homeAway);
+                        // return $this->isHomeAwayAssignable($gameRound, $homeAway, $assignedMap);
+                    }
+                )
+            );
+            if ($this->assignGameRound(
+                $homeAwayCreator,
+                $homeAwaysForGameRoundTmp,
+                $homeAways,
+                $assignedMapTry,
+                $assignedWithMapTry,
+                $assignedHomeMapTry,
+                $gameRound
+            )) {
                 return true;
             }
             $this->releaseHomeAway($gameRound, $homeAway);
         }
-        $homeAways[] = $homeAway;
+        $homeAwaysForGameRound[] = $homeAway;
         ++$nrOfHomeAwaysTried;
         return $this->assignGameRound(
             $homeAwayCreator,
+            $homeAwaysForGameRound,
             $homeAways,
             $assignedMap,
             $assignedWithMap,
@@ -151,12 +179,29 @@ class Against implements CreatorInterface
     }
 
     /**
+     * @param AgainstGameRound $gameRound
+     * @param list<AgainstHomeAway> $homeAways
+     * @return AgainstGameRound
+     */
+    protected function toNextGameRound(AgainstGameRound $gameRound, array &$homeAways): AgainstGameRound
+    {
+        foreach ($gameRound->getHomeAways() as $homeAway) {
+            $foundHomeAwayIndex = array_search($homeAway, $homeAways, true);
+            if ($foundHomeAwayIndex !== false) {
+                array_splice($homeAways, $foundHomeAwayIndex, 1);
+                $homeAways = array_values($homeAways);
+            }
+        }
+        return $gameRound->createNext();
+    }
+
+    /**
      * @param array<int, PlaceCounter> $placeCounters
      * @return array<int, PlaceCounter>
      */
     protected function copyCounters(array $placeCounters): array
     {
-        return array_map(fn (PlaceCounter $placeCounter) => clone $placeCounter, $placeCounters);
+        return array_map(fn(PlaceCounter $placeCounter) => clone $placeCounter, $placeCounters);
     }
 
     /**
