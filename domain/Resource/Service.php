@@ -4,25 +4,24 @@ namespace SportsPlanning\Resource;
 
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\PlaceRanges;
 use SportsHelpers\PouleStructure\Balanced as BalancedPouleStructure;
-use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
-use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
-use SportsPlanning\Place;
-use SportsPlanning\Poule;
-use SportsPlanning\Resource\Fields as FieldResources;
-use SportsPlanning\Planning;
-use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\SelfReferee;
-use SportsPlanning\Input;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\Output as BatchOutput;
-use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
+use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Output as GameOutput;
+use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Input;
+use SportsPlanning\Place;
+use SportsPlanning\Planning;
+use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Poule;
+use SportsPlanning\Resource\Fields as FieldResources;
 use SportsPlanning\Resource\RefereePlace\Predicter;
 use SportsPlanning\Sport;
 use SportsPlanning\TimeoutException;
@@ -70,7 +69,7 @@ class Service
         $this->timeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
         $batch = new Batch();
         if ($this->getInput()->selfRefereeEnabled()) {
-            if ($this->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
+            if ($this->getInput()->getSelfReferee() === SelfReferee::SamePoule) {
                 $batch = new SelfRefereeSamePouleBatch($batch);
             } else {
                 $poules = array_values($this->getInput()->getPoules()->toArray());
@@ -410,7 +409,7 @@ class Service
         }
 
         // aantal wedstrijden per batch
-        $selfRefereeSamePoule = $this->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE;
+        $selfRefereeSamePoule = $this->getInput()->getSelfReferee() === SelfReferee::SamePoule;
         $sportVariant = $game->getSport()->createVariant();
         $nrOfGamePlaces = $this->getNrOfGamePlaces($sportVariant, $nrOfPlaces, $selfRefereeSamePoule);
 

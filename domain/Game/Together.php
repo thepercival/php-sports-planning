@@ -116,8 +116,11 @@ class Together extends GameBase
 
     public function createVariant(): SingleSportVariant|AllInOneGameSportVariant
     {
-        if ($this->getSport()->getGameMode() === GameMode::SINGLE) {
-            return new SingleSportVariant($this->getSport()->getNrOfGamePlaces(), $this->getSport()->getNrOfGamesPerPlace());
+        if ($this->getSport()->getGameMode() === GameMode::Single) {
+            return new SingleSportVariant(
+                $this->getSport()->getNrOfGamePlaces(),
+                $this->getSport()->getNrOfGamesPerPlace()
+            );
         }
         return new AllInOneGameSportVariant($this->getSport()->getNrOfGamePlaces());
 

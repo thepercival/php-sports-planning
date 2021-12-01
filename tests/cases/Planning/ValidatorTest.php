@@ -10,26 +10,25 @@ use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use ReflectionObject;
+use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
 use SportsPlanning\Batch;
-use SportsHelpers\Against\Side as AgainstSide;
+use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
+use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Place\Against as AgainstGamePlace;
-use SportsHelpers\SelfReferee;
-use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
-use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
-use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 use SportsPlanning\Game\Assigner as GameAssigner;
-use SportsPlanning\Planning;
 use SportsPlanning\Game\Creator as GameCreator;
-use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
-use SportsPlanning\TestHelper\PlanningCreator;
-use SportsPlanning\TestHelper\PlanningReplacer;
-use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Game\Place\Against as AgainstGamePlace;
+use SportsPlanning\Planning;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Referee as PlanningReferee;
+use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
+use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
+use SportsPlanning\TestHelper\PlanningCreator;
+use SportsPlanning\TestHelper\PlanningReplacer;
 
 class ValidatorTest extends TestCase
 {
@@ -63,7 +62,7 @@ class ValidatorTest extends TestCase
     public function testHasEmptyGameRefereePlace(): void
     {
         $planning = $this->createPlanning(
-            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SAMEPOULE)
+            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SamePoule)
         );
 
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -159,7 +158,7 @@ class ValidatorTest extends TestCase
 
         $planningGame = $planning->getAgainstGames()->first();
         self::assertInstanceOf(AgainstGame::class, $planningGame);
-        $firstHomeGamePlace = $planningGame->getSidePlaces(AgainstSide::HOME)->first();
+        $firstHomeGamePlace = $planningGame->getSidePlaces(AgainstSide::Home)->first();
         // $firstHomePlace = $firstHomeGamePlace->getPlace();
         // $firstAwayPlace = $planningGame->getPlaces(Game::AWAY)->first()->getPlace();
         self::assertInstanceOf(AgainstGamePlace::class, $firstHomeGamePlace);
@@ -314,7 +313,7 @@ class ValidatorTest extends TestCase
                 [$sportVariantWithFields],
                 GamePlaceStrategy::EquallyAssigned,
                 null,
-                SelfReferee::SAMEPOULE
+                SelfReferee::SamePoule
             )
         );
 
@@ -331,7 +330,7 @@ class ValidatorTest extends TestCase
         self::assertTrue($firstBatch instanceof SelfRefereeBatchSamePoule
                          || $firstBatch instanceof SelfRefereeBatchOtherPoule);
         $this->replaceRefereePlace(
-            $planning->getInput()->getSelfReferee() !== SelfReferee::SAMEPOULE,
+            $planning->getInput()->getSelfReferee() !== SelfReferee::SamePoule,
             $firstBatch,
             $planning->getInput()->getPoule(1)->getPlace(1),
             $planning->getInput()->getPoule(2)->getPlace(1)
@@ -352,7 +351,13 @@ class ValidatorTest extends TestCase
     {
         $sportVariantWithFields = $this->getAgainstSportVariantWithFields(1);
         $planning = $this->createPlanning(
-            $this->createInput([5], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SAMEPOULE)
+            $this->createInput(
+                [5],
+                [$sportVariantWithFields],
+                GamePlaceStrategy::EquallyAssigned,
+                null,
+                SelfReferee::SamePoule
+            )
         );
 
         $firstBatch = $planning->createFirstBatch();
@@ -389,7 +394,13 @@ class ValidatorTest extends TestCase
     {
         $sportVariantWithFields = $this->getAgainstSportVariantWithFields(1);
         $planning = $this->createPlanning(
-            $this->createInput([5,4], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, null, SelfReferee::OTHERPOULES)
+            $this->createInput(
+                [5, 4],
+                [$sportVariantWithFields],
+                GamePlaceStrategy::EquallyAssigned,
+                null,
+                SelfReferee::OtherPoules
+            )
         );
         $refereePlaceService = new RefereePlaceService($planning);
         $firstBatch = $planning->createFirstBatch();
@@ -446,14 +457,14 @@ class ValidatorTest extends TestCase
         // ---------------- MAKE INVALID --------------------- //
         $planningGame = $planning->getAgainstGames()->first();
         self::assertInstanceOf(AgainstGame::class, $planningGame);
-        $firstHomeGamePlace = $planningGame->getSidePlaces(AgainstSide::HOME)->first();
-        $firstAwayGamePlace = $planningGame->getSidePlaces(AgainstSide::AWAY)->first();
+        $firstHomeGamePlace = $planningGame->getSidePlaces(AgainstSide::Home)->first();
+        $firstAwayGamePlace = $planningGame->getSidePlaces(AgainstSide::Away)->first();
         self::assertInstanceOf(AgainstGamePlace::class, $firstHomeGamePlace);
         self::assertInstanceOf(AgainstGamePlace::class, $firstAwayGamePlace);
         $planningGame->getPlaces()->removeElement($firstHomeGamePlace);
         $planningGame->getPlaces()->removeElement($firstAwayGamePlace);
-        new AgainstGamePlace($planningGame, $firstAwayGamePlace->getPlace(), AgainstSide::HOME);
-        new AgainstGamePlace($planningGame, $firstHomeGamePlace->getPlace(), AgainstSide::AWAY);
+        new AgainstGamePlace($planningGame, $firstAwayGamePlace->getPlace(), AgainstSide::Home);
+        new AgainstGamePlace($planningGame, $firstHomeGamePlace->getPlace(), AgainstSide::Away);
         // ---------------- MAKE INVALID --------------------- //
 
         // (new PlanningOutput())->outputWithGames($planning, true);

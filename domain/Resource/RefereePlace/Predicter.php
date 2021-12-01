@@ -21,10 +21,10 @@ class Predicter
 
     public function canStillAssign(SelfRefereeBatch $batch, SelfReferee $selfReferee): bool
     {
-        if ($selfReferee === SelfReferee::DISABLED) {
+        if ($selfReferee === SelfReferee::Disabled) {
             return true;
         }
-        if ($selfReferee === SelfReferee::SAMEPOULE) {
+        if ($selfReferee === SelfReferee::SamePoule) {
             return $this->validatePouleAssignmentsSamePoule($batch) && $this->validateTooMuchForcedAssignmentDiffernce(
                     $batch
                 );

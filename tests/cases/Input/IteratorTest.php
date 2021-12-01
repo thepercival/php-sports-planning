@@ -4,9 +4,9 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\Input;
 
 use PHPUnit\Framework\TestCase;
-use SportsPlanning\Input\Iterator as InputIterator;
-use SportsHelpers\SportRange;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SportRange;
+use SportsPlanning\Input\Iterator as InputIterator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class IteratorTest extends TestCase
@@ -29,7 +29,7 @@ class IteratorTest extends TestCase
         // self::assertGreaterThan(30, $inputIterator->key());
         self::assertEquals([2], $planningInput->createPouleStructure()->toArray());
         self::assertCount(0, $planningInput->getReferees());
-        self::assertEquals(SelfReferee::DISABLED, $planningInput->getSelfReferee());
+        self::assertEquals(SelfReferee::Disabled, $planningInput->getSelfReferee());
     }
 
 //    public function testLast()

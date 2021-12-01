@@ -172,7 +172,7 @@ class Planning extends Identifiable
         $games = $this->getGames(Game::ORDER_BY_BATCH);
         $batch = new Batch();
         if ($this->input->selfRefereeEnabled()) {
-            if ($this->input->getSelfReferee() === SelfReferee::SAMEPOULE) {
+            if ($this->input->getSelfReferee() === SelfReferee::SamePoule) {
                 $batch = new SelfRefereeSamePouleBatch($batch);
             } else {
                 $poules = array_values($this->input->getPoules()->toArray());

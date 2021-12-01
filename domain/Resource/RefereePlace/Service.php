@@ -3,16 +3,15 @@
 namespace SportsPlanning\Resource\RefereePlace;
 
 use DateTimeImmutable;
-use SportsPlanning\Batch\Output as BatchOutput;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Together as TogetherGame;
 use SportsHelpers\SelfReferee;
-use SportsPlanning\Planning;
-use SportsPlanning\Game;
-use SportsPlanning\Place;
-use SportsPlanning\Input;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
+use SportsPlanning\Game;
+use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Input;
+use SportsPlanning\Place;
+use SportsPlanning\Planning;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
 use SportsPlanning\TimeoutException;
 
@@ -25,7 +24,7 @@ class Service
     public function __construct(private Planning $planning)
     {
         $this->nrOfPlaces = $this->planning->getInput()->getNrOfPlaces();
-        $this->replacer = new Replacer($planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE);
+        $this->replacer = new Replacer($planning->getInput()->getSelfReferee() === SelfReferee::SamePoule);
         $this->throwOnTimeout = true;
     }
 
@@ -121,7 +120,7 @@ class Service
         if ($batch->getBase()->isParticipating($refereePlace) || $batch->isParticipatingAsReferee($refereePlace)) {
             return false;
         }
-        if ($this->planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
+        if ($this->planning->getInput()->getSelfReferee() === SelfReferee::SamePoule) {
             return $refereePlace->getPoule() === $game->getPoule();
         }
 //        if (array_key_exists($batch->getNumber(), $this->canBeSamePoule)

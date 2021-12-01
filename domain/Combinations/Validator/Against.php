@@ -5,16 +5,13 @@ namespace SportsPlanning\Combinations\Validator;
 
 use drupol\phpermutations\Iterators\Combinations as CombinationIt;
 use SportsHelpers\Against\Side;
+use SportsPlanning\Combinations\MultipleCombinationsCounter\Against as AgainstCounter;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\Validator;
-use SportsPlanning\Game\Place\Against as AgainstGamePlace;
-use SportsPlanning\Combinations\MultipleCombinationsCounter\Against as AgainstCounter;
-use SportsPlanning\Combinations\MultipleCombinationsCounter\With as WithCounter;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 use SportsPlanning\Sport;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 
 /**
  * @template-extends Validator<AgainstCounter>
@@ -61,8 +58,8 @@ class Against extends Validator
         if ($game->getSport() !== $this->sport) {
             return;
         }
-        $homePlaceCombination = $this->getPlaceCombination($game, Side::HOME);
-        $awayPlaceCombination = $this->getPlaceCombination($game, Side::AWAY);
+        $homePlaceCombination = $this->getPlaceCombination($game, Side::Home);
+        $awayPlaceCombination = $this->getPlaceCombination($game, Side::Away);
         if (isset($this->counters[$homePlaceCombination->getNumber()])) {
             $this->counters[$homePlaceCombination->getNumber()]->addCombination($awayPlaceCombination);
         }

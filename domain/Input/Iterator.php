@@ -72,7 +72,7 @@ class Iterator implements \Iterator
 
     protected function rewindSelfReferee(): void
     {
-        $this->selfReferee = SelfReferee::DISABLED;
+        $this->selfReferee = SelfReferee::Disabled;
     }
 
     public function current() : ?PlanningInput
@@ -128,7 +128,7 @@ class Iterator implements \Iterator
 //        }
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->rewindStructure();
         $pouleStructure = $this->structureIterator->current();
@@ -165,7 +165,7 @@ class Iterator implements \Iterator
 
     protected function incrementSelfReferee(): bool
     {
-        if ($this->nrOfReferees > 0 || $this->selfReferee === SelfReferee::SAMEPOULE) {
+        if ($this->nrOfReferees > 0 || $this->selfReferee === SelfReferee::SamePoule) {
             return $this->incrementNrOfReferees();
         }
         $pouleStructure = $this->structureIterator->current();
@@ -180,11 +180,11 @@ class Iterator implements \Iterator
         if ($selfRefereeIsAvailable === false) {
             return $this->incrementNrOfReferees();
         }
-        if ($this->selfReferee === SelfReferee::DISABLED) {
+        if ($this->selfReferee === SelfReferee::Disabled) {
             if ($this->planningInputService->canSelfRefereeOtherPoulesBeAvailable($pouleStructure)) {
-                $this->selfReferee = SelfReferee::OTHERPOULES;
+                $this->selfReferee = SelfReferee::OtherPoules;
             } else {
-                $this->selfReferee = SelfReferee::SAMEPOULE;
+                $this->selfReferee = SelfReferee::SamePoule;
             }
         } else {
             $selfRefereeSamePouleAvailable = $this->planningInputService->canSelfRefereeSamePouleBeAvailable(
@@ -194,7 +194,7 @@ class Iterator implements \Iterator
             if (!$selfRefereeSamePouleAvailable) {
                 return $this->incrementNrOfReferees();
             }
-            $this->selfReferee = SelfReferee::SAMEPOULE;
+            $this->selfReferee = SelfReferee::SamePoule;
         }
         return true;
     }

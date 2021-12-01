@@ -105,7 +105,7 @@ trait PlanningCreator
             $nrOfReferees = $this->getDefaultNrOfReferees();
         }
         if ($selfReferee === null) {
-            $selfReferee = SelfReferee::DISABLED;
+            $selfReferee = SelfReferee::Disabled;
         }
         $input = new Input(
             new PouleStructure(...$pouleStructureAsArray),

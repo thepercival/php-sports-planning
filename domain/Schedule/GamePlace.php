@@ -55,7 +55,7 @@ class GamePlace extends Identifiable
         $retVal = (string)$this->getNumber();
         $retVal .= '(';
         if ($this->againstSide !== null) {
-            $retVal .= $this->getAgainstSide() === AgainstSide::HOME ? 'H' : 'A';
+            $retVal .= $this->getAgainstSide() === AgainstSide::Home ? 'H' : 'A';
         } else {
             $retVal .= $this->getGameRoundNumber();
         }

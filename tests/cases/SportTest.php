@@ -16,7 +16,7 @@ class SportTest extends TestCase
     {
         $input = $this->createInput([3]);
         $dbSportVariant = new PersistSportVariant(
-            GameMode::AGAINST,
+            GameMode::Against,
             1,
             1,
             0,

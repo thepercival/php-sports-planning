@@ -70,7 +70,7 @@ class Creator
         foreach ($sportSchedule->getGames() as $gameRoundGame) {
             if ($sportVariant instanceof AgainstSportVariant) {
                 $game = new AgainstGame($planning, $poule, $defaultField, $gameRoundGame->getGameRoundNumber());
-                foreach ([AgainstSide::HOME, AgainstSide::AWAY] as $side) {
+                foreach ([AgainstSide::Home, AgainstSide::Away] as $side) {
                     $sidePlaces = $gameRoundGame->getSidePlaces($poule, $side);
                     foreach ($sidePlaces as $place) {
                         new AgainstGamePlace($game, $place, $side);

@@ -90,11 +90,11 @@ class Against extends Game
 
     public function getSide(Place $place): AgainstSide
     {
-        if ($this->isParticipating($place, AgainstSide::HOME)) {
-            return AgainstSide::HOME;
+        if ($this->isParticipating($place, AgainstSide::Home)) {
+            return AgainstSide::Home;
         }
-        if ($this->isParticipating($place, AgainstSide::AWAY)) {
-            return AgainstSide::AWAY;
+        if ($this->isParticipating($place, AgainstSide::Away)) {
+            return AgainstSide::Away;
         }
         throw new Exception('kan kant niet vinden', E_ERROR);
     }

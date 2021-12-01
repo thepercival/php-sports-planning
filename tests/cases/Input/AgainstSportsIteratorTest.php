@@ -5,9 +5,9 @@ namespace SportsPlanning\Tests\Input;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\SportRange;
 use SportsPlanning\Input\AgainstSportsIterator;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class AgainstSportsIteratorTest extends TestCase
@@ -25,7 +25,7 @@ class AgainstSportsIteratorTest extends TestCase
         $sportVariant = $sportVariantWithFields->getSportVariant();
         self::assertInstanceOf(AgainstSportVariant::class, $sportVariant);
         self::assertGreaterThan(50, $sportsIterator->key());
-        self::assertEquals(GameMode::AGAINST, $sportVariant->getGameMode());
+        self::assertEquals(GameMode::Against, $sportVariant->getGameMode());
         self::assertEquals(2, $sportVariant->getNrOfGamePlaces());
         self::assertEquals(1, $sportVariantWithFields->getNrOfFields());
         self::assertEquals(1, $sportVariant->getNrOfH2H());
@@ -47,7 +47,7 @@ class AgainstSportsIteratorTest extends TestCase
         $sportVariant = $sportVariantWithFields->getSportVariant();
         self::assertInstanceOf(AgainstSportVariant::class, $sportVariant);
 
-        self::assertEquals(GameMode::AGAINST, $sportVariant->getGameMode());
+        self::assertEquals(GameMode::Against, $sportVariant->getGameMode());
         self::assertEquals(4, $sportVariant->getNrOfGamePlaces());
         self::assertEquals(2, $sportVariantWithFields->getNrOfFields());
         self::assertEquals(0, $sportVariant->getNrOfH2H());

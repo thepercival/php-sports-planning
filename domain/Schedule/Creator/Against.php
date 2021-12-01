@@ -7,16 +7,16 @@ namespace SportsPlanning\Schedule\Creator;
 use Exception;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsPlanning\Combinations\AgainstHomeAway;
-use SportsPlanning\Schedule\Game;
-use SportsPlanning\Schedule\GamePlace;
-use SportsPlanning\Schedule;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
-use SportsPlanning\Schedule\Sport as SportSchedule;
 use SportsPlanning\GameRound\Creator\Against as AgainstGameRoundCreator;
 use SportsPlanning\Poule;
+use SportsPlanning\Schedule;
+use SportsPlanning\Schedule\Game;
+use SportsPlanning\Schedule\GamePlace;
+use SportsPlanning\Schedule\Sport as SportSchedule;
 use SportsPlanning\Sport;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 
 class Against implements CreatorInterface
 {
@@ -126,7 +126,7 @@ class Against implements CreatorInterface
 //        while ($gameRound !== null) {
 //            foreach ($gameRound->getHomeAways() as $homeAway) {
 //                $game = new AgainstGame($this->planning, $poule, $this->getDefaultField(), $gameRound->getNumber());
-//                foreach ([AgainstSide::HOME, AgainstSide::AWAY] as $side) {
+//                foreach ([AgainstSide::Home, AgainstSide::Away] as $side) {
 //                    foreach ($homeAway->get($side)->getPlaces() as $place) {
 //                        new AgainstGamePlace($game, $place, $side);
 //                    }
@@ -149,7 +149,7 @@ class Against implements CreatorInterface
         while ($gameRound !== null) {
             foreach ($gameRound->getHomeAways() as $homeAway) {
                 $game = new Game($sportSchedule, $gameRound->getNumber());
-                foreach ([AgainstSide::HOME, AgainstSide::AWAY] as $side) {
+                foreach ([AgainstSide::Home, AgainstSide::Away] as $side) {
                     foreach ($homeAway->get($side)->getPlaces() as $place) {
                         $gamePlace = new GamePlace($game, $place->getNumber());
                         $gamePlace->setAgainstSide($side);

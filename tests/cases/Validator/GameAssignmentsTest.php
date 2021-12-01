@@ -11,11 +11,10 @@ use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Combinations\GamePlaceStrategy;
-use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Planning\Validator\GameAssignments as GameAssignmentValidator;
+use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
-use SportsPlanning\Planning\Output as PlanningOutput;
 
 class GameAssignmentsTest extends TestCase
 {
@@ -56,7 +55,9 @@ class GameAssignmentsTest extends TestCase
 
     public function testGetCountersRefereePlaces(): void
     {
-        $planning = $this->createPlanning($this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SAMEPOULE));
+        $planning = $this->createPlanning(
+            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SamePoule)
+        );
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -75,7 +76,7 @@ class GameAssignmentsTest extends TestCase
     public function testGetUnequalRefereePlaces(): void
     {
         $planning = $this->createPlanning(
-            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SAMEPOULE)
+            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SamePoule)
         );
 
         $firstPoule = $planning->getInput()->getPoule(1);
@@ -85,7 +86,7 @@ class GameAssignmentsTest extends TestCase
         self::assertTrue($firstBatch instanceof SelfRefereeBatchOtherPoule
             || $firstBatch instanceof SelfRefereeBatchSamePoule);
         $this->replaceRefereePlace(
-            $planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE,
+            $planning->getInput()->getSelfReferee() === SelfReferee::SamePoule,
             $firstBatch,
             $replacedPlace,
             $replacedByPlace
@@ -121,7 +122,7 @@ class GameAssignmentsTest extends TestCase
     public function testValidateRefereePlacesTwoPoulesNotEqualySized(): void
     {
         $planning = $this->createPlanning(
-            $this->createInput([5,4], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::OTHERPOULES)
+            $this->createInput([5, 4], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::OtherPoules)
         );
 
         $secondPoule = $planning->getInput()->getPoule(2);
@@ -131,7 +132,7 @@ class GameAssignmentsTest extends TestCase
         self::assertTrue($firstBatch instanceof SelfRefereeBatchOtherPoule
                          || $firstBatch instanceof SelfRefereeBatchSamePoule);
         $this->replaceRefereePlace(
-            $planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE,
+            $planning->getInput()->getSelfReferee() === SelfReferee::SamePoule,
             $firstBatch,
             $replacedPlace,
             $replacedByPlace
@@ -190,7 +191,7 @@ class GameAssignmentsTest extends TestCase
     public function testValidateUnequalRefereePlaces(): void
     {
         $planning = $this->createPlanning(
-            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SAMEPOULE)
+            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SamePoule)
         );
 
         $firstPoule = $planning->getInput()->getPoule(1);
@@ -200,7 +201,7 @@ class GameAssignmentsTest extends TestCase
         self::assertTrue($firstBatch instanceof SelfRefereeBatchOtherPoule
                          || $firstBatch instanceof SelfRefereeBatchSamePoule);
         $this->replaceRefereePlace(
-            $planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE,
+            $planning->getInput()->getSelfReferee() === SelfReferee::SamePoule,
             $firstBatch,
             $replacedPlace,
             $replacedByPlace
@@ -230,7 +231,7 @@ class GameAssignmentsTest extends TestCase
     public function testValidate(): void
     {
         $planning = $this->createPlanning(
-            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SAMEPOULE)
+            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SamePoule)
         );
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);

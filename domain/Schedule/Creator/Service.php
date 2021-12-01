@@ -50,7 +50,7 @@ class Service
             $schedules[$nrOfPlaces] = $schedule;
 
             $assignedCounter = new AssignedCounter($poule, $sportVariants);
-            foreach ([GameMode::ALL_IN_ONE_GAME, GameMode::AGAINST, GameMode::SINGLE] as $gameMode) {
+            foreach ([GameMode::AllInOneGame, GameMode::Against, GameMode::Single] as $gameMode) {
                 $sports = $this->getSports($input, $gameMode);
                 if (count($sports) === 0) {
                     continue;
@@ -83,9 +83,9 @@ class Service
             return $this->generatorMap;
         }
         $this->generatorMap = [];
-        $this->generatorMap[GameMode::ALL_IN_ONE_GAME->name] = new AllInOneGame();
-        $this->generatorMap[GameMode::AGAINST->name] = new Against($this->logger);
-        $this->generatorMap[GameMode::SINGLE->name] = new Single($this->logger);
+        $this->generatorMap[GameMode::AllInOneGame->name] = new AllInOneGame();
+        $this->generatorMap[GameMode::Against->name] = new Against($this->logger);
+        $this->generatorMap[GameMode::Single->name] = new Single($this->logger);
         return $this->generatorMap;
     }
 

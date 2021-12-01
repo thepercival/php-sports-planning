@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
-use Exception;
 use Doctrine\ORM\EntityRepository;
-use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\PouleStructure;
+use SportsHelpers\Repository as BaseRepository;
+use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
 use SportsPlanning\Input as InputBase;
 use SportsPlanning\Planning;
@@ -79,14 +79,14 @@ class Repository extends EntityRepository
      * @param bool $validateInvalid
      * @param int $limit
      * @param PouleStructure|null $pouleStructure
-     * @param int|null $selfReferee
+     * @param SelfReferee|null $selfReferee
      * @return list<InputBase>
      */
     public function findNotValidated(
         bool $validateInvalid,
         int $limit,
-        PouleStructure $pouleStructure = null,
-        int $selfReferee = null
+        PouleStructure|null $pouleStructure = null,
+        SelfReferee|null $selfReferee = null
     ): array {
         $exprNot = $this->_em->getExpressionBuilder();
         $exprInvalidStates = $this->_em->getExpressionBuilder();

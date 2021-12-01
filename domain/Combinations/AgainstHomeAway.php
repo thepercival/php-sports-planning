@@ -16,7 +16,7 @@ class AgainstHomeAway implements \Stringable
 
     public function get(AgainstSide $side): PlaceCombination
     {
-        return $side === AgainstSide::HOME ? $this->home : $this->away;
+        return $side === AgainstSide::Home ? $this->home : $this->away;
     }
 
     public function getHome(): PlaceCombination
@@ -59,6 +59,6 @@ class AgainstHomeAway implements \Stringable
     }
 
     public function __toString(): string {
-        return $this->get(AgainstSide::HOME) . ' vs ' . $this->get(AgainstSide::AWAY);
+        return $this->get(AgainstSide::Home) . ' vs ' . $this->get(AgainstSide::Away);
     }
 }

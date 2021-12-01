@@ -70,7 +70,7 @@ class AgainstSportsIterator implements \Iterator
         return (string)$this->current;
     }
 
-    public function next()
+    public function next(): void
     {
         if ($this->current === null) {
             return;
@@ -82,7 +82,7 @@ class AgainstSportsIterator implements \Iterator
         $this->current = $this->createAgainstSportVariantWithFields();
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->rewindNrOfFields();
         $this->current = $this->createAgainstSportVariantWithFields();

@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace SportsPlanning\Planning;
 
 use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\SelfReferee;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsPlanning\Combinations\GamePlaceStrategy;
-use SportsPlanning\Game;
 use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
 use SportsPlanning\Combinations\Validator\With as WithValidator;
-use SportsPlanning\Input;
-use SportsPlanning\Poule;
-use SportsHelpers\SelfReferee;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Place;
-use SportsPlanning\Sport;
-use SportsPlanning\Planning\Validator\GameAssignments;
-use SportsPlanning\Planning;
 use SportsPlanning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
-use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
 use SportsPlanning\Exception\UnequalAssignedRefereePlaces as UnequalAssignedRefereePlacesException;
+use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
+use SportsPlanning\Game;
+use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Input;
+use SportsPlanning\Place;
+use SportsPlanning\Planning;
+use SportsPlanning\Planning\Validator\GameAssignments;
+use SportsPlanning\Poule;
+use SportsPlanning\Sport;
 
 class Validator
 {
@@ -220,8 +220,8 @@ class Validator
                 if (!$game instanceof AgainstGame) {
                     return self::UNEQUAL_GAME_HOME_AWAY;
                 }
-                $homePlaces = $game->getSidePlaces(AgainstSide::HOME);
-                $awayPlaces = $game->getSidePlaces(AgainstSide::AWAY);
+                $homePlaces = $game->getSidePlaces(AgainstSide::Home);
+                $awayPlaces = $game->getSidePlaces(AgainstSide::Away);
                 $nrOfHomePlaces = count($homePlaces);
                 $nrOfAwayPlaces = count($awayPlaces);
                 if ($nrOfHomePlaces === 0 || $nrOfAwayPlaces === 0) {
@@ -229,7 +229,7 @@ class Validator
                 }
                 if ($sportVariant->getNrOfHomePlaces() === $sportVariant->getNrOfAwayPlaces()) {
                     if ($sportVariant->getNrOfHomePlaces() !== $nrOfHomePlaces
-                    || $sportVariant->getNrOfAwayPlaces() !== $nrOfAwayPlaces) {
+                        || $sportVariant->getNrOfAwayPlaces() !== $nrOfAwayPlaces) {
                         return self::UNEQUAL_GAME_HOME_AWAY;
                     }
                 } else {
@@ -309,11 +309,11 @@ class Validator
                 if ($refereePlace === null) {
                     return self::EMPTY_REFEREEPLACE;
                 }
-                if ($planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE
+                if ($planning->getInput()->getSelfReferee() === SelfReferee::SamePoule
                     && $refereePlace->getPoule() !== $game->getPoule()) {
                     return self::INVALID_ASSIGNED_REFEREEPLACE;
                 }
-                if ($planning->getInput()->getSelfReferee() === SelfReferee::OTHERPOULES
+                if ($planning->getInput()->getSelfReferee() === SelfReferee::OtherPoules
                     && $refereePlace->getPoule() === $game->getPoule()) {
                     return self::INVALID_ASSIGNED_REFEREEPLACE;
                 }

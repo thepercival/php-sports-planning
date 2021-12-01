@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Planning\Validator;
 
+use SportsHelpers\SelfReferee;
 use SportsPlanning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
-use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
 use SportsPlanning\Exception\UnequalAssignedRefereePlaces as UnequalAssignedRefereePlacesException;
+use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
 use SportsPlanning\Game;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Resource\GameCounter;
-use SportsHelpers\SelfReferee;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
 use SportsPlanning\Resource\GameCounter\Unequal as UnequalGameCounter;
 
@@ -123,7 +123,7 @@ class GameAssignments
     protected function shouldValidatePerPoule(): bool
     {
         $nrOfPoules = $this->planning->getInput()->getPoules()->count();
-        if ($this->planning->getInput()->getSelfReferee() === SelfReferee::SAMEPOULE) {
+        if ($this->planning->getInput()->getSelfReferee() === SelfReferee::SamePoule) {
             return true;
         }
         if (($this->planning->getInput()->getPlaces()->count() % $nrOfPoules) === 0) {

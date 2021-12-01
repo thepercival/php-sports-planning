@@ -77,8 +77,8 @@ class Input extends Identifiable
                 new Field($sport);
             }
         }
-        if ($selfReferee === SelfReferee::DISABLED) {
-            for ($refNr = 1 ; $refNr <= $nrOfReferees ; $refNr++) {
+        if ($selfReferee === SelfReferee::Disabled) {
+            for ($refNr = 1; $refNr <= $nrOfReferees; $refNr++) {
                 new Referee($this);
             }
         }
@@ -327,7 +327,7 @@ class Input extends Identifiable
 
     public function selfRefereeEnabled(): bool
     {
-        return $this->selfReferee !== SelfReferee::DISABLED;
+        return $this->selfReferee !== SelfReferee::Disabled;
     }
 
     public function getMaxNrOfBatchGames(): int
@@ -465,11 +465,11 @@ class Input extends Identifiable
 
     protected function getSelfRefereeAsString(): string
     {
-        if ($this->selfReferee === SelfReferee::DISABLED) {
+        if ($this->selfReferee === SelfReferee::Disabled) {
             return '';
-        } elseif ($this->selfReferee === SelfReferee::OTHERPOULES) {
+        } elseif ($this->selfReferee === SelfReferee::OtherPoules) {
             return 'OP';
-        } elseif ($this->selfReferee === SelfReferee::SAMEPOULE) {
+        } elseif ($this->selfReferee === SelfReferee::SamePoule) {
             return 'SP';
         }
         return '?';

@@ -6,16 +6,15 @@ namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\Collection;
 use Psr\Log\LoggerInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Batch;
-use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
+use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
-use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
+use SportsPlanning\Game\Together as TogetherGame;
 
 class Output extends OutputHelper
 {
@@ -73,8 +72,8 @@ class Output extends OutputHelper
     ): string {
         $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
         if ($game instanceof AgainstGame) {
-            $homeGamePlaces = $this->getPlacesHelper($game->getSidePlaces(AgainstSide::HOME), $batch, $useColors);
-            $awayGamePlaces = $this->getPlacesHelper($game->getSidePlaces(AgainstSide::AWAY), $batch, $useColors);
+            $homeGamePlaces = $this->getPlacesHelper($game->getSidePlaces(AgainstSide::Home), $batch, $useColors);
+            $awayGamePlaces = $this->getPlacesHelper($game->getSidePlaces(AgainstSide::Away), $batch, $useColors);
             return $homeGamePlaces . ' vs ' . $awayGamePlaces;
         }
         return $this->getPlacesHelper($game->getPlaces(), $batch, $useColors);

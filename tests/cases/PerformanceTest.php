@@ -8,7 +8,6 @@ use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Planning\Validator as PlanningValidator;
-use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class PerformanceTest extends TestCase
@@ -22,7 +21,13 @@ class PerformanceTest extends TestCase
         $nrOfGamesPerBatchRange = new SportRange(4, 4);
         $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(6);
         $planning = $this->createPlanning(
-            $this->createInput([5,4,4,4,4,4], [$sportVariantsWithFields], GamePlaceStrategy::EquallyAssigned, 0, SelfReferee::SAMEPOULE),
+            $this->createInput(
+                [5, 4, 4, 4, 4, 4],
+                [$sportVariantsWithFields],
+                GamePlaceStrategy::EquallyAssigned,
+                0,
+                SelfReferee::SamePoule
+            ),
             $nrOfGamesPerBatchRange
         );
 
