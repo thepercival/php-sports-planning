@@ -29,7 +29,7 @@ class Against implements CreatorInterface
 
     public function __construct(
         protected AgainstSportVariant $sportVariant,
-        protected int $gamePlaceStrategy,
+        protected GamePlaceStrategy $gamePlaceStrategy,
         LoggerInterface $logger
     ) {
         $this->gameRoundOutput = new GameRoundOutput($logger);

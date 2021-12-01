@@ -60,10 +60,10 @@ class Against extends Game
     }
 
     /**
-     * @param int|null $side
+     * @param AgainstSide|null $side
      * @return Collection<int|string,AgainstGamePlace>
      */
-    public function getSidePlaces(int $side = null): Collection
+    public function getSidePlaces(AgainstSide $side = null): Collection
     {
         if ($side === null) {
             return $this->getPlaces();
@@ -75,12 +75,12 @@ class Against extends Game
         );
     }
 
-    public function addPlace(Place $place, int $side): AgainstGamePlace
+    public function addPlace(Place $place, AgainstSide $side): AgainstGamePlace
     {
         return new AgainstGamePlace($this, $place, $side);
     }
 
-    public function isParticipating(Place $place, int|null $side = null): bool
+    public function isParticipating(Place $place, AgainstSide|null $side = null): bool
     {
         $places = $this->getSidePlaces($side)->map(function ($gamePlace): Place {
             return $gamePlace->getPlace();
@@ -88,7 +88,7 @@ class Against extends Game
         return $places->contains($place);
     }
 
-    public function getSide(Place $place): int
+    public function getSide(Place $place): AgainstSide
     {
         if ($this->isParticipating($place, AgainstSide::HOME)) {
             return AgainstSide::HOME;

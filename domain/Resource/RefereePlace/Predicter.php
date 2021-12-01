@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Resource\RefereePlace;
 
-use SportsPlanning\Poule;
 use SportsHelpers\SelfReferee;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
+use SportsPlanning\Poule;
 use SportsPlanning\PouleCounter;
 
 class Predicter
@@ -19,15 +19,19 @@ class Predicter
     {
     }
 
-    public function canStillAssign(SelfRefereeBatch $batch, int $selfReferee): bool
+    public function canStillAssign(SelfRefereeBatch $batch, SelfReferee $selfReferee): bool
     {
         if ($selfReferee === SelfReferee::DISABLED) {
             return true;
         }
         if ($selfReferee === SelfReferee::SAMEPOULE) {
-            return $this->validatePouleAssignmentsSamePoule($batch) && $this->validateTooMuchForcedAssignmentDiffernce($batch);
+            return $this->validatePouleAssignmentsSamePoule($batch) && $this->validateTooMuchForcedAssignmentDiffernce(
+                    $batch
+                );
         }
-        return $this->validatePouleAssignmentsOtherPoules($batch) && $this->validateTooMuchForcedAssignmentDiffernce($batch);
+        return $this->validatePouleAssignmentsOtherPoules($batch) && $this->validateTooMuchForcedAssignmentDiffernce(
+                $batch
+            );
     }
 
     protected function validatePouleAssignmentsSamePoule(SelfRefereeBatch $batch): bool

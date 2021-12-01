@@ -5,6 +5,7 @@ namespace SportsPlanning\Schedule;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Identifiable;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
@@ -43,11 +44,11 @@ class Game extends Identifiable
 
     /**
      * @param Poule $poule
-     * @param int $againstSide
+     * @param AgainstSide $againstSide
      * @return list<Place>
      * @throws \Exception
      */
-    public function getSidePlaces(Poule $poule, int $againstSide): array
+    public function getSidePlaces(Poule $poule, AgainstSide $againstSide): array
     {
         $poulePlaces = [];
         foreach ($this->getGamePlaces() as $gameRoundGamePlace) {

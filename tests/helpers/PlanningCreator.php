@@ -7,26 +7,29 @@ namespace SportsPlanning\TestHelper;
 use Exception;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
-use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
-use SportsHelpers\SportRange;
-use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
-use SportsPlanning\Combinations\GamePlaceStrategy;
-use SportsPlanning\Game\Assigner as GameAssigner;
-use SportsPlanning\Planning;
-use SportsPlanning\Game\Creator as GameCreator;
-use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
-use SportsPlanning\Input;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
+use SportsHelpers\SportRange;
+use SportsPlanning\Combinations\GamePlaceStrategy;
+use SportsPlanning\Game\Assigner as GameAssigner;
+use SportsPlanning\Game\Creator as GameCreator;
+use SportsPlanning\Input;
+use SportsPlanning\Planning;
+use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 
 trait PlanningCreator
 {
-    protected function getAgainstSportVariant(int $nrOfHomePlaces = 1, int $nrOfAwayPlaces = 1, int $nrOfH2H = 1, int $nrOfGamesPerPlace = 0): AgainstSportVariant
-    {
+    protected function getAgainstSportVariant(
+        int $nrOfHomePlaces = 1,
+        int $nrOfAwayPlaces = 1,
+        int $nrOfH2H = 1,
+        int $nrOfGamesPerPlace = 0
+    ): AgainstSportVariant {
         return new AgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfGamesPerPlace);
     }
 
@@ -80,16 +83,17 @@ trait PlanningCreator
     /**
      * @param list<int> $pouleStructureAsArray
      * @param list<SportVariantWithFields>|null $sportVariantsWithFields
+     * @param GamePlaceStrategy|null $gamePlaceStrategy
      * @param int|null $nrOfReferees
-     * @param int|null $selfReferee
+     * @param SelfReferee|null $selfReferee
      * @return Input
      */
     protected function createInput(
         array $pouleStructureAsArray,
         array $sportVariantsWithFields = null,
-        int $gamePlaceStrategy = null,
+        GamePlaceStrategy $gamePlaceStrategy = null,
         int $nrOfReferees = null,
-        int $selfReferee = null
+        SelfReferee $selfReferee = null
     ) {
         if ($sportVariantsWithFields === null) {
             $sportVariantsWithFields = [$this->getAgainstSportVariantWithFields(2)];

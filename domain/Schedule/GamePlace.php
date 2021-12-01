@@ -10,7 +10,7 @@ use SportsHelpers\Identifiable;
 class GamePlace extends Identifiable
 {
     protected int|null $gameRoundNumber = null;
-    protected int|null $againstSide = null;
+    protected AgainstSide|null $againstSide = null;
 
     public function __construct(protected Game $game, protected int $number)
     {
@@ -37,7 +37,7 @@ class GamePlace extends Identifiable
         $this->gameRoundNumber = $gameRoundNumber;
     }
 
-    public function getAgainstSide(): int
+    public function getAgainstSide(): AgainstSide
     {
         if ($this->againstSide === null) {
             throw new \Exception('gameround-gameplace->againstside can not be null', E_ERROR);
@@ -45,7 +45,7 @@ class GamePlace extends Identifiable
         return $this->againstSide;
     }
 
-    public function setAgainstSide(int $againstSide): void
+    public function setAgainstSide(AgainstSide $againstSide): void
     {
         $this->againstSide = $againstSide;
     }

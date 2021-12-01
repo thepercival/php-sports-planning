@@ -3,21 +3,19 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Game\Place;
 
+use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Place as GamePlace;
 use SportsPlanning\Place as PoulePlace;
 
 class Against extends GamePlace
 {
-    private int $side;
-
-    public function __construct(protected AgainstGame $game, PoulePlace $place, int $side)
+    public function __construct(protected AgainstGame $game, PoulePlace $place, private AgainstSide $side)
     {
         parent::__construct($place);
         if (!$game->getPlaces()->contains($this)) {
-            $game->getPlaces()->add($this) ;
+            $game->getPlaces()->add($this);
         }
-        $this->side = $side;
     }
 
     public function getGame(): AgainstGame
@@ -25,7 +23,7 @@ class Against extends GamePlace
         return $this->game;
     }
 
-    public function getSide(): int
+    public function getSide(): AgainstSide
     {
         return $this->side;
     }

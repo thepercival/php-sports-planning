@@ -3,15 +3,14 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Combinations;
 
-use SportsPlanning\Combinations\MultipleCombinationsCounter\With as WithCounter;
-use SportsPlanning\Combinations\MultipleCombinationsCounter\Against as AgainstCounter;
+use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Sport;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 
 /**
  * @template T
@@ -33,7 +32,7 @@ abstract class Validator
         $this->sportVariant = $sportVariant;
     }
 
-    public function getPlaceCombination(AgainstGame $game, int $side): PlaceCombination
+    public function getPlaceCombination(AgainstGame $game, AgainstSide $side): PlaceCombination
     {
         $poulePlaces = $game->getSidePlaces($side)->map(function (AgainstGamePlace $gamePlace): Place {
             return $gamePlace->getPlace();

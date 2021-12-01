@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace SportsPlanning\GameRound\Creator;
 
-use Exception;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\Combinations\GamePlaceStrategy;
-use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\Output\GameRound as GameRoundOutput;
+use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\GameRound\CreatorInterface;
 use SportsPlanning\GameRound\Together as TogetherGameRound;
 use SportsPlanning\GameRound\Together\Game;
-use SportsPlanning\Schedule\Creator\AssignedCounter;
-use SportsPlanning\Place;
 use SportsPlanning\GameRound\Together\GamePlace;
+use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
+use SportsPlanning\Schedule\Creator\AssignedCounter;
 
 /**
  * @template-implements CreatorInterface<TogetherGameRound>
@@ -68,7 +67,7 @@ class Single implements CreatorInterface
      * @param list<GamePlace> $unSortedGamePlaces
      * @param list<GamePlace> $remainingGamePlaces
      * @param TogetherGameRound $gameRound
-     * @param int $gamePlaceStrategy
+     * @param GamePlaceStrategy $gamePlaceStrategy
      * @param bool $finalGameRound
      * @return list<GamePlace>
      */
@@ -76,7 +75,7 @@ class Single implements CreatorInterface
         array $unSortedGamePlaces,
         array $remainingGamePlaces,
         TogetherGameRound $gameRound,
-        int $gamePlaceStrategy,
+        GamePlaceStrategy $gamePlaceStrategy,
         bool $finalGameRound = false
     ): array {
         $newRemainingGamePlaces = [];

@@ -4,17 +4,16 @@ declare(strict_types=1);
 namespace SportsPlanning\Input;
 
 use SportsHelpers\PouleStructure\Balanced as BalancedPouleStructure;
-use SportsPlanning\Combinations\GamePlaceStrategy;
-use SportsPlanning\Planning\Output as PlanningOutput;
-use SportsPlanning\Input as PlanningInput;
-use SportsHelpers\SportRange;
-use SportsHelpers\SelfReferee;
 use SportsHelpers\PouleStructure\BalancedIterator as PouleStructureIterator;
-use SportsPlanning\Input\Service as PlanningInputService;
-use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
+use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
+use SportsHelpers\SportRange;
+use SportsPlanning\Combinations\GamePlaceStrategy;
+use SportsPlanning\Input as PlanningInput;
+use SportsPlanning\Input\Service as PlanningInputService;
+use SportsPlanning\Planning\Output as PlanningOutput;
 
 /**
  * @template TKey
@@ -27,9 +26,9 @@ class Iterator implements \Iterator
     protected AgainstSportsIterator $sportsIterator;
     protected SportRange $rangeNrOfReferees;
     protected PlanningInputService $planningInputService;
-    protected int $gamePlaceStrategy;
+    protected GamePlaceStrategy $gamePlaceStrategy;
     protected int $nrOfReferees;
-    protected int $selfReferee;
+    protected SelfReferee $selfReferee;
     protected PlanningInput|null $current = null;
 
     public function __construct(

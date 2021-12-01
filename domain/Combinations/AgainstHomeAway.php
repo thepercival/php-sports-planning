@@ -14,7 +14,7 @@ class AgainstHomeAway implements \Stringable
     ) {
     }
 
-    public function get(int $side): PlaceCombination
+    public function get(AgainstSide $side): PlaceCombination
     {
         return $side === AgainstSide::HOME ? $this->home : $this->away;
     }

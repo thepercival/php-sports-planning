@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Combinations;
 
-class GamePlaceStrategy
+enum GamePlaceStrategy: int
 {
-    public const EquallyAssigned = 1;
-    public const RandomlyAssigned = 2;
+    case EquallyAssigned = 1;
+    case RandomlyAssigned = 2;
 }

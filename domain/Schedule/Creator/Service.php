@@ -6,15 +6,16 @@ namespace SportsPlanning\Schedule\Creator;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\GameMode;
-use SportsPlanning\Schedule;
+use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input;
+use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Sport;
 
 class Service
 {
     /**
-     * @var array<int, CreatorInterface>|null
+     * @var array<string, CreatorInterface>|null
      */
     protected array|null $generatorMap = null;
     /**
@@ -54,7 +55,7 @@ class Service
                 if (count($sports) === 0) {
                     continue;
                 }
-                $scheduleCreator = $this->getScheduleCreator($input, $gameMode, $gamePlaceStrategy);
+                $scheduleCreator = $this->getScheduleCreator($input, $gameMode);
                 $scheduleCreator->createSportSchedules($schedule, $poule, $sports, $assignedCounter);
             }
         }
@@ -63,19 +64,18 @@ class Service
 
     /**
      * @param Input $input
-     * @param int $gameMode
-     * @param int $gamePlaceStrategy
+     * @param GameMode $gameMode
      * @return CreatorInterface
      */
-    protected function getScheduleCreator(Input $input, int $gameMode, int $gamePlaceStrategy): CreatorInterface
+    protected function getScheduleCreator(Input $input, GameMode $gameMode): CreatorInterface
     {
         $generatorMap = $this->getScheduleCreatorMap($input);
-        return $generatorMap[$gameMode];
+        return $generatorMap[$gameMode->name];
     }
 
     /**
      * @param Input $input
-     * @return array<int, CreatorInterface>
+     * @return array<string, CreatorInterface>
      */
     protected function getScheduleCreatorMap(Input $input): array
     {
@@ -83,25 +83,24 @@ class Service
             return $this->generatorMap;
         }
         $this->generatorMap = [];
-        $this->generatorMap[GameMode::ALL_IN_ONE_GAME] = new AllInOneGame();
-        $this->generatorMap[GameMode::AGAINST] = new Against($this->logger);
-        $this->generatorMap[GameMode::SINGLE] = new Single($this->logger);
+        $this->generatorMap[GameMode::ALL_IN_ONE_GAME->name] = new AllInOneGame();
+        $this->generatorMap[GameMode::AGAINST->name] = new Against($this->logger);
+        $this->generatorMap[GameMode::SINGLE->name] = new Single($this->logger);
         return $this->generatorMap;
     }
 
     /**
      * @param Input $input
-     * @param int $gameMode
+     * @param GameMode $gameMode
      * @return list<Sport>
      */
-    protected function getSports(Input $input, int $gameMode): array
+    protected function getSports(Input $input, GameMode $gameMode): array
     {
-        if ($gameMode === 0) {
-            $gameMode = GameMode::AGAINST;
-        }
-        return array_values($input->getSports()->filter(function (Sport $sport) use ($gameMode): bool {
-            return $sport->getGameMode() === $gameMode;
-        })->toArray());
+        return array_values(
+            $input->getSports()->filter(function (Sport $sport) use ($gameMode): bool {
+                return $sport->getGameMode() === $gameMode;
+            })->toArray()
+        );
     }
 
     /**
@@ -112,8 +111,11 @@ class Service
         $this->existingSchedules = $existingSchedules;
     }
 
-    public function isScheduleAlreadyCreated(int $nrOfPlaces, int $gamePlaceStrategy, string $sportConfigsName): bool
-    {
+    public function isScheduleAlreadyCreated(
+        int $nrOfPlaces,
+        GamePlaceStrategy $gamePlaceStrategy,
+        string $sportConfigsName
+    ): bool {
         if ($this->existingSchedules === null) {
             return false;
         }

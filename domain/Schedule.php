@@ -10,12 +10,13 @@ use SportsHelpers\Identifiable;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 
 class Schedule extends Identifiable implements \Stringable
 {
-    protected int $gamePlaceStrategy;
+    protected GamePlaceStrategy $gamePlaceStrategy;
     protected string $sportsConfigName;
 
     /**
@@ -37,7 +38,7 @@ class Schedule extends Identifiable implements \Stringable
         return $this->nrOfPlaces;
     }
 
-    public function getGamePlaceStrategy(): int
+    public function getGamePlaceStrategy(): GamePlaceStrategy
     {
         return $this->gamePlaceStrategy;
     }

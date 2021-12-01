@@ -43,16 +43,16 @@ class Input extends Identifiable
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportVariantWithFields> $sportVariantsWithFields
-     * @param int $gamePlaceStrategy,
-     * @param int $nrOfReferees,
-     * @param int $selfReferee
+     * @param GamePlaceStrategy $gamePlaceStrategy ,
+     * @param int $nrOfReferees ,
+     * @param SelfReferee $selfReferee
      */
     public function __construct(
         PouleStructure $pouleStructure,
         array $sportVariantsWithFields,
-        protected int $gamePlaceStrategy,
+        protected GamePlaceStrategy $gamePlaceStrategy,
         int $nrOfReferees,
-        protected int $selfReferee
+        protected SelfReferee $selfReferee
     ) {
         $this->poules = new ArrayCollection();
         $this->sports = new ArrayCollection();
@@ -93,7 +93,7 @@ class Input extends Identifiable
         $this->uniqueString = join(' - ', $uniqueStrings);
     }
 
-    public function getGamePlaceStrategy(): int
+    public function getGamePlaceStrategy(): GamePlaceStrategy
     {
         return $this->gamePlaceStrategy;
     }
@@ -320,7 +320,7 @@ class Input extends Identifiable
 //        return $nrOfFields;
 //    }
 
-    public function getSelfReferee(): int
+    public function getSelfReferee(): SelfReferee
     {
         return $this->selfReferee;
     }
