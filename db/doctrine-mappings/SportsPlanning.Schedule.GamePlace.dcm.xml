@@ -3,7 +3,7 @@
   <entity name="SportsPlanning\Schedule\GamePlace" table="planningScheduleGamePlaces" repository-class="SportsPlanning\Schedule\GamePlace\Repository">
     <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
     <field name="gameRoundNumber" column="gameRoundNumber" type="smallint" nullable="true" unique="false"/>
-    <field name="againstSide" column="againstSide" type="smallint" nullable="true" unique="false"/>
+    <field name="againstSide" column="againstSide" type="enum_AgainstSide" nullable="true" unique="false"/>
     <many-to-one field="game" target-entity="SportsPlanning\Schedule\Game" inversed-by="places">
       <join-columns>
         <join-column name="gameId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>

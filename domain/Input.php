@@ -43,8 +43,8 @@ class Input extends Identifiable
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportVariantWithFields> $sportVariantsWithFields
-     * @param GamePlaceStrategy $gamePlaceStrategy ,
-     * @param int $nrOfReferees ,
+     * @param GamePlaceStrategy $gamePlaceStrategy
+     * @param int $nrOfReferees
      * @param SelfReferee $selfReferee
      */
     public function __construct(

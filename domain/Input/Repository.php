@@ -133,7 +133,7 @@ class Repository extends EntityRepository
         if ($selfReferee !== null) {
             $query = $query
                 ->andWhere('pi.selfReferee = :selfReferee')
-                ->setParameter('selfReferee', $selfReferee);
+                ->setParameter('selfReferee', $selfReferee->value);
         }
         /** @var list<InputBase> $inputs */
         $inputs = $query->getQuery()->getResult();
