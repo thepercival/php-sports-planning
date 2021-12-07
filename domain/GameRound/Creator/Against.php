@@ -189,7 +189,6 @@ class Against implements CreatorInterface
             $foundHomeAwayIndex = array_search($homeAway, $homeAways, true);
             if ($foundHomeAwayIndex !== false) {
                 array_splice($homeAways, $foundHomeAwayIndex, 1);
-                $homeAways = array_values($homeAways);
             }
         }
         return $gameRound->createNext();

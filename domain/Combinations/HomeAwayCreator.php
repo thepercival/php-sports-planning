@@ -81,7 +81,7 @@ class HomeAwayCreator
             $homeAways = $this->swapHomeAways($homeAways);
         }
         $this->swap = !$this->swap;
-        return array_values($homeAways);
+        return $homeAways;
     }
 
     protected function createHomeAway(PlaceCombination $home, PlaceCombination $away): AgainstHomeAway

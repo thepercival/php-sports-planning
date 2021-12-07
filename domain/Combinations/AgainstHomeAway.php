@@ -33,8 +33,7 @@ class AgainstHomeAway implements \Stringable
      * @return list<Place>
      */
     public function getPlaces(): array {
-        $places = array_merge($this->home->getPlaces(), $this->away->getPlaces());
-        return array_values($places);
+        return array_merge($this->home->getPlaces(), $this->away->getPlaces());
     }
 
     public function equals(AgainstHomeAway $game): bool

@@ -4,8 +4,8 @@ declare(strict_types=1);
 namespace SportsPlanning\GameRound\Together;
 
 use SportsPlanning\Combinations\PlaceCombination;
-use SportsPlanning\Place;
 use SportsPlanning\GameRound\Together as GameRound;
+use SportsPlanning\Place;
 
 class Game implements \Stringable
 {
@@ -58,7 +58,7 @@ class Game implements \Stringable
     public function toPlaceCombination(): PlaceCombination
     {
         $places = array_map(fn(GamePlace $gamePlace) => $gamePlace->getPlace(), $this->gamePlaces);
-        return new PlaceCombination(array_values($places));
+        return new PlaceCombination($places);
     }
 
     public function __toString(): string

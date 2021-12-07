@@ -56,7 +56,7 @@ class Game extends Identifiable
                 $poulePlaces[] = $poule->getPlace($gameRoundGamePlace->getNumber());
             }
         }
-        return array_values($poulePlaces);
+        return $poulePlaces;
     }
 
     public function __toString(): string

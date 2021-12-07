@@ -64,6 +64,11 @@
             "mkdir ../fctoernooi-api/vendor/thepercival/php-sports-planning",
             "cp . ../fctoernooi-api/vendor/thepercival/php-sports-planning -R"
         ],
+        "copy-sup": [
+            "rm -rf ../superelf-api/vendor/thepercival/php-sports-planning",
+            "mkdir ../superelf-api/vendor/thepercival/php-sports-planning",
+            "cp . ../superelf-api/vendor/thepercival/php-sports-planning -R"
+        ],
         "copy-sports": [
             "rm -rf ../php-sports/vendor/thepercival/php-sports-planning",
             "mkdir ../php-sports/vendor/thepercival/php-sports-planning",

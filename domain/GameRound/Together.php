@@ -61,6 +61,6 @@ class Together extends ListNode
      */
     public function toPlaceCombinations(): array
     {
-        return array_values(array_map(fn (Game $game) => $game->toPlaceCombination(), $this->games));
+        return array_map(fn(Game $game) => $game->toPlaceCombination(), $this->games);
     }
 }

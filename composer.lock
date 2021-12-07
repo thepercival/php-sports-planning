@@ -898,19 +898,19 @@
             "time": "2020-05-25T17:44:05+00:00"
         },
         {
-            "name": "doctrine/orm",
-            "version": "2.10.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/doctrine/orm.git",
-                "reference": "81d472f6f96b8b571cafefe8d2fef89ed9446a62"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/orm/zipball/81d472f6f96b8b571cafefe8d2fef89ed9446a62",
-                "reference": "81d472f6f96b8b571cafefe8d2fef89ed9446a62",
-                "shasum": ""
-            },
+          "name": "doctrine/orm",
+          "version": "2.10.3",
+          "source": {
+            "type": "git",
+            "url": "https://github.com/doctrine/orm.git",
+            "reference": "7b242753466508e1dd10f67c1baee95785f845c1"
+          },
+          "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/doctrine/orm/zipball/7b242753466508e1dd10f67c1baee95785f845c1",
+            "reference": "7b242753466508e1dd10f67c1baee95785f845c1",
+            "shasum": ""
+          },
             "require": {
                 "composer/package-versions-deprecated": "^1.8",
                 "doctrine/cache": "^1.12.1 || ^2.1.1",
@@ -935,15 +935,15 @@
                 "doctrine/annotations": "<1.13 || >= 2.0"
             },
             "require-dev": {
-                "doctrine/annotations": "^1.13",
-                "doctrine/coding-standard": "^9.0",
-                "phpbench/phpbench": "^0.16.10 || ^1.0",
-                "phpstan/phpstan": "0.12.99",
-                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.4",
-                "squizlabs/php_codesniffer": "3.6.1",
-                "symfony/cache": "^4.4 || ^5.2",
-                "symfony/yaml": "^3.4 || ^4.0 || ^5.0 || ^6.0",
-                "vimeo/psalm": "4.10.0"
+              "doctrine/annotations": "^1.13",
+              "doctrine/coding-standard": "^9.0",
+              "phpbench/phpbench": "^0.16.10 || ^1.0",
+              "phpstan/phpstan": "1.2.0",
+              "phpunit/phpunit": "^7.5 || ^8.5 || ^9.4",
+              "squizlabs/php_codesniffer": "3.6.1",
+              "symfony/cache": "^4.4 || ^5.2",
+              "symfony/yaml": "^3.4 || ^4.0 || ^5.0 || ^6.0",
+              "vimeo/psalm": "4.13.1"
             },
             "suggest": {
                 "symfony/cache": "Provides cache support for Setup Tool with doctrine/cache 2.0",
@@ -992,9 +992,9 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/orm/issues",
-                "source": "https://github.com/doctrine/orm/tree/2.10.2"
+              "source": "https://github.com/doctrine/orm/tree/2.10.3"
             },
-            "time": "2021-10-21T17:57:02+00:00"
+          "time": "2021-12-03T12:27:05+00:00"
         },
         {
             "name": "doctrine/persistence",
@@ -2374,20 +2374,20 @@
             ],
             "time": "2021-11-24T10:02:00+00:00"
         },
-        {
-            "name": "thepercival/php-sports-helpers",
-            "version": "v1.0.21",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/thepercival/php-sports-helpers.git",
-                "reference": "67f2e811bd6a2478bb8791169bd26b12e4b34cd7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/67f2e811bd6a2478bb8791169bd26b12e4b34cd7",
-                "reference": "67f2e811bd6a2478bb8791169bd26b12e4b34cd7",
-                "shasum": ""
-            },
+      {
+        "name": "thepercival/php-sports-helpers",
+        "version": "v1.0.25",
+        "source": {
+          "type": "git",
+          "url": "https://github.com/thepercival/php-sports-helpers.git",
+          "reference": "1f7ad475425b4bdad95b6d8292df59d18fc5004b"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/1f7ad475425b4bdad95b6d8292df59d18fc5004b",
+          "reference": "1f7ad475425b4bdad95b6d8292df59d18fc5004b",
+          "shasum": ""
+        },
             "require": {
                 "doctrine/orm": "^2.10",
                 "monolog/monolog": "^2.0",
@@ -2436,9 +2436,9 @@
             "support": {
                 "email": "coendunnink@gmail.com",
                 "issues": "https://github.com/thepercival/php-sports-helpers/issues",
-                "source": "https://github.com/thepercival/php-sports-helpers/tree/v1.0.21"
+              "source": "https://github.com/thepercival/php-sports-helpers/tree/v1.0.25"
             },
-            "time": "2021-12-03T13:24:07+00:00"
+        "time": "2021-12-07T22:04:36+00:00"
         }
     ],
     "packages-dev": [
@@ -3870,20 +3870,20 @@
             },
             "time": "2021-08-21T11:36:27+00:00"
         },
-        {
-            "name": "phpunit/php-code-coverage",
-            "version": "9.2.9",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
-                "reference": "f301eb1453c9e7a1bc912ee8b0ea9db22c60223b"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/f301eb1453c9e7a1bc912ee8b0ea9db22c60223b",
-                "reference": "f301eb1453c9e7a1bc912ee8b0ea9db22c60223b",
-                "shasum": ""
-            },
+      {
+        "name": "phpunit/php-code-coverage",
+        "version": "9.2.10",
+        "source": {
+          "type": "git",
+          "url": "https://github.com/sebastianbergmann/php-code-coverage.git",
+          "reference": "d5850aaf931743067f4bfc1ae4cbd06468400687"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/sebastianbergmann/php-code-coverage/zipball/d5850aaf931743067f4bfc1ae4cbd06468400687",
+          "reference": "d5850aaf931743067f4bfc1ae4cbd06468400687",
+          "shasum": ""
+        },
             "require": {
                 "ext-dom": "*",
                 "ext-libxml": "*",
@@ -3937,7 +3937,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.9"
+              "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/9.2.10"
             },
             "funding": [
                 {
@@ -3945,7 +3945,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2021-11-19T15:21:02+00:00"
+        "time": "2021-12-05T09:12:13+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -5978,20 +5978,20 @@
             ],
             "time": "2021-07-28T10:34:58+00:00"
         },
-        {
-            "name": "vimeo/psalm",
-            "version": "4.13.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/vimeo/psalm.git",
-                "reference": "5cf660f63b548ccd4a56f62d916ee4d6028e01a3"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/vimeo/psalm/zipball/5cf660f63b548ccd4a56f62d916ee4d6028e01a3",
-                "reference": "5cf660f63b548ccd4a56f62d916ee4d6028e01a3",
-                "shasum": ""
-            },
+      {
+        "name": "vimeo/psalm",
+        "version": "v4.15.0",
+        "source": {
+          "type": "git",
+          "url": "https://github.com/vimeo/psalm.git",
+          "reference": "a1b5e489e6fcebe40cb804793d964e99fc347820"
+        },
+        "dist": {
+          "type": "zip",
+          "url": "https://api.github.com/repos/vimeo/psalm/zipball/a1b5e489e6fcebe40cb804793d964e99fc347820",
+          "reference": "a1b5e489e6fcebe40cb804793d964e99fc347820",
+          "shasum": ""
+        },
             "require": {
                 "amphp/amp": "^2.4.2",
                 "amphp/byte-stream": "^1.5",
@@ -6080,9 +6080,9 @@
             ],
             "support": {
                 "issues": "https://github.com/vimeo/psalm/issues",
-                "source": "https://github.com/vimeo/psalm/tree/4.13.1"
+              "source": "https://github.com/vimeo/psalm/tree/v4.15.0"
             },
-            "time": "2021-11-23T23:52:49+00:00"
+        "time": "2021-12-07T11:25:29+00:00"
         },
         {
             "name": "webmozart/assert",

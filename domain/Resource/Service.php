@@ -307,7 +307,6 @@ class Service
             $foundGameIndex = array_search($game, $games, true);
             if ($foundGameIndex !== false) {
                 array_splice($games, $foundGameIndex, 1);
-                $games = array_values($games);
             }
         }
         return $batch->createNext();

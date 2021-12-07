@@ -81,7 +81,7 @@ class Single implements CreatorInterface
         $newRemainingGamePlaces = [];
         $choosableGamePlaces = $this->sortGamePlaces($unSortedGamePlaces);
         $remainingGamePlaces = $this->sortGamePlaces($remainingGamePlaces);
-        $choosableGamePlaces = array_values(array_merge($remainingGamePlaces, $choosableGamePlaces));
+        $choosableGamePlaces = array_merge($remainingGamePlaces, $choosableGamePlaces);
         while (count($choosableGamePlaces) > 0) {
             $bestGamePlace = $this->getBestGamePlace($newRemainingGamePlaces, $choosableGamePlaces);
             if ($bestGamePlace === null) {
@@ -93,7 +93,7 @@ class Single implements CreatorInterface
             }
             array_push($newRemainingGamePlaces, $bestGamePlace);
             if (count($newRemainingGamePlaces) === $this->sportVariant->getNrOfGamePlaces()) {
-                $game = new Game($gameRound, array_values($newRemainingGamePlaces));
+                $game = new Game($gameRound, $newRemainingGamePlaces);
                 $this->assignPlaceCombination($game->toPlaceCombination());
                 $newRemainingGamePlaces = [];
             }
@@ -102,10 +102,10 @@ class Single implements CreatorInterface
             return [];
         }
         if ($finalGameRound && count($newRemainingGamePlaces) > 0) {
-            $game = new Game($gameRound, array_values($newRemainingGamePlaces));
+            $game = new Game($gameRound, $newRemainingGamePlaces);
             $this->assignPlaceCombination($game->toPlaceCombination());
         }
-        return array_values($newRemainingGamePlaces);
+        return $newRemainingGamePlaces;
     }
 
     /**
@@ -169,7 +169,7 @@ class Single implements CreatorInterface
             return $gamePlaces;
         }
         array_splice($gamePlaces, $idx, 1);
-        return array_values($gamePlaces);
+        return $gamePlaces;
     }
 
     /**
