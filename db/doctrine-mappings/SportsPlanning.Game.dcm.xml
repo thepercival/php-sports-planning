@@ -2,11 +2,6 @@
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
   <mapped-superclass name="SportsPlanning\Game">
     <field name="batchNr" column="batchNr" type="smallint" nullable="false" unique="false"/>
-    <many-to-one field="planning" target-entity="SportsPlanning\Planning">
-      <join-columns>
-        <join-column name="planningId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
-      </join-columns>
-    </many-to-one>
     <many-to-one field="poule" target-entity="SportsPlanning\Poule">
       <join-columns>
         <join-column name="pouleId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
