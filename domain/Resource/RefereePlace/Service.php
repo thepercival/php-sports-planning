@@ -104,7 +104,7 @@ class Service
                 }
                 // statics
                 $game->setRefereePlace(null);
-                $batch->removeAsReferee($refereePlace->getPlace(), null);
+                $batch->removeReferee($refereePlace->getPlace());
             }
         }
         return false;
@@ -144,7 +144,8 @@ class Service
         array $refereePlaceMap
     ): array
     {
-        $batch->addAsReferee($game, $assignPlace);
+        $game->setRefereePlace($assignPlace);
+        $batch->addReferee($assignPlace);
 
         $newRefereePlaceMap = [];
         foreach ($refereePlaceMap as $refereePlace) {

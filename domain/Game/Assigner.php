@@ -7,9 +7,6 @@ namespace SportsPlanning\Game;
 use Psr\Log\LoggerInterface;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Output as GameOutput;
-use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Planning;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
 use SportsPlanning\Resource\Service as ResourceService;
@@ -41,6 +38,7 @@ class Assigner
         }
 
         $firstBatch = $planning->createFirstBatch();
+        // (new BatchOutput())->output($firstBatch, '', null, null, true);
         if ($firstBatch instanceof SelfRefereeBatchOtherPoule || $firstBatch instanceof SelfRefereeBatchSamePoule) {
             $refereePlaceService = new RefereePlaceService($planning);
             if (!$this->throwOnTimeout) {

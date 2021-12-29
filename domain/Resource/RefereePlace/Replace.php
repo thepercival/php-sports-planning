@@ -4,8 +4,8 @@
 namespace SportsPlanning\Resource\RefereePlace;
 
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
-use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Place;
 
 class Replace
@@ -33,7 +33,7 @@ class Replace
         return $this->replaced;
     }
 
-    public function getReplacement(): ?Place
+    public function getReplacement(): Place
     {
         return $this->replacement;
     }

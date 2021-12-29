@@ -76,9 +76,8 @@ abstract class SelfReferee
         return $this->previous;
     }
 
-    public function addAsReferee(TogetherGame|AgainstGame$game, Place $placeReferee): void
+    public function addReferee(Place $placeReferee): void
     {
-        $game->setRefereePlace($placeReferee);
         $this->placesAsRefereeMap[$placeReferee->getLocation()] = $placeReferee;
     }
 
@@ -90,14 +89,9 @@ abstract class SelfReferee
         return $this->placesAsRefereeMap;
     }
 
-    public function removeAsReferee(Place|null $place = null, TogetherGame|AgainstGame|null $game = null): void
+    public function removeReferee(Place $place): void
     {
-        if ($place !== null) {
-            unset($this->placesAsRefereeMap[$place->getLocation()]);
-        }
-        if ($game !== null) {
-            $game->setRefereePlace(null);
-        }
+        unset($this->placesAsRefereeMap[$place->getLocation()]);
     }
 
     public function emptyPlacesAsReferees(): void
@@ -264,6 +258,10 @@ abstract class SelfReferee
     public function add(TogetherGame|AgainstGame $game): void
     {
         $this->batch->add($game);
+        $refereePlace = $game->getRefereePlace();
+        if ($refereePlace !== null) {
+            $this->addReferee($refereePlace);
+        }
 
         $poule = $game->getPoule();
         if (!array_key_exists($poule->getNumber(), $this->pouleCounterMap)) {
@@ -275,6 +273,10 @@ abstract class SelfReferee
     public function remove(TogetherGame|AgainstGame $game): void
     {
         $this->batch->remove($game);
+        $refereePlace = $game->getRefereePlace();
+        if ($refereePlace !== null) {
+            $this->removeReferee($refereePlace);
+        }
 
         $poule = $game->getPoule();
         $this->pouleCounterMap[$poule->getNumber()]->remove($game->getPlaces()->count());
@@ -302,5 +304,13 @@ abstract class SelfReferee
     public function getGamesInARow(Place $place): int
     {
         return $this->getBase()->getGamesInARow($place);
+    }
+
+    /**
+     * @return list<Place>
+     */
+    public function getUnassignedPlaces(): array
+    {
+        return $this->getBase()->getUnassignedPlaces();
     }
 }

@@ -158,4 +158,20 @@ class Batch extends ListNode
         }
         return $poules;
     }
+
+    /**
+     * @return list<Place>
+     */
+    public function getUnassignedPlaces(): array
+    {
+        $unassignedPlaces = [];
+        foreach ($this->getPoules() as $poule) {
+            foreach ($poule->getPlaces() as $place) {
+                if (!isset($this->placeMap[$place->getLocation()])) {
+                    $unassignedPlaces[] = $place;
+                }
+            }
+        }
+        return $unassignedPlaces;
+    }
 }

@@ -71,15 +71,21 @@
         ],
         "copy-sports": [
             "rm -rf ../php-sports/vendor/thepercival/php-sports-planning",
-            "mkdir ../php-sports/vendor/thepercival/php-sports-planning",
-            "cp . ../php-sports/vendor/thepercival/php-sports-planning -R"
+          "mkdir ../php-sports/vendor/thepercival/php-sports-planning",
+          "cp . ../php-sports/vendor/thepercival/php-sports-planning -R"
         ]
     },
-    "extra": {
-        "phpstan": {
-            "includes": [
-                "extension.neon"
-            ]
-        }
+  "extra": {
+    "phpstan": {
+      "includes": [
+        "extension.neon"
+      ]
     }
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/package-versions-deprecated": true,
+      "phpstan/extension-installer": true
+    }
+  }
 }

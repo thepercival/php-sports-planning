@@ -5,14 +5,13 @@ namespace SportsPlanning\Resource\RefereePlace;
 
 use DateTimeImmutable;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
-use SportsPlanning\Planning;
 use SportsPlanning\Place as PlanningPlace;
-use SportsPlanning\Resource\GameCounter\Unequal as UnequalResource;
+use SportsPlanning\Planning;
+use SportsPlanning\Planning\Validator\GameAssignments as GameAssignmentValidator;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
+use SportsPlanning\Resource\GameCounter\Unequal as UnequalResource;
 use SportsPlanning\TimeoutException;
-use SportsPlanning\Planning\Validator\GameAssignments as GameAssignmentValidator;
-use SportsPlanning\Batch\Output as BatchOutput;
 
 class Replacer
 {
@@ -93,8 +92,8 @@ class Replacer
                 if (isset($maxGameCounters[$replacedGameCounter->getIndex()])) {
                     unset($maxGameCounters[$replacedGameCounter->getIndex()]);
                 }
-                if (isset($minGameCounters[$replacedGameCounter->getIndex()])) {
-                    unset($minGameCounters[$replacedGameCounter->getIndex()]);
+                if (isset($minGameCounters[$replacementGameCounter->getIndex()])) {
+                    unset($minGameCounters[$replacementGameCounter->getIndex()]);
                 }
                 return $this->replaceUnequalHelper($firstBatch, $minGameCounters, $maxGameCounters);
             }
@@ -106,26 +105,37 @@ class Replacer
         SelfRefereeBatch $batch,
         PlanningPlace $replaced,
         PlanningPlace $replacement
-    ): bool {
-        $batchHasReplacement = $batch->getBase()->isParticipating($replacement) || $batch->isParticipatingAsReferee($replacement);
-        foreach ($batch->getBase()->getGames() as $game) {
-            $refereePlace = $game->getRefereePlace();
-            if ($refereePlace === null || $refereePlace !== $replaced || $batchHasReplacement) {
-                continue;
+    ): bool
+    {
+        $batchHasReplacement = $batch->getBase()->isParticipating($replacement) || $batch->isParticipatingAsReferee(
+                $replacement
+            );
+        $batchHasReplaced = $batch->getBase()->isParticipating($replaced) || $batch->isParticipatingAsReferee(
+                $replaced
+            );
+        if (!$batchHasReplacement && $batchHasReplaced) {
+            foreach ($batch->getBase()->getGames() as $game) {
+                $refereePlace = $game->getRefereePlace();
+                if ($refereePlace === null || $refereePlace !== $replaced) {
+                    continue;
+                }
+                if (($game->getPoule() === $replacement->getPoule() && !$this->samePoule)
+                    || ($game->getPoule() !== $replacement->getPoule() && $this->samePoule)) {
+                    continue;
+                }
+                $replace = new Replace($batch, $game, $replacement, $refereePlace);
+                if ($this->isAlreadyReplaced($replace)) {
+                    return false;
+                }
+                $this->revertableReplaces[] = $replace;
+                $game->setRefereePlace(null);
+                $batch->removeReferee($refereePlace);
+                $game->setRefereePlace($replacement);
+                $batch->addReferee($replacement);
+                return true;
             }
-            if (($game->getPoule() === $replacement->getPoule() && !$this->samePoule)
-                || ($game->getPoule() !== $replacement->getPoule() && $this->samePoule)) {
-                continue;
-            }
-            $replace = new Replace($batch, $game, $replacement, $refereePlace);
-            if ($this->isAlreadyReplaced($replace)) {
-                return false;
-            }
-            $this->revertableReplaces[] = $replace;
-            $batch->removeAsReferee($refereePlace, $game);
-            $batch->addAsReferee($game, $replacement);
-            return true;
         }
+
         $nextBatch = $batch->getNext();
         if ($nextBatch !== null) {
             return $this->replace($nextBatch, $replaced, $replacement);
@@ -149,8 +159,10 @@ class Replacer
     {
         while (count($this->revertableReplaces) > 0) {
             $replace = array_pop($this->revertableReplaces);
-            $replace->getBatch()->removeAsReferee($replace->getReplacement(), $replace->getGame());
-            $replace->getBatch()->addAsReferee($replace->getGame(), $replace->getReplaced());
+            $replace->getGame()->setRefereePlace(null);
+            $replace->getBatch()->removeReferee($replace->getReplacement());
+            $replace->getGame()->setRefereePlace($replace->getReplaced());
+            $replace->getBatch()->addReferee($replace->getReplaced());
         }
     }
 
