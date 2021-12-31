@@ -20,14 +20,14 @@ class Repository extends EntityRepository
      */
     use BaseRepository;
 
-    public function resetBatchGamePlanning(PlanningBase $planning, int $state): void
+    public function resetBatchGamePlanning(PlanningBase $planning, State $state): void
     {
         $this->resetPlanning($planning, $state);
         $this->removeGamesInARowPlannings($planning);
         $this->save($planning);
     }
 
-    public function resetPlanning(PlanningBase $planning, int $state): void
+    public function resetPlanning(PlanningBase $planning, State $state): void
     {
         $planning->setState($state);
 

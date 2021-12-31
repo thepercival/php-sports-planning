@@ -307,10 +307,19 @@ abstract class SelfReferee
     }
 
     /**
+     * @param bool $includeRefereePlaces
      * @return list<Place>
      */
-    public function getUnassignedPlaces(): array
+    public function getUnassignedPlaces(bool $includeRefereePlaces = false): array
     {
-        return $this->getBase()->getUnassignedPlaces();
+        $unassignedPlaces = $this->getBase()->getUnassignedPlaces();
+        if ($includeRefereePlaces) {
+            return array_values(
+                array_filter($unassignedPlaces, function (Place $place): bool {
+                    return !isset($this->placesAsRefereeMap[$place->getLocation()]);
+                })
+            );
+        }
+        return $unassignedPlaces;
     }
 }

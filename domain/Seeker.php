@@ -13,6 +13,7 @@ use SportsPlanning\Input\Repository as InputRepository;
 use SportsPlanning\Input\Service as InputService;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\Repository as PlanningRepository;
+use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Schedule\Repository as ScheduleRepository;
 use SportsPlanning\Seeker\NextBatchGamesPlanningCalculator;
 use SportsPlanning\Seeker\NextGamesInARowPlanningCalculator;
@@ -77,7 +78,7 @@ class Seeker
             $this->batchGamesPostProcessor->updateOthers($planningToBeProcessed);
         }
 
-        $bestBatchGamePlannings = $input->getBatchGamesPlannings(Planning::STATE_SUCCEEDED);
+        $bestBatchGamePlannings = $input->getBatchGamesPlannings(PlanningState::Succeeded->value);
         $bestBatchGamePlanning = reset($bestBatchGamePlannings);
         if ($bestBatchGamePlanning === false) {
             throw new Exception("input(" . (string)$input->getId() . ") should always have a best planning after processing", E_ERROR);
@@ -110,7 +111,7 @@ class Seeker
      */
     public function processPlanning(Planning $planning, array $schedules): void
     {
-        $this->planningRepos->resetPlanning($planning, Planning::STATE_TOBEPROCESSED);
+        $this->planningRepos->resetPlanning($planning, PlanningState::ToBeProcessed);
         if ($planning->isBatchGames()) {
             $this->processPlanningHelper($planning, $schedules);
             $this->batchGamesPostProcessor->updateOthers($planning);
@@ -160,8 +161,8 @@ class Seeker
 //        $planningOutput->outputWithGames($planning, false);
 //        $planningOutput->outputWithTotals($planning, false);
 
-        $stateDescription = $planning->getState() === Planning::STATE_FAILED ? "failed" :
-            ($planning->getState() === Planning::STATE_TIMEDOUT ? "timeout(" . $planning->getTimeoutSeconds(
+        $stateDescription = $planning->getState() === PlanningState::Failed ? "failed" :
+            ($planning->getState() === PlanningState::TimedOut ? "timeout(" . $planning->getTimeoutSeconds(
                 ) . ")" : "success");
 
         $this->logger->info('   ' . '   ' . " => " . $stateDescription);

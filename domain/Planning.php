@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning;
@@ -14,6 +15,7 @@ use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Planning\State as PlanningState;
 
 class Planning extends Identifiable
 {
@@ -21,7 +23,7 @@ class Planning extends Identifiable
     protected int $maxNrOfBatchGames;
     protected DateTimeImmutable $createdDateTime;
     protected int $timeoutSeconds;
-    protected int $state;
+    protected PlanningState $state;
     protected int $nrOfBatches = 0;
     protected int $validity = -1;
     /**
@@ -33,18 +35,7 @@ class Planning extends Identifiable
      */
     protected Collection $togetherGames;
 
-    const STATE_TOBEPROCESSED = 1;
-    const STATE_SUCCEEDED = 2;
-    const STATE_LESSER_NROFBATCHES_SUCCEEDED = 4;
-    const STATE_LESSER_NROFGAMESINROW_SUCCEEDED = 8;
-    const STATE_FAILED = 16;
-    const STATE_GREATER_NROFBATCHES_FAILED = 32;
-    const STATE_GREATER_NROFGAMESINROW_FAILED = 64;
-    const STATE_TIMEDOUT = 128;
-    const STATE_GREATER_NROFBATCHES_TIMEDOUT = 256;
-    const STATE_GREATER_GAMESINAROW_TIMEDOUT = 512;
-
-    const MINIMUM_TIMEOUTSECONDS = 5;
+    public const MINIMUM_TIMEOUTSECONDS = 5;
 
     public function __construct(protected Input $input, SportRange $nrOfBatchGames, protected int $maxNrOfGamesInARow)
     {
@@ -57,7 +48,7 @@ class Planning extends Identifiable
 
         $this->createdDateTime = new DateTimeImmutable();
         $this->timeoutSeconds = $this->getDefaultTimeoutSeconds();
-        $this->state = self::STATE_TOBEPROCESSED;
+        $this->state = PlanningState::ToBeProcessed;
     }
 
     public function minIsMaxNrOfBatchGames(): bool
@@ -132,12 +123,12 @@ class Planning extends Identifiable
         return $nrOfSeconds;
     }
 
-    public function getState(): int
+    public function getState(): PlanningState
     {
         return $this->state;
     }
 
-    public function setState(int $state): void
+    public function setState(PlanningState $state): void
     {
         $this->state = $state;
     }
@@ -260,21 +251,23 @@ class Planning extends Identifiable
     }
 
     /**
-     * @param int|null $state
+     * @param int|null $stateValue
      * @return list<Planning>
      */
-    public function getGamesInARowPlannings(int $state = null): array
+    public function getGamesInARowPlannings(int $stateValue = null): array
     {
         if ($this->getMaxNrOfGamesInARow() > 0) {
             return [];
         }
         $range = $this->getNrOfBatchGames();
-        $gamesInARowPlannings = $this->getInput()->getPlannings()->filter(function (Planning $planning) use ($range, $state): bool {
-            return $planning->getMinNrOfBatchGames() === $range->getMin()
-                && $planning->getMaxNrOfBatchGames() === $range->getMax()
-                && $planning->getMaxNrOfGamesInARow() > 0
-                && ($state === null || (($planning->getState() & $state) > 0));
-        });
+        $gamesInARowPlannings = $this->getInput()->getPlannings()->filter(
+            function (Planning $planning) use ($range, $stateValue): bool {
+                return $planning->getMinNrOfBatchGames() === $range->getMin()
+                    && $planning->getMaxNrOfBatchGames() === $range->getMax()
+                    && $planning->getMaxNrOfGamesInARow() > 0
+                    && ($stateValue === null || (($planning->getState()->value & $stateValue) > 0));
+            }
+        );
         return $this->orderGamesInARowPlannings($gamesInARowPlannings);
     }
 
@@ -297,13 +290,20 @@ class Planning extends Identifiable
 
     public function getBestGamesInARowPlanning(): Planning
     {
-        $succeededGamesInARowPlannings = $this->getGamesInARowPlannings(Planning::STATE_SUCCEEDED);
+        $succeededGamesInARowPlannings = $this->getGamesInARowPlannings(PlanningState::Succeeded->value);
         if (count($succeededGamesInARowPlannings) >= 1) {
             return reset($succeededGamesInARowPlannings);
         }
-        if ($this->getState() === Planning::STATE_SUCCEEDED) {
+        if ($this->getState() === PlanningState::Succeeded) {
             return $this;
         }
         throw new Exception('er kan geen planning gevonden worden', E_ERROR);
+    }
+
+    public function getMaxNrOfBatches(): int
+    {
+        $sportVariants = array_values($this->input->createSportVariants()->toArray());
+        $totalNrOfGames = $this->input->createPouleStructure()->getTotalNrOfGames($sportVariants);
+        return (int)ceil($totalNrOfGames / $this->getMinNrOfBatchGames());
     }
 }

@@ -5,6 +5,7 @@ namespace SportsPlanning\Seeker;
 
 use SportsPlanning\Input;
 use SportsPlanning\Planning;
+use SportsPlanning\Planning\State as PlanningState;
 
 class NextBatchGamesPlanningCalculator
 {
@@ -19,12 +20,12 @@ class NextBatchGamesPlanningCalculator
      */
     public function next(): ?Planning
     {
-        $state = Planning::STATE_TOBEPROCESSED;
+        $stateValue = PlanningState::ToBeProcessed->value;
         if ($this->maxTimeoutSeconds > 0) {
-            $state = Planning::STATE_TIMEDOUT + Planning::STATE_GREATER_NROFBATCHES_TIMEDOUT;
+            $stateValue = PlanningState::TimedOut->value + PlanningState::GreaterNrOfBatchesTimedOut->value;
         }
-        $plannings = $this->getPlannings($state);
-        $middleIndex = (int) floor(count($plannings) / 2);
+        $plannings = $this->getPlannings($stateValue);
+        $middleIndex = (int)floor(count($plannings) / 2);
         /** @var array<string|int,Planning> $deletedPlannings */
         $deletedPlannings = array_splice($plannings, $middleIndex, 1);
         $firstDeletedPlanning = reset($deletedPlannings);
@@ -35,18 +36,20 @@ class NextBatchGamesPlanningCalculator
     }
 
     /**
-     * @param int $state
+     * @param int $stateValue
      * @return list<Planning>
      */
-    protected function getPlannings(int $state): array
+    protected function getPlannings(int $stateValue): array
     {
-        $plannings = $this->input->getBatchGamesPlannings($state);
+        $plannings = $this->input->getBatchGamesPlannings($stateValue);
         if ($this->maxTimeoutSeconds === 0) {
             return $plannings;
         }
-        $plannings = array_reverse(array_filter($plannings, function (Planning $planningIt): bool {
-            return $planningIt->getTimeoutSeconds() <= $this->maxTimeoutSeconds;
-        }));
+        $plannings = array_reverse(
+            array_filter($plannings, function (Planning $planningIt): bool {
+                return $planningIt->getTimeoutSeconds() <= $this->maxTimeoutSeconds;
+            })
+        );
         return array_values($plannings);
     }
 }

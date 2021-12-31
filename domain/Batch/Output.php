@@ -98,7 +98,7 @@ class Output extends OutputHelper
                     $useColors
                 );
             },
-            $batch->getUnassignedPlaces()
+            $batch->getUnassignedPlaces(true)
         );
         $this->logger->info(
             'unassigned places: ' . implode(' & ', $placesAsArrayOfStrings)

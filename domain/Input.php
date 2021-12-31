@@ -17,11 +17,14 @@ use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input\Calculator as InputCalculator;
+use SportsPlanning\Planning\State as PlanningState;
 
 class Input extends Identifiable
 {
     protected string $uniqueString;
     protected DateTimeImmutable $createdAt;
+    protected bool|null $hasBalancedStructure = null;
+
     /**
      * @var Collection<int|string, Poule>
      */
@@ -385,28 +388,30 @@ class Input extends Identifiable
     }
 
     /**
-     * @param int $state
+     * @param int $stateValue
      * @return Collection<int|string, Planning>
      */
-    public function getPlanningsWithState(int $state): Collection
+    public function getPlanningsWithState(int $stateValue): Collection
     {
-        return $this->plannings->filter(function (Planning $planning) use ($state): bool {
-            return ($planning->getState() & $state) > 0;
+        return $this->plannings->filter(function (Planning $planning) use ($stateValue): bool {
+            return ($planning->getState()->value & $stateValue) > 0;
         });
     }
 
     /**
-     * @param int|null $state
+     * @param int|null $stateValue
      * @return list<Planning>
      */
-    public function getBatchGamesPlannings(int|null $state = null): array
+    public function getBatchGamesPlannings(int|null $stateValue = null): array
     {
-        if ($state === null) {
+        if ($stateValue === null) {
             $batchGamesPlannings = $this->getPlannings();
         } else {
-            $batchGamesPlannings = $this->getPlanningsWithState($state)->filter(function (Planning $planning): bool {
-                return $planning->isBatchGames();
-            });
+            $batchGamesPlannings = $this->getPlanningsWithState($stateValue)->filter(
+                function (Planning $planning): bool {
+                    return $planning->isBatchGames();
+                }
+            );
         }
         return $this->orderBatchGamesPlannings($batchGamesPlannings);
     }
@@ -447,7 +452,7 @@ class Input extends Identifiable
 
     public function getBestPlanning(): Planning
     {
-        $succeededPlannings = $this->getPlanningsWithState(Planning::STATE_SUCCEEDED)->toArray();
+        $succeededPlannings = $this->getPlanningsWithState(PlanningState::Succeeded->value)->toArray();
         uasort($succeededPlannings, function (Planning $first, Planning $second): int {
             return $second->getMaxNrOfGamesInARow() - $first->getMaxNrOfGamesInARow();
         });
@@ -473,5 +478,15 @@ class Input extends Identifiable
             return 'SP';
         }
         return '?';
+    }
+
+    public function hasBalancedStructure(): bool
+    {
+        if ($this->hasBalancedStructure === null) {
+            $highestNrPlaces = $this->getFirstPoule()->getPlaces()->count();
+            $lowestNrPlaces = $this->getLastPoule()->getPlaces()->count();
+            $this->hasBalancedStructure = $highestNrPlaces == $lowestNrPlaces;
+        }
+        return $this->hasBalancedStructure;
     }
 }

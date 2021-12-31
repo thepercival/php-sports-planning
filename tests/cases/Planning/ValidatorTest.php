@@ -23,6 +23,7 @@ use SportsPlanning\Game\Assigner as GameAssigner;
 use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Planning;
+use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Referee as PlanningReferee;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
@@ -496,7 +497,7 @@ class ValidatorTest extends TestCase
 
         // (new PlanningOutput())->outputWithGames($planning, true);
 
-        self::assertSame(Planning::STATE_SUCCEEDED, $planning->getState());
+        self::assertSame(PlanningState::Succeeded, $planning->getState());
 
         $planningValidator = new PlanningValidator();
 

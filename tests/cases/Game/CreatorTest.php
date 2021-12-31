@@ -10,13 +10,13 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\SportRange;
 use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
-use SportsPlanning\Planning;
-use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Game\Assigner as GameAssigner;
-use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Game\Creator as GameCreator;
+use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Planning;
+use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Validator as PlanningValidator;
+use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class CreatorTest extends TestCase
@@ -88,7 +88,7 @@ class CreatorTest extends TestCase
 
         // (new PlanningOutput())->outputWithGames($planning, true);
 
-        self::assertEquals(Planning::STATE_SUCCEEDED, $planning->getState());
+        self::assertEquals(PlanningState::Succeeded, $planning->getState());
     }
 
     public function testAgainst(): void
@@ -114,7 +114,7 @@ class CreatorTest extends TestCase
 
         // (new PlanningOutput())->outputWithGames($planning, true);
 
-        self::assertEquals(Planning::STATE_SUCCEEDED, $planning->getState());
+        self::assertEquals(PlanningState::Succeeded, $planning->getState());
     }
 
     // [3]-against : 1vs1 : h2h-nrofgamesperplace => 2-0 f(1)-strat=>eql-ref(0:), batchGames 1->1, gamesInARow 2
@@ -163,7 +163,7 @@ class CreatorTest extends TestCase
 //
         // (new PlanningOutput())->outputWithGames($planning, true);
 //
-        self::assertEquals(Planning::STATE_SUCCEEDED, $planning->getState());
+        self::assertEquals(PlanningState::Succeeded, $planning->getState());
     }
 
     public function test1Poule12Places(): void

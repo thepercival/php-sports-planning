@@ -4,11 +4,13 @@ declare(strict_types=1);
 namespace SportsPlanning\Seeker;
 
 use Psr\Log\LoggerInterface;
-use SportsPlanning\Planning\Repository as PlanningRepository;
+use SportsHelpers\Output;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Planning\Repository as PlanningRepository;
+use SportsPlanning\Planning\State as PlanningState;
 
-class GamesInARowPostProcessor
+class GamesInARowPostProcessor extends Output
 {
     protected PlanningOutput $planningOutput;
 
@@ -16,16 +18,16 @@ class GamesInARowPostProcessor
         protected Planning $batchGamePlanning,
         protected LoggerInterface $logger,
         protected PlanningRepository $planningRepos
-    )
-    {
+    ) {
+        parent::__construct($logger);
         $this->planningOutput = new PlanningOutput($this->logger);
     }
 
     public function updateOthers(Planning $planningProcessed): void
     {
-        if ($planningProcessed->getState() === Planning::STATE_SUCCEEDED) {
+        if ($planningProcessed->getState() === PlanningState::Succeeded) {
             $this->makeGreaterNrOfGamesInARowPlanningsSucceeded($planningProcessed);
-        } elseif ($planningProcessed->getState() === Planning::STATE_FAILED) {
+        } elseif ($planningProcessed->getState() === PlanningState::Failed) {
             $this->makeLesserGamesInARowPlanningsFailed($planningProcessed);
         } else { // Planning::STATE_TIMEDOUT
             $this->makeLesserGamesInARowPlanningsTimedout($planningProcessed);
@@ -35,9 +37,9 @@ class GamesInARowPostProcessor
     protected function makeGreaterNrOfGamesInARowPlanningsSucceeded(Planning $planning): void
     {
         foreach ($this->getGreaterNrOfGamesInARowPlannings($planning) as $greaterNrOfGamesInARowPlanning) {
-            if (!($greaterNrOfGamesInARowPlanning->getState() === Planning::STATE_TIMEDOUT
-                || $greaterNrOfGamesInARowPlanning->getState() === Planning::STATE_GREATER_GAMESINAROW_TIMEDOUT
-                || $greaterNrOfGamesInARowPlanning->getState() === Planning::STATE_TOBEPROCESSED)) {
+            if (!($greaterNrOfGamesInARowPlanning->getState() === PlanningState::TimedOut
+                || $greaterNrOfGamesInARowPlanning->getState() === PlanningState::GreaterNrOfGamesInARowTimedOut
+                || $greaterNrOfGamesInARowPlanning->getState() === PlanningState::ToBeProcessed)) {
                 continue;
             }
             $this->makeGreaterNrOfGamesInARowPlanningSucceeded($greaterNrOfGamesInARowPlanning);
@@ -46,53 +48,40 @@ class GamesInARowPostProcessor
 
     protected function makeGreaterNrOfGamesInARowPlanningSucceeded(Planning $planning): void
     {
-        $planning->setState(Planning::STATE_LESSER_NROFGAMESINROW_SUCCEEDED);
+        $planning->setState(PlanningState::LesserNrOfGamesInARowSucceeded);
         $this->planningRepos->save($planning);
-        $this->planningOutput->output(
-            $planning,
-            false,
-            '   ',
-            " state => LESSER_NROFGAMESINROW_SUCCEEDED"
-        );
+        $this->output($planning, PlanningState::LesserNrOfGamesInARowSucceeded->name);
     }
 
     protected function makeLesserGamesInARowPlanningsFailed(Planning $planning): void
     {
         foreach ($this->getLesserGamesInARowPlannings($planning) as $lessGamesInARowPlanning) {
             // alle makkelijkeren die
-            if (!($lessGamesInARowPlanning->getState() === Planning::STATE_TIMEDOUT
-                || $lessGamesInARowPlanning->getState() === Planning::STATE_GREATER_GAMESINAROW_TIMEDOUT
-                || $lessGamesInARowPlanning->getState() === Planning::STATE_TOBEPROCESSED)) {
+            if (!($lessGamesInARowPlanning->getState() === PlanningState::TimedOut
+                || $lessGamesInARowPlanning->getState() === PlanningState::GreaterNrOfGamesInARowTimedOut
+                || $lessGamesInARowPlanning->getState() === PlanningState::ToBeProcessed)) {
                 continue;
             }
-            $lessGamesInARowPlanning->setState(Planning::STATE_GREATER_NROFGAMESINROW_FAILED);
+            $lessGamesInARowPlanning->setState(PlanningState::GreaterNrOfGamesInARowFailed);
             $this->planningRepos->save($lessGamesInARowPlanning);
-            $this->planningOutput->output(
-                $lessGamesInARowPlanning,
-                false,
-                '   ',
-                " state => GREATER_NROFGAMESINROW_FAILED"
-            );
+            $this->output($lessGamesInARowPlanning, PlanningState::GreaterNrOfGamesInARowFailed->name);
         }
     }
 
     protected function makeLesserGamesInARowPlanningsTimedout(Planning $planning): void
     {
         foreach ($this->getLesserGamesInARowPlannings($planning) as $lessGamesInARowPlanning) {
-            if (!($lessGamesInARowPlanning->getState() === Planning::STATE_TIMEDOUT
-                || $lessGamesInARowPlanning->getState() === Planning::STATE_GREATER_GAMESINAROW_TIMEDOUT
-                || $lessGamesInARowPlanning->getState() === Planning::STATE_TOBEPROCESSED)) {
+            if (!($lessGamesInARowPlanning->getState() === PlanningState::TimedOut
+                || $lessGamesInARowPlanning->getState() === PlanningState::GreaterNrOfGamesInARowTimedOut
+                || $lessGamesInARowPlanning->getState() === PlanningState::ToBeProcessed)) {
                 continue;
             }
-            $lessGamesInARowPlanning->setState(Planning::STATE_GREATER_GAMESINAROW_TIMEDOUT);
+            $lessGamesInARowPlanning->setState(PlanningState::GreaterNrOfGamesInARowTimedOut);
             $lessGamesInARowPlanning->setTimeoutSeconds($planning->getTimeoutSeconds());
             $this->planningRepos->save($lessGamesInARowPlanning);
-            $this->planningOutput->output(
-                $lessGamesInARowPlanning,
-                false,
-                '   ',
-                " state => GREATER_GAMESINAROW_TIMEDOUT, timeoutSeconds => " . $lessGamesInARowPlanning->getTimeoutSeconds()
-            );
+            $suffix = PlanningState::GreaterNrOfGamesInARowTimedOut->name;
+            $suffix .= ', timeoutSeconds => ' . $lessGamesInARowPlanning->getTimeoutSeconds();
+            $this->output($lessGamesInARowPlanning, $suffix);
         }
     }
 
@@ -121,14 +110,27 @@ class GamesInARowPostProcessor
      */
     protected function getLesserGamesInARowPlannings(Planning $planningProcessed): array
     {
-        return array_values(array_filter(
-            $this->batchGamePlanning->getGamesInARowPlannings(),
-            function (Planning $planningIt) use ($planningProcessed) : bool {
-                if ($planningIt === $planningProcessed) {
-                    return false;
+        return array_values(
+            array_filter(
+                $this->batchGamePlanning->getGamesInARowPlannings(),
+                function (Planning $planningIt) use ($planningProcessed): bool {
+                    if ($planningIt === $planningProcessed) {
+                        return false;
+                    }
+                    return $planningIt->getMaxNrOfGamesInARow() < $planningProcessed->getMaxNrOfGamesInARow();
                 }
-                return $planningIt->getMaxNrOfGamesInARow() < $planningProcessed->getMaxNrOfGamesInARow();
-            }
-        ));
+            )
+        );
+    }
+
+    protected function output(Planning $planning, string $suffix): void
+    {
+        $this->planningOutput->output(
+            $planning,
+            false,
+            '   ',
+            ' state => ' . $suffix,
+            $this->useColors() ? Output::COLOR_GRAY : -1
+        );
     }
 }

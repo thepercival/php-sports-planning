@@ -4,11 +4,12 @@ declare(strict_types=1);
 namespace SportsPlanning\Seeker;
 
 use Psr\Log\LoggerInterface;
-use SportsPlanning\Planning\Repository as PlanningRepository;
-use SportsPlanning\Planning;
-use SportsPlanning\Input;
 use SportsHelpers\Output;
+use SportsPlanning\Input;
+use SportsPlanning\Planning;
 use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Planning\Repository as PlanningRepository;
+use SportsPlanning\Planning\State as PlanningState;
 
 class BatchGamesPostProcessor extends Output
 {
@@ -22,10 +23,10 @@ class BatchGamesPostProcessor extends Output
 
     public function updateOthers(Planning $planningProcessed): void
     {
-        if ($planningProcessed->getState() === Planning::STATE_SUCCEEDED) {
+        if ($planningProcessed->getState() === PlanningState::Succeeded) {
             $this->makeLessEfficientBatchGamesPlanningsSucceeded($planningProcessed);
             $this->updateSucceededSameBatchGamesPlannings($planningProcessed->getInput());
-        } elseif ($planningProcessed->getState() === Planning::STATE_FAILED) {
+        } elseif ($planningProcessed->getState() === PlanningState::Failed) {
             $this->makeLessNrOfBatchesPlanningsFailed($planningProcessed);
         } else { // Planning::STATE_TIMEDOUT
             $this->makeLesserNrOfBatchesPlanningsTimedout($planningProcessed);
@@ -41,16 +42,16 @@ class BatchGamesPostProcessor extends Output
 
     protected function makeLessEfficientBatchGamesPlanningSucceeded(Planning $planning): void
     {
-        if ($planning->getState() === Planning::STATE_LESSER_NROFBATCHES_SUCCEEDED) {
+        if ($planning->getState() === PlanningState::LesserNrOfBatchesSucceeded) {
             return;
         }
-        $this->planningRepos->resetBatchGamePlanning($planning, Planning::STATE_LESSER_NROFBATCHES_SUCCEEDED);
-        $this->output($planning,' LESSER_NROFBATCHES_SUCCEEDED (gamesinarow removed)');
+        $this->planningRepos->resetBatchGamePlanning($planning, PlanningState::LesserNrOfBatchesSucceeded);
+        $this->output($planning, ' ' . PlanningState::LesserNrOfBatchesSucceeded->name . ' (gamesinarow removed)');
     }
 
     protected function updateSucceededSameBatchGamesPlannings(Input $input): void
     {
-        $succeededBatchGamesPlannings = $input->getBatchGamesPlannings(Planning::STATE_SUCCEEDED);
+        $succeededBatchGamesPlannings = $input->getBatchGamesPlannings(PlanningState::Succeeded->value);
         if (count($succeededBatchGamesPlannings) !== 2) {
             return;
         }
@@ -60,26 +61,32 @@ class BatchGamesPostProcessor extends Output
     protected function makeLessNrOfBatchesPlanningsFailed(Planning $planning): void
     {
         foreach ($this->getLessNrOfBatchesPlannings($planning) as $lessNrOfBatchesPlanning) {
-            if ($lessNrOfBatchesPlanning->getState() === Planning::STATE_GREATER_NROFBATCHES_FAILED) {
+            if ($lessNrOfBatchesPlanning->getState() === PlanningState::GreaterNrOfBatchesFailed) {
                 continue;
             }
-            $this->planningRepos->resetBatchGamePlanning($lessNrOfBatchesPlanning, Planning::STATE_GREATER_NROFBATCHES_FAILED);
-            $this->output($lessNrOfBatchesPlanning,' GREATER_NROFBATCHES_FAILED (gamesinarow removed)');
+            $this->planningRepos->resetBatchGamePlanning(
+                $lessNrOfBatchesPlanning,
+                PlanningState::GreaterNrOfBatchesFailed
+            );
+            $this->output(
+                $lessNrOfBatchesPlanning,
+                ' ' . PlanningState::GreaterNrOfBatchesFailed->name . ' (gamesinarow removed)'
+            );
         }
     }
 
     protected function makeLesserNrOfBatchesPlanningsTimedout(Planning $planningProcessed): void
     {
         foreach ($this->getLessNrOfBatchesPlannings($planningProcessed) as $planningIt) {
-            if (!($planningIt->getState() === Planning::STATE_TIMEDOUT
-                || $planningIt->getState() === Planning::STATE_GREATER_NROFBATCHES_TIMEDOUT
-                || $planningIt->getState() === Planning::STATE_TOBEPROCESSED)) {
+            if (!($planningIt->getState() === PlanningState::TimedOut
+                || $planningIt->getState() === PlanningState::GreaterNrOfBatchesTimedOut
+                || $planningIt->getState() === PlanningState::ToBeProcessed)) {
                 continue;
             }
-            $planningIt->setState(Planning::STATE_GREATER_NROFBATCHES_TIMEDOUT);
+            $planningIt->setState(PlanningState::GreaterNrOfBatchesTimedOut);
             $planningIt->setTimeoutSeconds($planningProcessed->getTimeoutSeconds());
             $this->planningRepos->save($planningIt);
-            $this->output($planningIt,' GREATER_NROFBATCHES_TIMEDOUT');
+            $this->output($planningIt, ' ' . PlanningState::GreaterNrOfBatchesTimedOut->name);
         }
     }
 

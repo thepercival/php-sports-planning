@@ -12,6 +12,7 @@ use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Input;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
+use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
 use SportsPlanning\TimeoutException;
 
@@ -33,24 +34,24 @@ class Service
         return $this->planning->getInput();
     }
 
-    public function assign(SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch): int
+    public function assign(SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch): PlanningState
     {
         return $this->assignHelper($batch);
     }
 
-    public function assignHelper(SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch): int
+    public function assignHelper(SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch): PlanningState
     {
         $timeoutDateTime = (new DateTimeImmutable())->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
         $this->replacer->setTimeoutDateTime($timeoutDateTime);
         $refereePlaceMap = $this->getRefereePlaceMap();
         try {
             if ($this->assignBatch($batch, $batch->getBase()->getGames(), $refereePlaceMap, $timeoutDateTime)) {
-                return Planning::STATE_SUCCEEDED;
+                return PlanningState::Succeeded;
             };
         } catch (TimeoutException $timeoutExc) {
-            return Planning::STATE_TIMEDOUT;
+            return PlanningState::TimedOut;
         }
-        return Planning::STATE_FAILED;
+        return PlanningState::Failed;
     }
 
     /**
@@ -83,7 +84,7 @@ class Service
         if (count($batchGames) === 0) { // batchsuccess
             $nextBatch = $batch->getNext();
             if ($nextBatch === null) { // endsuccess
-                // (new BatchOutput())->output($batch);
+//                (new BatchOutput())->output($batch, null, null, null, true);
                 return $this->equallyAssign($batch);
             }
             if ($this->throwOnTimeout && (new DateTimeImmutable()) > $timeoutDateTime) {

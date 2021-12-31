@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Resource\RefereePlace;
@@ -105,15 +106,10 @@ class Replacer
         SelfRefereeBatch $batch,
         PlanningPlace $replaced,
         PlanningPlace $replacement
-    ): bool
-    {
-        $batchHasReplacement = $batch->getBase()->isParticipating($replacement) || $batch->isParticipatingAsReferee(
-                $replacement
-            );
-        $batchHasReplaced = $batch->getBase()->isParticipating($replaced) || $batch->isParticipatingAsReferee(
-                $replaced
-            );
-        if (!$batchHasReplacement && $batchHasReplaced) {
+    ): bool {
+        $batchHasReplacement = $batch->getBase()->isParticipating($replacement)
+            || $batch->isParticipatingAsReferee($replacement);
+        if (!$batchHasReplacement && $batch->isParticipatingAsReferee($replaced)) {
             foreach ($batch->getBase()->getGames() as $game) {
                 $refereePlace = $game->getRefereePlace();
                 if ($refereePlace === null || $refereePlace !== $replaced) {

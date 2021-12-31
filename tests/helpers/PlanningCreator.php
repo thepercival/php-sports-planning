@@ -20,6 +20,7 @@ use SportsPlanning\Game\Assigner as GameAssigner;
 use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Input;
 use SportsPlanning\Planning;
+use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 
 trait PlanningCreator
@@ -49,9 +50,10 @@ trait PlanningCreator
         int $nrOfAwayPlaces = 1,
         int $nrOfH2H = 1,
         int $nrOfGamesPerPlace = 0
-    ): SportVariantWithFields
-    {
-        return new SportVariantWithFields($this->getAgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfGamesPerPlace), $nrOfFields);
+    ): SportVariantWithFields {
+        return new SportVariantWithFields(
+            $this->getAgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfGamesPerPlace), $nrOfFields
+        );
     }
 
     protected function getSingleSportVariantWithFields(int $nrOfFields, int $nrOfGameRounds = 1, int $nrOfGamePlaces = 1): SportVariantWithFields
@@ -121,9 +123,9 @@ trait PlanningCreator
     protected function createPlanning(
         Input $input,
         SportRange $nrOfGamesPerBatchRange = null,
-        int $maxNrOfGamesInARow = 0
-    ): Planning
-    {
+        int $maxNrOfGamesInARow = 0,
+        bool $disableThrowOnTimeout = false
+    ): Planning {
         if ($nrOfGamesPerBatchRange === null) {
             $nrOfGamesPerBatchRange = new SportRange(1, 1);
         }
@@ -133,13 +135,15 @@ trait PlanningCreator
         $schedules = $scheduleCreatorService->createSchedules($input);
 
         $gameCreator = new GameCreator($this->getLogger());
-        // $gameCreator->disableThrowOnTimeout();
         $gameCreator->createGames($planning, $schedules);
 
         $gameAssigner = new GameAssigner($this->getLogger());
+        if ($disableThrowOnTimeout) {
+            $gameAssigner->disableThrowOnTimeout();
+        }
         $gameAssigner->assignGames($planning);
 
-        if (Planning::STATE_SUCCEEDED !== $planning->getState()) {
+        if (PlanningState::Succeeded !== $planning->getState()) {
             throw new Exception("planning could not be created", E_ERROR);
         }
         return $planning;

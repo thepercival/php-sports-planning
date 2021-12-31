@@ -10,6 +10,7 @@ use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
 use SportsPlanning\Input as InputBase;
 use SportsPlanning\Planning;
+use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Validator;
 
 /**
@@ -122,7 +123,7 @@ class Repository extends EntityRepository
                 )
             )
             ->setMaxResults($limit)
-            ->setParameter('stateSuccess', Planning::STATE_SUCCEEDED)
+            ->setParameter('stateSuccess', PlanningState::Succeeded->value)
             ->setParameter('valid', Validator::VALID);
 
         if ($pouleStructure !== null) {
@@ -179,14 +180,14 @@ class Repository extends EntityRepository
                         ->from('SportsPlanning\Planning', 'p')
                         ->where('p.input = pi')
                         ->andWhere('p.state = :state')
-                        ->andWhere('p.maxNrOfGamesInARow ' . ($bBatchGames ? '=' : '>') .  ' 0')
+                        ->andWhere('p.maxNrOfGamesInARow ' . ($bBatchGames ? '=' : '>') . ' 0')
                         ->andWhere('p.timeoutSeconds > 0')
                         ->andWhere('p.timeoutSeconds <= :maxTimeoutSeconds')
                         ->getDQL()
                 )
             );
-        $query = $query->setParameter('stateToBeProcessed', Planning::STATE_TOBEPROCESSED);
-        $query = $query->setParameter('state', Planning::STATE_TIMEDOUT);
+        $query = $query->setParameter('stateToBeProcessed', PlanningState::ToBeProcessed->value);
+        $query = $query->setParameter('state', PlanningState::TimedOut->value);
         $query = $query->setParameter('maxTimeoutSeconds', $maxTimeoutSeconds);
 
         if ($pouleStructure !== null) {

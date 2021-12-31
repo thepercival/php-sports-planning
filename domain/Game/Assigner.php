@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Planning;
+use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
 use SportsPlanning\Resource\Service as ResourceService;
 
@@ -30,7 +31,7 @@ class Assigner
             $resourceService->disableThrowOnTimeout();
         }
         $state = $resourceService->assign($games);
-        if ($state === Planning::STATE_FAILED || $state === Planning::STATE_TIMEDOUT) {
+        if ($state === PlanningState::Failed || $state === PlanningState::TimedOut) {
             $planning->getAgainstGames()->clear();
             $planning->getTogetherGames()->clear();
             $planning->setState($state);
@@ -38,20 +39,22 @@ class Assigner
         }
 
         $firstBatch = $planning->createFirstBatch();
-        // (new BatchOutput())->output($firstBatch, '', null, null, true);
+//        (new BatchOutput())->output($firstBatch, '', null, null, true);
         if ($firstBatch instanceof SelfRefereeBatchOtherPoule || $firstBatch instanceof SelfRefereeBatchSamePoule) {
             $refereePlaceService = new RefereePlaceService($planning);
             if (!$this->throwOnTimeout) {
                 $refereePlaceService->disableThrowOnTimeout();
             }
             $state = $refereePlaceService->assign($firstBatch);
-            if ($state === Planning::STATE_FAILED || $state === Planning::STATE_TIMEDOUT) {
-                $this->logger->error('   could not assign refereeplaces');
+            if ($state === PlanningState::Failed || $state === PlanningState::TimedOut) {
+                $planning->getAgainstGames()->clear();
+                $planning->getTogetherGames()->clear();
                 $planning->setState($state);
+                $this->logger->error('   could not assign refereeplaces (plId:' . (string)$planning->getId() . ')');
                 return;
             }
         }
-        $planning->setState(Planning::STATE_SUCCEEDED);
+        $planning->setState(PlanningState::Succeeded);
         $planning->setNrOfBatches($firstBatch->getLeaf()->getNumber());
     }
 
