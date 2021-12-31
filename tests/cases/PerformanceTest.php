@@ -56,8 +56,7 @@ class PerformanceTest extends TestCase
                 0,
                 SelfReferee::SamePoule
             ),
-            $nrOfGamesPerBatchRange,
-            0,
+            $nrOfGamesPerBatchRange
         );
 
 //        (new PlanningOutput())->outputWithGames($planning, true);
