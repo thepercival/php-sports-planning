@@ -115,13 +115,6 @@ class Helper
             }
         }
         return true;
-
-        /* &&  kijk dan als de wedstrijden uberhaupt nog gedaan kunnen worden
-        binnen het aantal nog in te plannen batches!!
-        7,7,7,7 84 wedstrijden, bij gameRange 7-7 dan is het maximum aantal batches 12
-        // als je dan naar batch 12 gaat en je hebt nog minimaal 2 batches nodig voor
-        poule 4 dan kan dat dus niet meer. Nadenken over hoe je dit goed kunt implementeren.
-        */// ) {
     }
 
     /**
@@ -188,10 +181,5 @@ class Helper
             return $sportVariant->getNrOfGamePlaces() + ($selfRefereeSamePoule ? 1 : 0);
         }
         return $nrOfPlaces;
-    }
-
-    public function pouleGamesCanBeAssignedToMinNrOfBatchGames(array $games): bool
-    {
-        return true;
     }
 }

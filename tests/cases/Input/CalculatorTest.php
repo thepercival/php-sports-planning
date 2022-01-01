@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Input;
@@ -6,7 +7,6 @@ namespace SportsPlanning\Tests\Input;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\PouleStructure;
 use SportsPlanning\Input\Calculator as InputCalculator;
-use SportsPlanning\Referee;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class CalculatorTest extends TestCase

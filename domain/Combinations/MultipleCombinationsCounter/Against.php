@@ -1,11 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Combinations\MultipleCombinationsCounter;
 
 use SportsPlanning\Combinations\MultipleCombinationsCounter;
 use SportsPlanning\Combinations\PlaceCombination;
-use SportsPlanning\Combinations\PlaceCombinationCounter;
 use Stringable;
 
 class Against extends MultipleCombinationsCounter implements Stringable

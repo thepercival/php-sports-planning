@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
@@ -7,7 +8,8 @@ use SportsHelpers\SportRange;
 
 class Filter implements \Stringable
 {
-    public function __construct(protected SportRange $batchGamesRange, protected int $maxNrOfGamesInARow) {
+    public function __construct(protected SportRange $batchGamesRange, protected int $maxNrOfGamesInARow)
+    {
     }
 
     public function getBatchGamesRange(): SportRange

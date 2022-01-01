@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Schedule\Creator;
 
-use SportsPlanning\Combinations\GamePlaceStrategy;
-use SportsPlanning\Schedule\Output as ScheduleOutput;
-use SportsPlanning\Game\Creator as GameCreator;
-use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportRange;
-use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Combinations\GamePlaceStrategy;
+use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
+use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Planning;
+use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class SingleTest extends TestCase
@@ -84,8 +83,8 @@ class SingleTest extends TestCase
     {
         $singleSport1 = $this->getSingleSportVariantWithFields(2, 1, 2);
         $singleSport2 = $this->getSingleSportVariantWithFields(2, 1, 2);
-        $input = $this->createInput([5], [$singleSport1,$singleSport2]);
-        $planning = new Planning($input, new SportRange(1, 1),0);
+        $input = $this->createInput([5], [$singleSport1, $singleSport2]);
+        $planning = new Planning($input, new SportRange(1, 1), 0);
 
 //        $getPlacesDescription = function (array $togetherGamePlaces): string {
 //            $description = "";

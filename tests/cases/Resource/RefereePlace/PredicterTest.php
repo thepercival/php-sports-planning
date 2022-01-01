@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Resource\RefereePlace;
@@ -14,7 +15,8 @@ use SportsPlanning\TestHelper\PlanningReplacer;
 
 class PredicterTest extends TestCase
 {
-    use PlanningCreator, PlanningReplacer;
+    use PlanningCreator;
+    use PlanningReplacer;
 
     public function testSamePouleEnoughRefereePlaces(): void
     {

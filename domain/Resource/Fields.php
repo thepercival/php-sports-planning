@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Resource;
@@ -8,7 +9,6 @@ use SportsPlanning\Field;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Input;
-use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Sport;
 

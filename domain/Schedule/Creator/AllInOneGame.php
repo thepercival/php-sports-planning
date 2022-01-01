@@ -1,18 +1,19 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Schedule\Creator;
 
 use Exception;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
-use SportsPlanning\GameRound\Together\GamePlace as TogetherGamePlace;
+use SportsPlanning\GameRound\Together as TogetherGameRound;
 use SportsPlanning\GameRound\Together\Game as TogetherGame;
+use SportsPlanning\GameRound\Together\GamePlace as TogetherGamePlace;
+use SportsPlanning\Poule;
+use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Game;
 use SportsPlanning\Schedule\GamePlace;
-use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Sport as SportSchedule;
-use SportsPlanning\GameRound\Together as TogetherGameRound;
-use SportsPlanning\Poule;
 use SportsPlanning\Sport;
 
 class AllInOneGame implements CreatorInterface

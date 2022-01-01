@@ -1,11 +1,12 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\Referee;
+use SportsPlanning\TestHelper\PlanningCreator;
 
 class RefereeTest extends TestCase
 {

@@ -52,4 +52,3 @@ class StateType extends EnumDbType
         return 'int';
     }
 }
-

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests;
@@ -8,7 +9,6 @@ use SportsPlanning\TimeoutException;
 
 class TimeoutExceptionTest extends TestCase
 {
-
     public function testThrow(): void
     {
         self::expectException(TimeoutException::class);

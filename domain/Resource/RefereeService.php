@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Resource;
 
-use SportsPlanning\Input;
 use SportsPlanning\Batch;
+use SportsPlanning\Input;
 use SportsPlanning\Referee;
 
 class RefereeService

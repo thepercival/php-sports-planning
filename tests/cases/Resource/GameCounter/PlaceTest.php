@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Resource\GameCounter;
@@ -10,7 +11,8 @@ use SportsPlanning\TestHelper\PlanningReplacer;
 
 class PlaceTest extends TestCase
 {
-    use PlanningCreator, PlanningReplacer;
+    use PlanningCreator;
+    use PlanningReplacer;
 
     public function testCalculations(): void
     {
@@ -25,5 +27,4 @@ class PlaceTest extends TestCase
 
         self::assertSame($placeOne->getLocation(), $gameCounter->getIndex());
     }
-
 }

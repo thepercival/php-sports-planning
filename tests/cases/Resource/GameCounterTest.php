@@ -1,6 +1,5 @@
 <?php
 
-
 namespace SportsPlanning\Tests\Resource;
 
 use PHPUnit\Framework\TestCase;
@@ -10,7 +9,8 @@ use SportsPlanning\TestHelper\PlanningReplacer;
 
 class GameCounterTest extends TestCase
 {
-    use PlanningCreator, PlanningReplacer;
+    use PlanningCreator;
+    use PlanningReplacer;
 
     public function testCalculations(): void
     {

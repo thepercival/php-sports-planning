@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Input;
@@ -75,12 +76,12 @@ class Iterator implements \Iterator
         $this->selfReferee = SelfReferee::Disabled;
     }
 
-    public function current() : ?PlanningInput
+    public function current(): ?PlanningInput
     {
         return $this->current;
     }
 
-    public function key() : string
+    public function key(): string
     {
         $planningInputOutput = new PlanningOutput();
         if ($this->current === null) {
@@ -140,7 +141,7 @@ class Iterator implements \Iterator
         $this->current = $this->createInput($pouleStructure, $sportVariant);
     }
 
-    public function valid() : bool
+    public function valid(): bool
     {
         return $this->current !== null;
     }

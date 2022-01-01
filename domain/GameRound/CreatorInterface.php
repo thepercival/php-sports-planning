@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\GameRound;
 
-use SportsPlanning\Schedule\Creator\AssignedCounter;
 use SportsPlanning\Poule;
+use SportsPlanning\Schedule\Creator\AssignedCounter;
 
 /**
  * @template T

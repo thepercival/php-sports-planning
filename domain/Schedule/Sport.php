@@ -27,12 +27,13 @@ class Sport extends PersistVariant
             $sportVariant->getNrOfGamesPerPlace()
         );
         if (!$schedule->getSportSchedules()->contains($this)) {
-            $schedule->getSportSchedules()->add($this) ;
+            $schedule->getSportSchedules()->add($this);
         }
         $this->games = new ArrayCollection();
     }
 
-    public function getNumber(): int {
+    public function getNumber(): int
+    {
         return $this->number;
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Combinations;
@@ -10,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsPlanning\Combinations\HomeAwayCreator;
-use SportsPlanning\Combinations\Output\HomeAway as HomeAwayOutput;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class HomeAwayCreatorTest extends TestCase
@@ -138,10 +138,10 @@ class HomeAwayCreatorTest extends TestCase
 //        (new HomeAwayOutput($this->getLogger()))->outputTotals($homeAways);
 //        // self::assertCount(66, $homeAways);
 //
-////        $place11 = $poule->getPlace(11);
-////        $homes = array_filter($homeAways, fn ($homeAway) => $homeAway->getHome()->has($place11));
-////
-////        self::assertCount(6, $homes);
+    ////        $place11 = $poule->getPlace(11);
+    ////        $homes = array_filter($homeAways, fn ($homeAway) => $homeAway->getHome()->has($place11));
+    ////
+    ////        self::assertCount(6, $homes);
 //    }
 
     protected function getLogger(): LoggerInterface

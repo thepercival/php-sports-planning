@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Batch;
@@ -88,17 +89,20 @@ class Output extends OutputHelper
         BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch
     ): void {
         $useColors = $this->useColors();
+        $unassignedPlaces = $batch instanceof BatchBase ? $batch->getUnassignedPlaces() : $batch->getUnassignedPlaces(
+            true
+        );
         $placesAsArrayOfStrings = array_map(
             function (Place $place) use ($useColors, $batch): string {
                 $previous = $batch->getPrevious();
-                $gamesInARow = $previous ? $previous->getGamesInARow($place) : null;
+                $gamesInARow = $previous?->getGamesInARow($place);
                 return $this->placeOutput->getPlace(
                     $place,
                     $gamesInARow !== null ? '(' . $gamesInARow . ')' : '',
                     $useColors
                 );
             },
-            $batch->getUnassignedPlaces(true)
+            $unassignedPlaces
         );
         $this->logger->info(
             'unassigned places: ' . implode(' & ', $placesAsArrayOfStrings)

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Combinations;
@@ -32,7 +33,8 @@ class AgainstHomeAway implements \Stringable
     /**
      * @return list<Place>
      */
-    public function getPlaces(): array {
+    public function getPlaces(): array
+    {
         return array_merge($this->home->getPlaces(), $this->away->getPlaces());
     }
 
@@ -49,15 +51,16 @@ class AgainstHomeAway implements \Stringable
         return $game->getAway()->hasOverlap($this->getHome())
             || $game->getAway()->hasOverlap($this->getAway())
             || $game->getHome()->hasOverlap($this->getHome())
-            || $game->getHome()->hasOverlap($this->getAway())
-            ;
+            || $game->getHome()->hasOverlap($this->getAway());
     }
 
-    public function swap(): self {
+    public function swap(): self
+    {
         return new AgainstHomeAway($this->getAway(), $this->getHome());
     }
 
-    public function __toString(): string {
+    public function __toString(): string
+    {
         return $this->get(AgainstSide::Home) . ' vs ' . $this->get(AgainstSide::Away);
     }
 }

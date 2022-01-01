@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Combinations\Output;
@@ -6,10 +7,9 @@ namespace SportsPlanning\Combinations\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Combinations\AgainstHomeAway;
-use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\Combinations\PlaceCombination;
+use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\Place;
-use SportsPlanning\PlaceCounter;
 
 class HomeAway extends OutputHelper
 {

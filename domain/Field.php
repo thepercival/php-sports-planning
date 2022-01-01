@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning;
@@ -20,7 +21,8 @@ class Field extends Identifiable implements Resource
         return $this->number;
     }
 
-    public function getUniqueIndex(): string {
+    public function getUniqueIndex(): string
+    {
         return $this->getSport()->getNumber() . '.' . $this->getNumber();
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
@@ -6,10 +7,10 @@ namespace SportsPlanning\Planning;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Batch\Output as BatchOutput;
-use SportsPlanning\Resource\GameCounter;
-use SportsPlanning\Planning;
 use SportsPlanning\Input as PlanningInput;
+use SportsPlanning\Planning;
 use SportsPlanning\Planning\Validator\GameAssignments as GameAssignmentsValidator;
+use SportsPlanning\Resource\GameCounter;
 
 class Output extends OutputHelper
 {

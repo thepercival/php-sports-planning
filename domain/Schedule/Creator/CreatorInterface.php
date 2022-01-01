@@ -1,10 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Schedule\Creator;
 
-use SportsPlanning\Schedule;
 use SportsPlanning\Poule;
+use SportsPlanning\Schedule;
 use SportsPlanning\Sport;
 
 interface CreatorInterface

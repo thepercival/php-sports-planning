@@ -1,19 +1,20 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Resource;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportRange;
-use SportsPlanning\Resource\Fields;
 use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Resource\Fields;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
-use SportsPlanning\Planning\Output as PlanningOutput;
 
 class FieldsTest extends TestCase
 {
-    use PlanningCreator, PlanningReplacer;
+    use PlanningCreator;
+    use PlanningReplacer;
 
     public function testOnePouleTwoFields(): void
     {
@@ -57,5 +58,4 @@ class FieldsTest extends TestCase
         $sport = $input->getSport(1);
         self::assertFalse($fields->isSomeFieldAssignable($sport, $input->getPoule(6)));
     }
-
 }

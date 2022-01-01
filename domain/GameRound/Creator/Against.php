@@ -39,8 +39,7 @@ class Against implements CreatorInterface
         Poule $poule,
         AssignedCounter $assignedCounter,
         int $totalNrOfGamesPerPlace,
-    ): AgainstGameRound
-    {
+    ): AgainstGameRound {
         $this->nrOfGamesPerGameRound = $this->sportVariant->getNrOfGamesOneGameRound($poule->getPlaces()->count());
         $this->totalNrOfGamesPerPlace = $totalNrOfGamesPerPlace;
 

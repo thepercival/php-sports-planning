@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Resource\GameCounter;
@@ -11,7 +12,8 @@ use SportsPlanning\TestHelper\PlanningReplacer;
 
 class UnequalTest extends TestCase
 {
-    use PlanningCreator, PlanningReplacer;
+    use PlanningCreator;
+    use PlanningReplacer;
 
     public function testCalculations(): void
     {
@@ -35,5 +37,4 @@ class UnequalTest extends TestCase
         self::assertSame([$gameCounterPlaceOne], $unequal->getMinGameCounters());
         self::assertSame([$gameCounterPlaceTwo], $unequal->getMaxGameCounters());
     }
-
 }

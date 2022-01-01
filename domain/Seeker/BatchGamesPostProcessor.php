@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Seeker;
@@ -100,12 +101,12 @@ class BatchGamesPostProcessor extends Output
     {
         return array_values(array_filter(
             $planningProcessed->getInput()->getBatchGamesPlannings(),
-            function (Planning $planningToBeProcessed) use ($planningProcessed) : bool {
+            function (Planning $planningToBeProcessed) use ($planningProcessed): bool {
                 if ($planningToBeProcessed === $planningProcessed) {
                     return false;
                 }
                 return $planningToBeProcessed->getMinNrOfBatchGames() <= $planningProcessed->getMinNrOfBatchGames()
-                        && $planningToBeProcessed->getMaxNrOfBatchGames() <= $planningProcessed->getMaxNrOfBatchGames();
+                    && $planningToBeProcessed->getMaxNrOfBatchGames() <= $planningProcessed->getMaxNrOfBatchGames();
             }
         ));
     }
@@ -120,13 +121,15 @@ class BatchGamesPostProcessor extends Output
     {
         return array_values(array_filter(
             $planningProcessed->getInput()->getBatchGamesPlannings(),
-            function (Planning $planningToBeProcessed) use ($planningProcessed) : bool {
-                if ($planningToBeProcessed === $planningProcessed) {
-                    return false;
-                }
-                return $planningToBeProcessed->getMaxNrOfBatchGames() >= $planningProcessed->getMaxNrOfBatchGames()
-                        && $planningToBeProcessed->getMinNrOfBatchGames() >= $planningProcessed->getMinNrOfBatchGames();
-            }
+                                function (Planning $planningToBeProcessed) use ($planningProcessed): bool {
+                                    if ($planningToBeProcessed === $planningProcessed) {
+                                        return false;
+                                    }
+                                    return $planningToBeProcessed->getMaxNrOfBatchGames(
+                                        ) >= $planningProcessed->getMaxNrOfBatchGames()
+                                        && $planningToBeProcessed->getMinNrOfBatchGames(
+                                        ) >= $planningProcessed->getMinNrOfBatchGames();
+                                }
         ));
     }
 

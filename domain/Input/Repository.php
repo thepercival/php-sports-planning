@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Input;
@@ -23,7 +24,8 @@ class Repository extends EntityRepository
      */
     use BaseRepository;
 
-    public function get(string $uniqueString): ?InputBase {
+    public function get(string $uniqueString): ?InputBase
+    {
         $query = $this->createQueryBuilder('pi')->where('pi.uniqueString = :uniqueString');
         $query = $query->setParameter('uniqueString', $uniqueString);
 

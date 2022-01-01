@@ -1,10 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Combinations\Output;
 
 use Psr\Log\LoggerInterface;
-
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\Output\HomeAway as HomeAwayOutput;

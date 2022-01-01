@@ -1,17 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Combinations\Validator;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportRange;
+use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
 use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\GameGenerator;
-use SportsPlanning\Schedule\Creator\Against as AgainstScheduleCreator;
-use SportsPlanning\Schedule\Creator\AssignedCounter;
 use SportsPlanning\Planning;
-use SportsPlanning\Planning\Output as PlanningOutput;
-use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
 use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -135,6 +133,4 @@ class AgainstTest extends TestCase
 //
 //        self::assertTrue($counter->balanced());
 //    }
-
-
 }

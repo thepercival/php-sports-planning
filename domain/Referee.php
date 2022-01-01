@@ -26,7 +26,8 @@ class Referee extends Identifiable implements Resource
         return $this->number;
     }
 
-    public function getUniqueIndex(): string {
+    public function getUniqueIndex(): string
+    {
         return (string)$this->getNumber();
     }
 

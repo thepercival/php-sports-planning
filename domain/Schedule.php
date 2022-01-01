@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning;
@@ -68,11 +69,13 @@ class Schedule extends Identifiable implements \Stringable
 
     public function __toString()
     {
-        $json = json_encode( [
-            "nrOfPlaces" => $this->nrOfPlaces,
-            "gamePlaceStrategy" => $this->gamePlaceStrategy,
-            "sportsConfigName" => new ScheduleName(array_values( $this->createSportVariants()->toArray() ) )
-        ] );
-        return $json ? $json : '';
+        $json = json_encode([
+                                "nrOfPlaces" => $this->nrOfPlaces,
+                                "gamePlaceStrategy" => $this->gamePlaceStrategy,
+                                "sportsConfigName" => new ScheduleName(
+                                    array_values($this->createSportVariants()->toArray())
+                                )
+                            ]);
+        return $json !== false ? $json : '';
     }
 }

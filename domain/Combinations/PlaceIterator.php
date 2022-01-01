@@ -1,15 +1,17 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Combinations;
 
+use Iterator;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
 /**
- * @implements \Iterator<int, Place>
+ * @implements Iterator<int, Place>
  */
-class PlaceIterator implements \Iterator
+class PlaceIterator implements Iterator
 {
     private int $current;
 
@@ -32,17 +34,17 @@ class PlaceIterator implements \Iterator
         }
     }
 
-    public function key()
+    public function key(): int
     {
         return $this->current;
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return true;
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         $this->current = 1;
     }

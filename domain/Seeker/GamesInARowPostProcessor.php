@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Seeker;
@@ -94,12 +95,13 @@ class GamesInARowPostProcessor extends Output
     {
         return array_values(array_filter(
             $this->batchGamePlanning->getGamesInARowPlannings(),
-            function (Planning $planningIt) use ($planningProcessed) : bool {
-                if ($planningIt === $planningProcessed) {
-                    return false;
-                }
-                return $planningIt->getMaxNrOfGamesInARow() > $planningProcessed->getMaxNrOfGamesInARow();
-            }
+                                function (Planning $planningIt) use ($planningProcessed): bool {
+                                    if ($planningIt === $planningProcessed) {
+                                        return false;
+                                    }
+                                    return $planningIt->getMaxNrOfGamesInARow(
+                                        ) > $planningProcessed->getMaxNrOfGamesInARow();
+                                }
         ));
     }
 

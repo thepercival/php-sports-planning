@@ -1,6 +1,5 @@
 <?php
 
-
 namespace SportsPlanning\Resource\RefereePlace;
 
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;

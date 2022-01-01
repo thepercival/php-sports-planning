@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Schedule\Creator;
@@ -266,7 +267,7 @@ class AgainstTest extends TestCase
 //        // echo 'Total Execution Time: '. (microtime(true) - $time_start);
 //        // self::assertTrue((microtime(true) - $time_start) < 0.3);
 //
-////        self::assertCount(45, $planning->getAgainstGames());
+    ////        self::assertCount(45, $planning->getAgainstGames());
 //        $validator = new PlanningValidator();
 //        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
 //    }

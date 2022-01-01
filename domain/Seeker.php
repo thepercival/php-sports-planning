@@ -20,6 +20,7 @@ use SportsPlanning\Seeker\NextGamesInARowPlanningCalculator;
 
 class Seeker
 {
+    use Color;
     protected int $maxTimeoutSeconds = 0;
     protected InputService $inputService;
     protected PlanningOutput $planningOutput;
@@ -27,8 +28,6 @@ class Seeker
     protected bool $throwOnTimeout;
 
     private const TIMEOUT_MULTIPLIER = 6;
-
-    use Color;
 
     public function __construct(
         protected LoggerInterface $logger,

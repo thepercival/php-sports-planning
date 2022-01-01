@@ -25,7 +25,6 @@ class Name implements \Stringable
         }
         $names = [];
         foreach ($this->sportVariants as $sportVariant) {
-
             if ($sportVariant instanceof AgainstSportVariant) {
                 $name = [
                     'nrOfHomePlaces' => $sportVariant->getNrOfHomePlaces(),

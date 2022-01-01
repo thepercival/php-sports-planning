@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Input;
@@ -65,7 +66,7 @@ class AgainstSportsIterator implements \Iterator
         return $this->current;
     }
 
-    public function key() : string
+    public function key(): string
     {
         return (string)$this->current;
     }
@@ -88,7 +89,7 @@ class AgainstSportsIterator implements \Iterator
         $this->current = $this->createAgainstSportVariantWithFields();
     }
 
-    public function valid() : bool
+    public function valid(): bool
     {
         return $this->current !== null;
     }

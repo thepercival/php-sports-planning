@@ -123,6 +123,5 @@ class Together extends GameBase
             );
         }
         return new AllInOneGameSportVariant($this->getSport()->getNrOfGamePlaces());
-
     }
 }

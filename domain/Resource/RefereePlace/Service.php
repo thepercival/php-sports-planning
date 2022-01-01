@@ -143,8 +143,7 @@ class Service
         TogetherGame|AgainstGame $game,
         Place $assignPlace,
         array $refereePlaceMap
-    ): array
-    {
+    ): array {
         $game->setRefereePlace($assignPlace);
         $batch->addReferee($assignPlace);
 

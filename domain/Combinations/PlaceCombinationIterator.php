@@ -1,11 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Combinations;
 
 use Iterator;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVaritant;
-use SportsHelpers\SportMath;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
@@ -46,17 +45,17 @@ class PlaceCombinationIterator implements Iterator
         }
     }
 
-    public function key()
+    public function key(): string
     {
         return '' . $this->current();
     }
 
-    public function valid()
+    public function valid(): bool
     {
         return $this->nrOfIncrements <= $this->maxNrOfIncrements;
     }
 
-    public function rewind()
+    public function rewind(): void
     {
     }
 }

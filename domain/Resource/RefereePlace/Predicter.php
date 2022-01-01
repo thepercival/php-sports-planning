@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace SportsPlanning\Resource\RefereePlace;
@@ -79,9 +80,9 @@ class Predicter
         foreach ($pouleCounterMap as $pouleCounter) {
             $otherPouleCounters = array_values(array_filter(
                 $pouleCounterMap,
-                function (PouleCounter $pouleCounterIt) use ($pouleCounter) : bool {
-                    return $pouleCounter !== $pouleCounterIt;
-                }
+                                                   function (PouleCounter $pouleCounterIt) use ($pouleCounter): bool {
+                                                       return $pouleCounter !== $pouleCounterIt;
+                                                   }
             ));
             $nrOfPlacesAvailable = $this->getNrOfPlacesAvailable($otherPouleCounters);
             if ($pouleCounter->getNrOfGames() > $nrOfPlacesAvailable) {
@@ -114,7 +115,7 @@ class Predicter
         $totalNrOfForcedRefereePlaces = $batch->getTotalNrOfForcedRefereePlaces();
         $totalPouleCounters = $batch->getTotalPouleCounters();
 
-        $pouleHasForcedRefereePlaces = function (Poule $poule) use ($totalNrOfForcedRefereePlaces) : bool {
+        $pouleHasForcedRefereePlaces = function (Poule $poule) use ($totalNrOfForcedRefereePlaces): bool {
             foreach ($poule->getPlaces() as $place) {
                 if (array_key_exists($place->getLocation(), $totalNrOfForcedRefereePlaces)) {
                     return true;
