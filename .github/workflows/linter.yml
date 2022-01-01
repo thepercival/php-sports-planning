@@ -44,6 +44,8 @@ jobs:
           # Full git history is needed to get a proper list of changed files within `super-linter`
           fetch-depth: 0
 
+      - uses: php-actions/composer@v6
+
       - name: Setup PHP 8.1
         uses: shivammathur/setup-php@v2
         with:
@@ -56,5 +58,6 @@ jobs:
         uses: github/super-linter@v4
         env:
           VALIDATE_ALL_CODEBASE: true
+          # FILTER_REGEX_EXCLUDE: .*test/.*
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
