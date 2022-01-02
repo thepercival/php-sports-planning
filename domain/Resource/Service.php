@@ -190,7 +190,12 @@ class Service
 //            $this->logger->info(' nr of games to process after gamesinarow-filter(max '.$this->planning->getMaxNrOfGamesInARow().') : '  . count($gamesForBatchTmp) );
 //            $this->gameOutput->outputGames($gamesForBatchTmp);
             $gamesList = array_values($gamesForBatchTmp);
-            return $this->assignBatchHelper($games, $gamesList, $fieldResources, $nextBatch, $this->planning->getMaxNrOfBatchGames());
+            $nextMaxNrOfBatchGames = $this->helper->calculateMaxNrOfBatchGames($games);
+            $minNrOfBatchGames = $this->planning->getMinNrOfBatchGames();
+            if (count($games) >= $minNrOfBatchGames && $nextMaxNrOfBatchGames < $minNrOfBatchGames) {
+                return false;
+            }
+            return $this->assignBatchHelper($games, $gamesList, $fieldResources, $nextBatch, $nextMaxNrOfBatchGames);
         }
         if ($this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) {
             throw new TimeoutException(

@@ -20,37 +20,18 @@ use SportsPlanning\Sport;
 
 class Helper
 {
-//    private DateTimeImmutable|null $timeoutDateTime = null;
-//    private Predicter $refereePlacePredicter;
-//    protected BatchOutput $batchOutput;
-//    protected PlanningOutput $planningOutput;
-//    protected GameOutput $gameOutput;
     private const ThresHoldPercentage = 50;
     protected bool $balancedStructure;
     protected int $totalNrOfGames;
     protected Input $input;
 
-//    protected bool $throwOnTimeout;
-//    /**
-//     * @var array<int, AgainstSportVariant|SingleSportVariant>
-//     */
-//    protected array $sportVariantMap;
-//    protected int $debugIterations = 0;
-
     public function __construct(protected Planning $planning, protected LoggerInterface $logger)
     {
         $this->input = $planning->getInput();
-//        $poules = array_values($this->getInput()->getPoules()->toArray());
-//        $this->refereePlacePredicter = new Predicter($poules);
-//        $this->batchOutput = new BatchOutput($logger);
-//        $this->planningOutput = new PlanningOutput($logger);
-//        $this->gameOutput = new GameOutput($logger);
-//        $this->initSportVariantMap($planning->getInput());
         $this->balancedStructure = $this->input->createPouleStructure()->isBalanced();
 
         $sportVariants = array_values($this->input->createSportVariants()->toArray());
         $this->totalNrOfGames = $this->input->createPouleStructure()->getTotalNrOfGames($sportVariants);
-//        $this->throwOnTimeout = true;
     }
 
     /**
@@ -181,5 +162,44 @@ class Helper
             return $sportVariant->getNrOfGamePlaces() + ($selfRefereeSamePoule ? 1 : 0);
         }
         return $nrOfPlaces;
+    }
+
+    /**
+     * @param list<TogetherGame|AgainstGame> $games
+     * @return int
+     */
+    public function calculateMaxNrOfBatchGames(array $games): int
+    {
+        $maxNrOfBatchGames = $this->planning->getMaxNrOfBatchGames();
+        if (!$this->input->hasMultipleSports()) {
+            return $maxNrOfBatchGames;
+        }
+
+        // tel de velden vande sporten van de games op en kijk als dat minder
+        $maxNrOfBatchGamesByFields = 0;
+        foreach ($this->getAssignableSportMap($games) as $sport) {
+            $maxNrOfBatchGamesByFields += $sport->getFields()->count();
+        }
+
+        if ($maxNrOfBatchGamesByFields < $maxNrOfBatchGames) {
+            return $maxNrOfBatchGamesByFields;
+        }
+        return $maxNrOfBatchGames;
+    }
+
+    /**
+     * @param list<TogetherGame|AgainstGame> $games
+     * @return array<int|string, Sport>
+     */
+    protected function getAssignableSportMap(array $games): array
+    {
+        $assignableSportMap = [];
+        foreach ($games as $game) {
+            $sportNr = $game->getSport()->getNumber();
+            if (!isset($assignableSportMap[$sportNr])) {
+                $assignableSportMap[$sportNr] = $game->getSport();
+            }
+        }
+        return $assignableSportMap;
     }
 }

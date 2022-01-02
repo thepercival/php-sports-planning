@@ -36,6 +36,7 @@ class Planning extends Identifiable
     protected Collection $togetherGames;
 
     public const MINIMUM_TIMEOUTSECONDS = 5;
+    private const MAXIMUM_TIMEOUTSECONDS = 15;
 
     public function __construct(protected Input $input, SportRange $nrOfBatchGames, protected int $maxNrOfGamesInARow)
     {
@@ -116,9 +117,12 @@ class Planning extends Identifiable
         $sportVariants = array_values($this->input->createSportVariants()->toArray());
         $totalNrOfGames = $this->input->createPouleStructure()->getTotalNrOfGames($sportVariants);
         $nrOfGamesPerSecond = 10;
-        $nrOfSeconds = (int) ceil($totalNrOfGames / $nrOfGamesPerSecond);
+        $nrOfSeconds = (int)ceil($totalNrOfGames / $nrOfGamesPerSecond);
         if ($nrOfSeconds < self::MINIMUM_TIMEOUTSECONDS) {
             $nrOfSeconds = self::MINIMUM_TIMEOUTSECONDS;
+        }
+        if ($nrOfSeconds > self::MAXIMUM_TIMEOUTSECONDS) {
+            $nrOfSeconds = self::MAXIMUM_TIMEOUTSECONDS;
         }
         return $nrOfSeconds;
     }
