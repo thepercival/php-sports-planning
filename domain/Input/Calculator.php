@@ -69,7 +69,6 @@ class Calculator
             }
             $sportVariantWithFields = array_shift($sportVariantsWithFields);
         }
-
         if ($nrOfBatchGames === 0) {
             return 1;
         }
@@ -81,6 +80,9 @@ class Calculator
             );
             $nrOfGamePlaces += ($selfReferee ? 1 : 0);
             $maxNrOfGamesPerBatchPerPoule = (int)floor($pouleStructure->getBiggestPoule() / $nrOfGamePlaces);
+            if ($maxNrOfGamesPerBatchPerPoule === 0) {
+                $maxNrOfGamesPerBatchPerPoule = 1;
+            }
             // pak maximale aantal wedstrijden per poule tegelijk * het aantal poules
             $maxNrOfBatchGames = $maxNrOfGamesPerBatchPerPoule * $pouleStructure->getNrOfPoules();
             if ($nrOfBatchGames > $maxNrOfBatchGames) {
