@@ -8,7 +8,8 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\GamePlaceStrategy;
-use SportsPlanning\Combinations\HomeAwayCreator;
+use SportsPlanning\Combinations\HomeAwayCreator\Mixxed as MixxedHomeAwayCreator;
+use SportsPlanning\Combinations\HomeAwayCreator\OneVersusOne as OneVersusOneHomeAwayCreator;
 use SportsPlanning\Combinations\Output\GameRound as GameRoundOutput;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
@@ -18,6 +19,7 @@ use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
 use SportsPlanning\Schedule\Creator\AssignedCounter;
 
+
 /**
  * @template-implements CreatorInterface<AgainstGameRound>
  */
@@ -25,12 +27,16 @@ class Against implements CreatorInterface
 {
     protected int $nrOfGamesPerGameRound = 0;
     protected int $totalNrOfGamesPerPlace = 0;
+    protected int $totalNrOfSportGamesPerPlace = 0;
+    protected bool $mixedSport = false;
+    protected int $maxNrOfGameRounds = 0;
     protected GameRoundOutput $gameRoundOutput;
 
     public function __construct(
         protected AgainstSportVariant $sportVariant,
         protected GamePlaceStrategy $gamePlaceStrategy,
-        LoggerInterface $logger
+        protected bool $hasAgainstMaybeUnequalSport,
+        protected LoggerInterface $logger
     ) {
         $this->gameRoundOutput = new GameRoundOutput($logger);
     }
@@ -40,16 +46,22 @@ class Against implements CreatorInterface
         AssignedCounter $assignedCounter,
         int $totalNrOfGamesPerPlace,
     ): AgainstGameRound {
-        $this->nrOfGamesPerGameRound = $this->sportVariant->getNrOfGamesOneGameRound($poule->getPlaces()->count());
+        $nrOfPlaces = $poule->getPlaces()->count();
+        $this->totalNrOfSportGamesPerPlace = $this->sportVariant->getTotalNrOfGamesPerPlace($nrOfPlaces);
+        $this->nrOfGamesPerGameRound = $this->sportVariant->getNrOfGamesOneGameRound($nrOfPlaces);
+        $this->mixedSport = $this->sportVariant->isMixed();
+        $this->maxNrOfGameRounds = $this->sportVariant->getNrOfGameRounds($nrOfPlaces);
         $this->totalNrOfGamesPerPlace = $totalNrOfGamesPerPlace;
 
         $gameRound = new AgainstGameRound();
         $assignedMap = $assignedCounter->getAssignedMap();
         $assignedWithMap = $assignedCounter->getAssignedWithMap();
         $assignedHomeMap = $assignedCounter->getAssignedHomeMap();
-        $homeAwayCreator = new HomeAwayCreator($poule, $this->sportVariant);
+        $homeAwayCreator = $this->getHomeAwayCreator($poule, $this->sportVariant);
         $homeAways = $homeAwayCreator->createForOneH2H();
+        // $this->outputUnassignedHomeAways($homeAways);
         if ($this->assignGameRound(
+                $poule,
                 $homeAwayCreator,
                 $homeAways,
                 $homeAways,
@@ -63,8 +75,19 @@ class Against implements CreatorInterface
         return $gameRound;
     }
 
+    protected function getHomeAwayCreator(
+        Poule $poule,
+        AgainstSportVariant $sportVariant
+    ): MixxedHomeAwayCreator|OneVersusOneHomeAwayCreator {
+        if ($sportVariant->isMixed()) {
+            return new MixxedHomeAwayCreator($poule, $sportVariant);
+        }
+        return new OneVersusOneHomeAwayCreator($poule, $sportVariant);
+    }
+
     /**
-     * @param HomeAwayCreator $homeAwayCreator
+     * @param Poule $poule
+     * @param OneVersusOneHomeAwayCreator|MixxedHomeAwayCreator $homeAwayCreator
      * @param list<AgainstHomeAway> $homeAwaysForGameRound
      * @param list<AgainstHomeAway> $homeAways
      * @param array<int, PlaceCounter> $assignedMap
@@ -75,7 +98,8 @@ class Against implements CreatorInterface
      * @return bool
      */
     protected function assignGameRound(
-        HomeAwayCreator $homeAwayCreator,
+        Poule $poule,
+        OneVersusOneHomeAwayCreator|MixxedHomeAwayCreator $homeAwayCreator,
         array $homeAwaysForGameRound,
         array $homeAways,
         array $assignedMap,
@@ -84,13 +108,6 @@ class Against implements CreatorInterface
         AgainstGameRound $gameRound,
         int $nrOfHomeAwaysTried = 0
     ): bool {
-//        if ($this->isCompleted($assignedMap)) {
-//            $er = 12;
-//        }
-
-//        $this->gameRoundOutput->outputHomeAways($gameRound->getHomeAways(), $gameRound);
-//        $this->gameRoundOutput->outputHomeAways($homeAwaysForGameRound, null, "unassigned");
-
         if ($this->isCompleted($assignedMap)) {
             return true;
         }
@@ -102,22 +119,37 @@ class Against implements CreatorInterface
             if (count($homeAways) === 0) {
                 $homeAways = $homeAwayCreator->createForOneH2H();
             }
-//            if ($gameRound->getNumber() === 2) {
+
+//            if ($gameRound->getNumber() === 14) {
 //                $this->gameRoundOutput->output($gameRound);
+//                $this->outputUnassignedTotals($homeAways);
+//                $this->outputUnassignedHomeAways($homeAways);
+//                // $this->gameRoundOutput->outputHomeAways($homeAways, null, "unassigned");
 //                $qw = 12;
 //            }
+
+            if ($this->isOverAssigned($poule, $gameRound->getNumber(), $homeAways)) {
+                return false;
+            }
 
             //if ($this->getDifferenceNrOfGameRounds($assignedMap) >= 5) {
             //                $this->gameRoundOutput->output($gameRound);
             //                $this->gameRoundOutput->outputHomeAways($homeAways, $gameRound, 'presort after gameround ' . $gameRound->getNumber() . ' completed');
-            $sortedHomeAways = $this->sortHomeAways($homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap);
-            //                $this->gameRoundOutput->outputHomeAways($homeAways, $gameRound, 'postsort after gameround ' . $gameRound->getNumber() . ' completed');
-            //}
+            if ($this->mixedSport) {
+                $sortedHomeAways = $this->sortHomeAways($homeAways, $assignedMap, $assignedWithMap, $assignedHomeMap);
+            } else {
+                $sortedHomeAways = $homeAways;
+            }
+//
+//            if ($gameRound->getNumber() === 14) {
+//                $this->gameRoundOutput->outputHomeAways($sortedHomeAways, $gameRound, 'postsort after gameround ' . $gameRound->getNumber() . ' completed');
+//            }
 
 //            $this->gameRoundOutput->outputHomeAways($homeAways, null, 'postsort after gameround ' . $gameRound->getNumber() . ' completed');
             // $gamesList = array_values($gamesForBatchTmp);
 //            shuffle($homeAways);
             return $this->assignGameRound(
+                $poule,
                 $homeAwayCreator,
                 $sortedHomeAways,
                 $homeAways,
@@ -141,16 +173,22 @@ class Against implements CreatorInterface
             $assignedWithMapTry = $this->copyWithCounters($assignedWithMap);
             $assignedHomeMapTry = $this->copyCounters($assignedHomeMap);
             $this->assignHomeAway($gameRound, $homeAway, $assignedMapTry, $assignedWithMapTry, $assignedHomeMapTry);
+//            if ($gameRound->getNumber() === 15 ) {
+//                $this->gameRoundOutput->outputHomeAways($gameRound->getHomeAways(), null, 'homeawys of gameround 15');
+//                $this->gameRoundOutput->outputHomeAways($homeAwaysForGameRound, null,'choosable homeawys of gameround 15');
+//                // $this->gameRoundOutput->outputHomeAways($homeAways, null, "unassigned");
+//                $qw = 12;
+//            }
             $homeAwaysForGameRoundTmp = array_values(
                 array_filter(
                     $homeAwaysForGameRound,
-                    function (AgainstHomeAway $homeAway) use ($gameRound/*,$assignedMap*/): bool {
+                    function (AgainstHomeAway $homeAway) use ($gameRound): bool {
                         return $gameRound->isHomeAwayPlaceParticipating($homeAway);
-                        // return $this->isHomeAwayAssignable($gameRound, $homeAway, $assignedMap);
                     }
                 )
             );
             if ($this->assignGameRound(
+                $poule,
                 $homeAwayCreator,
                 $homeAwaysForGameRoundTmp,
                 $homeAways,
@@ -166,6 +204,7 @@ class Against implements CreatorInterface
         $homeAwaysForGameRound[] = $homeAway;
         ++$nrOfHomeAwaysTried;
         return $this->assignGameRound(
+            $poule,
             $homeAwayCreator,
             $homeAwaysForGameRound,
             $homeAways,
@@ -402,6 +441,69 @@ class Against implements CreatorInterface
      */
     private function willBeOverAssigned(Place $place, array $assignedMap): bool
     {
-        return $assignedMap[$place->getNumber()]->count() > ($this->totalNrOfGamesPerPlace + 1);
+        $totalNrOfGamesPerPlace = $this->totalNrOfGamesPerPlace + ($this->hasAgainstMaybeUnequalSport ? 1 : 0);
+//        if ($assignedMap[$place->getNumber()]->count() > $totalNrOfGamesPerPlace === true) {
+//            $rofirjf = 123;
+//        }
+        return $assignedMap[$place->getNumber()]->count() > $totalNrOfGamesPerPlace;
+    }
+
+    /**
+     * @param Poule $poule
+     * @param int $currentGameRoundNumber
+     * @param list<AgainstHomeAway> $homeAways
+     * @return bool
+     */
+    protected function isOverAssigned(Poule $poule, int $currentGameRoundNumber, array $homeAways): bool
+    {
+        if ($this->mixedSport) {
+            return false;
+        }
+        $unassignedMap = [];
+        foreach ($poule->getPlaces() as $place) {
+            $unassignedMap[$place->getNumber()] = new PlaceCounter($place);
+        }
+        foreach ($homeAways as $homeAway) {
+            foreach ($homeAway->getPlaces() as $place) {
+                $unassignedMap[$place->getNumber()]->increment();
+            }
+        }
+
+        foreach ($poule->getPlaces() as $place) {
+            if ($currentGameRoundNumber + $unassignedMap[$place->getNumber()]->count() > $this->maxNrOfGameRounds) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @param list<AgainstHomeAway> $homeAways
+     */
+    protected function outputUnassignedHomeAways(array $homeAways): void
+    {
+        $this->logger->info('unassigned');
+        foreach ($homeAways as $homeAway) {
+            $this->logger->info($homeAway);
+        }
+    }
+
+    /**
+     * @param list<AgainstHomeAway> $homeAways
+     */
+    protected function outputUnassignedTotals(array $homeAways): void
+    {
+        $map = [];
+        foreach ($homeAways as $homeAway) {
+            foreach ($homeAway->getPlaces() as $place) {
+                if (!isset($map[$place->getLocation()])) {
+                    $map[$place->getLocation()] = new PlaceCounter($place);
+                }
+                $map[$place->getLocation()]->increment();
+            }
+        }
+        foreach ($map as $location => $placeCounter) {
+            $this->logger->info($location . ' => ' . $placeCounter->count());
+        }
     }
 }

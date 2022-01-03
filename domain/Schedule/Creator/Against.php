@@ -20,6 +20,8 @@ use SportsPlanning\Sport;
 
 class Against implements CreatorInterface
 {
+    protected bool $hasAgainstMaybeUnequalSport = false;
+
     public function __construct(protected LoggerInterface $logger)
     {
     }
@@ -33,6 +35,8 @@ class Against implements CreatorInterface
      */
     public function createSportSchedules(Schedule $schedule, Poule $poule, array $sports, AssignedCounter $assignedCounter): void
     {
+        $this->initHasAgainstMaybeUnequalSport($poule, $sports);
+
         $nrOfPlaces = $poule->getPlaces()->count();
         $maxNrOfGamesPerPlace = 0;
         $sortedSports = $this->sortSportsByEquallyAssigned($poule, $sports);
@@ -45,6 +49,19 @@ class Against implements CreatorInterface
             $maxNrOfGamesPerPlace += $sportVariant->getTotalNrOfGamesPerPlace($nrOfPlaces);
             $gameRound = $this->generateGameRounds($poule, $sportVariant, $assignedCounter, $maxNrOfGamesPerPlace);
             $this->createGames($sportSchedule, $gameRound);
+        }
+    }
+
+    /**
+     * @param list<Sport> $sports
+     */
+    private function initHasAgainstMaybeUnequalSport(Poule $poule, array $sports): void
+    {
+        foreach ($sports as $sport) {
+            if (!$sport->createVariant()->mustBeEquallyAssigned($poule->getPlaces()->count())) {
+                $this->hasAgainstMaybeUnequalSport = true;
+                return;
+            }
         }
     }
 
@@ -75,9 +92,14 @@ class Against implements CreatorInterface
         Poule $poule,
         AgainstSportVariant $sportVariant,
         AssignedCounter $assignedCounter,
-        int $maxNrOfGamesPerPlace
+        int $maxNrOfGamesPerPlace,
     ): AgainstGameRound {
-        $gameRoundCreator = new AgainstGameRoundCreator($sportVariant, $poule->getInput()->getGamePlaceStrategy(), $this->logger);
+        $gameRoundCreator = new AgainstGameRoundCreator(
+            $sportVariant,
+            $poule->getInput()->getGamePlaceStrategy(),
+            $this->hasAgainstMaybeUnequalSport,
+            $this->logger
+        );
         $gameRound = $gameRoundCreator->createGameRound($poule, $assignedCounter, $maxNrOfGamesPerPlace);
         $this->assignHomeAways($assignedCounter, $gameRound);
         return $gameRound;

@@ -4,16 +4,17 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedule\Creator;
 
+use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\Against as AgainstVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameVariant;
+use SportsHelpers\Sport\Variant\Single as SingleVariant;
 use SportsPlanning\Combinations\AgainstHomeAway;
-use SportsPlanning\Combinations\HomeAwayCreator;
+use SportsPlanning\Combinations\HomeAwayCreator\Mixxed as MixxedHomeAwayCreator;
+use SportsPlanning\Combinations\HomeAwayCreator\OneVersusOne as OneVersusOneHomeAwayCreator;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
-use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
-use SportsHelpers\Sport\Variant\Against as AgainstVariant;
-use SportsHelpers\Sport\Variant\Single as SingleVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameVariant;
 
 class AssignedCounter
 {
@@ -55,7 +56,7 @@ class AssignedCounter
 
         foreach ($sportVariants as $sportVariant) {
             if ($sportVariant instanceof AgainstVariant) {
-                $homeAwayCreator = new HomeAwayCreator($poule, $sportVariant);
+                $homeAwayCreator = $this->getHomeAwayCreator($poule, $sportVariant);
                 $homeAways = $homeAwayCreator->createForOneH2H();
                 $this->initAssignedWithMap($homeAways);
             }
@@ -196,5 +197,15 @@ class AssignedCounter
                 $this->assignedTogetherMap[$placeIt->getLocation()][$coPlace->getLocation()]->increment();
             }
         }
+    }
+
+    protected function getHomeAwayCreator(
+        Poule $poule,
+        AgainstSportVariant $sportVariant
+    ): MixxedHomeAwayCreator|OneVersusOneHomeAwayCreator {
+        if ($sportVariant->isMixed()) {
+            return new MixxedHomeAwayCreator($poule, $sportVariant);
+        }
+        return new OneVersusOneHomeAwayCreator($poule, $sportVariant);
     }
 }

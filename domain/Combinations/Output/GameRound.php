@@ -26,13 +26,12 @@ class GameRound extends OutputHelper
         int $max = null,
         int $min = null
     ): void {
-        if ($title === null) {
-            $title = '';
+        if ($title !== null) {
+            $this->logger->info('------ title: ' . $title . ' -------------');
         }
 //        if( $batch->getNumber() > 2 ) {
 //            return;
 //        }
-        $this->logger->info('------gameround ' . $gameRound->getNumber() . ' ' . $title . ' -------------');
         $this->outputHelper($gameRound->getFirst(), $min, $max);
     }
 
@@ -51,7 +50,7 @@ class GameRound extends OutputHelper
         if ($max !== null && $gameRound->getNumber() > $max) {
             return;
         }
-
+        $this->logger->info('------ gameround ' . $gameRound->getNumber() . ' -------------');
         $this->outputHomeAways($gameRound->getHomeAways());
         $nextGameRound = $gameRound->getNext();
         if ($nextGameRound !== null) {

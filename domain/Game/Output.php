@@ -45,16 +45,22 @@ class Output extends OutputHelper
         string|null $prefix = null
     ): void {
         $useColors = $this->useColors();
-        $batchColor = $useColors ? ($game->getBatchNr() % 10) : -1;
+        $batchNr = $game->getBatchNr();
+        $gameRoundNumber = 0;
+        if ($game instanceof AgainstGame) {
+            $gameRoundNumber = $game->getGameRoundNumber();
+        }
+        $batchColor = $useColors ? ($batchNr % 10) : -1;
         $fieldNr = $game->getField()->getNumber();
         $fieldColor = $useColors ? $fieldNr : -1;
         $sportNr = $game->getSport()->getNumber();
         $sportColor = $useColors ? $sportNr : -1;
+
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
-                $this->getColored($batchColor, 'batch ' . $game->getBatchNr()) . " " .
-                // . 'substr(' . $game->getRoundNumber(), 2 ) . substr( $game->getSubNumber(), 2 ) . ") "
-                'poule ' . $game->getPoule()->getNumber()
+            $this->getColored($batchColor, 'batch ' . $batchNr . '(' . $gameRoundNumber . ')') . " " .
+            // . 'substr(' . $game->getRoundNumber(), 2 ) . substr( $game->getSubNumber(), 2 ) . ") "
+            'poule ' . $game->getPoule()->getNumber()
                 . ', ' . $this->getPlaces($game, $batch)
                 . ' , ' . $this->getReferee($game)
                 . ', ' . $this->getColored($fieldColor, 'field ' . $fieldNr)

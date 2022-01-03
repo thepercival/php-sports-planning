@@ -69,13 +69,17 @@ class Schedule extends Identifiable implements \Stringable
 
     public function __toString()
     {
+        $XYZ = 'XYZ';
+
+        $scheduleName = (string)new ScheduleName(array_values($this->createSportVariants()->toArray()));
         $json = json_encode([
                                 "nrOfPlaces" => $this->nrOfPlaces,
                                 "gamePlaceStrategy" => $this->gamePlaceStrategy,
-                                "sportsConfigName" => new ScheduleName(
-                                    array_values($this->createSportVariants()->toArray())
-                                )
+                                "sportsConfigName" => $XYZ
                             ]);
-        return $json !== false ? $json : '';
+        if ($json === false) {
+            return '';
+        }
+        return str_replace($XYZ, $scheduleName, $json);
     }
 }
