@@ -48,10 +48,7 @@ final class OneVersusOne extends HomeAwayCreator
                 if ($homePlace === null || $awayPlace === null) {
                     continue;
                 }
-                $homeAways[] = new AgainstHomeAway(
-                    new PlaceCombination([$homePlace]),
-                    new PlaceCombination([$awayPlace]),
-                );
+                $homeAways[] = $this->createHomeAway($homePlace, $awayPlace);
             }
             if (count($home) + count($away) - 1 > 2) {
                 $removedSecond = array_splice($home, 1, 1);
@@ -60,24 +57,26 @@ final class OneVersusOne extends HomeAwayCreator
             }
         }
 
-//        /** @var \Iterator<string, list<Place>> $homeIt */
-//        $homeIt = new CombinationIt($this->poule->getPlaceList(), $this->sportVariant->getNrOfHomePlaces());
-//        while ($homeIt->valid()) {
-//            $homePlaceCombination = new PlaceCombination($homeIt->current());
-//            $awayPlaces = array_diff($this->poule->getPlaceList(), $homeIt->current());
-//            /** @var \Iterator<string, list<Place>> $awayIt */
-//            $awayIt = new CombinationIt($awayPlaces, $this->sportVariant->getNrOfAwayPlaces());
-//            while ($awayIt->valid()) {
-//                $awayPlaceCombination = new PlaceCombination($awayIt->current());
-//                if ($this->sportVariant->getNrOfHomePlaces() !== $this->sportVariant->getNrOfAwayPlaces()
-//                    || $homePlaceCombination->getNumber() < $awayPlaceCombination->getNumber()) {
-//                    $homeAway = $this->createHomeAway($homePlaceCombination, $awayPlaceCombination);
-//                    array_push($homeAways, $homeAway);
-//                }
-//                $awayIt->next();
-//            }
-//            $homeIt->next();
-//        }
         return $this->createForOneH2HHelper($homeAways);
+    }
+
+    protected function createHomeAway(Place $home, Place $away): AgainstHomeAway
+    {
+        if ($this->shouldSwap($home, $away)) {
+            return new AgainstHomeAway(new PlaceCombination([$away]), new PlaceCombination([$home]));
+        }
+        return new AgainstHomeAway(new PlaceCombination([$home]), new PlaceCombination([$away]));
+    }
+
+    protected function shouldSwap(Place $home, Place $away): bool
+    {
+        $even = (($home->getNumber() + $away->getNumber()) % 2) === 0;
+        if ($even && $home->getNumber() < $away->getNumber()) {
+            return true;
+        }
+        if (!$even && $home->getNumber() > $away->getNumber()) {
+            return true;
+        }
+        return false;
     }
 }

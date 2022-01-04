@@ -362,25 +362,26 @@ class ValidatorTest extends TestCase
         );
 
         $firstBatch = $planning->createFirstBatch();
-        self::assertTrue($firstBatch instanceof SelfRefereeBatchSamePoule
-                         || $firstBatch instanceof SelfRefereeBatchOtherPoule);
+        self::assertTrue(
+            $firstBatch instanceof SelfRefereeBatchSamePoule
+            || $firstBatch instanceof SelfRefereeBatchOtherPoule
+        );
         $refereePlaceService = new RefereePlaceService($planning);
         $refereePlaceService->assign($firstBatch);
 
         // ----------------- BEGIN EDITING --------------------------
-        // (new PlanningOutput())->outputWithGames($planning, true);
+//        (new PlanningOutput())->outputWithGames($planning, true);
         $pouleOne = $planning->getInput()->getPoule(1);
         $gamesPouleOne = $planning->getGamesForPoule($pouleOne);
         $refereePlaceTooMuch = $gamesPouleOne[0]->getRefereePlace();
-        $refReplaced = false;
-        while (!$refReplaced && $refereePlaceTooMuch !== null) {
-            $gamePouleOne = array_pop($gamesPouleOne);
-            if ($gamePouleOne !== null && !$gamePouleOne->isParticipating($refereePlaceTooMuch)) {
-                $gamePouleOne->setRefereePlace($refereePlaceTooMuch);
-                $refReplaced = true;
+        self::assertNotNull($refereePlaceTooMuch);
+        foreach (array_reverse($gamesPouleOne) as $game) {
+            if (!$game->isParticipating($refereePlaceTooMuch) && $game->getRefereePlace() !== $refereePlaceTooMuch) {
+                $game->setRefereePlace($refereePlaceTooMuch);
+                break;
             }
         }
-        // (new PlanningOutput())->outputWithGames($planning, true);
+//        (new PlanningOutput())->outputWithGames($planning, true);
         // ----------------- END EDITING --------------------------
 
         $planningValidator = new PlanningValidator();

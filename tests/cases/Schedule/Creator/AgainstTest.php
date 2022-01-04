@@ -12,7 +12,6 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\SportRange;
 use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Planning;
-use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -387,7 +386,7 @@ class AgainstTest extends TestCase
         $schedules = $scheduleCreatorService->createSchedules($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
-        (new PlanningOutput())->outputWithGames($planning, true);
+        // (new PlanningOutput())->outputWithGames($planning, true);
 
         self::assertCount(153, $planning->getAgainstGames());
         $validator = new PlanningValidator();
