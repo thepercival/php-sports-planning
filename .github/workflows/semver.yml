@@ -1,15 +1,22 @@
-name: Semver
+name: Generate tag
 
-on: [ push ]
+on:
+  push:
+    branches:
+      - master
 
 jobs:
-  build-test:
+  build:
+    name: Generate tag
     runs-on: ubuntu-latest
-
     steps:
-      - name: Tag
-        uses: K-Phoen/semver-release-action@master
+      - name: Check out code
+        uses: actions/checkout@master
         with:
-          release_branch: master
+          fetch-depth: '0'
+
+      - name: Bump version and push tag
+        uses: ChloePlanet/github-tag-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
