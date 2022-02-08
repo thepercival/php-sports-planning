@@ -43,9 +43,8 @@ class Repository extends EntityRepository
             ->andWhere('grsch.gamePlaceStrategy = :gamePlaceStrategy')
             ->setParameter('sportsConfigName', $scheduleName)
             ->setParameter('gamePlaceStrategy', $input->getGamePlaceStrategy()->value);
-        /** @var list<Schedule> $schedules */
-        $schedules = $query->getQuery()->getResult();
 
+        $schedules = $query->getQuery()->getResult();
         return $schedules;
     }
 
