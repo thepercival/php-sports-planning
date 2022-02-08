@@ -132,7 +132,13 @@ class Predicter
             $maxNrOfForcedRefereePlaces = null;
             /** @var int|null $minNrOfForcedRefereePlaces */
             $minNrOfForcedRefereePlaces = null;
-            $avgNrOfGamesForRefereePlace = $totalPouleCounters[$poule->getNumber()]->getNrOfGames() / $poule->getPlaces()->count();
+
+            $avgNrOfGamesForRefereePlace = 0;
+            if (array_key_exists($poule->getNumber(), $totalPouleCounters)) {
+                $avgNrOfGamesForRefereePlace = $totalPouleCounters[$poule->getNumber()]->getNrOfGames(
+                    ) / $poule->getPlaces()->count();
+            }
+
             $pouleMax = $avgNrOfGamesForRefereePlace + self::SAME_POULE_MAX_DELTA;
             // $pouleMin = $avgNrOfGamesForRefereePlace - self::SAME_POULE_MAX_DELTA;
 

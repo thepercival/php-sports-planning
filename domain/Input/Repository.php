@@ -8,10 +8,9 @@ use Doctrine\ORM\EntityRepository;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\SelfReferee;
-use SportsHelpers\SportRange;
 use SportsPlanning\Input as InputBase;
-use SportsPlanning\Planning;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\Type as PlanningType;
 use SportsPlanning\Planning\Validator;
 
 /**
@@ -30,10 +29,21 @@ class Repository extends EntityRepository
         $query = $query->setParameter('uniqueString', $uniqueString);
 
         $query->setMaxResults(1);
-        /** @var list<InputBase> $results */
         $results = $query->getQuery()->getResult();
         $first = reset($results);
         return $first !== false ? $first : null;
+    }
+
+    /**
+     * @param int $amount
+     * @return list<InputBase>
+     */
+    public function findToRecreate(int $amount): array
+    {
+        $query = $this->createQueryBuilder('pi')->where('pi.recreatedAt is null');
+        $query->setMaxResults($amount);
+        $results = $query->getQuery()->getResult();
+        return $results;
     }
 
     public function getFromInput(InputBase $input): ?InputBase
@@ -45,30 +55,10 @@ class Repository extends EntityRepository
     {
         while ($planning = $planningInput->getPlannings()->first()) {
             $planningInput->getPlannings()->removeElement($planning);
-            $this->_em->remove($planning);
+            $this->getEntityManager()->remove($planning);
         }
-        $this->_em->flush();
+        $this->getEntityManager()->flush();
     }
-
-    public function reset(InputBase $planningInput): void
-    {
-        $this->removePlannings($planningInput);
-        $this->createBatchGamesPlannings($planningInput);
-    }
-
-    public function createBatchGamesPlannings(InputBase $planningInput): void
-    {
-        $maxNrOfBatchGamesInput = $planningInput->getMaxNrOfBatchGames();
-
-        for ($minNrOfBatchGames = 1; $minNrOfBatchGames <= $maxNrOfBatchGamesInput; $minNrOfBatchGames++) {
-            for ($maxNrOfBatchGames = $minNrOfBatchGames; $maxNrOfBatchGames <= $maxNrOfBatchGamesInput; $maxNrOfBatchGames++) {
-                $planning = new Planning($planningInput, new SportRange($minNrOfBatchGames, $maxNrOfBatchGames), 0);
-                $this->_em->persist($planning);
-            }
-        }
-        $this->_em->flush();
-    }
-
 
     //-- planninginputs not validated
     //select 	count(*)
@@ -90,10 +80,11 @@ class Repository extends EntityRepository
         int $limit,
         PouleStructure|null $pouleStructure = null,
         SelfReferee|null $selfReferee = null
-    ): array {
-        $exprNot = $this->_em->getExpressionBuilder();
-        $exprInvalidStates = $this->_em->getExpressionBuilder();
-        $exprNotValidated = $this->_em->getExpressionBuilder();
+    ): array
+    {
+        $exprNot = $this->getEntityManager()->getExpressionBuilder();
+        $exprInvalidStates = $this->getEntityManager()->getExpressionBuilder();
+        $exprNotValidated = $this->getEntityManager()->getExpressionBuilder();
         $validOperator = '<';
         if ($validateInvalid) {
             $validOperator = '<>';
@@ -104,7 +95,7 @@ class Repository extends EntityRepository
             ->andWhere(
                 $exprNot->not(
                     $exprInvalidStates->exists(
-                        $this->_em->createQueryBuilder()
+                        $this->getEntityManager()->createQueryBuilder()
                             ->select('p1.id')
                             ->from('SportsPlanning\Planning', 'p1')
                             ->where('p1.input = pi')
@@ -115,7 +106,7 @@ class Repository extends EntityRepository
             )
             ->orWhere(
                 $exprNotValidated->exists(
-                    $this->_em->createQueryBuilder()
+                    $this->getEntityManager()->createQueryBuilder()
                         ->select('p2.id')
                         ->from('SportsPlanning\Planning', 'p2')
                         ->where('p2.input = pi')
@@ -138,58 +129,33 @@ class Repository extends EntityRepository
                 ->andWhere('pi.selfReferee = :selfReferee')
                 ->setParameter('selfReferee', $selfReferee->value);
         }
-        /** @var list<InputBase> $inputs */
         $inputs = $query->getQuery()->getResult();
         return $inputs;
     }
 
     // select * from planninginputs where exists( select * from  plannings where gamesinarow = 0 and state = timedout ) and  structure;
+    public function findTimedout(
+        PlanningType $planningType,
+        int $maxTimeoutSeconds,
+        PouleStructure $pouleStructure = null
+    ): ?InputBase {
+        $exprTimedoutPlannings = $this->getEntityManager()->getExpressionBuilder();
 
-
-    public function findGamesInARowTimedout(int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?InputBase
-    {
-        return $this->findTimedout(false, $maxTimeoutSeconds, $pouleStructure);
-    }
-
-    public function findBatchGamestTimedout(int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?InputBase
-    {
-        return $this->findTimedout(true, $maxTimeoutSeconds, $pouleStructure);
-    }
-
-    protected function findTimedout(bool $bBatchGames, int $maxTimeoutSeconds, PouleStructure $pouleStructure = null): ?InputBase
-    {
-        $exprNot = $this->_em->getExpressionBuilder();
-        $exprInputWithToBeProcessedPlannings = $this->_em->getExpressionBuilder();
-        $exprTimedoutPlannings = $this->_em->getExpressionBuilder();
-
+        $operator = $planningType === PlanningType::BatchGames ? '=' : '>';
         $query = $this->createQueryBuilder('pi')
             ->andWhere(
-                $exprNot->not(
-                    $exprInputWithToBeProcessedPlannings->exists(
-                        $this->_em->createQueryBuilder()
-                            ->select('p1.id')
-                            ->from('SportsPlanning\Planning', 'p1')
-                            ->where('p1.input = pi')
-                            ->andWhere('p1.state = :stateToBeProcessed')
-                            ->getDQL()
-                    )
-                )
-            )
-            ->andWhere(
                 $exprTimedoutPlannings->exists(
-                    $this->_em->createQueryBuilder()
+                    $this->getEntityManager()->createQueryBuilder()
                         ->select('p.id')
                         ->from('SportsPlanning\Planning', 'p')
                         ->where('p.input = pi')
-                        ->andWhere('p.state = :state')
-                        ->andWhere('p.maxNrOfGamesInARow ' . ($bBatchGames ? '=' : '>') . ' 0')
+                        ->andWhere('p.state = ' . PlanningState::TimedOut->value)
+                        ->andWhere('p.maxNrOfGamesInARow ' . $operator . ' 0')
                         ->andWhere('p.timeoutSeconds > 0')
                         ->andWhere('p.timeoutSeconds <= :maxTimeoutSeconds')
                         ->getDQL()
                 )
             );
-        $query = $query->setParameter('stateToBeProcessed', PlanningState::ToBeProcessed->value);
-        $query = $query->setParameter('state', PlanningState::TimedOut->value);
         $query = $query->setParameter('maxTimeoutSeconds', $maxTimeoutSeconds);
 
         if ($pouleStructure !== null) {
@@ -199,7 +165,6 @@ class Repository extends EntityRepository
         }
 
         $query->setMaxResults(1);
-        /** @var list<InputBase> $results */
         $results = $query->getQuery()->getResult();
         $first = reset($results);
         return $first === false ? null : $first;

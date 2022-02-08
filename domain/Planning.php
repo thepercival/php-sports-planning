@@ -7,7 +7,6 @@ namespace SportsPlanning;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Exception;
 use SportsHelpers\Identifiable;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
@@ -16,6 +15,7 @@ use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\Type as PlanningType;
 
 class Planning extends Identifiable
 {
@@ -85,12 +85,25 @@ class Planning extends Identifiable
         return $this->maxNrOfGamesInARow;
     }
 
+    public function isEqualBatchGames(): bool
+    {
+        return $this->isBatchGames() && $this->getMinNrOfBatchGames() === $this->getMaxNrOfBatchGames();
+    }
+
+    public function isUnequalBatchGames(): bool
+    {
+        return $this->isBatchGames() && $this->getMinNrOfBatchGames() !== $this->getMaxNrOfBatchGames();
+    }
 
     public function isBatchGames(): bool
     {
         return $this->maxNrOfGamesInARow === 0;
     }
 
+    public function getType(): PlanningType
+    {
+        return $this->isBatchGames() ? PlanningType::BatchGames : PlanningType::GamesInARow;
+    }
 
     public function getCreatedDateTime(): DateTimeImmutable
     {
@@ -255,21 +268,21 @@ class Planning extends Identifiable
     }
 
     /**
-     * @param int|null $stateValue
+     * @param PlanningState|null $state
      * @return list<Planning>
      */
-    public function getGamesInARowPlannings(int $stateValue = null): array
+    public function getGamesInARowPlannings(PlanningState|null $state = null): array
     {
         if ($this->getMaxNrOfGamesInARow() > 0) {
             return [];
         }
         $range = $this->getNrOfBatchGames();
         $gamesInARowPlannings = $this->getInput()->getPlannings()->filter(
-            function (Planning $planning) use ($range, $stateValue): bool {
+            function (Planning $planning) use ($range, $state): bool {
                 return $planning->getMinNrOfBatchGames() === $range->getMin()
                     && $planning->getMaxNrOfBatchGames() === $range->getMax()
                     && $planning->getMaxNrOfGamesInARow() > 0
-                    && ($stateValue === null || (($planning->getState()->value & $stateValue) > 0));
+                    && ($state === null || (($planning->getState()->value & $state->value) > 0));
             }
         );
         return $this->orderGamesInARowPlannings($gamesInARowPlannings);
@@ -287,21 +300,15 @@ class Planning extends Identifiable
             if ($first->getMaxNrOfGamesInARow() === $second->getMaxNrOfGamesInARow()) {
                 return $first->getNrOfBatchGames()->difference() > $second->getNrOfBatchGames()->difference() ? -1 : 1;
             }
-            return $first->getMaxNrOfGamesInARow() < $second->getMaxNrOfGamesInARow() ? -1 : 1;
+            return $first->getMaxNrOfGamesInARow() - $second->getMaxNrOfGamesInARow();
         });
         return array_values($plannings);
     }
 
-    public function getBestGamesInARowPlanning(): Planning
+    public function getBestGamesInARowPlanning(): Planning|null
     {
-        $succeededGamesInARowPlannings = $this->getGamesInARowPlannings(PlanningState::Succeeded->value);
-        if (count($succeededGamesInARowPlannings) >= 1) {
-            return reset($succeededGamesInARowPlannings);
-        }
-        if ($this->getState() === PlanningState::Succeeded) {
-            return $this;
-        }
-        throw new Exception('er kan geen planning gevonden worden', E_ERROR);
+        $succeededGamesInARowPlannings = $this->getGamesInARowPlannings(PlanningState::Succeeded);
+        return array_shift($succeededGamesInARowPlannings);
     }
 
     public function getMaxNrOfBatches(): int

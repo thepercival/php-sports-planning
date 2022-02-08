@@ -20,6 +20,10 @@ alter table planningreferees rename planningReferees;
 alter table planningsports rename planningSports;
 
 -- POST POST POST doctrine-update ===========================================================
+update planningInputs
+set recreatedAt = null;
+update planningInputs
+set seekingPercentage = -1;
 
 -- update planninginputs set gameMode = 2;
 -- update planningInputs set sportConfig = replace(sportConfig, '2}]', concat( '2,"gameAmount": ', nrOfHeadtohead, '}]') );

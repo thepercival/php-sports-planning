@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Planning;
 
 use SportsHelpers\SportRange;
+use SportsPlanning\Planning;
 
 class Filter implements \Stringable
 {
@@ -30,6 +31,13 @@ class Filter implements \Stringable
     public function getMaxNrOfGamesInARow(): int
     {
         return $this->maxNrOfGamesInARow;
+    }
+
+    public function equals(Planning $planning): bool
+    {
+        return $this->getMinNrOfBatchGames() === $planning->getMinNrOfBatchGames()
+            && $this->getMaxNrOfBatchGames() === $planning->getMaxNrOfBatchGames()
+            && $this->getMaxNrOfGamesInARow() === $planning->getMaxNrOfGamesInARow();
     }
 
     public function __toString()

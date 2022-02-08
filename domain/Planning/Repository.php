@@ -35,34 +35,15 @@ class Repository extends EntityRepository
         $againstGames = $planning->getAgainstGames();
         while ($game = $againstGames->first()) {
             $againstGames->removeElement($game);
-            $this->_em->remove($game);
+            $this->getEntityManager()->remove($game);
         }
         $togetherGames = $planning->getTogetherGames();
         while ($game = $togetherGames->first()) {
             $togetherGames->removeElement($game);
-            $this->_em->remove($game);
+            $this->getEntityManager()->remove($game);
         }
 
         $this->save($planning);
-    }
-
-    protected function removeGamesInARowPlannings(PlanningBase $batchGamePlanning): void
-    {
-        $gamesInARowPlannings = $batchGamePlanning->getGamesInARowPlannings();
-        while (count($gamesInARowPlannings) > 0) {
-            $planning = array_pop($gamesInARowPlannings);
-            $planning->getInput()->getPlannings()->removeElement($planning);
-            $this->remove($planning);
-        }
-    }
-
-    public function createGamesInARowPlannings(PlanningBase $planning): void
-    {
-        $maxNrOfGamesInARowInput = $planning->getInput()->getMaxNrOfGamesInARow();
-        for ($gamesInARow = 1; $gamesInARow <= $maxNrOfGamesInARowInput - 1; $gamesInARow++) {
-            $planning = new PlanningBase($planning->getInput(), $planning->getNrOfBatchGames(), $gamesInARow);
-            $this->save($planning);
-        }
     }
 
 //    public function hasEndSuccess(Input $input): bool
@@ -123,14 +104,34 @@ class Repository extends EntityRepository
 //        return count($x) === 1;
 //    }
 //
-    public function findOneByExt(Input $input, SportRange $nrOfBatchGamesRange, int $maxNrOfGamesInARow): Planning|null
+
+
+    public function findBatchGames(Input $input, SportRange $nrOfBatchGamesRange): Planning|null
     {
+        return $this->findOneByExt($input, $nrOfBatchGamesRange, 0);
+    }
+
+    public function findGamesInARow(
+        Input $input,
+        SportRange $nrOfBatchGamesRange,
+        int $maxNrOfGamesInARow
+    ): Planning|null {
+        if ($maxNrOfGamesInARow > 0) {
+            return null;
+        }
+        return $this->findOneByExt($input, $nrOfBatchGamesRange, $maxNrOfGamesInARow);
+    }
+
+    protected function findOneByExt(
+        Input $input,
+        SportRange $nrOfBatchGamesRange,
+        int $maxNrOfGamesInARow
+    ): Planning|null {
         $query = $this->createQueryBuilder('p')
             ->where('p.input = :input')
             ->andWhere('p.minNrOfBatchGames = :minNrOfBatchGames')
             ->andWhere('p.maxNrOfBatchGames = :maxNrOfBatchGames')
-            ->andWhere('p.maxNrOfGamesInARow = :maxNrOfGamesInARow')
-        ;
+            ->andWhere('p.maxNrOfGamesInARow = :maxNrOfGamesInARow');
 
         $query = $query->setParameter('input', $input);
         $query = $query->setParameter('minNrOfBatchGames', $nrOfBatchGamesRange->getMin());
@@ -139,12 +140,53 @@ class Repository extends EntityRepository
 
         $query->setMaxResults(1);
 
-        /** @var list<Planning> $results */
         $results = $query->getQuery()->getResult();
         $first = reset($results);
         return $first !== false ? $first : null;
     }
 
+//    public function findFirstBestPlanningWithoutGamesInARow(): Planning|null
+//    {
+//        $exprNot = $this->_em->getExpressionBuilder();
+//        $exprMinNrOfBatches = $this->_em->getExpressionBuilder();
+//        $exprNoGamesInARow = $this->_em->getExpressionBuilder();
+//
+//        $query = $this->createQueryBuilder('p')
+//            ->andWhere(
+//                $exprNot->not(
+//                    $exprMinNrOfBatches->exists(
+//                        $this->_em->createQueryBuilder()
+//                            ->select('p1.id')
+//                            ->from('SportsPlanning\Planning', 'p1')
+//                            ->where('p1.input = p.input')
+//                            ->andWhere('p1.state = ' . PlanningState::Succeeded->value)
+//                            ->andWhere('p1.nrOfBatches < p.nrOfBatches')
+//                            ->getDQL()
+//                    )
+//                )
+//            )
+//            ->andWhere(
+//                $exprNot->not(
+//                    $exprNoGamesInARow->exists(
+//                        $this->_em->createQueryBuilder()
+//                            ->select('p2.id')
+//                            ->from('SportsPlanning\Planning', 'p2')
+//                            ->where('p2.input = p.input')
+//                            ->andWhere('p2.minNrOfBatchGames = p.minNrOfBatchGames')
+//                            ->andWhere('p2.maxNrOfBatchGames = p.maxNrOfBatchGames')
+//                            ->andWhere('p2.maxNrOfGamesInARow > 0')
+//                            ->getDQL()
+//                    )
+//                )
+//            )
+//            ->andWhere('p.state = ' . PlanningState::Succeeded->value);
+//
+//        $query->setMaxResults(1);
+//        /** @var list<Planning> $results */
+//        $results = $query->getQuery()->getResult();
+//        $first = reset($results);
+//        return $first === false ? null : $first;
+//    }
 
 //
 //    /**

@@ -20,29 +20,11 @@ class StateType extends EnumDbType
         if ($value === State::Succeeded->value) {
             return State::Succeeded;
         }
-        if ($value === State::LesserNrOfBatchesSucceeded->value) {
-            return State::LesserNrOfBatchesSucceeded;
-        }
-        if ($value === State::LesserNrOfGamesInARowSucceeded->value) {
-            return State::LesserNrOfGamesInARowSucceeded;
-        }
         if ($value === State::Failed->value) {
             return State::Failed;
         }
-        if ($value === State::GreaterNrOfBatchesFailed->value) {
-            return State::GreaterNrOfBatchesFailed;
-        }
-        if ($value === State::GreaterNrOfGamesInARowFailed->value) {
-            return State::GreaterNrOfGamesInARowFailed;
-        }
         if ($value === State::TimedOut->value) {
             return State::TimedOut;
-        }
-        if ($value === State::GreaterNrOfBatchesTimedOut->value) {
-            return State::GreaterNrOfBatchesTimedOut;
-        }
-        if ($value === State::GreaterNrOfGamesInARowTimedOut->value) {
-            return State::GreaterNrOfGamesInARowTimedOut;
         }
         return null;
     }

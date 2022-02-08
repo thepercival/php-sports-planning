@@ -9,6 +9,7 @@ use SportsHelpers\SelfReferee;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Combinations\GamePlaceStrategy;
+use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Resource\RefereePlace\Predicter;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
@@ -20,8 +21,9 @@ class PredicterTest extends TestCase
 
     public function testSamePouleEnoughRefereePlaces(): void
     {
+        $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
         $planning = $this->createPlanning(
-            $this->createInput([3], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SamePoule)
+            $this->createInput([3], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
         );
         $poules = array_values($planning->getInput()->getPoules()->toArray());
         $predicter = new Predicter($poules);
@@ -36,16 +38,18 @@ class PredicterTest extends TestCase
 
     public function testSamePouleNotEnoughRefereePlaces(): void
     {
+        $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
         self::expectException(\Exception::class);
         $this->createPlanning(
-            $this->createInput([2], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::SamePoule)
+            $this->createInput([2], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
         );
     }
 
     public function testOtherPoulesEnoughRefereePlaces(): void
     {
+        $refereeInfo = new RefereeInfo(SelfReferee::OtherPoules);
         $planning = $this->createPlanning(
-            $this->createInput([3, 3], null, GamePlaceStrategy::EquallyAssigned, null, SelfReferee::OtherPoules)
+            $this->createInput([3, 3], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
         );
         $poules = array_values($planning->getInput()->getPoules()->toArray());
         $predicter = new Predicter($poules);

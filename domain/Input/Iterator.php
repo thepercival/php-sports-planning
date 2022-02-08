@@ -15,6 +15,7 @@ use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Input\Service as PlanningInputService;
 use SportsPlanning\Planning\Output as PlanningOutput;
+use SportsPlanning\Referee\Info as RefereeInfo;
 
 /**
  * @template TKey
@@ -154,8 +155,7 @@ class Iterator implements \Iterator
             $pouleStructure,
             [$sportVariantWithFields],
             $this->gamePlaceStrategy,
-            $this->nrOfReferees,
-            $this->selfReferee
+            new RefereeInfo($this->selfReferee === SelfReferee::Disabled ? $this->nrOfReferees : $this->selfReferee)
         );
     }
 

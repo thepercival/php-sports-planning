@@ -9,6 +9,7 @@ use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Planning\Validator as PlanningValidator;
+use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class PerformanceTest extends TestCase
@@ -26,8 +27,7 @@ class PerformanceTest extends TestCase
                 [5, 4, 4, 4, 4, 4],
                 [$sportVariantsWithFields],
                 GamePlaceStrategy::EquallyAssigned,
-                0,
-                SelfReferee::SamePoule
+                new RefereeInfo(SelfReferee::SamePoule)
             ),
             $nrOfGamesPerBatchRange
         );
@@ -54,13 +54,13 @@ class PerformanceTest extends TestCase
                 [7, 7, 7, 7],
                 [$sportVariantsWithFields],
                 GamePlaceStrategy::EquallyAssigned,
-                0,
-                SelfReferee::SamePoule
+                new RefereeInfo(SelfReferee::SamePoule)
             ),
-            $nrOfGamesPerBatchRange
+            $nrOfGamesPerBatchRange/*,
+            0, false, true*/
         );
 
-//        (new PlanningOutput())->outputWithGames($planning, true);
+        // (new PlanningOutput())->outputWithGames($planning, true);
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
@@ -73,7 +73,7 @@ class PerformanceTest extends TestCase
 //        (new PlanningOutput())->outputWithTotals($planning,  false);
 
 //
-        self::assertLessThan(1, microtime(true) - $time_start);
+        self::assertLessThan(1.5, microtime(true) - $time_start);
     }
 
     // [7,7,7,7] - [against(1vs1) h2h:gpp=>1:0 f(9)] - gpstrat=>eql - ref=>0:SP
@@ -87,8 +87,7 @@ class PerformanceTest extends TestCase
                 [7, 7, 7, 7],
                 [$sportVariantsWithFields],
                 GamePlaceStrategy::EquallyAssigned,
-                0,
-                SelfReferee::SamePoule
+                new RefereeInfo(SelfReferee::SamePoule)
             ),
             $nrOfGamesPerBatchRange,
             4
@@ -107,6 +106,41 @@ class PerformanceTest extends TestCase
 //        (new PlanningOutput())->outputWithTotals($planning,  false);
 
 //
-        self::assertLessThan(1.5, microtime(true) - $time_start);
+        self::assertLessThan(2, microtime(true) - $time_start);
+    }
+
+    // [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] - [against(1vs1) h2h:gpp=>1:0 f(4)] - gpstrat=>eql - ref=>0:
+    public function testOnMinNrOfBatches(): void
+    {
+        // $time_start = microtime(true);
+        $nrOfGamesPerBatchRange = new SportRange(4, 4);
+        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(4);
+        $input = $this->createInput(
+            [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            // 16 poules, 8 wedstrijden => 4 velden dus 4 wedstrijden dus 4 batches
+            [$sportVariantsWithFields],
+            GamePlaceStrategy::EquallyAssigned,
+            new RefereeInfo(0)
+        );
+        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange, 0, true);
+        self::assertEquals(
+            '[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] - [against(1vs1) h2h:gpp=>1:0 f(4)] - gpstrat=>eql - ref=>0:',
+            $input->getUniqueString()
+        );
+
+//        (new PlanningOutput())->outputWithGames($planning, true);
+
+//        $planningValidator = new PlanningValidator();
+//        $validity = $planningValidator->validate($planning);
+//        self::assertSame(PlanningValidator::VALID, $validity);
+//
+        // (new PlanningOutput())->outputWithGames($planning, true);
+//        (new BatchOutput())->output($planning->createFirstBatch(), null, null, null, true);
+//         echo "============ " . (microtime(true) - $time_start);
+//
+//        (new PlanningOutput())->outputWithTotals($planning,  false);
+
+//
+        self::assertEquals(4, $planning->createFirstBatch()->getLeaf()->getNumber());
     }
 }

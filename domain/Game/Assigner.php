@@ -15,6 +15,7 @@ use SportsPlanning\Resource\Service as ResourceService;
 class Assigner
 {
     protected bool $throwOnTimeout;
+    protected bool $showHighestCompletedBatchNr = false;
 
     public function __construct(protected LoggerInterface $logger)
     {
@@ -30,11 +31,15 @@ class Assigner
         if (!$this->throwOnTimeout) {
             $resourceService->disableThrowOnTimeout();
         }
+        if ($this->showHighestCompletedBatchNr) {
+            $resourceService->showHighestCompletedBatchNr();
+        }
         $state = $resourceService->assign($games);
         if ($state === PlanningState::Failed || $state === PlanningState::TimedOut) {
             $planning->getAgainstGames()->clear();
             $planning->getTogetherGames()->clear();
             $planning->setState($state);
+            $planning->setNrOfBatches(0);
             return;
         }
 
@@ -50,6 +55,7 @@ class Assigner
                 $planning->getAgainstGames()->clear();
                 $planning->getTogetherGames()->clear();
                 $planning->setState($state);
+                $planning->setNrOfBatches(0);
                 $this->logger->error('   could not assign refereeplaces (plId:' . (string)$planning->getId() . ')');
                 return;
             }
@@ -61,5 +67,10 @@ class Assigner
     public function disableThrowOnTimeout(): void
     {
         $this->throwOnTimeout = false;
+    }
+
+    public function showHighestCompletedBatchNr(): void
+    {
+        $this->showHighestCompletedBatchNr = true;
     }
 }

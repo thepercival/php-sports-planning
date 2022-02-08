@@ -16,6 +16,7 @@ use SportsPlanning\Exception\UnequalAssignedRefereePlaces as UnequalAssignedRefe
 use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
 use SportsPlanning\Game;
 use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Input;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
@@ -44,8 +45,9 @@ class Validator
     public const INVALID_ASSIGNED_REFEREEPLACE = 32768;
     public const UNEQUAL_PLACE_NROFHOMESIDES = 65536;
     public const INVALID_REFEREESELF_AND_REFEREES = 131072;
+    public const INVALID_NROFBATCHES = 262144;
 
-    public const ALL_INVALID = 262143;
+    public const ALL_INVALID = 524287;
 
     public function __construct()
     {
@@ -53,6 +55,10 @@ class Validator
 
     public function validate(Planning $planning, bool $onlyUnassigned = false): int
     {
+        $validity = $this->validateNrOfBatches($planning);
+        if (self::VALID !== $validity) {
+            return $validity;
+        }
         $validity = $this->validateRefereesWithSelf($planning->getInput());
         if (self::VALID !== $validity) {
             return $validity;
@@ -162,15 +168,35 @@ class Validator
     protected function validateGamesAndGamePlaces(Planning $planning): int
     {
         foreach ($planning->getInput()->getPoules() as $poule) {
-            if (count($planning->getGamesForPoule($poule)) === 0) {
+            $pouleGames = $planning->getGamesForPoule($poule);
+            if (count($pouleGames) === 0) {
                 return self::NO_GAMES;
             }
+            $validity = $this->validateNrOfBatches($planning);
+            if (self::VALID !== $validity) {
+                return $validity;
+            }
+
             $validity = $this->allPlacesInPouleSameNrOfGames($planning, $poule);
             if ($validity !== self::VALID) {
                 return $validity;
             }
         }
         return self::VALID;
+    }
+
+    protected function validateNrOfBatches(Planning $planning): int
+    {
+        $games = $planning->getGames();
+        if (count($games) === 0) {
+            return 0 === $planning->getNrOfBatches() ? self::VALID : self::INVALID_NROFBATCHES;
+        }
+        $maxBatchNr = max(
+            array_map(function (AgainstGame|TogetherGame $game): int {
+                return $game->getBatchNr();
+            }, $games)
+        );
+        return $maxBatchNr === $planning->getNrOfBatches() ? self::VALID : self::INVALID_NROFBATCHES;
     }
 
     protected function allPlacesInPouleSameNrOfGames(Planning $planning, Poule $poule): int

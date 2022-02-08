@@ -9,7 +9,6 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\PouleStructure;
-use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
@@ -21,6 +20,7 @@ use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Input;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 
 trait PlanningCreator
@@ -87,16 +87,14 @@ trait PlanningCreator
      * @param list<int> $pouleStructureAsArray
      * @param list<SportVariantWithFields>|null $sportVariantsWithFields
      * @param GamePlaceStrategy|null $gamePlaceStrategy
-     * @param int|null $nrOfReferees
-     * @param SelfReferee|null $selfReferee
+     * @param RefereeInfo|null $refereeInfo
      * @return Input
      */
     protected function createInput(
         array $pouleStructureAsArray,
         array $sportVariantsWithFields = null,
         GamePlaceStrategy $gamePlaceStrategy = null,
-        int $nrOfReferees = null,
-        SelfReferee $selfReferee = null
+        RefereeInfo|null $refereeInfo = null
     ) {
         if ($sportVariantsWithFields === null) {
             $sportVariantsWithFields = [$this->getAgainstSportVariantWithFields(2)];
@@ -104,18 +102,14 @@ trait PlanningCreator
         if ($gamePlaceStrategy === null) {
             $gamePlaceStrategy = GamePlaceStrategy::EquallyAssigned;
         }
-        if ($nrOfReferees === null) {
-            $nrOfReferees = $this->getDefaultNrOfReferees();
-        }
-        if ($selfReferee === null) {
-            $selfReferee = SelfReferee::Disabled;
+        if ($refereeInfo === null) {
+            $refereeInfo = new RefereeInfo($this->getDefaultNrOfReferees());
         }
         $input = new Input(
             new PouleStructure(...$pouleStructureAsArray),
             $sportVariantsWithFields,
             $gamePlaceStrategy,
-            $nrOfReferees,
-            $selfReferee
+            $refereeInfo
         );
 
         return $input;
@@ -125,7 +119,8 @@ trait PlanningCreator
         Input $input,
         SportRange $nrOfGamesPerBatchRange = null,
         int $maxNrOfGamesInARow = 0,
-        bool $disableThrowOnTimeout = false
+        bool $disableThrowOnTimeout = false,
+        bool $showHighestCompletedBatchNr = false
     ): Planning {
         if ($nrOfGamesPerBatchRange === null) {
             $nrOfGamesPerBatchRange = new SportRange(1, 1);
@@ -141,6 +136,9 @@ trait PlanningCreator
         $gameAssigner = new GameAssigner($this->getLogger());
         if ($disableThrowOnTimeout) {
             $gameAssigner->disableThrowOnTimeout();
+        }
+        if ($showHighestCompletedBatchNr) {
+            $gameAssigner->showHighestCompletedBatchNr();
         }
         $gameAssigner->assignGames($planning);
 

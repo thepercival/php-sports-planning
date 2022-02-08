@@ -15,16 +15,20 @@ use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
-use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input\Calculator as InputCalculator;
+use SportsPlanning\Planning\Filter as PlanningFilter;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\Type as PlanningType;
+use SportsPlanning\Referee\Info as RefereeInfo;
 
 class Input extends Identifiable
 {
     protected string $uniqueString;
     protected DateTimeImmutable $createdAt;
     protected bool|null $hasBalancedStructure = null;
+    protected SelfReferee $selfReferee;
+    protected int $seekingPercentage = -1;
 
     /**
      * @var Collection<int|string, Poule>
@@ -44,19 +48,21 @@ class Input extends Identifiable
     protected Collection $plannings;
     protected int|null $maxNrOfGamesInARow = null;
 
+    // tmp
+    protected int|null $minNrOfBatches = null;
+    protected DateTimeImmutable|null $recreatedAt = null;
+
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportVariantWithFields> $sportVariantsWithFields
      * @param GamePlaceStrategy $gamePlaceStrategy
-     * @param int $nrOfReferees
-     * @param SelfReferee $selfReferee
+     * @param RefereeInfo $refereeInfo
      */
     public function __construct(
         PouleStructure $pouleStructure,
         array $sportVariantsWithFields,
         protected GamePlaceStrategy $gamePlaceStrategy,
-        int $nrOfReferees,
-        protected SelfReferee $selfReferee
+        RefereeInfo $refereeInfo
     ) {
         $this->poules = new ArrayCollection();
         $this->sports = new ArrayCollection();
@@ -77,22 +83,23 @@ class Input extends Identifiable
                 throw new Exception('te weinig plekken om wedstrijden te kunnen plannen', E_ERROR);
             }
             $sport = new Sport($this, $sportVariant->toPersistVariant());
-            for ($fieldNr = 1 ; $fieldNr <= $sportVariantWithFields->getNrOfFields() ; $fieldNr++) {
+            for ($fieldNr = 1; $fieldNr <= $sportVariantWithFields->getNrOfFields(); $fieldNr++) {
                 new Field($sport);
             }
         }
-        if ($selfReferee === SelfReferee::Disabled) {
-            for ($refNr = 1; $refNr <= $nrOfReferees; $refNr++) {
+        $this->selfReferee = $refereeInfo->selfReferee;
+        if ($refereeInfo->selfReferee === SelfReferee::Disabled) {
+            for ($refNr = 1; $refNr <= $refereeInfo->nrOfReferees; $refNr++) {
                 new Referee($this);
             }
         }
 
         $strat = $this->gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned ? 'rndm' : 'eql';
         $uniqueStrings = [
-            '['. $pouleStructure . ']',
+            '[' . $pouleStructure . ']',
             '[' . join(' & ', $this->sports->toArray()) . ']',
             'gpstrat=>' . $strat,
-            'ref=>' . $this->getReferees()->count() . ':' . $this->getSelfRefereeAsString()
+            'ref=>' . $refereeInfo
         ];
         $this->uniqueString = join(' - ', $uniqueStrings);
     }
@@ -338,38 +345,13 @@ class Input extends Identifiable
     {
         $inputCalculator = new InputCalculator();
         $sportVariantsWithFields = array_values($this->createSportVariantsWithFields()->toArray());
+
         return $inputCalculator->getMaxNrOfGamesPerBatch(
             $this->createPouleStructure(),
             $sportVariantsWithFields,
-            $this->getReferees()->count(),
-            $this->selfRefereeEnabled()
+            $this->getRefereeInfo()
         );
     }
-
-//    public function getMaxNrOfBatchGames(int $resources = null): int
-//    {
-//        $maxNrOfBatchGames = null;
-//        if ((Resources::FIELDS & $resources) === Resources::FIELDS || $resources === null) {
-//            // kijk als alle velden
-//            $maxNrOfBatchGames = $this->getNrOfFields();
-//        }
-//
-//        if ((Resources::REFEREES & $resources) === Resources::REFEREES || $resources === null) {
-//            if (!$this->selfRefereeEnabled() && $this->getNrOfReferees() > 0
-//                && ($this->getNrOfReferees() < $maxNrOfBatchGames || $maxNrOfBatchGames === null)) {
-//                $maxNrOfBatchGames = $this->getNrOfReferees();
-//            }
-//        }
-//
-//        if ((Resources::PLACES & $resources) === Resources::PLACES || $resources === null) {
-//            $calculator = new InputCalculator();
-//            $maxNrOfGamesSim = $calculator->getMaxNrOfGamesPerBatch( $this->getPouleStructure(), $this->getSportConfigs(), $this->selfRefereeEnabled() );
-//            if ($maxNrOfGamesSim < $maxNrOfBatchGames || $maxNrOfBatchGames === null) {
-//                $maxNrOfBatchGames = $maxNrOfGamesSim;
-//            }
-//        }
-//        return $maxNrOfBatchGames;
-//    }
 
     public function getMaxNrOfGamesInARow(): int
     {
@@ -389,96 +371,117 @@ class Input extends Identifiable
     }
 
     /**
-     * @param int $stateValue
+     * @param PlanningState $stateValue
      * @return Collection<int|string, Planning>
      */
-    public function getPlanningsWithState(int $stateValue): Collection
+    public function getPlanningsWithState(PlanningState $stateValue): Collection
     {
         return $this->plannings->filter(function (Planning $planning) use ($stateValue): bool {
-            return ($planning->getState()->value & $stateValue) > 0;
+            return ($planning->getState()->value & $stateValue->value) > 0;
         });
     }
 
     /**
-     * @param int|null $stateValue
+     * @param PlanningState|null $stateValue
      * @return list<Planning>
      */
-    public function getBatchGamesPlannings(int|null $stateValue = null): array
+    public function getEqualBatchGamesPlannings(PlanningState|null $stateValue = null): array
     {
         if ($stateValue === null) {
             $batchGamesPlannings = $this->getPlannings();
         } else {
             $batchGamesPlannings = $this->getPlanningsWithState($stateValue)->filter(
                 function (Planning $planning): bool {
-                    return $planning->isBatchGames();
+                    return $planning->isEqualBatchGames();
                 }
             );
         }
         return $this->orderBatchGamesPlannings($batchGamesPlannings);
     }
 
-    // from most most efficient to less efficient
     /**
+     * @param PlanningState|null $stateValue
+     * @return list<Planning>
+     */
+    public function getUnequalBatchGamesPlannings(PlanningState|null $stateValue = null): array
+    {
+        if ($stateValue === null) {
+            $batchGamesPlannings = $this->getPlannings();
+        } else {
+            $batchGamesPlannings = $this->getPlanningsWithState($stateValue)->filter(
+                function (Planning $planning) /*use ($batchGameRange)*/ : bool {
+                    return $planning->isUnequalBatchGames(); // &&
+                    // $batchGameRange->getMin() >= $planning->getMinNrOfBatchGames()
+                    // && $batchGameRange->getMax() <= $planning->getMaxNrOfBatchGames();
+                }
+            );
+        }
+        return $this->orderBatchGamesPlannings($batchGamesPlannings);
+    }
+
+
+    /**
+     * ----------  From more efficient to less efficient --------
+     *
      * @param Collection<int|string,Planning> $batchGamesPlannings
      * @return list<Planning>
      */
-    public function orderBatchGamesPlannings(Collection $batchGamesPlannings): array
+    protected function orderBatchGamesPlannings(Collection $batchGamesPlannings): array
     {
         $plannings = $batchGamesPlannings->toArray();
         uasort($plannings, function (Planning $first, Planning $second) {
             if ($first->getMaxNrOfBatchGames() === $second->getMaxNrOfBatchGames()) {
-                if ($first->getMinNrOfBatchGames() === $second->getMinNrOfBatchGames()) {
-                    $firstMaxBatchNr = $first->createFirstBatch()->getLeaf()->getNumber();
-                    $secondMaxBatchNr = $second->createFirstBatch()->getLeaf()->getNumber();
-                    return $firstMaxBatchNr < $secondMaxBatchNr ? -1 : 1;
-                }
-                return $first->getMinNrOfBatchGames() < $second->getMinNrOfBatchGames() ? -1 : 1;
+                return $second->getMinNrOfBatchGames() - $first->getMinNrOfBatchGames();
             }
-            return $first->getMaxNrOfBatchGames() < $second->getMaxNrOfBatchGames() ? -1 : 1;
+            return $second->getMaxNrOfBatchGames() - $first->getMaxNrOfBatchGames();
         });
         return array_values($plannings);
     }
 
-    public function getPlanning(SportRange $range, int $maxNrOfGamesInARow): ?Planning
+    public function getPlanning(PlanningFilter $filter): Planning|null
     {
         foreach ($this->getPlannings() as $planning) {
-            if ($planning->getMinNrOfBatchGames() === $range->getMin()
-                && $planning->getMaxNrOfBatchGames() === $range->getMax()
-                && $planning->getMaxNrOfGamesInARow() === $maxNrOfGamesInARow) {
+            if ($planning->getMinNrOfBatchGames() === $filter->getMinNrOfBatchGames()
+                && $planning->getMaxNrOfBatchGames() === $filter->getMaxNrOfBatchGames()
+                && $planning->getMaxNrOfGamesInARow() === $filter->getMaxNrOfGamesInARow()) {
                 return $planning;
             }
         }
         return null;
     }
 
-    public function getBestPlanning(): Planning
+    public function getBestPlanning(PlanningType|null $type): Planning
     {
-        $succeededPlannings = $this->getPlanningsWithState(PlanningState::Succeeded->value)->toArray();
-        uasort($succeededPlannings, function (Planning $first, Planning $second): int {
-            return $second->getMaxNrOfGamesInARow() - $first->getMaxNrOfGamesInARow();
+        $succeededPlannings = $this->getPlanningsWithState(PlanningState::Succeeded)->toArray();
+        $filteredPlannings = array_filter($succeededPlannings, function (Planning $planning) use ($type): bool {
+            return $type === null || $type === $planning->getType();
         });
-        $bestPlanning = reset($succeededPlannings);
-        if (!($bestPlanning instanceof Planning)) {
-            throw new Exception('er kan geen planning worden gevonden', E_ERROR);
-        }
-        foreach ($succeededPlannings as $succeededPlanning) {
-            if ($succeededPlanning->getNrOfBatches() < $bestPlanning->getNrOfBatches()) {
-                $bestPlanning = $succeededPlanning;
+        uasort($filteredPlannings, function (Planning $first, Planning $second): int {
+            if ($first->getNrOfBatches() !== $second->getNrOfBatches()) {
+                return $first->getNrOfBatches() - $second->getNrOfBatches();
             }
+            if ($first->getMaxNrOfGamesInARow() > 0 && $second->getMaxNrOfGamesInARow() > 0) {
+                return $first->getMaxNrOfGamesInARow() - $second->getMaxNrOfGamesInARow();
+            } else {
+                if ($first->getMaxNrOfGamesInARow() === 0 && $second->getMaxNrOfGamesInARow() === 0) {
+                    return 0;
+                } else {
+                    return $first->getMaxNrOfGamesInARow() === 0 ? 1 : -1;
+                }
+            }
+        });
+
+        $bestPlanning = array_shift($filteredPlannings);
+        if ($bestPlanning === null) {
+            throw new Exception('er kan geen planning worden gevonden', E_ERROR);
         }
         return $bestPlanning;
     }
 
-    protected function getSelfRefereeAsString(): string
+    public function getRefereeInfo(): RefereeInfo
     {
-        if ($this->selfReferee === SelfReferee::Disabled) {
-            return '';
-        } elseif ($this->selfReferee === SelfReferee::OtherPoules) {
-            return 'OP';
-        } elseif ($this->selfReferee === SelfReferee::SamePoule) {
-            return 'SP';
-        }
-        return '?';
+        $param = $this->selfReferee === SelfReferee::Disabled ? count($this->getReferees()) : $this->selfReferee;
+        return new RefereeInfo($param);
     }
 
     public function hasBalancedStructure(): bool
@@ -489,5 +492,25 @@ class Input extends Identifiable
             $this->hasBalancedStructure = $highestNrPlaces == $lowestNrPlaces;
         }
         return $this->hasBalancedStructure;
+    }
+
+    public function getRecreatedAt(): DateTimeImmutable|null
+    {
+        return $this->recreatedAt;
+    }
+
+    public function setRecreatedAt(DateTimeImmutable|null $dateTime): void
+    {
+        $this->recreatedAt = $dateTime;
+    }
+
+    public function getSeekingPercentage(): int|null
+    {
+        return $this->seekingPercentage;
+    }
+
+    public function setSeekingPercentage(int $seekingPercentage): void
+    {
+        $this->seekingPercentage = $seekingPercentage;
     }
 }
