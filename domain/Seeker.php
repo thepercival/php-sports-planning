@@ -231,11 +231,14 @@ class Seeker
         $calculator = new InputCalculator();
         /** @var non-empty-list<SportVariantWithFields> $sportVariantsWithFields */
         $sportVariantsWithFields = array_values($input->createSportVariantsWithFields()->toArray());
-        return $calculator->getMinNrOfGamesPerBatch(
+        $calculatedMinNrOfBatches = $calculator->getMinNrOfGamesPerBatch(
             $pouleStructure,
             $sportVariantsWithFields,
             $input->getRefereeInfo()
         );
+
+        $minNrOfBatches = $bestEqualBatchGamesPlanning->getMinNrOfBatchGames();
+        return $calculatedMinNrOfBatches < $minNrOfBatches ? $calculatedMinNrOfBatches : $minNrOfBatches;
     }
 
     /**
