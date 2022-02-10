@@ -211,4 +211,31 @@ class ExtraTest extends TestCase
         $validity = $planningValidator->validate($planning);
         self::assertSame(PlanningValidator::VALID, $validity);
     }
+
+    //  [7,6] - [against(1vs1) h2h:gpp=>1:0 f(6)] - gpstrat=>eql - ref=>0:
+    //  aan het eind kan nog maar 3 wedstrijden tegelijk
+    // dus in dit geval: bij unbalanced en 2 pouls dan wordt minimum 3!!!!!
+    public function test76SingleAgainstSport(): void
+    {
+        $nrOfGamesPerBatchRange = new SportRange(3, 6);
+        $sportVariantsWithFields = [
+            $this->getAgainstSportVariantWithFields(6)
+        ];
+        $input = $this->createInput(
+            [7, 6],
+            $sportVariantsWithFields,
+            GamePlaceStrategy::EquallyAssigned,
+            new RefereeInfo(0)
+        );
+        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange/*,0, true, true*/);
+
+        self::assertLessThan(8, $planning->getNrOfBatches());
+
+//        (new PlanningOutput())->outputWithGames($planning, true);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::VALID, $validity);
+    }
+
 }

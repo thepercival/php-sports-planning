@@ -180,7 +180,7 @@ class Service
 
             // ------------- BEGIN: OUTPUT --------------- //
             // 60 wedstrijden , 9 wedstrijden per batch, is 7
-//            if ($nextBatch->getNumber() >= 2) {
+//            if ($nextBatch->getNumber() >= 5) {
 //                // $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber(), 1, 1);
 //                $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber());
 //                $this->logger->info('unassinged games: ');

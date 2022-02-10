@@ -80,8 +80,7 @@ class Repository extends EntityRepository
         int $limit,
         PouleStructure|null $pouleStructure = null,
         SelfReferee|null $selfReferee = null
-    ): array
-    {
+    ): array {
         $exprNot = $this->getEntityManager()->getExpressionBuilder();
         $exprInvalidStates = $this->getEntityManager()->getExpressionBuilder();
         $exprNotValidated = $this->getEntityManager()->getExpressionBuilder();
@@ -99,7 +98,7 @@ class Repository extends EntityRepository
                             ->select('p1.id')
                             ->from('SportsPlanning\Planning', 'p1')
                             ->where('p1.input = pi')
-                            ->andWhere('p1.state = :stateSuccess')
+                            ->andWhere('p1.state = ' . PlanningState::Succeeded->value)
                             ->getDQL()
                     )
                 )
@@ -110,14 +109,13 @@ class Repository extends EntityRepository
                         ->select('p2.id')
                         ->from('SportsPlanning\Planning', 'p2')
                         ->where('p2.input = pi')
-                        ->andWhere('p2.state = :stateSuccess')
-                        ->andWhere('p2.validity ' . $validOperator . ' :valid')
+                        ->andWhere('p2.state = ' . PlanningState::Succeeded->value)
+                        ->andWhere('p2.validity ' . $validOperator . ' ' . Validator::VALID)
                         ->getDQL()
                 )
             )
-            ->setMaxResults($limit)
-            ->setParameter('stateSuccess', PlanningState::Succeeded->value)
-            ->setParameter('valid', Validator::VALID);
+            ->andWhere('pi.seekingPercentage = 100')
+            ->setMaxResults($limit);
 
         if ($pouleStructure !== null) {
             $query = $query

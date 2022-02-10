@@ -7,6 +7,7 @@ namespace SportsPlanning;
 use Exception;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output\Color;
+use SportsHelpers\PouleStructure;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
 use SportsPlanning\Game\Assigner as GameAssigner;
@@ -216,13 +217,22 @@ class Seeker
     public function getMinNrOfBatchGames(Planning $bestEqualBatchGamesPlanning): int
     {
         $input = $bestEqualBatchGamesPlanning->getInput();
-        if (!$input->hasMultipleSports()) {
-            return $bestEqualBatchGamesPlanning->getMinNrOfBatchGames();
+
+        $pouleStructure = $input->createPouleStructure();
+        if (!$pouleStructure->isBalanced()) {
+            $poules = $pouleStructure->toArray();
+            $firstPouleNrOfPlaces = array_shift($poules);
+            $secondPouleNrOfPlaces = array_shift($poules);
+            if ($firstPouleNrOfPlaces !== null && $secondPouleNrOfPlaces !== null && $firstPouleNrOfPlaces > $secondPouleNrOfPlaces) {
+                array_unshift($poules, $secondPouleNrOfPlaces);
+                $pouleStructure = new PouleStructure(...$poules);
+            }
         }
+        $calculator = new InputCalculator();
         /** @var non-empty-list<SportVariantWithFields> $sportVariantsWithFields */
         $sportVariantsWithFields = array_values($input->createSportVariantsWithFields()->toArray());
-        return (new InputCalculator())->getMinNrOfGamesPerBatch(
-            $input->createPouleStructure(),
+        return $calculator->getMinNrOfGamesPerBatch(
+            $pouleStructure,
             $sportVariantsWithFields,
             $input->getRefereeInfo()
         );
