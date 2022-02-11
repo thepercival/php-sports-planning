@@ -7,6 +7,8 @@ namespace SportsPlanning\Tests\Input;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\VariantWithFields;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsPlanning\Referee\Info as RefereeInfo;
@@ -117,14 +119,6 @@ class CalculatorTest extends TestCase
     {
         $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(2);
 
-//        $input = $this->createInput(
-//            [2, 2, 2, 2],
-//            [$sportVariantsWithFields],
-//            GamePlaceStrategy::EquallyAssigned,
-//            0,
-//            SelfReferee::OtherPoules
-//        );
-
         $calculator = new InputCalculator();
         $maxNrOfGamesPerBatch = $calculator->getMaxNrOfGamesPerBatch(
             new PouleStructure(2, 2, 2, 2),
@@ -133,5 +127,18 @@ class CalculatorTest extends TestCase
         );
 
         self::assertSame(1, $maxNrOfGamesPerBatch);
+    }
+
+    // [3,2,2,2] - [allinone gpp=>1 f(2)] - gpstrat=>eql - ref=>0:
+    public function testMaxNrOfGamesPerBatchAllInOneGame(): void
+    {
+        $calculator = new InputCalculator();
+        $maxNrOfGamesPerBatch = $calculator->getMaxNrOfGamesPerBatch(
+            new PouleStructure(3, 2, 2, 2),
+            [new VariantWithFields(new AllInOneGameSportVariant(1), 2)],
+            new RefereeInfo(SelfReferee::Disabled)
+        );
+
+        self::assertSame(2, $maxNrOfGamesPerBatch);
     }
 }
