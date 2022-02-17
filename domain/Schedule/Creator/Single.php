@@ -6,6 +6,7 @@ namespace SportsPlanning\Schedule\Creator;
 
 use Exception;
 use Psr\Log\LoggerInterface;
+use SportsHelpers\Sport\VariantWithPoule;
 use SportsPlanning\GameRound\Creator\Single as SingleGameRoundCreator;
 use SportsPlanning\GameRound\CreatorInterface as GameRoundCreatorInterface;
 use SportsPlanning\Schedule\Game;
@@ -51,8 +52,10 @@ class Single implements CreatorInterface
         Poule $poule,
         SingleSportVariant $sportVariant,
         AssignedCounter $assignedCounter
-    ): TogetherGameRound {
-        $totalNrOfGamesPerPlace = $sportVariant->getTotalNrOfGamesPerPlace($poule->getPlaces()->count());
+    ): TogetherGameRound
+    {
+        $variantWithPoule = new VariantWithPoule($sportVariant, $poule->getPlaces()->count());
+        $totalNrOfGamesPerPlace = $variantWithPoule->getTotalNrOfGamesPerPlace();
 
         /** @var GameRoundCreatorInterface<TogetherGameRound> $gameRoundCreator */
         $gameRoundCreator = new SingleGameRoundCreator($sportVariant, $this->logger);

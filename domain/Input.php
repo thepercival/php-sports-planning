@@ -11,9 +11,10 @@ use Exception;
 use SportsHelpers\Identifiable;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame;
+use SportsHelpers\Sport\Variant\Single;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input\Calculator as InputCalculator;
@@ -28,6 +29,7 @@ class Input extends Identifiable
     protected DateTimeImmutable $createdAt;
     protected bool|null $hasBalancedStructure = null;
     protected SelfReferee $selfReferee;
+    protected GamePlaceStrategy $gamePlaceStrategy;
     protected int $seekingPercentage = -1;
 
     /**
@@ -55,13 +57,12 @@ class Input extends Identifiable
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportVariantWithFields> $sportVariantsWithFields
-     * @param GamePlaceStrategy $gamePlaceStrategy
      * @param RefereeInfo $refereeInfo
      */
     public function __construct(
         PouleStructure $pouleStructure,
         array $sportVariantsWithFields,
-        protected GamePlaceStrategy $gamePlaceStrategy,
+        GamePlaceStrategy $gamePlaceStrategy,
         RefereeInfo $refereeInfo
     ) {
         $this->poules = new ArrayCollection();
@@ -72,13 +73,18 @@ class Input extends Identifiable
 
         foreach ($pouleStructure->toArray() as $nrOfPoulePlaces) {
             $poule = new Poule($this);
-            for ($placeNr = 1 ; $placeNr <= $nrOfPoulePlaces ; $placeNr++) {
+            for ($placeNr = 1; $placeNr <= $nrOfPoulePlaces; $placeNr++) {
                 new Place($poule);
             }
         }
+        $hasAgainstH2h = false;
+        $canBeRandomlyAssigned = false;
         foreach ($sportVariantsWithFields as $sportVariantWithFields) {
             $sportVariant = $sportVariantWithFields->getSportVariant();
-            if (($sportVariant instanceof AgainstSportVariant || $sportVariant instanceof SingleSportVariant)
+            if ($sportVariant instanceof AgainstH2h) {
+                $hasAgainstH2h = true;
+            }
+            if (!($sportVariant instanceof AllInOneGame)
                 && $sportVariant->getNrOfGamePlaces() > $pouleStructure->getSmallestPoule()) {
                 throw new Exception('te weinig plekken om wedstrijden te kunnen plannen', E_ERROR);
             }
@@ -86,7 +92,20 @@ class Input extends Identifiable
             for ($fieldNr = 1; $fieldNr <= $sportVariantWithFields->getNrOfFields(); $fieldNr++) {
                 new Field($sport);
             }
+
+            if ($sportVariant instanceof AgainstGpp && !$canBeRandomlyAssigned) {
+                foreach ($pouleStructure->toArray() as $nrOfPoulePlaces) {
+                    if (!$sportVariant->allPlacesPlaySameNrOfGames($nrOfPoulePlaces)) {
+                        $canBeRandomlyAssigned = true;
+                        break;
+                    }
+                }
+            }
         }
+        if ($hasAgainstH2h && $this->hasMultipleSports()) {
+            throw new Exception('bij meerdere sporten mag h2h niet gebruikt worden', E_ERROR);
+        }
+
         $this->selfReferee = $refereeInfo->selfReferee;
         if ($refereeInfo->selfReferee === SelfReferee::Disabled) {
             for ($refNr = 1; $refNr <= $refereeInfo->nrOfReferees; $refNr++) {
@@ -94,11 +113,12 @@ class Input extends Identifiable
             }
         }
 
-        $strat = $this->gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned ? 'rndm' : 'eql';
+        $this->gamePlaceStrategy = $canBeRandomlyAssigned ? $gamePlaceStrategy : GamePlaceStrategy::EquallyAssigned;
+        // $strat = $this->gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned ? 'rndm' : 'eql';
         $uniqueStrings = [
             '[' . $pouleStructure . ']',
             '[' . join(' & ', $this->sports->toArray()) . ']',
-            'gpstrat=>' . $strat,
+            //  'gpstrat=>' . $strat,
             'ref=>' . $refereeInfo
         ];
         $this->uniqueString = join(' - ', $uniqueStrings);
@@ -248,11 +268,11 @@ class Input extends Identifiable
     }
 
     /**
-     * @return Collection<int|string, SingleSportVariant|AgainstSportVariant|AllInOneGameSportVariant>
+     * @return Collection<int|string, Single|AgainstH2h|AgainstGpp|AllInOneGame>
      */
     public function createSportVariants(): Collection
     {
-        return $this->sports->map(function (Sport $sport): SingleSportVariant|AgainstSportVariant|AllInOneGameSportVariant {
+        return $this->sports->map(function (Sport $sport): Single|AgainstH2h|AgainstGpp|AllInOneGame {
             return $sport->createVariant();
         });
     }

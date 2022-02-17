@@ -4,15 +4,17 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedule;
 
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
+use SportsHelpers\Sport\Variant\Single as Single;
 
 class Name implements \Stringable
 {
     protected string|null $name = null;
+
     /**
-     * @param list<AgainstSportVariant|AllInOneGameSportVariant|SingleSportVariant> $sportVariants
+     * @param list<AgainstH2h|AgainstGpp|AllInOneGame|Single> $sportVariants
      */
     public function __construct(protected array $sportVariants)
     {
@@ -25,19 +27,19 @@ class Name implements \Stringable
         }
         $names = [];
         foreach ($this->sportVariants as $sportVariant) {
-            if ($sportVariant instanceof AgainstSportVariant) {
+            if ($sportVariant instanceof AgainstH2h || $sportVariant instanceof AgainstGpp) {
                 $name = [
                     'nrOfHomePlaces' => $sportVariant->getNrOfHomePlaces(),
                     'nrOfAwayPlaces' => $sportVariant->getNrOfAwayPlaces()
                 ];
-                if ($sportVariant->getNrOfH2H() > 0) {
+                if ($sportVariant instanceof AgainstH2h) {
                     $name['nrOfH2H'] = $sportVariant->getNrOfH2H();
                 } else {
                     $name['nrOfGamesPerPlace'] = $sportVariant->getNrOfGamesPerPlace();
                 }
             } else {
                 $name = ['nrOfGamesPerPlace' => $sportVariant->getNrOfGamesPerPlace()];
-                if ($sportVariant instanceof SingleSportVariant) {
+                if ($sportVariant instanceof Single) {
                     $name['nrOfGamePlaces'] = $sportVariant->getNrOfGamePlaces();
                 }
             }

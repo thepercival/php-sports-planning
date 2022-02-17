@@ -6,8 +6,11 @@ namespace SportsPlanning\Planning;
 
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\SelfReferee;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\AllInOneGame;
+use SportsHelpers\Sport\Variant\Single;
+use SportsHelpers\Sport\VariantWithPoule;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
 use SportsPlanning\Combinations\Validator\With as WithValidator;
@@ -213,16 +216,17 @@ class Validator
     protected function allPlacesInPouleSameNrOfSportGames(Planning $planning, Poule $poule, Sport $sport): int
     {
         $nrOfGamesPerPlace = [];
-
+        $nrOfPlaces = count($poule->getPlaces());
         /** @var non-empty-array<int, int> $nrOfHomeSideGames */
         $nrOfHomeSideGames = [];
         $sportVariant = $sport->createVariant();
-        if ($sportVariant instanceof AgainstSportVariant) {
+        if ($sportVariant instanceof AgainstH2h || $sportVariant instanceof AgainstGpp) {
             foreach ($poule->getPlaces() as $place) {
                 $nrOfHomeSideGames[$place->getUniqueIndex()] = 0;
             }
-            if ($sportVariant->withAgainstMustBeEquallyAssigned($poule->getPlaces()->count())) {
-                if ($sportVariant->getNrOfGamePlaces() > 2) {
+            if ($sportVariant instanceof AgainstH2h || $sportVariant->allPlacesPlaySameNrOfGames($nrOfPlaces)) {
+                if ($sportVariant->getNrOfGamePlaces() > 2 &&
+                    ($sportVariant instanceof AgainstH2h || $sportVariant->equalNrOfHomePlaces($nrOfPlaces))) {
                     $withValidator = new WithValidator($poule, $sport);
                     $withValidator->addGames($planning);
                     if (!$withValidator->balanced()) {
@@ -242,7 +246,7 @@ class Validator
         });
         foreach ($sportGames as $game) {
             $sportVariant = $game->createVariant();
-            if ($sportVariant instanceof AgainstSportVariant) {
+            if ($sportVariant instanceof AgainstH2h || $sportVariant instanceof AgainstGpp) {
                 if (!$game instanceof AgainstGame) {
                     return self::UNEQUAL_GAME_HOME_AWAY;
                 }
@@ -260,9 +264,11 @@ class Validator
                     }
                 } else {
                     if (
-                    ($sportVariant->getNrOfHomePlaces() !== $nrOfHomePlaces && $sportVariant->getNrOfAwayPlaces() !== $nrOfHomePlaces)
+                        ($sportVariant->getNrOfHomePlaces() !== $nrOfHomePlaces && $sportVariant->getNrOfAwayPlaces(
+                            ) !== $nrOfHomePlaces)
                         ||
-                    ($sportVariant->getNrOfHomePlaces() !== $nrOfAwayPlaces && $sportVariant->getNrOfAwayPlaces() !== $nrOfAwayPlaces)) {
+                        ($sportVariant->getNrOfHomePlaces() !== $nrOfAwayPlaces && $sportVariant->getNrOfAwayPlaces(
+                            ) !== $nrOfAwayPlaces)) {
                         return self::UNEQUAL_GAME_HOME_AWAY;
                     }
                 }
@@ -270,7 +276,7 @@ class Validator
                 foreach ($homePlaces as $homePlace) {
                     $nrOfHomeSideGames[$homePlace->getPlace()->getUniqueIndex()]++;
                 }
-            } elseif ($sportVariant instanceof AllInOneGameSportVariant) {
+            } elseif ($sportVariant instanceof AllInOneGame) {
                 if ($poule->getPlaces()->count() !== $game->getPlaces()->count()) {
                     return self::UNEQUAL_GAME_HOME_AWAY;
                 }
@@ -286,8 +292,8 @@ class Validator
                 $nrOfGamesPerPlace[$place->getLocation()]++;
             }
         }
-        if ($planning->getInput()->getGamePlaceStrategy() === GamePlaceStrategy::EquallyAssigned
-            && $sportVariant->mustBeEquallyAssigned($poule->getPlaces()->count())) {
+
+        if (!($sportVariant instanceof AgainstGpp && !$sportVariant->allPlacesPlaySameNrOfGames($nrOfPlaces))) {
             $nrOfGamesFirstPlace = reset($nrOfGamesPerPlace);
             foreach ($nrOfGamesPerPlace as $nrOfGamesSomePlace) {
                 if ($nrOfGamesFirstPlace !== $nrOfGamesSomePlace) {
@@ -296,20 +302,26 @@ class Validator
             }
         }
 
-
-        if (!($sportVariant instanceof AgainstSportVariant)) {
+        if ($sportVariant instanceof Single || $sportVariant instanceof AllInOneGame) {
             return self::VALID;
         }
-        if ($planning->getInput()->getGamePlaceStrategy() === GamePlaceStrategy::RandomlyAssigned) {
-            return self::VALID;
+//        if ($planning->getInput()->getGamePlaceStrategy() === GamePlaceStrategy::RandomlyAssigned) {
+//            return self::VALID;
+//        }
+        if ($sportVariant instanceof AgainstGpp) {
+            if (!$sportVariant->equalNrOfHomePlaces($nrOfPlaces)) {
+                return self::VALID;
+            }
         }
-
-        if ($sportVariant->homeAwayMustBeQuallyAssigned()) {
-            $minValue = min($nrOfHomeSideGames);
-            foreach ($nrOfHomeSideGames as $amount) {
-                if ($amount - $minValue > 1) {
-                    return self::UNEQUAL_PLACE_NROFHOMESIDES;
-                }
+        $maxDifference = 0;
+        $variantWithPoule = new VariantWithPoule($sportVariant, $nrOfPlaces);
+        if (($variantWithPoule->getTotalNrOfGamesPerPlace() % 2) > 0) {
+            $maxDifference++;
+        }
+        $minValue = min($nrOfHomeSideGames);
+        foreach ($nrOfHomeSideGames as $amount) {
+            if ($amount - $minValue > $maxDifference) {
+                return self::UNEQUAL_PLACE_NROFHOMESIDES;
             }
         }
 

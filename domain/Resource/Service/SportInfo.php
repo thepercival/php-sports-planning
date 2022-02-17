@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Resource\Service;
 
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\AllInOneGame;
+use SportsHelpers\Sport\Variant\Single;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\PouleCounter;
@@ -19,7 +20,7 @@ class SportInfo
      * @var array<int, PouleCounter> $pouleGameCounters
      */
     protected array $pouleGameCounters = [];
-    protected SingleSportVariant|AgainstSportVariant|AllInOneGameSportVariant|null $variant = null;
+    protected Single|AgainstH2h|AgainstGpp|AllInOneGame|null $variant = null;
 
     /**
      * @param Sport $sport
@@ -51,7 +52,7 @@ class SportInfo
         return $this->nrOfGames;
     }
 
-    public function getVariant(): SingleSportVariant|AgainstSportVariant|AllInOneGameSportVariant
+    public function getVariant(): Single|AgainstH2h|AgainstGpp|AllInOneGame
     {
         if ($this->variant === null) {
             $this->variant = $this->getSport()->createVariant();

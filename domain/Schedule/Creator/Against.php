@@ -8,9 +8,13 @@ use Exception;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\VariantWithPoule;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
-use SportsPlanning\GameRound\Creator\Against as AgainstGameRoundCreator;
+use SportsPlanning\GameRound\Creator\Against\GamesPerPlace as AgainstGppGameRoundCreator;
+use SportsPlanning\GameRound\Creator\Against\H2h as AgainstH2hGameRoundCreator;
 use SportsPlanning\Poule;
 use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Game;
@@ -46,7 +50,8 @@ class Against implements CreatorInterface
                 throw new Exception('only against-sport-variant accepted', E_ERROR);
             }
             $sportSchedule = new SportSchedule($schedule, $sport->getNumber(), $sportVariant->toPersistVariant());
-            $maxNrOfGamesPerPlace += $sportVariant->getTotalNrOfGamesPerPlace($nrOfPlaces);
+            $variantWithPoule = new VariantWithPoule($sportVariant, $nrOfPlaces);
+            $maxNrOfGamesPerPlace += $variantWithPoule->getTotalNrOfGamesPerPlace();
             $gameRound = $this->generateGameRounds($poule, $sportVariant, $assignedCounter, $maxNrOfGamesPerPlace);
             $this->createGames($sportSchedule, $gameRound);
         }
@@ -58,7 +63,11 @@ class Against implements CreatorInterface
     private function initHasAgainstMaybeUnequalSport(Poule $poule, array $sports): void
     {
         foreach ($sports as $sport) {
-            if (!$sport->createVariant()->mustBeEquallyAssigned($poule->getPlaces()->count())) {
+            $variant = $sport->createVariant();
+            if (!($variant instanceof AgainstGpp)) {
+                continue;
+            }
+            if (!$variant->allPlacesPlaySameNrOfGames($poule->getPlaces()->count())) {
                 $this->hasAgainstMaybeUnequalSport = true;
                 return;
             }
@@ -75,31 +84,42 @@ class Against implements CreatorInterface
         uasort($sports, function (Sport $sportA, Sport $sportB) use ($poule): int {
             $sportVariantA = $sportA->createVariant();
             $sportVariantB = $sportB->createVariant();
-            if (!($sportVariantA instanceof AgainstSportVariant) || !($sportVariantB instanceof AgainstSportVariant)) {
+            if (!($sportVariantA instanceof AgainstGpp) || !($sportVariantB instanceof AgainstGpp)) {
                 return 0;
             }
-            $equallyAssignA = $sportVariantA->mustBeEquallyAssigned($poule->getPlaces()->count());
-            $equallyAssignB = $sportVariantB->mustBeEquallyAssigned($poule->getPlaces()->count());
-            if (($equallyAssignA && $equallyAssignB) || (!$equallyAssignA && !$equallyAssignB)) {
+            $allPlacesSameNrOfGamesA = $sportVariantA->allPlacesPlaySameNrOfGames($poule->getPlaces()->count());
+            $allPlacesSameNrOfGamesB = $sportVariantB->allPlacesPlaySameNrOfGames($poule->getPlaces()->count());
+            if (($allPlacesSameNrOfGamesA && $allPlacesSameNrOfGamesB)
+                || (!$allPlacesSameNrOfGamesA && !$allPlacesSameNrOfGamesB)) {
                 return 0;
             }
-            return $equallyAssignA ? -1 : 1;
+            return $allPlacesSameNrOfGamesA ? -1 : 1;
         });
         return array_values($sports);
     }
 
     protected function generateGameRounds(
         Poule $poule,
-        AgainstSportVariant $sportVariant,
+        AgainstH2h|AgainstGpp $sportVariant,
         AssignedCounter $assignedCounter,
         int $maxNrOfGamesPerPlace,
     ): AgainstGameRound {
-        $gameRoundCreator = new AgainstGameRoundCreator(
-            $sportVariant,
-            $poule->getInput()->getGamePlaceStrategy(),
-            $this->hasAgainstMaybeUnequalSport,
-            $this->logger
-        );
+        if ($sportVariant instanceof AgainstGpp) {
+            $gameRoundCreator = new AgainstGppGameRoundCreator(
+                $sportVariant,
+                //$poule->getInput()->getGamePlaceStrategy(),
+                $this->hasAgainstMaybeUnequalSport,
+                $this->logger
+            );
+        } else {
+            $gameRoundCreator = new AgainstH2hGameRoundCreator(
+                $sportVariant,
+                //$poule->getInput()->getGamePlaceStrategy(),
+                $this->hasAgainstMaybeUnequalSport,
+                $this->logger
+            );
+        }
+
         $gameRound = $gameRoundCreator->createGameRound($poule, $assignedCounter, $maxNrOfGamesPerPlace);
         $this->assignHomeAways($assignedCounter, $gameRound);
         return $gameRound;

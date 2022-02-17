@@ -4,19 +4,17 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Combinations\HomeAwayCreator;
 
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\HomeAwayCreator;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
-final class OneVersusOne extends HomeAwayCreator
+final class H2h extends HomeAwayCreator
 {
-    public function __construct(
-        Poule $poule,
-        AgainstSportVariant $sportVariant
-    ) {
+    public function __construct(Poule $poule, protected AgainstH2h $sportVariant)
+    {
         parent::__construct($poule, $sportVariant);
     }
 
@@ -57,7 +55,7 @@ final class OneVersusOne extends HomeAwayCreator
             }
         }
 
-        return $this->createForOneH2HHelper($homeAways);
+        return $this->swap($homeAways);
     }
 
     protected function createHomeAway(Place $home, Place $away): AgainstHomeAway

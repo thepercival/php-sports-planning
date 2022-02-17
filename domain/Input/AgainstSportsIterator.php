@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
 
@@ -97,9 +98,9 @@ class AgainstSportsIterator implements \Iterator
     protected function createAgainstSportVariantWithFields(): SportVariantWithFields
     {
         if ($this->nrOfHomePlaces + $this->nrOfAwayPlaces > 2) {
-            $againstSportVariant = new AgainstSportVariant($this->nrOfHomePlaces, $this->nrOfAwayPlaces, 0, 1);
+            $againstSportVariant = new AgainstGpp($this->nrOfHomePlaces, $this->nrOfAwayPlaces, 1);
         } else {
-            $againstSportVariant = new AgainstSportVariant($this->nrOfHomePlaces, $this->nrOfAwayPlaces, $this->nrOfH2H, 0);
+            $againstSportVariant = new AgainstH2h($this->nrOfHomePlaces, $this->nrOfAwayPlaces, $this->nrOfH2H);
         }
 
         return new SportVariantWithFields($againstSportVariant, $this->nrOfFields);

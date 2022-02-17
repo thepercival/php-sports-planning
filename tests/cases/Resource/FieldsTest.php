@@ -30,8 +30,8 @@ class FieldsTest extends TestCase
     public function testMultipleSports(): void
     {
         $sportVariants = [
-            $this->getAgainstSportVariantWithFields(2, 1, 1, 1, 0),
-            $this->getAgainstSportVariantWithFields(2, 1, 1, 1, 0),
+            $this->getAgainstGppSportVariantWithFields(2, 1, 1, 3),
+            $this->getAgainstGppSportVariantWithFields(2, 1, 1, 3),
         ];
         $input = $this->createInput([4], $sportVariants);
         $planning = $this->createPlanning($input);

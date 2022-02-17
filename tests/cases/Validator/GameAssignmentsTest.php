@@ -153,7 +153,7 @@ class GameAssignmentsTest extends TestCase
 
     public function testValidateUnequalFields(): void
     {
-        $sportVariant = $this->getAgainstSportVariantWithFields(2);
+        $sportVariant = $this->getAgainstH2hSportVariantWithFields(2);
         $planning = $this->createPlanning(
             $this->createInput([5], [$sportVariant])
         );
@@ -223,8 +223,8 @@ class GameAssignmentsTest extends TestCase
 
     public function testEquallyAssignedFieldsMultipleSport(): void
     {
-        $sportVariant1 = $this->getAgainstSportVariantWithFields(4);
-        $sportVariant2 = $this->getAgainstSportVariantWithFields(1);
+        $sportVariant1 = $this->getAgainstGppSportVariantWithFields(4, 1, 1, 4);
+        $sportVariant2 = $this->getAgainstGppSportVariantWithFields(1, 1, 1, 4);
         $planning = $this->createPlanning(
             $this->createInput([5], [$sportVariant1, $sportVariant2])
         );

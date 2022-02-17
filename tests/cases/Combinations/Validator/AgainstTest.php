@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
 use SportsPlanning\Game\Creator as GameCreator;
-use SportsPlanning\GameGenerator;
 use SportsPlanning\Planning;
 use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -19,7 +18,7 @@ class AgainstTest extends TestCase
 
     public function testSimple(): void
     {
-        $sportVariant = $this->getAgainstSportVariantWithFields(1, 1, 1, 1, 0);
+        $sportVariant = $this->getAgainstH2hSportVariantWithFields(1);
         $input = $this->createInput([2], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
@@ -39,7 +38,7 @@ class AgainstTest extends TestCase
 
     public function test4Places1VS1(): void
     {
-        $sportVariant = $this->getAgainstSportVariantWithFields(1, 1, 1, 1, 0);
+        $sportVariant = $this->getAgainstH2hSportVariantWithFields(1);
         $input = $this->createInput([4], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
@@ -59,7 +58,7 @@ class AgainstTest extends TestCase
 
     public function test5Places1VS1(): void
     {
-        $sportVariant = $this->getAgainstSportVariantWithFields(1, 1, 1, 1, 0);
+        $sportVariant = $this->getAgainstH2hSportVariantWithFields(1);
         $input = $this->createInput([5], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
@@ -79,7 +78,7 @@ class AgainstTest extends TestCase
 
     public function test6Places1VS1(): void
     {
-        $sportVariant = $this->getAgainstSportVariantWithFields(1, 1, 1, 1, 0);
+        $sportVariant = $this->getAgainstH2hSportVariantWithFields(1);
         $input = $this->createInput([6], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
@@ -99,7 +98,7 @@ class AgainstTest extends TestCase
 
     public function test5Places2VS2(): void
     {
-        $sportVariant = $this->getAgainstSportVariantWithFields(1, 2, 2, 0, 12);
+        $sportVariant = $this->getAgainstGppSportVariantWithFields(1, 2, 2, 12);
         $input = $this->createInput([5], [$sportVariant]);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 

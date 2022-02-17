@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Combinations\HomeAwayCreator;
 
 use drupol\phpermutations\Iterators\Combinations as CombinationIt;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Combinations\HomeAwayCreator;
@@ -14,7 +14,7 @@ use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
 
-final class Mixxed extends HomeAwayCreator
+final class GamesPerPlace extends HomeAwayCreator
 {
     /**
      * @var array<int, PlaceCounter>
@@ -28,21 +28,18 @@ final class Mixxed extends HomeAwayCreator
     protected int $minNrOfHomeGamesPerPlace = 0;
     protected int $nrOfGamesPerPlace = 0;
 
-    public function __construct(
-        Poule $poule,
-        AgainstSportVariant $sportVariant
-    ) {
+    public function __construct(Poule $poule, protected AgainstGpp $sportVariant)
+    {
         parent::__construct($poule, $sportVariant);
     }
 
     /**
      * @return list<AgainstHomeAway>
      */
-    public function createForOneH2H(): array
+    public function create(): array
     {
         $this->initCounters($this->poule);
-        $nrOfPlaces = $this->poule->getPlaces()->count();
-        $this->nrOfGamesPerPlace = $this->sportVariant->getNrOfGamesPerPlaceOneH2H($nrOfPlaces);
+        // $nrOfPlaces = $this->poule->getPlaces()->count();
         $this->minNrOfHomeGamesPerPlace = (int)floor($this->nrOfGamesPerPlace / 2);
 
         $homeAways = [];
@@ -65,11 +62,11 @@ final class Mixxed extends HomeAwayCreator
             }
             $homeIt->next();
         }
-        if ($this->poule->getInput()->getGamePlaceStrategy() === GamePlaceStrategy::RandomlyAssigned) {
-            shuffle($homeAways);
-            return $homeAways;
-        }
-        return $this->createForOneH2HHelper($homeAways);
+//        if ($this->poule->getInput()->getGamePlaceStrategy() === GamePlaceStrategy::RandomlyAssigned) {
+//            shuffle($homeAways);
+//            return $homeAways;
+//        }
+        return $this->swap($homeAways);
     }
 
     /**

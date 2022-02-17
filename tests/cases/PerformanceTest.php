@@ -21,7 +21,7 @@ class PerformanceTest extends TestCase
     {
         $time_start = microtime(true);
         $nrOfGamesPerBatchRange = new SportRange(4, 4);
-        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(6);
+        $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(6);
         $planning = $this->createPlanning(
             $this->createInput(
                 [5, 4, 4, 4, 4, 4],
@@ -48,7 +48,7 @@ class PerformanceTest extends TestCase
     {
         $time_start = microtime(true);
         $nrOfGamesPerBatchRange = new SportRange(7, 7);
-        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(9);
+        $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(9);
         $planning = $this->createPlanning(
             $this->createInput(
                 [7, 7, 7, 7],
@@ -81,7 +81,7 @@ class PerformanceTest extends TestCase
     {
         $time_start = microtime(true);
         $nrOfGamesPerBatchRange = new SportRange(8, 8);
-        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(9);
+        $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(9);
         $planning = $this->createPlanning(
             $this->createInput(
                 [7, 7, 7, 7],
@@ -90,7 +90,7 @@ class PerformanceTest extends TestCase
                 new RefereeInfo(SelfReferee::SamePoule)
             ),
             $nrOfGamesPerBatchRange,
-            4
+            4/*, true, true*/
         );
 
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -114,7 +114,7 @@ class PerformanceTest extends TestCase
     {
         // $time_start = microtime(true);
         $nrOfGamesPerBatchRange = new SportRange(4, 4);
-        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(4);
+        $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(4);
         $input = $this->createInput(
             [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
             // 16 poules, 8 wedstrijden => 4 velden dus 4 wedstrijden dus 4 batches
@@ -122,9 +122,9 @@ class PerformanceTest extends TestCase
             GamePlaceStrategy::EquallyAssigned,
             new RefereeInfo(0)
         );
-        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange, 0, true);
+        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange/*, 0, true*/);
         self::assertEquals(
-            '[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] - [against(1vs1) h2h:gpp=>1:0 f(4)] - gpstrat=>eql - ref=>0:',
+            '[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2] - [against(1vs1) h2h:gpp=>1:0 f(4)] - ref=>0:',
             $input->getUniqueString()
         );
 

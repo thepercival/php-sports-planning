@@ -24,6 +24,7 @@ use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Referee as PlanningReferee;
 use SportsPlanning\Referee\Info as RefereeInfo;
@@ -48,7 +49,7 @@ class ValidatorTest extends TestCase
 
     public function testHasEmptyGamePlace(): void
     {
-        $sportVariant = $this->getAgainstSportVariantWithFields(2, 2, 2, 0, 3);
+        $sportVariant = $this->getAgainstGppSportVariantWithFields(2, 2, 2, 3);
         $planning = $this->createPlanning($this->createInput([5], [$sportVariant]));
         $firstGame = $planning->getAgainstGames()->first();
         self::assertNotFalse($firstGame);
@@ -234,7 +235,7 @@ class ValidatorTest extends TestCase
 
     public function testValidateNrOfGamesPerField(): void
     {
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(3);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(3);
         $planning = $this->createPlanning($this->createInput([4], [$sportVariantWithFields]));
 
         $planningGame = $planning->getAgainstGames()->first();
@@ -311,10 +312,10 @@ class ValidatorTest extends TestCase
 
     public function testInvalidAssignedRefereePlaceSamePoule(): void
     {
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(1);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(1);
         $planning = $this->createPlanning(
             $this->createInput(
-                [3,3],
+                [3, 3],
                 [$sportVariantWithFields],
                 GamePlaceStrategy::EquallyAssigned,
                 new RefereeInfo(SelfReferee::SamePoule)
@@ -353,7 +354,7 @@ class ValidatorTest extends TestCase
 
     public function testValidResourcesPerRefereePlace(): void
     {
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(1);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(1);
         $planning = $this->createPlanning(
             $this->createInput(
                 [5],
@@ -397,7 +398,7 @@ class ValidatorTest extends TestCase
     public function testValidResourcesPerRefereePlaceDifferentPouleSizes(): void
     {
         $refereeInfo = new RefereeInfo(SelfReferee::OtherPoules);
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(1);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(1);
         $planning = $this->createPlanning(
             $this->createInput(
                 [5, 4],
@@ -448,7 +449,7 @@ class ValidatorTest extends TestCase
     public function testNrOfHomeAwayH2H2(): void
     {
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $sportVariant = new SportVariantWithFields($this->getAgainstSportVariant(1, 1, 2), 2);
+        $sportVariant = new SportVariantWithFields($this->getAgainstH2hSportVariant(1, 1, 2), 2);
         $input = $this->createInput([3], [$sportVariant], GamePlaceStrategy::EquallyAssigned, $refereeInfo);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
@@ -487,7 +488,7 @@ class ValidatorTest extends TestCase
     public function test6Places2FieldsMax2GamesInARow(): void
     {
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $sportVariant = new SportVariantWithFields($this->getAgainstSportVariant(1, 1, 1), 2);
+        $sportVariant = new SportVariantWithFields($this->getAgainstH2hSportVariant(), 2);
         $input = $this->createInput([6], [$sportVariant], GamePlaceStrategy::EquallyAssigned, $refereeInfo);
         $planning = new Planning($input, new SportRange(2, 2), 2);
 
@@ -509,6 +510,22 @@ class ValidatorTest extends TestCase
 
         $validity = $planningValidator->validate($planning);
         self::assertSame(PlanningValidator::VALID, $validity);
+    }
+
+    public function testValidate1Gpp1VS1(): void
+    {
+        $sportVariantWithFields = $this->getAgainstGppSportVariantWithFields(2, 1, 1, 1);
+        $planning = $this->createPlanning($this->createInput([5], [$sportVariantWithFields]));
+//        (new PlanningOutput())->outputWithGames($planning, true);
+        self::assertCount(2, $planning->getAgainstGames());
+    }
+
+    public function testValidate2Gpp1VS1(): void
+    {
+        $sportVariantWithFields = $this->getAgainstGppSportVariantWithFields(2, 1, 1, 2);
+        $planning = $this->createPlanning($this->createInput([5], [$sportVariantWithFields]));
+//        (new PlanningOutput())->outputWithGames($planning, true);
+        self::assertCount(5, $planning->getAgainstGames());
     }
 
     protected function getLogger(): LoggerInterface

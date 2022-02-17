@@ -9,6 +9,10 @@ use Doctrine\Common\Collections\Collection;
 use Exception;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2hSportVariant;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGppSportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\Field;
 use SportsPlanning\Game;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
@@ -113,13 +117,12 @@ class Against extends Game
         return $this->poulePlaces;
     }
 
-    public function createVariant(): AgainstSportVariant
+    public function createVariant(): AgainstH2hSportVariant|AgainstGppSportVariant
     {
-        return new AgainstSportVariant(
-            $this->getSport()->getNrOfHomePlaces(),
-            $this->getSport()->getNrOfAwayPlaces(),
-            $this->getSport()->getNrOfH2H(),
-            $this->getSport()->getNrOfGamesPerPlace()
-        );
+        $sportVariant = $this->getSport()->createVariant();
+        if (!($sportVariant instanceof AgainstSportVariant)) {
+            throw new \Exception('the wrong sport is linked to the game', E_ERROR);
+        }
+        return $sportVariant;
     }
 }

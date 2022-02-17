@@ -8,9 +8,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use SportsHelpers\Identifiable;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
+use SportsHelpers\Sport\Variant\Single as Single;
 use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Schedule\Sport as SportSchedule;
@@ -58,13 +59,15 @@ class Schedule extends Identifiable implements \Stringable
     }
 
     /**
-     * @return Collection<int|string, SingleSportVariant|AgainstSportVariant|AllInOneGameSportVariant>
+     * @return Collection<int|string, Single|AgainstH2h|AgainstGpp|AllInOneGame>
      */
     public function createSportVariants(): Collection
     {
-        return $this->sportSchedules->map(function (SportSchedule $sportSchedule): SingleSportVariant|AgainstSportVariant|AllInOneGameSportVariant {
-            return $sportSchedule->createVariant();
-        });
+        return $this->sportSchedules->map(
+            function (SportSchedule $sportSchedule): Single|AgainstH2h|AgainstGpp|AllInOneGame {
+                return $sportSchedule->createVariant();
+            }
+        );
     }
 
     public function __toString()

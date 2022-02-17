@@ -20,7 +20,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
         $input = $this->createInput(
             [3, 2, 2],
             [$sportVariantWithFields],
@@ -37,7 +37,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
         $input = $this->createInput([2], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, $refereeInfo);
 
         self::assertFalse(
@@ -49,11 +49,12 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([2, 2],
-                                    [$sportVariantWithFields],
-                                    GamePlaceStrategy::EquallyAssigned,
-                                    $refereeInfo
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $input = $this->createInput(
+            [2, 2],
+            [$sportVariantWithFields],
+            GamePlaceStrategy::EquallyAssigned,
+            $refereeInfo
         );
 
         self::assertFalse(
@@ -65,11 +66,12 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([3, 2],
-                                    [$sportVariantWithFields],
-                                    GamePlaceStrategy::EquallyAssigned,
-                                    $refereeInfo
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $input = $this->createInput(
+            [3, 2],
+            [$sportVariantWithFields],
+            GamePlaceStrategy::EquallyAssigned,
+            $refereeInfo
         );
 
         self::assertFalse(
@@ -81,11 +83,12 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([3, 3],
-                                    [$sportVariantWithFields],
-                                    GamePlaceStrategy::EquallyAssigned,
-                                    $refereeInfo
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $input = $this->createInput(
+            [3, 3],
+            [$sportVariantWithFields],
+            GamePlaceStrategy::EquallyAssigned,
+            $refereeInfo
         );
 
         self::assertTrue(
@@ -97,7 +100,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
         $input = $this->createInput([3], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, $refereeInfo);
 
         self::assertFalse(
@@ -109,11 +112,12 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
-        $input = $this->createInput([2, 2],
-                                    [$sportVariantWithFields],
-                                    GamePlaceStrategy::EquallyAssigned,
-                                    $refereeInfo
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $input = $this->createInput(
+            [2, 2],
+            [$sportVariantWithFields],
+            GamePlaceStrategy::EquallyAssigned,
+            $refereeInfo
         );
 
         self::assertTrue(

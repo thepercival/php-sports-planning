@@ -17,7 +17,7 @@ class InputTest extends TestCase
 
     public function testBestPlanningByNrOfBatches(): void
     {
-        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(6);
+        $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(6);
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
@@ -38,7 +38,7 @@ class InputTest extends TestCase
 
     public function testBestPlanning(): void
     {
-        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(6);
+        $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(6);
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
@@ -59,7 +59,7 @@ class InputTest extends TestCase
 
     public function testBestPlanningOnBatchGamesVersusGamesInARow(): void
     {
-        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(6);
+        $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(6);
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
@@ -80,7 +80,7 @@ class InputTest extends TestCase
 
     public function testBestPlanningOnGamesInARow(): void
     {
-        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(6);
+        $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(6);
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],

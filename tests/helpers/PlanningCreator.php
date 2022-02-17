@@ -9,8 +9,10 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\PouleStructure;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
+
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
@@ -25,13 +27,20 @@ use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
 
 trait PlanningCreator
 {
-    protected function getAgainstSportVariant(
+    protected function getAgainstH2hSportVariant(
         int $nrOfHomePlaces = 1,
         int $nrOfAwayPlaces = 1,
-        int $nrOfH2H = 1,
-        int $nrOfGamesPerPlace = 0
-    ): AgainstSportVariant {
-        return new AgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfGamesPerPlace);
+        int $nrOfH2H = 1
+    ): AgainstH2h {
+        return new AgainstH2h($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H);
+    }
+
+    protected function getAgainstGppSportVariant(
+        int $nrOfHomePlaces = 1,
+        int $nrOfAwayPlaces = 1,
+        int $nrOfGamesPerPlace = 1
+    ): AgainstGpp {
+        return new AgainstGpp($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfGamesPerPlace);
     }
 
     protected function getSingleSportVariant(int $nrOfGameRounds = 1, int $nrOfGamePlaces = 1): SingleSportVariant
@@ -44,15 +53,26 @@ trait PlanningCreator
         return new AllInOneGameSportVariant($nrOfGameRounds);
     }
 
-    protected function getAgainstSportVariantWithFields(
+    protected function getAgainstH2hSportVariantWithFields(
         int $nrOfFields,
         int $nrOfHomePlaces = 1,
         int $nrOfAwayPlaces = 1,
-        int $nrOfH2H = 1,
-        int $nrOfGamesPerPlace = 0
+        int $nrOfH2H = 1
     ): SportVariantWithFields {
         return new SportVariantWithFields(
-            $this->getAgainstSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H, $nrOfGamesPerPlace),
+            $this->getAgainstH2hSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H),
+            $nrOfFields
+        );
+    }
+
+    protected function getAgainstGppSportVariantWithFields(
+        int $nrOfFields,
+        int $nrOfHomePlaces = 1,
+        int $nrOfAwayPlaces = 1,
+        int $nrOfGamesPerPlace = 1
+    ): SportVariantWithFields {
+        return new SportVariantWithFields(
+            $this->getAgainstGppSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfGamesPerPlace),
             $nrOfFields
         );
     }
@@ -97,7 +117,7 @@ trait PlanningCreator
         RefereeInfo|null $refereeInfo = null
     ) {
         if ($sportVariantsWithFields === null) {
-            $sportVariantsWithFields = [$this->getAgainstSportVariantWithFields(2)];
+            $sportVariantsWithFields = [$this->getAgainstH2hSportVariantWithFields(2)];
         }
         if ($gamePlaceStrategy === null) {
             $gamePlaceStrategy = GamePlaceStrategy::EquallyAssigned;

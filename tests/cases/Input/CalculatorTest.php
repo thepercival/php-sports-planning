@@ -20,7 +20,7 @@ class CalculatorTest extends TestCase
 
     public function testMaxNrOfGamesPerBatchSimple(): void
     {
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(4);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(4);
         $refereeInfo = new RefereeInfo(0);
         $input = $this->createInput([3, 2, 2], [$sportVariantWithFields], null, $refereeInfo);
         $calculator = new InputCalculator();
@@ -37,7 +37,7 @@ class CalculatorTest extends TestCase
 
     public function testMaxNrOfGamesInARow6Places2Fields(): void
     {
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
         $input = $this->createInput([6], [$sportVariantWithFields]);
         $calculator = new InputCalculator();
         $maxNrOfGamesInARow = $calculator->getMaxNrOfGamesInARow($input, false);
@@ -54,11 +54,11 @@ class CalculatorTest extends TestCase
     public function testMaxNrOfGamesInARow5Sports8Places(): void
     {
         $sportVariantsWithFields = [
-            $this->getAgainstSportVariantWithFields(1),
-            $this->getAgainstSportVariantWithFields(1),
-            $this->getAgainstSportVariantWithFields(1),
-            $this->getAgainstSportVariantWithFields(1),
-            $this->getAgainstSportVariantWithFields(1)
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 7),
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 7),
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 7),
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 7),
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 7)
         ];
         $refereeInfo = new RefereeInfo(0);
         $input = $this->createInput(
@@ -76,7 +76,7 @@ class CalculatorTest extends TestCase
     public function testMaxNrOfGamesInARowH2h210Places(): void
     {
         $sportVariantsWithFields = [
-            $this->getAgainstSportVariantWithFields(20, 1, 1, 2)
+            $this->getAgainstH2hSportVariantWithFields(20, 1, 1, 2)
         ];
         $refereeInfo = new RefereeInfo(0);
         $input = $this->createInput(
@@ -92,7 +92,7 @@ class CalculatorTest extends TestCase
 
     public function testMaxNrOfGamesPerBatch6Places3Fields1Referee(): void
     {
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(3);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(3);
         $calculator = new InputCalculator();
         $maxNrOfGamesPerBatch = $calculator->getMaxNrOfGamesPerBatch(
             new PouleStructure(6),
@@ -104,7 +104,7 @@ class CalculatorTest extends TestCase
 
     public function testMaxNrOfGamesInARow6Places3Fields2Referees(): void
     {
-        $sportVariantWithFields = $this->getAgainstSportVariantWithFields(3);
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(3);
         $calculator = new InputCalculator();
         $maxNrOfGamesPerBatch = $calculator->getMaxNrOfGamesPerBatch(
             new PouleStructure(6),
@@ -117,7 +117,7 @@ class CalculatorTest extends TestCase
     // [2,2,2,2] - [against(1vs1) h2h:gpp=>1:0 f(2)] - gpstrat=>eql - ref=>0:OP
     public function testMaxNrOfGamesPerBatchOtherPouleSimple(): void
     {
-        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(2);
+        $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(2);
 
         $calculator = new InputCalculator();
         $maxNrOfGamesPerBatch = $calculator->getMaxNrOfGamesPerBatch(

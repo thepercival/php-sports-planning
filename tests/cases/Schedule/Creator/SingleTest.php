@@ -76,7 +76,7 @@ class SingleTest extends TestCase
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
 
-        self::assertCount(4, $planning->getTogetherGames());
+        self::assertCount(5, $planning->getTogetherGames());
     }
 
     public function testTwoSingleSports(): void

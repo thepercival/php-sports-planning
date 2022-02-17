@@ -36,6 +36,7 @@ class Service
     protected bool $throwOnTimeout;
     protected bool $showHighestCompletedBatchNr = false;
     protected int $highestCompletedBatchNr = 0;
+    protected int $debugCounter = 0;
     /**
      * @var array<int, AgainstSportVariant|SingleSportVariant>
      */
@@ -180,12 +181,16 @@ class Service
 
             // ------------- BEGIN: OUTPUT --------------- //
             // 60 wedstrijden , 9 wedstrijden per batch, is 7
-//            if ($nextBatch->getNumber() >= 5) {
-//                // $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber(), 1, 1);
-//                $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber());
-//                $this->logger->info('unassinged games: ');
-//                $this->batchOutput->outputGames($games);
-//                $breakPointResourceService = 12;
+//            if ($batch->getNumber() == 37 ) {
+////                ++$this->debugCounter;
+////                if( $this->debugCounter === 122) {
+//                    // $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber(), 1, 1);
+//                    $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber());
+//                    $this->logger->info('unassinged games: ');
+//                    $this->batchOutput->outputGames($games);
+////                $this->logger->info('unassinged games: ' . ++$this->debugCounter);
+//                    $c = 12;
+////                }
 //            }
             // ------------- END: OUTPUT --------------- //
 
@@ -195,7 +200,7 @@ class Service
 //            }
             $infoAssign = new InfoToAssign($games);
             if (count($games) >= $this->planning->getMinNrOfBatchGames()
-                && !$this->helper->canGamesCanBeAssigned($batch->getNumber(), $infoAssign)) {
+                && !$this->helper->canGamesBeAssigned($batch->getNumber(), $infoAssign)) {
 //                $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber());
 //                $this->logger->info('unassinged games: ');
 //                $this->batchOutput->outputGames($games);
@@ -205,19 +210,28 @@ class Service
 //                }
                 return false;
             }
-
-            //            $this->logger->info(' nr of games to process before gamesinarow-filter(max '.$this->planning->getMaxNrOfGamesInARow().') : '  . count($games) );
-            //            $this->gameOutput->outputGames($games);
-
+//            if ($batch->getNumber() >= 37) {
+////                $this->logger->info(
+////                    ' nr of games to process before gamesinarow-filter(max ' . $this->planning->getMaxNrOfGamesInARow(
+////                    ) . ') : ' . count($games)
+////                );
+////                $this->gameOutput->outputGames($games);
+//                $e = 23;
+//            }
             $gamesForBatchTmp = array_filter(
                 $games,
                 function (TogetherGame|AgainstGame $game) use ($nextBatch): bool {
                     return $this->areAllPlacesAssignableByGamesInARow($nextBatch, $game);
                 }
             );
-//            $this->helper->sortGamesForNextBatch($batch, $gamesForBatchTmp, $infoAssign);
 
-//            if ($nextBatch->getNumber() >= 5) {
+//            if ($batch->getNumber() > $this->highestCompletedBatchNr ) {
+//                $this->helper->sortGamesForNextBatch($batch, $gamesForBatchTmp, $infoAssign);
+//            }
+
+
+//            if ($nextBatch->getNumber() >= 8) {
+//                $this->logger->info('unassigned sorted games: ');
 //                $this->batchOutput->outputGames($gamesForBatchTmp);
 //                $breakPointResourceService = 12;
 //            }

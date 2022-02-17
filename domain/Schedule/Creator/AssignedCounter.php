@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedule\Creator;
 
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\Sport\Variant\Against as AgainstVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameVariant;
-use SportsHelpers\Sport\Variant\Single as SingleVariant;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\AllInOneGame;
+use SportsHelpers\Sport\Variant\Single;
 use SportsPlanning\Combinations\AgainstHomeAway;
-use SportsPlanning\Combinations\HomeAwayCreator\Mixxed as MixxedHomeAwayCreator;
-use SportsPlanning\Combinations\HomeAwayCreator\OneVersusOne as OneVersusOneHomeAwayCreator;
+use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCreator;
+use SportsPlanning\Combinations\HomeAwayCreator\H2h as H2hHomeAwayCreator;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
 use SportsPlanning\PlaceCounter;
@@ -37,7 +37,7 @@ class AssignedCounter
 
     /**
      * @param Poule $poule
-     * @param list<AgainstVariant|SingleVariant|AllInOneGameVariant> $sportVariants
+     * @param list<AgainstH2h|AgainstGpp|Single|AllInOneGame> $sportVariants
      */
     public function __construct(Poule $poule, array $sportVariants)
     {
@@ -55,9 +55,14 @@ class AssignedCounter
         }
 
         foreach ($sportVariants as $sportVariant) {
-            if ($sportVariant instanceof AgainstVariant) {
+            if ($sportVariant instanceof AgainstH2h || $sportVariant instanceof AgainstGpp) {
                 $homeAwayCreator = $this->getHomeAwayCreator($poule, $sportVariant);
-                $homeAways = $homeAwayCreator->createForOneH2H();
+                if ($homeAwayCreator instanceof H2hHomeAwayCreator) {
+                    $homeAways = $homeAwayCreator->createForOneH2H();
+                } else {
+                    $homeAways = $homeAwayCreator->create();
+                }
+
                 $this->initAssignedWithMap($homeAways);
             }
         }
@@ -201,11 +206,11 @@ class AssignedCounter
 
     protected function getHomeAwayCreator(
         Poule $poule,
-        AgainstSportVariant $sportVariant
-    ): MixxedHomeAwayCreator|OneVersusOneHomeAwayCreator {
-        if ($sportVariant->isMixed()) {
-            return new MixxedHomeAwayCreator($poule, $sportVariant);
+        AgainstH2h|AgainstGpp $sportVariant
+    ): H2hHomeAwayCreator|GppHomeAwayCreator {
+        if ($sportVariant instanceof AgainstH2h) {
+            return new H2hHomeAwayCreator($poule, $sportVariant);
         }
-        return new OneVersusOneHomeAwayCreator($poule, $sportVariant);
+        return new GppHomeAwayCreator($poule, $sportVariant);
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Game;
 
+use SportsHelpers\Sport\VariantWithPoule;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Input;
@@ -82,11 +83,15 @@ class PreAssignSorter
         $this->muliplierMap = [];
         foreach ($input->getSports() as $sport) {
             $sportVariant = $sport->createVariant();
-            $maxNrOfGameRounds = $sportVariant->getNrOfGameRounds($maxNrOfPlaces);
+            $sportVariantWithBiggest = new VariantWithPoule($sportVariant, $maxNrOfPlaces);
+            $maxNrOfGameGroups = $sportVariantWithBiggest->getNrOfGameGroups();
             $this->muliplierMap[$sport->getNumber()] = [];
             foreach ($input->getPoules() as $poule) {
-                $nrOfGameRoundsPoule = $sportVariant->getNrOfGameRounds($poule->getPlaces()->count());
-                $this->muliplierMap[$sport->getNumber()][$poule->getNumber()] = $maxNrOfGameRounds / $nrOfGameRoundsPoule;
+                $sportVariantWithPoule = new VariantWithPoule($sportVariant, $maxNrOfPlaces);
+                $nrOfPouleGameGroups = $sportVariantWithPoule->getNrOfGameGroups();
+                // $nrOfGameRoundsPoule = $sportVariant->getNrOfGameRounds($poule->getPlaces()->count());
+                $this->muliplierMap[$sport->getNumber()][$poule->getNumber(
+                )] = $maxNrOfGameGroups / $nrOfPouleGameGroups;
             }
         }
         return 1;

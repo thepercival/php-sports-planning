@@ -9,20 +9,20 @@ use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsPlanning\Combinations\HomeAwayCreator\OneVersusOne as OneVersusOneHomeAwayCreator;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsPlanning\Combinations\HomeAwayCreator\H2h as HomeAwayCreator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class OneVersusOneTest extends TestCase
+class H2hTest extends TestCase
 {
     use PlanningCreator;
 
     public function testSimple1VS1Pl2(): void
     {
-        $sportVariant = new AgainstSportVariant(1, 1, 1, 0);
+        $sportVariant = new AgainstH2h(1, 1, 1);
         $input = $this->createInput([2]);
         $poule = $input->getPoule(1);
-        $creator = new OneVersusOneHomeAwayCreator($poule, $sportVariant);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
         $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(1, $homeAways);
@@ -30,10 +30,10 @@ class OneVersusOneTest extends TestCase
 
     public function testSimple1VS1Pl3(): void
     {
-        $sportVariant = new AgainstSportVariant(1, 1, 1, 0);
+        $sportVariant = new AgainstH2h(1, 1, 1);
         $input = $this->createInput([3]);
         $poule = $input->getPoule(1);
-        $creator = new OneVersusOneHomeAwayCreator($poule, $sportVariant);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
         $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(3, $homeAways);
@@ -41,10 +41,10 @@ class OneVersusOneTest extends TestCase
 
     public function testSimple1VS1Pl4(): void
     {
-        $sportVariant = new AgainstSportVariant(1, 1, 1, 0);
+        $sportVariant = new AgainstH2h(1, 1, 1);
         $input = $this->createInput([4]);
         $poule = $input->getPoule(1);
-        $creator = new OneVersusOneHomeAwayCreator($poule, $sportVariant);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
         $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(6, $homeAways);
@@ -52,10 +52,10 @@ class OneVersusOneTest extends TestCase
 
     public function testSimple1VS1Pl5(): void
     {
-        $sportVariant = new AgainstSportVariant(1, 1, 1, 0);
+        $sportVariant = new AgainstH2h(1, 1, 1);
         $input = $this->createInput([5]);
         $poule = $input->getPoule(1);
-        $creator = new OneVersusOneHomeAwayCreator($poule, $sportVariant);
+        $creator = new HomeAwayCreator($poule, $sportVariant);
         $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(10, $homeAways);

@@ -191,7 +191,13 @@ class Timeout
             $schedules = $this->scheduleRepos->findByInput($input);
 
             $plannings = $input->getUnequalBatchGamesPlannings(PlanningState::TimedOut);
-            return $this->processHelper($input, $plannings, $schedules);
+
+            foreach ($plannings as $planning) {
+                $this->processPlanningHelper($planning, $schedules);
+                if ($planning->getState() === PlanningState::Succeeded) {
+                    return true;
+                }
+            }
         } catch (Exception $e) {
             $this->logger->error('   ' . '   ' . " => " . $e->getMessage());
         }

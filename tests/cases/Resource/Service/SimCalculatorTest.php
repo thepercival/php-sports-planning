@@ -20,9 +20,9 @@ class SimCalculatorTest extends TestCase
     public function testMultipleUnknown(): void
     {
         $sportVariantsWithFields = [
-            $this->getAgainstSportVariantWithFields(2, 1, 1, 1),
-            $this->getAgainstSportVariantWithFields(1, 1, 1, 1),
-            $this->getAgainstSportVariantWithFields(1, 1, 1, 1),
+            $this->getAgainstGppSportVariantWithFields(2, 1, 1, 9),
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9),
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9),
         ];
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
         $input = $this->createInput(
@@ -31,7 +31,7 @@ class SimCalculatorTest extends TestCase
             GamePlaceStrategy::EquallyAssigned,
             $refereeInfo
         );
-        $planning = $this->createPlanning($input, new SportRange(3, 3), 0, true);
+        $planning = $this->createPlanning($input, new SportRange(3, 3)/*, 0, true*/);
 
         $calculator = new SimCalculator($input);
         $infoToAssign = new InfoToAssign($planning->getGames());

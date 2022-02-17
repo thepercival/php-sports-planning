@@ -15,6 +15,7 @@ use SportsPlanning\Game\Assigner as GameAssigner;
 use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Planning;
+use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Referee\Info as RefereeInfo;
@@ -60,7 +61,7 @@ class CreatorTest extends TestCase
     public function testMixedGameModes(): void
     {
         $sportVariants = [
-            $this->getAgainstSportVariantWithFields(2, 2, 2, 0, 3),
+            $this->getAgainstGppSportVariantWithFields(2, 2, 2, 3),
             $this->getSingleSportVariantWithFields(2, 4, 2),
         ];
 
@@ -72,7 +73,7 @@ class CreatorTest extends TestCase
     public function testAgainstBasic(): void
     {
         $sportVariants = [
-            $this->getAgainstSportVariantWithFields(1, 1, 1, 1, 0),
+            $this->getAgainstH2hSportVariantWithFields(1),
         ];
         $input = $this->createInput([5], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
@@ -90,7 +91,7 @@ class CreatorTest extends TestCase
         $gameAssigner = new GameAssigner($this->getLogger());
         $gameAssigner->assignGames($planning);
 
-        // (new PlanningOutput())->outputWithGames($planning, true);
+//        (new PlanningOutput())->outputWithGames($planning, true);
 
         self::assertEquals(PlanningState::Succeeded, $planning->getState());
     }
@@ -98,7 +99,7 @@ class CreatorTest extends TestCase
     public function testAgainst(): void
     {
         $sportVariants = [
-            $this->getAgainstSportVariantWithFields(2, 1, 1, 2),
+            $this->getAgainstH2hSportVariantWithFields(2, 1, 1, 2),
         ];
         $input = $this->createInput([5], $sportVariants);
         $planning = new Planning($input, new SportRange(2, 2), 0);
@@ -125,7 +126,7 @@ class CreatorTest extends TestCase
     public function testAgainstH2H2(): void
     {
         $sportVariants = [
-            $this->getAgainstSportVariantWithFields(1, 1, 1, 2),
+            $this->getAgainstH2hSportVariantWithFields(1, 1, 1, 2),
         ];
         $refereeInfo = new RefereeInfo(0);
         $input = $this->createInput([3], $sportVariants, null, $refereeInfo);
@@ -148,7 +149,7 @@ class CreatorTest extends TestCase
     public function testAgainstMixed(): void
     {
         $sportVariants = [
-            $this->getAgainstSportVariantWithFields(1, 2, 2, 0, 3),
+            $this->getAgainstGppSportVariantWithFields(1, 2, 2, 3),
         ];
         $input = $this->createInput([5], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 4);
@@ -166,15 +167,17 @@ class CreatorTest extends TestCase
         $gameAssigner = new GameAssigner($this->getLogger());
         $gameAssigner->assignGames($planning);
 //
-        // (new PlanningOutput())->outputWithGames($planning, true);
+//         (new PlanningOutput())->outputWithGames($planning, true);
 //
         self::assertEquals(PlanningState::Succeeded, $planning->getState());
+
+        self::assertEquals(3, $planning->createFirstBatch()->getLeaf()->getNumber());
     }
 
     public function test1Poule12Places(): void
     {
         $sportVariants = [
-            $this->getAgainstSportVariantWithFields(6, 1, 1, 1),
+            $this->getAgainstH2hSportVariantWithFields(6),
         ];
         $input = $this->createInput([14], $sportVariants);
         $planning = new Planning($input, new SportRange(6, 6), 0);
