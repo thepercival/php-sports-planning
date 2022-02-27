@@ -10,6 +10,7 @@ use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\SelfReferee;
 use SportsPlanning\Input as InputBase;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\Type as PlanningType;
 use SportsPlanning\Planning\Validator;
 
@@ -134,7 +135,7 @@ class Repository extends EntityRepository
     // select * from planninginputs where exists( select * from  plannings where gamesinarow = 0 and state = timedout ) and  structure;
     public function findTimedout(
         PlanningType $planningType,
-        int $maxTimeoutSeconds,
+        TimeoutState $timeoutState,
         PouleStructure $pouleStructure = null
     ): ?InputBase {
         $exprTimedoutPlannings = $this->getEntityManager()->getExpressionBuilder();
@@ -149,12 +150,11 @@ class Repository extends EntityRepository
                         ->where('p.input = pi')
                         ->andWhere('p.state = ' . PlanningState::TimedOut->value)
                         ->andWhere('p.maxNrOfGamesInARow ' . $operator . ' 0')
-                        ->andWhere('p.timeoutSeconds > 0')
-                        ->andWhere('p.timeoutSeconds <= :maxTimeoutSeconds')
+                        ->andWhere('p.timeoutState = :timeoutState')
                         ->getDQL()
                 )
             );
-        $query = $query->setParameter('maxTimeoutSeconds', $maxTimeoutSeconds);
+        $query = $query->setParameter('timeoutState', $timeoutState->value);
 
         if ($pouleStructure !== null) {
             $query = $query

@@ -6,6 +6,7 @@ namespace SportsPlanning\Batch;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
+use SportsHelpers\SportRange;
 use SportsPlanning\Batch as BatchBase;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
@@ -30,8 +31,7 @@ class Output extends OutputHelper
     public function output(
         BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch,
         string $title = null,
-        int $max = null,
-        int $min = null,
+        SportRange|null $numberRange = null,
         bool $showUnassigned = false
     ): void {
         if ($title === null) {
@@ -41,23 +41,22 @@ class Output extends OutputHelper
 //            return;
 //        }
         $this->logger->info('------batch ' . $batch->getNumber() . ' ' . $title . ' -------------');
-        $this->outputHelper($batch->getFirst(), $min, $max, $showUnassigned);
+        $this->outputHelper($batch->getFirst(), $numberRange, $showUnassigned);
     }
 
     protected function outputHelper(
         BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch,
-        int|null $min = null,
-        int|null $max = null,
+        SportRange|null $numberRange = null,
         bool $showUnassigned = false
     ): void {
-        if ($min !== null && $batch->getNumber() < $min) {
+        if ($numberRange !== null && $batch->getNumber() < $numberRange->getMin()) {
             $nextBatch = $batch->getNext();
             if ($nextBatch !== null) {
-                $this->outputHelper($nextBatch, $max, null, $showUnassigned);
+                $this->outputHelper($nextBatch, $numberRange, $showUnassigned);
             }
             return;
         }
-        if ($max !== null && $batch->getNumber() > $max) {
+        if ($numberRange !== null && $batch->getNumber() > $numberRange->getMax()) {
             return;
         }
 
@@ -67,7 +66,7 @@ class Output extends OutputHelper
         }
         $nextBatch = $batch->getNext();
         if ($nextBatch !== null) {
-            $this->outputHelper($nextBatch, $max, null, $showUnassigned);
+            $this->outputHelper($nextBatch, $numberRange, $showUnassigned);
         }
     }
 

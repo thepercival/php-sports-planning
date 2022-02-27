@@ -16,7 +16,7 @@ use SportsPlanning\Schedule\GamePlace;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 use SportsPlanning\Sport;
 
-class AllInOneGame implements CreatorInterface
+class AllInOneGame
 {
     public function __construct()
     {

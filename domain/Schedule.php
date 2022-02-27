@@ -12,13 +12,11 @@ use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
 use SportsHelpers\Sport\Variant\Single as Single;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 
 class Schedule extends Identifiable implements \Stringable
 {
-    protected GamePlaceStrategy $gamePlaceStrategy;
     protected string $sportsConfigName;
 
     /**
@@ -31,18 +29,12 @@ class Schedule extends Identifiable implements \Stringable
     {
         $sportVariants = array_values($input->createSportVariants()->toArray());
         $this->sportsConfigName = (string)new ScheduleName($sportVariants);
-        $this->gamePlaceStrategy = $input->getGamePlaceStrategy();
         $this->sportSchedules = new ArrayCollection();
     }
 
     public function getNrOfPlaces(): int
     {
         return $this->nrOfPlaces;
-    }
-
-    public function getGamePlaceStrategy(): GamePlaceStrategy
-    {
-        return $this->gamePlaceStrategy;
     }
 
     public function getSportsConfigName(): string
@@ -73,13 +65,8 @@ class Schedule extends Identifiable implements \Stringable
     public function __toString()
     {
         $XYZ = 'XYZ';
-
         $scheduleName = (string)new ScheduleName(array_values($this->createSportVariants()->toArray()));
-        $json = json_encode([
-                                "nrOfPlaces" => $this->nrOfPlaces,
-                                "gamePlaceStrategy" => $this->gamePlaceStrategy,
-                                "sportsConfigName" => $XYZ
-                            ]);
+        $json = json_encode(["nrOfPlaces" => $this->nrOfPlaces, "sportsConfigName" => $XYZ]);
         if ($json === false) {
             return '';
         }

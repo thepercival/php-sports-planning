@@ -10,7 +10,6 @@ use SportsHelpers\SelfReferee;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Planning\Validator\GameAssignments as GameAssignmentValidator;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Resource\GameCounter;
@@ -58,7 +57,7 @@ class GameAssignmentsTest extends TestCase
     {
         $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
         $planning = $this->createPlanning(
-            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
+            $this->createInput([5], null, $refereeInfo)
         );
 
 //        $planningOutput = new PlanningOutput();
@@ -79,7 +78,7 @@ class GameAssignmentsTest extends TestCase
     {
         $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
         $planning = $this->createPlanning(
-            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
+            $this->createInput([5], null, $refereeInfo)
         );
 
         $firstPoule = $planning->getInput()->getPoule(1);
@@ -126,7 +125,7 @@ class GameAssignmentsTest extends TestCase
     {
         $refereeInfo = new RefereeInfo(SelfReferee::OtherPoules);
         $planning = $this->createPlanning(
-            $this->createInput([5, 4], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
+            $this->createInput([5, 4], null, $refereeInfo)
         );
 
         $secondPoule = $planning->getInput()->getPoule(2);
@@ -175,7 +174,7 @@ class GameAssignmentsTest extends TestCase
     {
         $refereeInfo = new RefereeInfo(3);
         $planning = $this->createPlanning(
-            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
+            $this->createInput([5], null, $refereeInfo)
         );
 
         // $planningGames = $planning->getPoule(1)->getGames();
@@ -197,7 +196,7 @@ class GameAssignmentsTest extends TestCase
     {
         $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
         $planning = $this->createPlanning(
-            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
+            $this->createInput([5], null, $refereeInfo)
         );
 
         $firstPoule = $planning->getInput()->getPoule(1);
@@ -238,7 +237,7 @@ class GameAssignmentsTest extends TestCase
     {
         $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
         $planning = $this->createPlanning(
-            $this->createInput([5], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
+            $this->createInput([5], null, $refereeInfo)
         );
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);

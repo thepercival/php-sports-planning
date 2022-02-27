@@ -7,7 +7,6 @@ namespace SportsPlanning\Combinations\HomeAwayCreator;
 use drupol\phpermutations\Iterators\Combinations as CombinationIt;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsPlanning\Combinations\AgainstHomeAway;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Combinations\HomeAwayCreator;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Place;
@@ -62,10 +61,6 @@ final class GamesPerPlace extends HomeAwayCreator
             }
             $homeIt->next();
         }
-//        if ($this->poule->getInput()->getGamePlaceStrategy() === GamePlaceStrategy::RandomlyAssigned) {
-//            shuffle($homeAways);
-//            return $homeAways;
-//        }
         return $this->swap($homeAways);
     }
 

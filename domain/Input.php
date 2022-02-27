@@ -16,7 +16,6 @@ use SportsHelpers\Sport\Variant\Single;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 use SportsPlanning\Planning\State as PlanningState;
@@ -29,8 +28,8 @@ class Input extends Identifiable
     protected DateTimeImmutable $createdAt;
     protected bool|null $hasBalancedStructure = null;
     protected SelfReferee $selfReferee;
-    protected GamePlaceStrategy $gamePlaceStrategy;
     protected int $seekingPercentage = -1;
+    private const MaxNrOfGamesInARow = 10;
 
     /**
      * @var Collection<int|string, Poule>
@@ -62,7 +61,6 @@ class Input extends Identifiable
     public function __construct(
         PouleStructure $pouleStructure,
         array $sportVariantsWithFields,
-        GamePlaceStrategy $gamePlaceStrategy,
         RefereeInfo $refereeInfo
     ) {
         $this->poules = new ArrayCollection();
@@ -78,7 +76,6 @@ class Input extends Identifiable
             }
         }
         $hasAgainstH2h = false;
-        $canBeRandomlyAssigned = false;
         foreach ($sportVariantsWithFields as $sportVariantWithFields) {
             $sportVariant = $sportVariantWithFields->getSportVariant();
             if ($sportVariant instanceof AgainstH2h) {
@@ -86,24 +83,20 @@ class Input extends Identifiable
             }
             if (!($sportVariant instanceof AllInOneGame)
                 && $sportVariant->getNrOfGamePlaces() > $pouleStructure->getSmallestPoule()) {
-                throw new Exception('te weinig plekken om wedstrijden te kunnen plannen', E_ERROR);
+                throw new Exception(
+                    'te weinig poule-plekken om wedstrijden te kunnen plannen, maak de poule(s) groter',
+                    E_ERROR
+                );
             }
             $sport = new Sport($this, $sportVariant->toPersistVariant());
             for ($fieldNr = 1; $fieldNr <= $sportVariantWithFields->getNrOfFields(); $fieldNr++) {
                 new Field($sport);
             }
-
-            if ($sportVariant instanceof AgainstGpp && !$canBeRandomlyAssigned) {
-                foreach ($pouleStructure->toArray() as $nrOfPoulePlaces) {
-                    if (!$sportVariant->allPlacesPlaySameNrOfGames($nrOfPoulePlaces)) {
-                        $canBeRandomlyAssigned = true;
-                        break;
-                    }
-                }
-            }
         }
         if ($hasAgainstH2h && $this->hasMultipleSports()) {
-            throw new Exception('bij meerdere sporten mag h2h niet gebruikt worden', E_ERROR);
+            throw new Exception(
+                'bij meerdere sporten mag h2h niet gebruikt worden(Input), pas de sporten aan', E_ERROR
+            );
         }
 
         $this->selfReferee = $refereeInfo->selfReferee;
@@ -113,20 +106,12 @@ class Input extends Identifiable
             }
         }
 
-        $this->gamePlaceStrategy = $canBeRandomlyAssigned ? $gamePlaceStrategy : GamePlaceStrategy::EquallyAssigned;
-        // $strat = $this->gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned ? 'rndm' : 'eql';
         $uniqueStrings = [
             '[' . $pouleStructure . ']',
             '[' . join(' & ', $this->sports->toArray()) . ']',
-            //  'gpstrat=>' . $strat,
             'ref=>' . $refereeInfo
         ];
         $this->uniqueString = join(' - ', $uniqueStrings);
-    }
-
-    public function getGamePlaceStrategy(): GamePlaceStrategy
-    {
-        return $this->gamePlaceStrategy;
     }
 
     public function getUniqueString(): string
@@ -378,6 +363,9 @@ class Input extends Identifiable
         if ($this->maxNrOfGamesInARow === null) {
             $calculator = new InputCalculator();
             $this->maxNrOfGamesInARow = $calculator->getMaxNrOfGamesInARow($this, $this->selfRefereeEnabled());
+            if ($this->maxNrOfGamesInARow > self::MaxNrOfGamesInARow) {
+                $this->maxNrOfGamesInARow = self::MaxNrOfGamesInARow;
+            }
         }
         return $this->maxNrOfGamesInARow;
     }
@@ -484,7 +472,7 @@ class Input extends Identifiable
                 return $first->getMaxNrOfGamesInARow() - $second->getMaxNrOfGamesInARow();
             } else {
                 if ($first->getMaxNrOfGamesInARow() === 0 && $second->getMaxNrOfGamesInARow() === 0) {
-                    return 0;
+                    return $first->isEqualBatchGames() ? -1 : ($second->isEqualBatchGames() ? 1 : 0);
                 } else {
                     return $first->getMaxNrOfGamesInARow() === 0 ? 1 : -1;
                 }

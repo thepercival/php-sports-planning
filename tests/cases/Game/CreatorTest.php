@@ -19,7 +19,7 @@ use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Referee\Info as RefereeInfo;
-use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
+use SportsPlanning\Schedule\Creator as ScheduleCreator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class CreatorTest extends TestCase
@@ -29,10 +29,10 @@ class CreatorTest extends TestCase
     public function testGameInstanceAgainst(): void
     {
         $refereeInfo = new RefereeInfo(0);
-        $input = $this->createInput([2], null, null, $refereeInfo);
+        $input = $this->createInput([2], null, $refereeInfo);
         $planning = $this->createPlanning($input);
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -45,11 +45,11 @@ class CreatorTest extends TestCase
     {
         $singleSportVariantWithFields = $this->getSingleSportVariantWithFields(2);
         $refereeInfo = new RefereeInfo(0);
-        $input = $this->createInput([2], [$singleSportVariantWithFields], null, $refereeInfo);
+        $input = $this->createInput([2], [$singleSportVariantWithFields], $refereeInfo);
         $planning = $this->createPlanning($input);
 
-//        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-//        $schedules = $scheduleCreatorService->createSchedules($input);
+//        $scheduleCreator = new ScheduleCreator($this->getLogger());
+//        $schedules = $scheduleCreator->createFromInput($input);
 //
 //        $gameCreator = new GameCreator($this->getLogger());
 //        $gameCreator->createGames($planning, $schedules);
@@ -82,8 +82,8 @@ class CreatorTest extends TestCase
 //        $gameGenerator->generateUnassignedGames($planning);
 //        (new PlanningOutput())->outputWithGames($planning, true);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -108,8 +108,8 @@ class CreatorTest extends TestCase
 //        $gameGenerator->generateUnassignedGames($planning);
 //        (new PlanningOutput())->outputWithGames($planning, true);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -129,11 +129,11 @@ class CreatorTest extends TestCase
             $this->getAgainstH2hSportVariantWithFields(1, 1, 1, 2),
         ];
         $refereeInfo = new RefereeInfo(0);
-        $input = $this->createInput([3], $sportVariants, null, $refereeInfo);
+        $input = $this->createInput([3], $sportVariants, $refereeInfo);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -158,8 +158,8 @@ class CreatorTest extends TestCase
 //        $gameGenerator->generateUnassignedGames($planning);
 //        (new PlanningOutput())->outputWithGames($planning, true);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -182,8 +182,8 @@ class CreatorTest extends TestCase
         $input = $this->createInput([14], $sportVariants);
         $planning = new Planning($input, new SportRange(6, 6), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -202,11 +202,11 @@ class CreatorTest extends TestCase
         $sportVariants = [
             $this->getSingleSportVariantWithFields(2, 2, 4),
         ];
-        $input = $this->createInput([6,6], $sportVariants);
+        $input = $this->createInput([6, 6], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 2), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);

@@ -40,9 +40,7 @@ class Repository extends EntityRepository
         $query = $this->createQueryBuilder('grsch')
             ->where($orExprNrOfPlaces)
             ->andWhere('grsch.sportsConfigName = :sportsConfigName')
-            ->andWhere('grsch.gamePlaceStrategy = :gamePlaceStrategy')
-            ->setParameter('sportsConfigName', $scheduleName)
-            ->setParameter('gamePlaceStrategy', $input->getGamePlaceStrategy()->value);
+            ->setParameter('sportsConfigName', $scheduleName);
 
         $schedules = $query->getQuery()->getResult();
         return $schedules;

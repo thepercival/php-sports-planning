@@ -43,8 +43,7 @@ class Helper
         Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $previousBatch,
         array &$gamesForBatchTmp,
         InfoToAssign $infoToAssign
-    ): void
-    {
+    ): void {
 //        if ($this->balancedStructure) {
 //            return;
 //        }
@@ -261,6 +260,24 @@ class Helper
                 }
             }
         }
+        if ($this->planning->isUnequalBatchGames()) {
+            return $infoToAssign->getNrOfGames() >= $this->planning->getMinNrOfBatchGames();
+        }
+
+        $minNrOfBatchesForGamesPerPlaceNeeded = $this->getMinNrOfBatchesForGamesPerPlaceNeeded($infoToAssign);
+
+        $restNrOfGames = $infoToAssign->getNrOfGames() % $this->planning->getMinNrOfBatchGames();
+        $roundedNrOfGames = $infoToAssign->getNrOfGames() - $restNrOfGames;
+        $maxNrOfRestGames = $this->totalNrOfGames % $this->planning->getMinNrOfBatchGames();
+        if ($restNrOfGames <= $maxNrOfRestGames) {
+            $roundedNrOfGames += $this->planning->getMinNrOfBatchGames();
+        }
+
+        $minNrOfBatchGamesPerPlaceNeeded = (int)floor($roundedNrOfGames / $minNrOfBatchesForGamesPerPlaceNeeded);
+        if ($minNrOfBatchGamesPerPlaceNeeded >= $this->planning->getMinNrOfBatchGames()) {
+            return true;
+        }
+        return false;
 //        if (count($sortedSportInfos) > 0) { // not all sports needed
 //            return true;
 //        }
@@ -285,7 +302,6 @@ class Helper
 //                return false;
 //            }
 //        }
-        return true;
     }
 
     /**
@@ -302,6 +318,18 @@ class Helper
             return $nrOfSimGamesB - $nrOfSimGamesA;
         });
         return array_values($sportInfos);
+    }
+
+
+    protected function getMinNrOfBatchesForGamesPerPlaceNeeded(InfoToAssign $infoToAssign): int
+    {
+        $minNrOfBatchesNeeded = 0;
+        foreach ($infoToAssign->getPlaceInfoMap() as $placeInfo) {
+            if ($placeInfo->getNrOfGames() > $minNrOfBatchesNeeded) {
+                $minNrOfBatchesNeeded = $placeInfo->getNrOfGames();
+            }
+        }
+        return $minNrOfBatchesNeeded;
     }
 
 //    /**

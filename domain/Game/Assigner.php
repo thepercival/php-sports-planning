@@ -9,6 +9,7 @@ use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\TimeoutConfig;
 use SportsPlanning\Resource\RefereePlace\Service as RefereePlaceService;
 use SportsPlanning\Resource\Service as ResourceService;
 
@@ -40,6 +41,11 @@ class Assigner
             $planning->getTogetherGames()->clear();
             $planning->setState($state);
             $planning->setNrOfBatches(0);
+            if ($state === PlanningState::TimedOut) {
+                $planning->setTimeoutState((new TimeoutConfig())->nextTimeoutState($planning));
+            } else {
+                $planning->setTimeoutState(null);
+            }
             return;
         }
 
@@ -56,11 +62,17 @@ class Assigner
                 $planning->getTogetherGames()->clear();
                 $planning->setState($state);
                 $planning->setNrOfBatches(0);
+                if ($state === PlanningState::TimedOut) {
+                    $planning->setTimeoutState((new TimeoutConfig())->nextTimeoutState($planning));
+                } else {
+                    $planning->setTimeoutState(null);
+                }
                 $this->logger->error('   could not assign refereeplaces (plId:' . (string)$planning->getId() . ')');
                 return;
             }
         }
         $planning->setState(PlanningState::Succeeded);
+        $planning->setTimeoutState(null);
         $planning->setNrOfBatches($firstBatch->getLeaf()->getNumber());
     }
 

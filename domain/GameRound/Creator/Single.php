@@ -6,10 +6,8 @@ namespace SportsPlanning\GameRound\Creator;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Combinations\Output\GameRound as GameRoundOutput;
 use SportsPlanning\Combinations\PlaceCombination;
-use SportsPlanning\GameRound\CreatorInterface;
 use SportsPlanning\GameRound\Together as TogetherGameRound;
 use SportsPlanning\GameRound\Together\Game;
 use SportsPlanning\GameRound\Together\GamePlace;
@@ -17,44 +15,46 @@ use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
 use SportsPlanning\Schedule\Creator\AssignedCounter;
+use SportsPlanning\SportVariant\WithPoule as VariantWithPoule;
 
-/**
- * @template-implements CreatorInterface<TogetherGameRound>
- */
-class Single implements CreatorInterface
+class Single
 {
     protected GameRoundOutput $gameRoundOutput;
-    /**
-     * @var array<string,array<string,PlaceCounter>>
-     */
-    protected array $assignedTogetherMap = [];
+//    /**
+//     * @var array<string,array<string,PlaceCounter>>
+//     */
+//    protected array $assignedTogetherMap = [];
 
-    public function __construct(protected SingleSportVariant $sportVariant, LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger)
     {
         $this->gameRoundOutput = new GameRoundOutput($logger);
     }
 
     public function createGameRound(
         Poule $poule,
-        AssignedCounter $assignedCounter,
-        int $totalNrOfGamesPerPlace
+        SingleSportVariant $sportVariant,
+        AssignedCounter $assignedCounter
     ): TogetherGameRound {
+        $variantWithPoule = new VariantWithPoule($sportVariant, $poule);
         $gameRound = new TogetherGameRound();
-        $gamePlaceStrategy = $poule->getInput()->getGamePlaceStrategy();
-        $this->assignedTogetherMap = $assignedCounter->getAssignedTogetherMap();
+//        $this->assignedTogetherMap = $assignedCounter->getAssignedTogetherMap();
         $places = $poule->getPlaces()->toArray();
         $remainingGamePlaces = [];
+        $totalNrOfGamesPerPlace = $variantWithPoule->getTotalNrOfGamesPerPlace();
         for ($gameRoundNumber = 1 ; $gameRoundNumber <= $totalNrOfGamesPerPlace ; $gameRoundNumber++) {
-            if ($gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned) {
-                shuffle($places);
-            }
-            $gamePlaces = array_map(fn (Place $place) => new GamePlace($gameRoundNumber, $place), $places);
-            $remainingGamePlaces = $this->assignGameRound(array_values($gamePlaces), $remainingGamePlaces, $gameRound, $gamePlaceStrategy);
+            $gamePlaces = array_map(fn(Place $place) => new GamePlace($gameRoundNumber, $place), $places);
+            $remainingGamePlaces = $this->assignGameRound(
+                $variantWithPoule,
+                $assignedCounter,
+                array_values($gamePlaces),
+                $remainingGamePlaces,
+                $gameRound
+            );
 
             $gameRound = $gameRound->createNext();
         }
         if (count($remainingGamePlaces) > 0) {
-            $this->assignGameRound($remainingGamePlaces, [], $gameRound, $gamePlaceStrategy, true);
+            $this->assignGameRound($variantWithPoule, $assignedCounter, $remainingGamePlaces, [], $gameRound, true);
         }
         if (count($gameRound->getLeaf()->getGames()) === 0) {
             $gameRound->getLeaf()->detachFromPrevious();
@@ -64,26 +64,28 @@ class Single implements CreatorInterface
 
 
     /**
+     * @param VariantWithPoule $variantWithPoule
+     * @param AssignedCounter $assignedCounter
      * @param list<GamePlace> $unSortedGamePlaces
      * @param list<GamePlace> $remainingGamePlaces
      * @param TogetherGameRound $gameRound
-     * @param GamePlaceStrategy $gamePlaceStrategy
      * @param bool $finalGameRound
      * @return list<GamePlace>
      */
     protected function assignGameRound(
+        VariantWithPoule $variantWithPoule,
+        AssignedCounter $assignedCounter,
         array $unSortedGamePlaces,
         array $remainingGamePlaces,
         TogetherGameRound $gameRound,
-        GamePlaceStrategy $gamePlaceStrategy,
         bool $finalGameRound = false
     ): array {
         $newRemainingGamePlaces = [];
-        $choosableGamePlaces = $this->sortGamePlaces($unSortedGamePlaces);
-        $remainingGamePlaces = $this->sortGamePlaces($remainingGamePlaces);
+        $choosableGamePlaces = $this->sortGamePlaces($assignedCounter, $unSortedGamePlaces);
+        $remainingGamePlaces = $this->sortGamePlaces($assignedCounter, $remainingGamePlaces);
         $choosableGamePlaces = array_merge($remainingGamePlaces, $choosableGamePlaces);
         while (count($choosableGamePlaces) > 0) {
-            $bestGamePlace = $this->getBestGamePlace($newRemainingGamePlaces, $choosableGamePlaces);
+            $bestGamePlace = $this->getBestGamePlace($assignedCounter, $newRemainingGamePlaces, $choosableGamePlaces);
             if ($bestGamePlace === null) {
                 break;
             }
@@ -92,35 +94,41 @@ class Single implements CreatorInterface
                 array_splice($choosableGamePlaces, $idx, 1);
             }
             array_push($newRemainingGamePlaces, $bestGamePlace);
-            if (count($newRemainingGamePlaces) === $this->sportVariant->getNrOfGamePlaces()) {
+            if (count($newRemainingGamePlaces) === $variantWithPoule->getNrOfGamePlaces()) {
                 $game = new Game($gameRound, $newRemainingGamePlaces);
-                $this->assignPlaceCombination($game->toPlaceCombination());
+                $assignedCounter->assignTogether([$game->toPlaceCombination()]);
                 $newRemainingGamePlaces = [];
             }
         }
-        if ($gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned) {
-            return [];
-        }
         if ($finalGameRound && count($newRemainingGamePlaces) > 0) {
             $game = new Game($gameRound, $newRemainingGamePlaces);
-            $this->assignPlaceCombination($game->toPlaceCombination());
+            $assignedCounter->assignTogether([$game->toPlaceCombination()]);
         }
         return $newRemainingGamePlaces;
     }
 
     /**
+     * @param AssignedCounter $assignedCounter
      * @param list<GamePlace> $gamePlaces
      * @return list<GamePlace>
      */
-    protected function sortGamePlaces(array $gamePlaces): array
+    protected function sortGamePlaces(AssignedCounter $assignedCounter, array $gamePlaces): array
     {
-        uasort($gamePlaces, function (GamePlace $gamePlaceA, GamePlace $gamePlaceB) use ($gamePlaces): int {
-            $placesToCompareA = $this->getOtherGamePlaces($gamePlaceA, $gamePlaces);
-            $scoreA = $this->getScore($gamePlaceA->getPlace(), $placesToCompareA);
-            $placesToCompareB = $this->getOtherGamePlaces($gamePlaceB, $gamePlaces);
-            $scoreB = $this->getScore($gamePlaceA->getPlace(), $placesToCompareB);
-            return $scoreA - $scoreB;
-        });
+        uasort(
+            $gamePlaces,
+            function (GamePlace $gamePlaceA, GamePlace $gamePlaceB) use ($assignedCounter, $gamePlaces): int {
+                $nrOfAssignedGamesA = $assignedCounter->getAssignedPlaceCounter($gamePlaceA->getPlace())?->count() ?? 0;
+                $nrOfAssignedGamesB = $assignedCounter->getAssignedPlaceCounter($gamePlaceB->getPlace())?->count() ?? 0;
+                if ($nrOfAssignedGamesA !== $nrOfAssignedGamesB) {
+                    return $nrOfAssignedGamesA - $nrOfAssignedGamesB;
+                }
+                $placesToCompareA = $this->getOtherGamePlaces($gamePlaceA, $gamePlaces);
+                $scoreA = $this->getScore($assignedCounter, $gamePlaceA->getPlace(), $placesToCompareA);
+                $placesToCompareB = $this->getOtherGamePlaces($gamePlaceB, $gamePlaces);
+                $scoreB = $this->getScore($assignedCounter, $gamePlaceA->getPlace(), $placesToCompareB);
+                return $scoreA - $scoreB;
+            }
+        );
         return array_values($gamePlaces);
     }
 
@@ -129,12 +137,15 @@ class Single implements CreatorInterface
      * @param list<GamePlace> $choosableGamePlaces
      * @return GamePlace|null
      */
-    protected function getBestGamePlace(array $gamePlaces, array $choosableGamePlaces): GamePlace|null
-    {
+    protected function getBestGamePlace(
+        AssignedCounter $assignedCounter,
+        array $gamePlaces,
+        array $choosableGamePlaces
+    ): GamePlace|null {
         $bestGamePlace = null;
         $lowestScore = null;
         foreach ($choosableGamePlaces as $choosableGamePlace) {
-            $score = $this->getScore($choosableGamePlace->getPlace(), $gamePlaces);
+            $score = $this->getScore($assignedCounter, $choosableGamePlace->getPlace(), $gamePlaces);
             if ($lowestScore === null || $score < $lowestScore) {
                 $lowestScore = $score;
                 $bestGamePlace = $choosableGamePlace;
@@ -173,51 +184,21 @@ class Single implements CreatorInterface
     }
 
     /**
+     * @param AssignedCounter $assignedCounter ,
      * @param Place $place
      * @param list<GamePlace> $gamePlaces
      * @return int
      */
-    protected function getScore(Place $place, array $gamePlaces): int
+    protected function getScore(AssignedCounter $assignedCounter, Place $place, array $gamePlaces): int
     {
         $score = 0;
         foreach ($gamePlaces as $gamePlace) {
             if ($place === $gamePlace->getPlace()) {
                 return 100000;
             }
-            $placeCounter = $this->getPlaceCounter($place, $gamePlace->getPlace());
+            $placeCounter = $assignedCounter->getTogetherPlaceCounter($place, $gamePlace->getPlace());
             $score += $placeCounter !== null ? $placeCounter->count() : 0;
         }
         return $score;
-    }
-
-    /**
-     * @param Place $place
-     * @param Place $coPlace
-     * @return PlaceCounter|null
-     */
-    protected function getPlaceCounter(Place $place, Place $coPlace): PlaceCounter|null
-    {
-        if (!isset($this->assignedTogetherMap[$place->getLocation()])
-        || !isset($this->assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()])) {
-            return null;
-        }
-        return $this->assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()];
-    }
-
-    /**
-     * @param PlaceCombination $placeCombination
-     * @return void
-     */
-    protected function assignPlaceCombination(PlaceCombination $placeCombination): void
-    {
-        $places = $placeCombination->getPlaces();
-        foreach ($places as $placeIt) {
-            foreach ($places as $coPlace) {
-                if ($coPlace === $placeIt) {
-                    continue;
-                }
-                $this->getPlaceCounter($placeIt, $coPlace)?->increment();
-            }
-        }
     }
 }

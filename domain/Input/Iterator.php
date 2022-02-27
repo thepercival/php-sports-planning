@@ -11,7 +11,6 @@ use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Input\Service as PlanningInputService;
 use SportsPlanning\Planning\Output as PlanningOutput;
@@ -28,7 +27,6 @@ class Iterator implements \Iterator
     protected AgainstSportsIterator $sportsIterator;
     protected SportRange $rangeNrOfReferees;
     protected PlanningInputService $planningInputService;
-    protected GamePlaceStrategy $gamePlaceStrategy;
     protected int $nrOfReferees;
     protected SelfReferee $selfReferee;
     protected PlanningInput|null $current = null;
@@ -43,7 +41,6 @@ class Iterator implements \Iterator
     ) {
         $this->structureIterator = new PouleStructureIterator($rangePlaces, $rangePlacesPerPoule, $rangePoules);
         $this->sportsIterator = new AgainstSportsIterator($rangeNrOfFields, $rangeGameAmount);
-        $this->gamePlaceStrategy = GamePlaceStrategy::EquallyAssigned;
         $this->rangeNrOfReferees = $rangeNrOfReferees;
         $this->planningInputService = new PlanningInputService();
         $this->rewind();
@@ -57,12 +54,6 @@ class Iterator implements \Iterator
     protected function rewindSports(): void
     {
         $this->sportsIterator->rewind();
-        $this->rewindGamePlaceStrategy();
-    }
-
-    protected function rewindGamePlaceStrategy(): void
-    {
-        $this->gamePlaceStrategy = GamePlaceStrategy::EquallyAssigned;
         $this->rewindNrOfReferees();
     }
 
@@ -154,7 +145,6 @@ class Iterator implements \Iterator
         return new PlanningInput(
             $pouleStructure,
             [$sportVariantWithFields],
-            $this->gamePlaceStrategy,
             new RefereeInfo($this->selfReferee === SelfReferee::Disabled ? $this->nrOfReferees : $this->selfReferee)
         );
     }
@@ -205,25 +195,15 @@ class Iterator implements \Iterator
         $maxNrOfReferees = $this->rangeNrOfReferees->getMax();
         $pouleStructure = $this->structureIterator->current();
         if ($pouleStructure === null) {
-            return $this->incrementGamePlaceStrategy();
+            return $this->incrementSports();
         }
         $nrOfPlaces = $pouleStructure->getNrOfPlaces();
         $maxNrOfRefereesByPlaces = (int)(ceil($nrOfPlaces / 2));
         if ($this->nrOfReferees >= $maxNrOfReferees || $this->nrOfReferees >= $maxNrOfRefereesByPlaces) {
-            return $this->incrementGamePlaceStrategy();
+            return $this->incrementSports();
         }
         $this->nrOfReferees++;
         $this->rewindSelfReferee();
-        return true;
-    }
-
-    protected function incrementGamePlaceStrategy(): bool
-    {
-        if ($this->gamePlaceStrategy === GamePlaceStrategy::RandomlyAssigned) {
-            return $this->incrementSports();
-        }
-        $this->gamePlaceStrategy = GamePlaceStrategy::RandomlyAssigned;
-        $this->rewindNrOfReferees();
         return true;
     }
 
@@ -244,7 +224,7 @@ class Iterator implements \Iterator
             return $this->incrementSports();
         }
 
-        $this->rewindGamePlaceStrategy();
+        $this->rewindNrOfReferees();
         return true;
     }
 

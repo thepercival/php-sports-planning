@@ -8,6 +8,7 @@ use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\SportRange;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
@@ -19,6 +20,7 @@ use SportsPlanning\Input;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\TimeoutConfig;
 use SportsPlanning\Resource\Fields as FieldResources;
 use SportsPlanning\Resource\RefereePlace\Predicter;
 use SportsPlanning\Resource\Service\Helper;
@@ -35,7 +37,9 @@ class Service
     protected GameOutput $gameOutput;
     protected bool $throwOnTimeout;
     protected bool $showHighestCompletedBatchNr = false;
+    protected bool $sortWhenReachedHighestCompletedBatchNr = false;
     protected int $highestCompletedBatchNr = 0;
+    protected TimeoutConfig $timeoutConfig;
     protected int $debugCounter = 0;
     /**
      * @var array<int, AgainstSportVariant|SingleSportVariant>
@@ -55,6 +59,9 @@ class Service
         $this->gameOutput = new GameOutput($logger);
         $this->initSportVariantMap($planning->getInput());
         $this->throwOnTimeout = true;
+        $this->timeoutConfig = new TimeoutConfig();
+        $nextTimeoutState = $this->timeoutConfig->nextTimeoutState($planning);
+        $this->sortWhenReachedHighestCompletedBatchNr = $this->timeoutConfig->useSort($nextTimeoutState);
     }
 
     /**
@@ -64,7 +71,9 @@ class Service
     public function assign(array $games): PlanningState
     {
         $oCurrentDateTime = new DateTimeImmutable();
-        $this->timeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
+        $nextTimeoutState = $this->timeoutConfig->nextTimeoutState($this->planning);
+        $timeoutSeconds = $this->timeoutConfig->getTimeoutSeconds($this->planning->getInput(), $nextTimeoutState);
+        $this->timeoutDateTime = $oCurrentDateTime->modify('+' . $timeoutSeconds . ' seconds');
         $batch = new Batch();
         if ($this->input->selfRefereeEnabled()) {
             if ($this->input->getSelfReferee() === SelfReferee::SamePoule) {
@@ -141,10 +150,13 @@ class Service
         Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch $batch,
         int $maxNrOfBatchGames,
         int $nrOfGamesTried = 0
-    ): bool
-    {
-//        $this->logger->info('unassinged games: ');
-//        $this->batchOutput->outputGames($gamesForBatch);
+    ): bool {
+//        if ($batch->getNumber() === 32) {
+//            $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber(), new SportRange(32, 32));
+//            $this->logger->info('unassinged games: ');
+//            $this->batchOutput->outputGames($gamesForBatch);
+//            $c = 12;
+//        }
 
         if ((count($batch->getGames()) === $maxNrOfBatchGames
             || (count($gamesForBatch) === 0) && count($games) === count($batch->getGames()))
@@ -172,25 +184,26 @@ class Service
 //                $er = 12;
 //            }
 
-
-            if ($this->showHighestCompletedBatchNr && $batch->getNumber() > $this->highestCompletedBatchNr) {
+            $doSort = false;
+            if ($batch->getNumber() > $this->highestCompletedBatchNr) {
                 $this->highestCompletedBatchNr = $batch->getNumber();
-                $this->logger->info('batch ' . $batch->getNumber() . ' completed');
+                $doSort = $this->sortWhenReachedHighestCompletedBatchNr;
+                if ($this->showHighestCompletedBatchNr) {
+                    $this->logger->info('batch ' . $batch->getNumber() . ' completed');
+                }
             }
 
-
             // ------------- BEGIN: OUTPUT --------------- //
-            // 60 wedstrijden , 9 wedstrijden per batch, is 7
-//            if ($batch->getNumber() == 37 ) {
-////                ++$this->debugCounter;
-////                if( $this->debugCounter === 122) {
-//                    // $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber(), 1, 1);
-//                    $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber());
-//                    $this->logger->info('unassinged games: ');
-//                    $this->batchOutput->outputGames($games);
-////                $this->logger->info('unassinged games: ' . ++$this->debugCounter);
-//                    $c = 12;
-////                }
+//            if ($batch->getNumber() === 6) {
+//            //                ++$this->debugCounter;
+//            //                if( $this->debugCounter === 122) {
+//                // $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber(), 1, 1);
+//                $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber());
+//                $this->logger->info('unassinged games: ');
+//                $this->batchOutput->outputGames($games);
+//            //                $this->logger->info('unassinged games: ' . ++$this->debugCounter);
+//                $c = 12;
+//            //                }
 //            }
             // ------------- END: OUTPUT --------------- //
 
@@ -211,11 +224,11 @@ class Service
                 return false;
             }
 //            if ($batch->getNumber() >= 37) {
-////                $this->logger->info(
-////                    ' nr of games to process before gamesinarow-filter(max ' . $this->planning->getMaxNrOfGamesInARow(
-////                    ) . ') : ' . count($games)
-////                );
-////                $this->gameOutput->outputGames($games);
+            ////                $this->logger->info(
+            ////                    ' nr of games to process before gamesinarow-filter(max ' . $this->planning->getMaxNrOfGamesInARow(
+            ////                    ) . ') : ' . count($games)
+            ////                );
+            ////                $this->gameOutput->outputGames($games);
 //                $e = 23;
 //            }
             $gamesForBatchTmp = array_filter(
@@ -225,10 +238,13 @@ class Service
                 }
             );
 
-//            if ($batch->getNumber() > $this->highestCompletedBatchNr ) {
-//                $this->helper->sortGamesForNextBatch($batch, $gamesForBatchTmp, $infoAssign);
-//            }
-
+            if ($doSort) {
+//                $this->logger->info('unassigned pre sorted games: ');
+//                $this->batchOutput->outputGames($gamesForBatchTmp);
+                $this->helper->sortGamesForNextBatch($batch, $gamesForBatchTmp, $infoAssign);
+//                $this->logger->info('unassigned post sorted games: ');
+//                $this->batchOutput->outputGames($gamesForBatchTmp);
+            }
 
 //            if ($nextBatch->getNumber() >= 8) {
 //                $this->logger->info('unassigned sorted games: ');
@@ -249,10 +265,9 @@ class Service
             return $this->assignBatchHelper($games, $gamesList, $fieldResources, $nextBatch, $maxNrOfBatchGames);
         }
         if ($this->throwOnTimeout && (new DateTimeImmutable()) > $this->timeoutDateTime) {
-            throw new TimeoutException(
-                "exceeded maximum duration of " . $this->planning->getTimeoutSeconds() . " seconds",
-                E_ERROR
-            );
+            $nextTimeoutState = $this->timeoutConfig->nextTimeoutState($this->planning);
+            $timeoutSeconds = $this->timeoutConfig->getTimeoutSeconds($this->planning->getInput(), $nextTimeoutState);
+            throw new TimeoutException('exceeded maximum duration of ' . $timeoutSeconds . ' seconds', E_ERROR);
         }
         $minNrOfBatchGames = $this->planning->getMinNrOfBatchGames();
         if (count($games) >= $minNrOfBatchGames && (count($gamesForBatch) + count(

@@ -71,6 +71,7 @@ class IteratorTest extends TestCase
         }
         $inputIterator->next(); // should do nothing
         self::assertFalse($inputIterator->valid());
-        self::assertEquals(900, $nrOfPossibilities);
+        self::assertEquals(450, $nrOfPossibilities);
+        // last change => remove gamePlaceStrategy
     }
 }

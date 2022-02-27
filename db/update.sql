@@ -1,29 +1,23 @@
 -- PRE PRE PRE doctrine-update =============================================================
-
-SET FOREIGN_KEY_CHECKS = 0;
-truncate planninggameplaces;
-truncate planninggames;
-truncate planningfields;
-truncate planningplaces;
-truncate planningpoules;
-truncate planningreferees;
-truncate planningsports;
-truncate plannings;
-truncate planninginputs;
-SET FOREIGN_KEY_CHECKS = 1;
-
-alter table planningfields rename planningFields;
-alter table planningplaces rename planningPlaces;
-alter table planninginputs rename planningInputs;
-alter table planningpoules rename planningPoules;
-alter table planningreferees rename planningReferees;
-alter table planningsports rename planningSports;
+delete
+from planningSchedules
+where sportsConfigName like '%},{%';
+-- remove multiple sports
+-- should be 0
+select count(*)
+from planningSchedules s
+where (select count(*) from planningSportSchedules ss where ss.scheduleId = s.id) > 1;
 
 -- POST POST POST doctrine-update ===========================================================
 update planningInputs
 set recreatedAt = null;
 update planningInputs
 set seekingPercentage = -1;
+
+alter table planningSchedules
+    drop gamePlaceStrategy;
+alter table planningInputs
+    drop gamePlaceStrategy;
 
 -- update planninginputs set gameMode = 2;
 -- update planningInputs set sportConfig = replace(sportConfig, '2}]', concat( '2,"gameAmount": ', nrOfHeadtohead, '}]') );

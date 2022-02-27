@@ -6,7 +6,6 @@ namespace SportsPlanning\Tests\Input;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SelfReferee;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input\Service as InputService;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -24,7 +23,6 @@ class ServiceTest extends TestCase
         $input = $this->createInput(
             [3, 2, 2],
             [$sportVariantWithFields],
-            GamePlaceStrategy::EquallyAssigned,
             $refereeInfo
         );
 
@@ -38,7 +36,7 @@ class ServiceTest extends TestCase
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
         $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
-        $input = $this->createInput([2], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, $refereeInfo);
+        $input = $this->createInput([2], [$sportVariantWithFields], $refereeInfo);
 
         self::assertFalse(
             $inputService->canSelfRefereeBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
@@ -53,7 +51,6 @@ class ServiceTest extends TestCase
         $input = $this->createInput(
             [2, 2],
             [$sportVariantWithFields],
-            GamePlaceStrategy::EquallyAssigned,
             $refereeInfo
         );
 
@@ -70,7 +67,6 @@ class ServiceTest extends TestCase
         $input = $this->createInput(
             [3, 2],
             [$sportVariantWithFields],
-            GamePlaceStrategy::EquallyAssigned,
             $refereeInfo
         );
 
@@ -87,7 +83,6 @@ class ServiceTest extends TestCase
         $input = $this->createInput(
             [3, 3],
             [$sportVariantWithFields],
-            GamePlaceStrategy::EquallyAssigned,
             $refereeInfo
         );
 
@@ -101,7 +96,7 @@ class ServiceTest extends TestCase
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
         $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
-        $input = $this->createInput([3], [$sportVariantWithFields], GamePlaceStrategy::EquallyAssigned, $refereeInfo);
+        $input = $this->createInput([3], [$sportVariantWithFields], $refereeInfo);
 
         self::assertFalse(
             $inputService->canSelfRefereeOtherPoulesBeAvailable($input->createPouleStructure())
@@ -116,7 +111,6 @@ class ServiceTest extends TestCase
         $input = $this->createInput(
             [2, 2],
             [$sportVariantWithFields],
-            GamePlaceStrategy::EquallyAssigned,
             $refereeInfo
         );
 

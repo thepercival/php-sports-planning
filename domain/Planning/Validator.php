@@ -11,7 +11,6 @@ use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\AllInOneGame;
 use SportsHelpers\Sport\Variant\Single;
 use SportsHelpers\Sport\VariantWithPoule;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
 use SportsPlanning\Combinations\Validator\With as WithValidator;
 use SportsPlanning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
@@ -225,7 +224,7 @@ class Validator
                 $nrOfHomeSideGames[$place->getUniqueIndex()] = 0;
             }
             if ($sportVariant instanceof AgainstH2h || $sportVariant->allPlacesPlaySameNrOfGames($nrOfPlaces)) {
-                if ($sportVariant->getNrOfGamePlaces() > 2 &&
+                if ($sportVariant->hasMultipleSidePlaces() &&
                     ($sportVariant instanceof AgainstH2h || $sportVariant->equalNrOfHomePlaces($nrOfPlaces))) {
                     $withValidator = new WithValidator($poule, $sport);
                     $withValidator->addGames($planning);
@@ -305,9 +304,6 @@ class Validator
         if ($sportVariant instanceof Single || $sportVariant instanceof AllInOneGame) {
             return self::VALID;
         }
-//        if ($planning->getInput()->getGamePlaceStrategy() === GamePlaceStrategy::RandomlyAssigned) {
-//            return self::VALID;
-//        }
         if ($sportVariant instanceof AgainstGpp) {
             if (!$sportVariant->equalNrOfHomePlaces($nrOfPlaces)) {
                 return self::VALID;

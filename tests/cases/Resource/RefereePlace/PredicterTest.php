@@ -8,7 +8,6 @@ use PHPUnit\Framework\TestCase;
 use SportsHelpers\SelfReferee;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Resource\RefereePlace\Predicter;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -23,7 +22,7 @@ class PredicterTest extends TestCase
     {
         $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
         $planning = $this->createPlanning(
-            $this->createInput([3], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
+            $this->createInput([3], null, $refereeInfo)
         );
         $poules = array_values($planning->getInput()->getPoules()->toArray());
         $predicter = new Predicter($poules);
@@ -41,7 +40,7 @@ class PredicterTest extends TestCase
         $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
         self::expectException(\Exception::class);
         $this->createPlanning(
-            $this->createInput([2], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
+            $this->createInput([2], null, $refereeInfo)
         );
     }
 
@@ -49,7 +48,7 @@ class PredicterTest extends TestCase
     {
         $refereeInfo = new RefereeInfo(SelfReferee::OtherPoules);
         $planning = $this->createPlanning(
-            $this->createInput([3, 3], null, GamePlaceStrategy::EquallyAssigned, $refereeInfo)
+            $this->createInput([3, 3], null, $refereeInfo)
         );
         $poules = array_values($planning->getInput()->getPoules()->toArray());
         $predicter = new Predicter($poules);

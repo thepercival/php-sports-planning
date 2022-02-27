@@ -15,6 +15,8 @@ use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\TimeoutState;
+use SportsPlanning\Planning\TimeoutConfig;
 use SportsPlanning\Planning\Type as PlanningType;
 
 class Planning extends Identifiable
@@ -22,8 +24,8 @@ class Planning extends Identifiable
     protected int $minNrOfBatchGames;
     protected int $maxNrOfBatchGames;
     protected DateTimeImmutable $createdDateTime;
-    protected int $timeoutSeconds;
     protected PlanningState $state;
+    protected TimeoutState|null $timeoutState = null;
     protected int $nrOfBatches = 0;
     protected int $validity = -1;
     /**
@@ -35,9 +37,6 @@ class Planning extends Identifiable
      */
     protected Collection $togetherGames;
 
-    public const MINIMUM_TIMEOUTSECONDS = 5;
-    private const MAXIMUM_TIMEOUTSECONDS = 15;
-
     public function __construct(protected Input $input, SportRange $nrOfBatchGames, protected int $maxNrOfGamesInARow)
     {
         $this->minNrOfBatchGames = $nrOfBatchGames->getMin();
@@ -48,7 +47,6 @@ class Planning extends Identifiable
         $this->togetherGames = new ArrayCollection();
 
         $this->createdDateTime = new DateTimeImmutable();
-        $this->timeoutSeconds = $this->getDefaultTimeoutSeconds();
         $this->state = PlanningState::ToBeProcessed;
     }
 
@@ -115,29 +113,14 @@ class Planning extends Identifiable
         $this->createdDateTime = $createdDateTime;
     }
 
-    public function getTimeoutSeconds(): int
+    public function getTimeoutState(): TimeoutState|null
     {
-        return $this->timeoutSeconds;
+        return $this->timeoutState;
     }
 
-    public function setTimeoutSeconds(int $timeoutSeconds): void
+    public function setTimeoutState(TimeoutState|null $timeoutState): void
     {
-        $this->timeoutSeconds = $timeoutSeconds;
-    }
-
-    protected function getDefaultTimeoutSeconds(): int
-    {
-        $sportVariants = array_values($this->input->createSportVariants()->toArray());
-        $totalNrOfGames = $this->input->createPouleStructure()->getTotalNrOfGames($sportVariants);
-        $nrOfGamesPerSecond = 10;
-        $nrOfSeconds = (int)ceil($totalNrOfGames / $nrOfGamesPerSecond);
-        if ($nrOfSeconds < self::MINIMUM_TIMEOUTSECONDS) {
-            $nrOfSeconds = self::MINIMUM_TIMEOUTSECONDS;
-        }
-        if ($nrOfSeconds > self::MAXIMUM_TIMEOUTSECONDS) {
-            $nrOfSeconds = self::MAXIMUM_TIMEOUTSECONDS;
-        }
-        return $nrOfSeconds;
+        $this->timeoutState = $timeoutState;
     }
 
     public function getState(): PlanningState
@@ -148,6 +131,18 @@ class Planning extends Identifiable
     public function setState(PlanningState $state): void
     {
         $this->state = $state;
+    }
+
+    public function getStateDescription(): string
+    {
+        $stateDescription = $this->getState()->name;
+        if ($this->getState() === PlanningState::TimedOut) {
+            $timeoutState = $this->getTimeoutState();
+            if ($timeoutState !== null) {
+                $stateDescription .= '(' . $timeoutState->value . ')';
+            }
+        }
+        return $stateDescription;
     }
 
     public function getNrOfBatches(): int

@@ -16,9 +16,14 @@ class PlaceCombinationCounter extends Counter implements \Stringable
         parent::__construct($placeCombination);
     }
 
+    public function getPlaceCombination(): PlaceCombination
+    {
+        return $this->countedObject;
+    }
+
     public function getNumber(): int
     {
-        return $this->countedObject->getNumber();
+        return $this->getPlaceCombination()->getNumber();
     }
 
     public function __toString(): string

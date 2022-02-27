@@ -9,7 +9,6 @@ use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\Sport\VariantWithFields;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -22,7 +21,7 @@ class CalculatorTest extends TestCase
     {
         $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(4);
         $refereeInfo = new RefereeInfo(0);
-        $input = $this->createInput([3, 2, 2], [$sportVariantWithFields], null, $refereeInfo);
+        $input = $this->createInput([3, 2, 2], [$sportVariantWithFields], $refereeInfo);
         $calculator = new InputCalculator();
         $sportVariantsWithFields = array_values($input->createSportVariantsWithFields()->toArray());
         $pouleStructure = $input->createPouleStructure();
@@ -64,7 +63,6 @@ class CalculatorTest extends TestCase
         $input = $this->createInput(
             [8],
             $sportVariantsWithFields,
-            GamePlaceStrategy::EquallyAssigned,
             $refereeInfo
         );
         $calculator = new InputCalculator();
@@ -82,7 +80,6 @@ class CalculatorTest extends TestCase
         $input = $this->createInput(
             [10, 10, 10, 10],
             $sportVariantsWithFields,
-            GamePlaceStrategy::EquallyAssigned,
             $refereeInfo
         );
         $calculator = new InputCalculator();

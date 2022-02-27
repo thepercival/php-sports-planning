@@ -87,7 +87,7 @@ class Seeker
 
 
 //        $calculator = new NextEqualBatchGamesPlanningCalculator($input, $this->maxTimeoutSeconds);
-        $this->logger->info('       -- ---------- start processing batchGames-plannings ----------');
+        $this->logger->info('   -- ---------- start processing batchGames-plannings ----------');
 
         $planning = null;
         $nrOfPlanningsCreated = 0;
@@ -95,7 +95,7 @@ class Seeker
             $planning = new Planning($input, new SportRange($nrOfBatches, $nrOfBatches), 0);
             $nrOfPlanningsCreated++;
             $this->planningRepos->save($planning, true);
-            $this->processPlanningHelper($planning, $schedules);
+            $this->processPlanningHelper($planning, $schedules, '      ');
             $this->updateSeekingPercentage($input, new SportRange(0, 33), $nrOfPlanningsCreated);
             if ($planning->getState() === PlanningState::Succeeded) {
                 // $this->equalBatchGamesPostProcessor->processSucceededPlanning($planningIt);
@@ -120,7 +120,7 @@ class Seeker
         array $schedules,
         Planning $bestEqualBatchGamesPlanning
     ): void {
-        $this->logger->info('       -- ---------- start processing unequal-batchGames-plannings ----------');
+        $this->logger->info('   -- ---------- start processing unequal-batchGames-plannings ----------');
 
         $range = new SportRange(
             $this->getMinNrOfBatchGames($bestEqualBatchGamesPlanning),
@@ -137,7 +137,7 @@ class Seeker
                 $nrOfPlanningsCreated++;
                 $this->planningRepos->save($planning, true);
                 $this->updateSeekingPercentage($input, new SportRange(33, 66), $nrOfPlanningsCreated);
-                $this->processPlanningHelper($planning, $schedules);
+                $this->processPlanningHelper($planning, $schedules, '      ');
                 if ($planning->getState() === PlanningState::Succeeded) {
                     return;
                 }
@@ -155,10 +155,10 @@ class Seeker
     public function processGamesInARowPlannings(Input $input, array $schedules): void
     {
         try {
-            $this->logger->info('       -- ---------- remove all gamesInARow-plannings ----------');
+            $this->logger->info('   -- ---------- remove all gamesInARow-plannings ----------');
             $this->removeGamesInARowPlannings($input);
 
-            $this->logger->info('       -- ---------- start processing gamesInARow-plannings ----------');
+            $this->logger->info('   -- ---------- start processing gamesInARow-plannings ----------');
             $bestBatchGamePlanning = $input->getBestPlanning(PlanningType::BatchGames);
             $nrOfPlanningsCreated = 0;
             $maxNrOfGamesInARowInput = $input->getMaxNrOfGamesInARow();
@@ -167,9 +167,9 @@ class Seeker
                 $nrOfPlanningsCreated++;
                 $this->planningRepos->save($planning);
                 $this->updateSeekingPercentage($input, new SportRange(66, 100), $nrOfPlanningsCreated);
-                $this->processPlanningHelper($planning, $schedules);
-                if ($planning->getState() === PlanningState::Succeeded || $planning->getState(
-                    ) === PlanningState::Failed) {
+                $this->processPlanningHelper($planning, $schedules, '      ');
+                if ($planning->getState() === PlanningState::Succeeded
+                    || $planning->getState() === PlanningState::Failed) {
                     break;
                 }
             }
@@ -223,7 +223,7 @@ class Seeker
             $poules = $pouleStructure->toArray();
             $firstPouleNrOfPlaces = array_shift($poules);
             $secondPouleNrOfPlaces = array_shift($poules);
-            if ($firstPouleNrOfPlaces !== null && $secondPouleNrOfPlaces !== null && $firstPouleNrOfPlaces > $secondPouleNrOfPlaces) {
+            if ($secondPouleNrOfPlaces !== null && $firstPouleNrOfPlaces > $secondPouleNrOfPlaces) {
                 array_unshift($poules, $secondPouleNrOfPlaces);
                 $pouleStructure = new PouleStructure(...$poules);
             }
@@ -250,13 +250,13 @@ class Seeker
      */
     public function processFilter(Input $input, array $schedules, PlanningFilter $filter): Planning|null
     {
-        $this->logger->info('       -- ---------- start processing planning-filter (only debug) -------');
+        $this->logger->info('   -- ---------- start processing planning-filter (only debug) -------');
         foreach ($input->getPlannings() as $planning) {
             if (!$filter->equals($planning)) {
                 continue;
             }
             $this->planningRepos->resetPlanning($planning, PlanningState::ToBeProcessed);
-            $this->processPlanningHelper($planning, $schedules);
+            $this->processPlanningHelper($planning, $schedules, '      ');
             return $planning;
         }
         return null;
@@ -265,11 +265,12 @@ class Seeker
     /**
      * @param Planning $planning
      * @param list<Schedule> $schedules
+     * @param string $prefix
      * @throws Exception
      */
-    protected function processPlanningHelper(Planning $planning, array $schedules): void
+    protected function processPlanningHelper(Planning $planning, array $schedules, string $prefix): void
     {
-        $this->planningOutput->output($planning, false, '   ', " trying .. ");
+        $this->planningOutput->output($planning, false, $prefix, " trying .. ");
 
         $gameCreator = new GameCreator($this->logger);
         $gameCreator->createGames($planning, $schedules);
@@ -289,11 +290,7 @@ class Seeker
 //        $planningOutput->outputWithGames($planning, false);
 //        $planningOutput->outputWithTotals($planning, false);
 
-        $stateDescription = $planning->getState() === PlanningState::Failed ? "failed" :
-            ($planning->getState() === PlanningState::TimedOut ? "timeout(" . $planning->getTimeoutSeconds(
-                ) . ")" : "success");
-
-        $this->logger->info('   ' . '   ' . " => " . $stateDescription);
+        $this->logger->info('   ' . '   ' . " => " . $planning->getStateDescription());
     }
 
     public function disableThrowOnTimeout(): void

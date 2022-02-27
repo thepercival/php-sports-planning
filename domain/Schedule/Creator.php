@@ -2,20 +2,23 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Schedule\Creator;
+namespace SportsPlanning\Schedule;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\GameMode;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Input;
 use SportsPlanning\Schedule;
+use SportsPlanning\Schedule\Creator\AllInOneGame as AllInOneGameCreator;
+use SportsPlanning\Schedule\Creator\Against as AgainstCreator;
+use SportsPlanning\Schedule\Creator\Single as SingleCreator;
+use SportsPlanning\Schedule\Creator\AssignedCounter;
 use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Sport;
 
-class Service
+class Creator
 {
     /**
-     * @var array<string, CreatorInterface>|null
+     * @var array<string, AllInOneGameCreator|AgainstCreator|SingleCreator>|null
      */
     protected array|null $generatorMap = null;
     /**
@@ -31,16 +34,15 @@ class Service
      * @param Input $input
      * @return list<Schedule>
      */
-    public function createSchedules(Input $input): array
+    public function createFromInput(Input $input): array
     {
         /** @var array<int, Schedule> $schedules */
         $schedules = [];
-        $gamePlaceStrategy = $input->getGamePlaceStrategy();
         $sportConfigsName = new ScheduleName(array_values($input->createSportVariants()->toArray()));
         $sportVariants = array_values($input->createSportVariants()->toArray());
         foreach ($input->getPoules() as $poule) {
             $nrOfPlaces = $poule->getPlaces()->count();
-            if ($this->isScheduleAlreadyCreated($nrOfPlaces, $gamePlaceStrategy, (string)$sportConfigsName)) {
+            if ($this->isScheduleAlreadyCreated($nrOfPlaces, (string)$sportConfigsName)) {
                 continue;
             }
             if (array_key_exists($nrOfPlaces, $schedules)) {
@@ -55,7 +57,7 @@ class Service
                 if (count($sports) === 0) {
                     continue;
                 }
-                $scheduleCreator = $this->getScheduleCreator($input, $gameMode);
+                $scheduleCreator = $this->getSportScheduleCreator($input, $gameMode);
                 $scheduleCreator->createSportSchedules($schedule, $poule, $sports, $assignedCounter);
             }
         }
@@ -65,17 +67,19 @@ class Service
     /**
      * @param Input $input
      * @param GameMode $gameMode
-     * @return CreatorInterface
+     * @return AllInOneGameCreator|AgainstCreator|SingleCreator
      */
-    protected function getScheduleCreator(Input $input, GameMode $gameMode): CreatorInterface
-    {
+    protected function getSportScheduleCreator(
+        Input $input,
+        GameMode $gameMode
+    ): AllInOneGameCreator|AgainstCreator|SingleCreator {
         $generatorMap = $this->getScheduleCreatorMap($input);
         return $generatorMap[$gameMode->name];
     }
 
     /**
      * @param Input $input
-     * @return array<string, CreatorInterface>
+     * @return array<string, AllInOneGameCreator|AgainstCreator|SingleCreator>
      */
     protected function getScheduleCreatorMap(Input $input): array
     {
@@ -83,9 +87,9 @@ class Service
             return $this->generatorMap;
         }
         $this->generatorMap = [];
-        $this->generatorMap[GameMode::AllInOneGame->name] = new AllInOneGame();
-        $this->generatorMap[GameMode::Against->name] = new Against($this->logger);
-        $this->generatorMap[GameMode::Single->name] = new Single($this->logger);
+        $this->generatorMap[GameMode::AllInOneGame->name] = new AllInOneGameCreator();
+        $this->generatorMap[GameMode::Against->name] = new AgainstCreator($this->logger);
+        $this->generatorMap[GameMode::Single->name] = new SingleCreator($this->logger);
         return $this->generatorMap;
     }
 
@@ -111,17 +115,13 @@ class Service
         $this->existingSchedules = $existingSchedules;
     }
 
-    public function isScheduleAlreadyCreated(
-        int $nrOfPlaces,
-        GamePlaceStrategy $gamePlaceStrategy,
-        string $sportConfigsName
-    ): bool {
+    public function isScheduleAlreadyCreated(int $nrOfPlaces, string $sportConfigsName): bool
+    {
         if ($this->existingSchedules === null) {
             return false;
         }
         foreach ($this->existingSchedules as $existingSchedule) {
             if ($nrOfPlaces === $existingSchedule->getNrOfPlaces()
-                && $gamePlaceStrategy === $existingSchedule->getGamePlaceStrategy()
                 && $sportConfigsName === $existingSchedule->getSportsConfigName()) {
                 return true;
             }

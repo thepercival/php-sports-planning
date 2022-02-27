@@ -16,14 +16,14 @@ use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Game\Assigner as GameAssigner;
 use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Input;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Referee\Info as RefereeInfo;
-use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
+use SportsPlanning\Schedule\Creator as ScheduleCreator;
 
 trait PlanningCreator
 {
@@ -43,14 +43,14 @@ trait PlanningCreator
         return new AgainstGpp($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfGamesPerPlace);
     }
 
-    protected function getSingleSportVariant(int $nrOfGameRounds = 1, int $nrOfGamePlaces = 1): SingleSportVariant
+    protected function getSingleSportVariant(int $nrOfGamesPerPlace = 1, int $nrOfGamePlaces = 1): SingleSportVariant
     {
-        return new SingleSportVariant($nrOfGamePlaces, $nrOfGameRounds);
+        return new SingleSportVariant($nrOfGamePlaces, $nrOfGamesPerPlace);
     }
 
-    protected function getAllInOneGameSportVariant(int $nrOfGameRounds = 1): AllInOneGameSportVariant
+    protected function getAllInOneGameSportVariant(int $nrOfGamesPerPlace = 1): AllInOneGameSportVariant
     {
-        return new AllInOneGameSportVariant($nrOfGameRounds);
+        return new AllInOneGameSportVariant($nrOfGamesPerPlace);
     }
 
     protected function getAgainstH2hSportVariantWithFields(
@@ -77,14 +77,21 @@ trait PlanningCreator
         );
     }
 
-    protected function getSingleSportVariantWithFields(int $nrOfFields, int $nrOfGameRounds = 1, int $nrOfGamePlaces = 1): SportVariantWithFields
-    {
-        return new SportVariantWithFields($this->getSingleSportVariant($nrOfGameRounds, $nrOfGamePlaces), $nrOfFields);
+    protected function getSingleSportVariantWithFields(
+        int $nrOfFields,
+        int $nrOfGamesPerPlace = 1,
+        int $nrOfGamePlaces = 1
+    ): SportVariantWithFields {
+        return new SportVariantWithFields(
+            $this->getSingleSportVariant($nrOfGamesPerPlace, $nrOfGamePlaces), $nrOfFields
+        );
     }
 
-    protected function getAllInOneGameSportVariantWithFields(int $nrOfFields, int $nrOfGameRounds = 1): SportVariantWithFields
-    {
-        return new SportVariantWithFields($this->getAllInOneGameSportVariant($nrOfGameRounds), $nrOfFields);
+    protected function getAllInOneGameSportVariantWithFields(
+        int $nrOfFields,
+        int $nrOfGamesPerPlace = 1
+    ): SportVariantWithFields {
+        return new SportVariantWithFields($this->getAllInOneGameSportVariant($nrOfGamesPerPlace), $nrOfFields);
     }
 
     protected function getLogger(): LoggerInterface
@@ -106,21 +113,16 @@ trait PlanningCreator
     /**
      * @param list<int> $pouleStructureAsArray
      * @param list<SportVariantWithFields>|null $sportVariantsWithFields
-     * @param GamePlaceStrategy|null $gamePlaceStrategy
      * @param RefereeInfo|null $refereeInfo
      * @return Input
      */
     protected function createInput(
         array $pouleStructureAsArray,
         array $sportVariantsWithFields = null,
-        GamePlaceStrategy $gamePlaceStrategy = null,
         RefereeInfo|null $refereeInfo = null
     ) {
         if ($sportVariantsWithFields === null) {
             $sportVariantsWithFields = [$this->getAgainstH2hSportVariantWithFields(2)];
-        }
-        if ($gamePlaceStrategy === null) {
-            $gamePlaceStrategy = GamePlaceStrategy::EquallyAssigned;
         }
         if ($refereeInfo === null) {
             $refereeInfo = new RefereeInfo($this->getDefaultNrOfReferees());
@@ -128,7 +130,6 @@ trait PlanningCreator
         $input = new Input(
             new PouleStructure(...$pouleStructureAsArray),
             $sportVariantsWithFields,
-            $gamePlaceStrategy,
             $refereeInfo
         );
 
@@ -140,15 +141,19 @@ trait PlanningCreator
         SportRange $nrOfGamesPerBatchRange = null,
         int $maxNrOfGamesInARow = 0,
         bool $disableThrowOnTimeout = false,
-        bool $showHighestCompletedBatchNr = false
+        bool $showHighestCompletedBatchNr = false,
+        TimeoutState|null $timeoutState = null
     ): Planning {
         if ($nrOfGamesPerBatchRange === null) {
             $nrOfGamesPerBatchRange = new SportRange(1, 1);
         }
         $planning = new Planning($input, $nrOfGamesPerBatchRange, $maxNrOfGamesInARow);
+        if ($timeoutState !== null) {
+            $planning->setTimeoutState($timeoutState);
+        }
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreatorService = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreatorService->createFromInput($input);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);

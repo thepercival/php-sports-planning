@@ -16,6 +16,8 @@ use SportsPlanning\Planning;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\Repository as PlanningRepository;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\TimeoutState;
+use SportsPlanning\Planning\TimeoutConfig;
 use SportsPlanning\Planning\Type as PlanningType;
 use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Repository as ScheduleRepository;
@@ -24,10 +26,10 @@ class Timeout
 {
     use Color;
 
-    private const TIMEOUT_MULTIPLIER = 6;
-    protected int $maxTimeoutSeconds = 0;
+    protected TimeoutState $timeoutState;
     protected InputService $inputService;
     protected PlanningOutput $planningOutput;
+    protected TimeoutConfig $timeoutConfig;
     protected bool $throwOnTimeout;
 
     public function __construct(
@@ -39,11 +41,13 @@ class Timeout
         $this->planningOutput = new PlanningOutput($this->logger);
         $this->inputService = new InputService();
         $this->throwOnTimeout = true;
+        $this->timeoutConfig = new TimeoutConfig();
+        $this->timeoutState = $this->timeoutConfig->nextTimeoutState(null);
     }
 
-    public function setMaxTimeoutSeconds(int $maxTimeoutSeconds): void
+    public function setTimeoutState(TimeoutState $timeoutState): void
     {
-        $this->maxTimeoutSeconds = $maxTimeoutSeconds;
+        $this->timeoutState = $timeoutState;
     }
 
     public function process(Input $input): bool
@@ -94,7 +98,7 @@ class Timeout
             return true;
         }
         if ($easiestPlanning->getState() === PlanningState::TimedOut) {
-            $this->updateTimeoutPlannings($easiestPlanning->getTimeoutSeconds(), $plannings);
+            $this->updateTimeoutPlannings($easiestPlanning, $plannings);
         } elseif ($easiestPlanning->getState() === PlanningState::Failed) {
             $this->removePlannings($input, $plannings);
         }
@@ -108,7 +112,10 @@ class Timeout
     protected function getFirstTimedoutPlanning(array &$plannings): Planning|null
     {
         $easiestPlanning = array_pop($plannings);
-        if ($easiestPlanning !== null && $easiestPlanning->getTimeoutSeconds() <= $this->maxTimeoutSeconds) {
+        if ($easiestPlanning === null) {
+            return null;
+        }
+        if ($easiestPlanning->getTimeoutState() === $this->timeoutState) {
             return $easiestPlanning;
         }
         return null;
@@ -121,13 +128,13 @@ class Timeout
      */
     protected function processPlanningHelper(Planning $planning, array $schedules): void
     {
+        $nextTimeoutState = $this->timeoutConfig->nextTimeoutState($planning);
         $this->planningOutput->output(
             $planning,
             false,
             '   ',
-            " timeout => " . $planning->getTimeoutSeconds() * self::TIMEOUT_MULTIPLIER
+            ' timeoutState "' . $nextTimeoutState->value . '"'
         );
-        $planning->setTimeoutSeconds($planning->getTimeoutSeconds() * self::TIMEOUT_MULTIPLIER);
         // $this->planningRepos->save($planning);
 
         $this->planningOutput->output($planning, false, '   ', " trying .. ");
@@ -147,22 +154,18 @@ class Timeout
 //        $planningOutput->outputWithGames($planning, false);
 //        $planningOutput->outputWithTotals($planning, false);
 
-        $stateDescription = $planning->getState()->name;
-        if ($planning->getState() === PlanningState::TimedOut) {
-            $stateDescription .= '(' . $planning->getTimeoutSeconds() . ')';
-        }
-        $this->logger->info('   ' . '   ' . " => " . $stateDescription);
+        $this->logger->info('   ' . '   ' . " => " . $planning->getStateDescription());
     }
 
     /**
-     * @param Input $input
+     * @param Planning $easiestPlanning
      * @param list<Planning> $plannings
      */
-    protected function updateTimeoutPlannings(int $nrOfTimeoutSeconds, array $plannings): void
+    protected function updateTimeoutPlannings(Planning $easiestPlanning, array $plannings): void
     {
         while (count($plannings) > 0) {
             $planning = array_pop($plannings);
-            $planning->setTimeoutSeconds($nrOfTimeoutSeconds);
+            $planning->setTimeoutState($easiestPlanning->getTimeoutState());
             $this->planningRepos->save($planning);
         }
     }
@@ -240,6 +243,18 @@ class Timeout
     {
         $schedules = $this->scheduleRepos->findByInput($planning->getInput());
         $this->processPlanningHelper($planning, $schedules);
+    }
+
+    protected function getPlanningStateDescription(Planning $planning): string
+    {
+        if ($planning->getState() !== PlanningState::TimedOut) {
+            return $planning->getState()->name;
+        }
+        $timeoutState = $planning->getTimeoutState();
+        if ($timeoutState !== null) {
+            return 'timeout-' . $timeoutState->value;
+        }
+        return '?';
     }
 
     public function disableThrowOnTimeout(): void

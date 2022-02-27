@@ -7,8 +7,6 @@
       <field name="minNrOfBatches" column="minNrOfBatches" type="smallint" nullable="true" unique="false"/>
       <field name="seekingPercentage" column="seekingPercentage" type="smallint" nullable="false" unique="false"/>
       <field name="uniqueString" column="uniqueString" type="string" length="512" nullable="false" unique="false"/>
-      <field name="gamePlaceStrategy" column="gamePlaceStrategy" type="enum_GamePlaceStrategy" nullable="false"
-             unique="false"/>
       <one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="input">
           <cascade>
               <cascade-remove/>

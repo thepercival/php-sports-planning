@@ -12,6 +12,7 @@ use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Input;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
+use SportsPlanning\Planning\TimeoutConfig;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
 use SportsPlanning\TimeoutException;
@@ -41,7 +42,10 @@ class Service
 
     public function assignHelper(SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch): PlanningState
     {
-        $timeoutDateTime = (new DateTimeImmutable())->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
+        $timeoutConfig = new TimeoutConfig();
+        $nextTimeoutState = $timeoutConfig->nextTimeoutState($this->planning);
+        $timeoutSeconds = $timeoutConfig->getTimeoutSeconds($this->planning->getInput(), $nextTimeoutState);
+        $timeoutDateTime = (new DateTimeImmutable())->modify("+" . $timeoutSeconds . " seconds");
         $this->replacer->setTimeoutDateTime($timeoutDateTime);
         $refereePlaceMap = $this->getRefereePlaceMap();
         try {

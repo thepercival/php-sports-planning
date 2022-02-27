@@ -43,6 +43,14 @@ class MultipleCombinationsCounter
         return true;
     }
 
+    public function count(PlaceCombination $placeCombination): int
+    {
+        if (!isset($this->counters[$placeCombination->getNumber()])) {
+            return 0;
+        }
+        return $this->counters[$placeCombination->getNumber()]->count();
+    }
+
     public function totalCount(): int
     {
         $totalCount = 0;

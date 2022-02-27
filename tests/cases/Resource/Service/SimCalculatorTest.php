@@ -7,7 +7,6 @@ namespace SportsPlanning\Tests\Resource\Service;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
-use SportsPlanning\Combinations\GamePlaceStrategy;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Resource\Service\InfoToAssign;
 use SportsPlanning\Resource\Service\SimCalculator;
@@ -25,12 +24,7 @@ class SimCalculatorTest extends TestCase
             $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9),
         ];
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $input = $this->createInput(
-            [10],
-            $sportVariantsWithFields,
-            GamePlaceStrategy::EquallyAssigned,
-            $refereeInfo
-        );
+        $input = $this->createInput([10], $sportVariantsWithFields, $refereeInfo);
         $planning = $this->createPlanning($input, new SportRange(3, 3)/*, 0, true*/);
 
         $calculator = new SimCalculator($input);

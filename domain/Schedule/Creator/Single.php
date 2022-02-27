@@ -6,9 +6,7 @@ namespace SportsPlanning\Schedule\Creator;
 
 use Exception;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Sport\VariantWithPoule;
 use SportsPlanning\GameRound\Creator\Single as SingleGameRoundCreator;
-use SportsPlanning\GameRound\CreatorInterface as GameRoundCreatorInterface;
 use SportsPlanning\Schedule\Game;
 use SportsPlanning\Schedule\GamePlace;
 use SportsPlanning\Schedule;
@@ -21,8 +19,9 @@ use drupol\phpermutations\Generators\Combinations as CombinationsGenerator;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
 use SportsPlanning\Sport;
+use SportsPlanning\SportVariant\WithPoule as VariantWithPoule;
 
-class Single implements CreatorInterface
+class Single
 {
     public function __construct(protected LoggerInterface $logger)
     {
@@ -52,14 +51,9 @@ class Single implements CreatorInterface
         Poule $poule,
         SingleSportVariant $sportVariant,
         AssignedCounter $assignedCounter
-    ): TogetherGameRound
-    {
-        $variantWithPoule = new VariantWithPoule($sportVariant, $poule->getPlaces()->count());
-        $totalNrOfGamesPerPlace = $variantWithPoule->getTotalNrOfGamesPerPlace();
-
-        /** @var GameRoundCreatorInterface<TogetherGameRound> $gameRoundCreator */
-        $gameRoundCreator = new SingleGameRoundCreator($sportVariant, $this->logger);
-        $gameRound = $gameRoundCreator->createGameRound($poule, $assignedCounter, $totalNrOfGamesPerPlace);
+    ): TogetherGameRound {
+        $gameRoundCreator = new SingleGameRoundCreator($this->logger);
+        $gameRound = $gameRoundCreator->createGameRound($poule, $sportVariant, $assignedCounter);
 
         // $gameRound = $this->getGameRound($poule, $sportVariant, $assignedCounter, $totalNrOfGamesPerPlace);
         $this->assignPlaceCombinations($assignedCounter, $gameRound);
@@ -84,7 +78,7 @@ class Single implements CreatorInterface
 
     protected function assignPlaceCombinations(AssignedCounter $assignedCounter, TogetherGameRound $gameRound): void
     {
-        $assignedCounter->assignPlaceCombinations($gameRound->toPlaceCombinations());
+        $assignedCounter->assignTogether($gameRound->toPlaceCombinations());
     }
 
 //    /**

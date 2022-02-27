@@ -13,6 +13,8 @@ use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCrea
 use SportsPlanning\Combinations\HomeAwayCreator\H2h as H2hHomeAwayCreator;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
+use SportsPlanning\Combinations\MultipleCombinationsCounter\Against as AgainstCounter;
+use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
 
@@ -26,6 +28,10 @@ class AssignedCounter
      * @var array<int, PlaceCombinationCounter>
      */
     protected array $assignedWithMap = [];
+    /**
+     * @var array<int, AgainstCounter>
+     */
+    protected array $assignedAgainstMap = [];
     /**
      * @var array<int, PlaceCounter>
      */
@@ -64,6 +70,7 @@ class AssignedCounter
                 }
 
                 $this->initAssignedWithMap($homeAways);
+                $this->initAssignedAgainstMap();
             }
         }
     }
@@ -85,6 +92,22 @@ class AssignedCounter
         }
     }
 
+    protected function initAssignedAgainstMap(): void
+    {
+        $possibleHomeAways = array_map(function (PlaceCombinationCounter $counter): PlaceCombination {
+            return $counter->getPlaceCombination();
+        }, $this->assignedWithMap);
+        for ($counter = 0; $counter < count($possibleHomeAways); $counter++) {
+            $possibleHomeAway = array_shift($possibleHomeAways);
+            if ($possibleHomeAway === null) {
+                return;
+            }
+            $idx = $possibleHomeAway->getNumber();
+            $this->assignedAgainstMap[$idx] = new AgainstCounter($possibleHomeAway, array_values($possibleHomeAways));
+            array_push($possibleHomeAways, $possibleHomeAway);
+        }
+    }
+
     /**
      * @return array<int, PlaceCounter>
      */
@@ -99,6 +122,14 @@ class AssignedCounter
     public function getAssignedWithMap(): array
     {
         return $this->assignedWithMap;
+    }
+
+    /**
+     * @return array<int, AgainstCounter>
+     */
+    public function getAssignedAgainstMap(): array
+    {
+        return $this->assignedAgainstMap;
     }
 
     /**
@@ -120,23 +151,24 @@ class AssignedCounter
     /**
      * @param list<AgainstHomeAway> $homeAways
      */
-    public function assignHomeAways(array $homeAways): void
+    public function assignAgainstHomeAways(array $homeAways): void
     {
         foreach ($homeAways as $homeAway) {
-            $this->assignHomeAway($homeAway);
+            $this->assignAgainst($homeAway);
         }
     }
 
     /**
      * @param AgainstHomeAway $homeAway
      */
-    public function assignHomeAway(AgainstHomeAway $homeAway): void
+    public function assignAgainst(AgainstHomeAway $homeAway): void
     {
         $this->assignToMap($homeAway->getHome());
         $this->assignToMap($homeAway->getAway());
 
         $this->assignToWithMap($homeAway->getHome());
         $this->assignToWithMap($homeAway->getAway());
+        $this->assignToAgainstMap($homeAway);
 
         foreach ($homeAway->getHome()->getPlaces() as $homePlace) {
             $this->assignedHomeMap[$homePlace->getNumber()]->increment();
@@ -146,26 +178,45 @@ class AssignedCounter
         $this->assignToTogetherMap($homeAway->getAway());
     }
 
+
+    public function getAssignedPlaceCounter(Place $place): PlaceCounter|null
+    {
+        if (!isset($this->assignedMap[$place->getNumber()])) {
+            return null;
+        }
+        return $this->assignedMap[$place->getNumber()];
+    }
+
+    public function getTogetherPlaceCounter(Place $place, Place $coPlace): PlaceCounter|null
+    {
+        if (!isset($this->assignedTogetherMap[$place->getLocation()])
+            || !isset($this->assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()])) {
+            return null;
+        }
+        return $this->assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()];
+    }
+
     /**
      * @param list<PlaceCombination> $placeCombinations
      */
-    public function assignPlaceCombinations(array $placeCombinations): void
+    public function assignTogether(array $placeCombinations): void
     {
         foreach ($placeCombinations as $placeCombination) {
-            $this->assignPlaceCombination($placeCombination);
+            $this->assignToMap($placeCombination);
+            $this->assignToTogetherMap($placeCombination);
+            $this->assignToWithMap($placeCombination);
         }
     }
+//
+//
+//    /**
+//     * @param PlaceCombination $placeCombination
+//     */
+//    protected function assignPlaceCombination(PlaceCombination $placeCombination): void
+//    {
 
-
-    /**
-     * @param PlaceCombination $placeCombination
-     */
-    public function assignPlaceCombination(PlaceCombination $placeCombination): void
-    {
-        $this->assignToMap($placeCombination);
-        $this->assignToTogetherMap($placeCombination);
-        $this->assignToWithMap($placeCombination);
-    }
+//        $this->assignToAgainstMap($placeCombination);
+//    }
 
     /**
      * @param PlaceCombination $placeCombination
@@ -186,6 +237,14 @@ class AssignedCounter
             $this->assignedWithMap[$placeCombination->getNumber()] = new PlaceCombinationCounter($placeCombination);
         }
         $this->assignedWithMap[$placeCombination->getNumber()]->increment();
+    }
+
+    protected function assignToAgainstMap(AgainstHomeAway $homeAway): void
+    {
+        $home = $homeAway->getHome();
+        $away = $homeAway->getAway();
+        $this->assignedAgainstMap[$home->getNumber()]->addCombination($away);
+        $this->assignedAgainstMap[$away->getNumber()]->addCombination($home);
     }
 
     /**

@@ -14,7 +14,7 @@ use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Planning\Validator as PlanningValidator;
-use SportsPlanning\Schedule\Creator\Service as ScheduleCreatorService;
+use SportsPlanning\Schedule\Creator as ScheduleCreator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class AgainstTest extends TestCase
@@ -29,8 +29,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([2], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -48,8 +48,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([3], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -67,8 +67,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([4], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -86,8 +86,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([5], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -105,8 +105,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([6], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -125,8 +125,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([4], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -144,8 +144,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([4], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -163,8 +163,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([4], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -182,8 +182,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([4], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -201,8 +201,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([5], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -220,8 +220,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([5], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -239,8 +239,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([6], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -259,8 +259,8 @@ class AgainstTest extends TestCase
 //        $input = $this->createInput([10], $sportVariants);
 //        $planning = new Planning($input, new SportRange(1, 1), 0);
 //
-//        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-//        $schedules = $scheduleCreatorService->createSchedules($input);
+//        $scheduleCreator = new ScheduleCreator($this->getLogger());
+//        $schedules = $scheduleCreator->createFromInput($input);
 //        $gameCreator = new GameCreator($this->getLogger());
 //        $gameCreator->createGames($planning, $schedules);
 //        // (new PlanningOutput())->outputWithGames($planning, true);
@@ -281,8 +281,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([3], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -310,8 +310,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([4], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 
@@ -326,8 +326,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([15], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -345,8 +345,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([16], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -364,8 +364,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([17], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -383,8 +383,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([18], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -402,8 +402,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([19], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -421,8 +421,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([20], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -441,8 +441,8 @@ class AgainstTest extends TestCase
         $input = $this->createInput([5], $sportVariants);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
-        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-        $schedules = $scheduleCreatorService->createSchedules($input);
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 
@@ -461,8 +461,8 @@ class AgainstTest extends TestCase
 //        $input = $this->createInput([10], $sportVariants);
 //        $planning = new Planning($input, new SportRange(1, 1), 0);
 //
-//        $scheduleCreatorService = new ScheduleCreatorService($this->getLogger());
-//        $schedules = $scheduleCreatorService->createSchedules($input);
+//        $scheduleCreator = new ScheduleCreator($this->getLogger());
+//        $schedules = $scheduleCreator->createFromInput($input);
 //        $gameCreator = new GameCreator($this->getLogger());
 //        $gameCreator->createGames($planning, $schedules);
 //

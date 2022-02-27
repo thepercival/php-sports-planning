@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedule;
 
+use Exception;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
@@ -26,6 +27,7 @@ class Name implements \Stringable
             return $this->name;
         }
         $names = [];
+        $nrOfAgainstH2h = 0;
         foreach ($this->sportVariants as $sportVariant) {
             if ($sportVariant instanceof AgainstH2h || $sportVariant instanceof AgainstGpp) {
                 $name = [
@@ -34,6 +36,9 @@ class Name implements \Stringable
                 ];
                 if ($sportVariant instanceof AgainstH2h) {
                     $name['nrOfH2H'] = $sportVariant->getNrOfH2H();
+                    if (++$nrOfAgainstH2h > 1) {
+                        throw new Exception('bij meerdere sporten mag h2h niet gebruikt worden(ScheduleName)', E_ERROR);
+                    }
                 } else {
                     $name['nrOfGamesPerPlace'] = $sportVariant->getNrOfGamesPerPlace();
                 }
