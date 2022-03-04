@@ -38,12 +38,17 @@ class Repository extends EntityRepository
 
     /**
      * @param int $amount
+     * @param bool $sortAsc
      * @return list<InputBase>
      */
-    public function findToRecreate(int $amount): array
+    public function findToRecreate(int $amount, bool $sortAsc): array
     {
-        $query = $this->createQueryBuilder('pi')->where('pi.recreatedAt is null');
-        $query->setMaxResults($amount);
+        $query = $this->createQueryBuilder('pi')
+            ->where('pi.recreatedAt is null')
+            ->orderBy('pi.id', $sortAsc ? 'ASC' : 'DESC');
+        if ($sortAsc) {
+            $query->setMaxResults($amount);
+        }
         /** @var list<InputBase> $results */
         $results = $query->getQuery()->getResult();
         return $results;

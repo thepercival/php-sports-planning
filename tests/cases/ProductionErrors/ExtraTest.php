@@ -278,6 +278,36 @@ class ExtraTest extends TestCase
         self::assertSame(PlanningValidator::VALID, $validity);
     }
 
+    // [5] - [against(2vs2) h2h:gpp=>0:1 f(1)] - ref=>0:
+    public function testCDK(): void
+    {
+        $nrOfGamesPerBatchRange = new SportRange(8, 8);
+        $sportVariantsWithFields = [
+            $this->getAgainstGppSportVariantWithFields(1, 2, 2, 1)
+        ];
+        $input = $this->createInput(
+            [5],
+            $sportVariantsWithFields,
+            new RefereeInfo(0)
+        );
+        $planning = $this->createPlanning(
+            $input,
+            $nrOfGamesPerBatchRange/*,
+            0,
+            false,
+            false,
+            (new TimeoutConfig())->nextTimeoutState(null)*/
+        );
+
+        self::assertEquals(1, $planning->getNrOfBatches());
+
+//        (new PlanningOutput())->outputWithGames($planning, true);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::VALID, $validity);
+    }
+
     // ----------------     NOT OK FROM HERE   --------------------------------
 
     // [13] -
