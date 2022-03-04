@@ -46,9 +46,7 @@ class Repository extends EntityRepository
         $query = $this->createQueryBuilder('pi')
             ->where('pi.recreatedAt is null')
             ->orderBy('pi.id', $sortAsc ? 'ASC' : 'DESC');
-        if ($sortAsc) {
-            $query->setMaxResults($amount);
-        }
+        $query->setMaxResults($amount);
         /** @var list<InputBase> $results */
         $results = $query->getQuery()->getResult();
         return $results;
