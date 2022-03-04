@@ -95,7 +95,8 @@ class Input extends Identifiable
         }
         if ($hasAgainstH2h && $this->hasMultipleSports()) {
             throw new Exception(
-                'bij meerdere sporten mag h2h niet gebruikt worden(Input), pas de sporten aan', E_ERROR
+                'bij meerdere sporten mag h2h niet gebruikt worden(Input), pas de sporten aan',
+                E_ERROR
             );
         }
 

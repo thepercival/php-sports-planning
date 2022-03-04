@@ -157,7 +157,7 @@ class Service
             $newRefereePlace = new PlaceGameCounter($place, $refereePlace->getNrOfGames());
             $newRefereePlaceMap[$newRefereePlace->getIndex()] = $newRefereePlace;
             if ($place === $assignPlace) {
-                $newRefereePlace->increase();
+                $newRefereePlace->increment();
             }
         }
         uasort(

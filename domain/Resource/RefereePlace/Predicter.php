@@ -7,7 +7,7 @@ namespace SportsPlanning\Resource\RefereePlace;
 use SportsHelpers\SelfReferee;
 use SportsPlanning\Batch\SelfReferee as SelfRefereeBatch;
 use SportsPlanning\Poule;
-use SportsPlanning\PouleCounter;
+use SportsPlanning\Poule\PouleCounter;
 
 class Predicter
 {
@@ -79,7 +79,7 @@ class Predicter
 
         foreach ($pouleCounterMap as $pouleCounter) {
             $otherPouleCounters = array_values(array_filter(
-                $pouleCounterMap,
+                                                   $pouleCounterMap,
                                                    function (PouleCounter $pouleCounterIt) use ($pouleCounter): bool {
                                                        return $pouleCounter !== $pouleCounterIt;
                                                    }

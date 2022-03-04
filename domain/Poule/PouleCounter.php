@@ -2,21 +2,21 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning;
+namespace SportsPlanning\Poule;
 
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Poule;
+use SportsHelpers\Counter;
 
 class PouleCounter
 {
-    protected int $nrOfGames = 0;
     /**
-     * @var array<int, bool> $places
+     * @var Counter<Poule>
      */
-    protected array $places = [];
+    protected Counter $gameCounter;
 
     public function __construct(protected Poule $poule, protected int $nrOfPlacesAssigned = 0)
     {
+        $this->gameCounter = new Counter($poule);
     }
 
     public function getPoule(): Poule
@@ -26,7 +26,7 @@ class PouleCounter
 
     public function reset(): void
     {
-        $this->nrOfGames = 0;
+        $this->gameCounter = new Counter($this->poule);
         $this->nrOfPlacesAssigned = 0;
     }
 
@@ -36,20 +36,9 @@ class PouleCounter
         $this->addNrOfAssignedPlaces($nrOfPlacesToAssign);
     }
 
-    public function addGame(AgainstGame|TogetherGame $game): void
-    {
-        $this->addNrOfGames(1);
-        foreach ($game->getPlaces() as $gamePlace) {
-            if (array_key_exists($gamePlace->getPlace()->getNumber(), $this->places)) {
-                continue;
-            }
-            $this->places[$gamePlace->getPlace()->getNumber()] = true;
-        }
-    }
-
     public function addNrOfGames(int $nrOfGames): void
     {
-        $this->nrOfGames += $nrOfGames;
+        $this->gameCounter->increase($nrOfGames);
     }
 
     public function addNrOfAssignedPlaces(int $nrOfAssignedPlaces): void
@@ -59,25 +48,20 @@ class PouleCounter
 
     public function remove(int $nrOfPlacesToUnassign): void
     {
-        $this->nrOfGames--;
+        $this->gameCounter->decrement();
         $this->nrOfPlacesAssigned -= $nrOfPlacesToUnassign;
     }
 
     public function getNrOfPlacesAssigned(bool|null $addRefereePlace = null): int
     {
         if ($addRefereePlace === true) {
-            return $this->nrOfPlacesAssigned + $this->nrOfGames;
+            return $this->nrOfPlacesAssigned + $this->gameCounter->count();
         }
         return $this->nrOfPlacesAssigned;
     }
 
-    public function getNrOfDistinctPlacesAssigned(): int
-    {
-        return count($this->places);
-    }
-
     public function getNrOfGames(): int
     {
-        return $this->nrOfGames;
+        return $this->gameCounter->count();
     }
 }

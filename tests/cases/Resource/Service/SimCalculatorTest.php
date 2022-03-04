@@ -7,6 +7,7 @@ namespace SportsPlanning\Tests\Resource\Service;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
+use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Resource\Service\InfoToAssign;
 use SportsPlanning\Resource\Service\SimCalculator;
@@ -31,7 +32,7 @@ class SimCalculatorTest extends TestCase
         $infoToAssign = new InfoToAssign($planning->getGames());
         $maxNrOfSimultaneousGames = $calculator->getMaxNrOfGamesPerBatch($infoToAssign);
 
-        // (new PlanningOutput())->outputWithGames($planning, true);
+//        (new PlanningOutput())->outputWithGames($planning, true);
 
         self::assertSame(4, $maxNrOfSimultaneousGames);
     }

@@ -31,6 +31,7 @@ class Repository extends EntityRepository
 
         $query->setMaxResults(1);
         $results = $query->getQuery()->getResult();
+        /** @var InputBase|false $first */
         $first = reset($results);
         return $first !== false ? $first : null;
     }
@@ -43,6 +44,7 @@ class Repository extends EntityRepository
     {
         $query = $this->createQueryBuilder('pi')->where('pi.recreatedAt is null');
         $query->setMaxResults($amount);
+        /** @var list<InputBase> $results */
         $results = $query->getQuery()->getResult();
         return $results;
     }
@@ -128,6 +130,7 @@ class Repository extends EntityRepository
                 ->andWhere('pi.selfReferee = :selfReferee')
                 ->setParameter('selfReferee', $selfReferee->value);
         }
+        /** @var list<InputBase> $inputs */
         $inputs = $query->getQuery()->getResult();
         return $inputs;
     }
@@ -163,6 +166,7 @@ class Repository extends EntityRepository
         }
 
         $query->setMaxResults(1);
+        /** @var list<InputBase> $results */
         $results = $query->getQuery()->getResult();
         $first = reset($results);
         return $first === false ? null : $first;

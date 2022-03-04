@@ -141,6 +141,7 @@ class Repository extends EntityRepository
         $query->setMaxResults(1);
 
         $results = $query->getQuery()->getResult();
+        /** @var PlanningBase|false $first */
         $first = reset($results);
         return $first !== false ? $first : null;
     }

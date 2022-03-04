@@ -83,7 +83,8 @@ trait PlanningCreator
         int $nrOfGamePlaces = 1
     ): SportVariantWithFields {
         return new SportVariantWithFields(
-            $this->getSingleSportVariant($nrOfGamesPerPlace, $nrOfGamePlaces), $nrOfFields
+            $this->getSingleSportVariant($nrOfGamesPerPlace, $nrOfGamePlaces),
+            $nrOfFields
         );
     }
 

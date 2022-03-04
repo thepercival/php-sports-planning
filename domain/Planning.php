@@ -78,6 +78,11 @@ class Planning extends Identifiable
         return new SportRange($this->getMinNrOfBatchGames(), $this->getMaxNrOfBatchGames());
     }
 
+    public function isNrOfBatchGamesUnequal(): bool
+    {
+        return $this->getNrOfBatchGames()->difference() > 0;
+    }
+
     public function getMaxNrOfGamesInARow(): int
     {
         return $this->maxNrOfGamesInARow;

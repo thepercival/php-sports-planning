@@ -19,10 +19,9 @@ class H2hTest extends TestCase
 
     public function testSimple1VS1Pl2(): void
     {
-        $sportVariant = new AgainstH2h(1, 1, 1);
         $input = $this->createInput([2]);
         $poule = $input->getPoule(1);
-        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $creator = new HomeAwayCreator($poule);
         $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(1, $homeAways);
@@ -30,10 +29,9 @@ class H2hTest extends TestCase
 
     public function testSimple1VS1Pl3(): void
     {
-        $sportVariant = new AgainstH2h(1, 1, 1);
         $input = $this->createInput([3]);
         $poule = $input->getPoule(1);
-        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $creator = new HomeAwayCreator($poule);
         $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(3, $homeAways);
@@ -41,10 +39,9 @@ class H2hTest extends TestCase
 
     public function testSimple1VS1Pl4(): void
     {
-        $sportVariant = new AgainstH2h(1, 1, 1);
         $input = $this->createInput([4]);
         $poule = $input->getPoule(1);
-        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $creator = new HomeAwayCreator($poule);
         $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(6, $homeAways);
@@ -52,10 +49,9 @@ class H2hTest extends TestCase
 
     public function testSimple1VS1Pl5(): void
     {
-        $sportVariant = new AgainstH2h(1, 1, 1);
         $input = $this->createInput([5]);
         $poule = $input->getPoule(1);
-        $creator = new HomeAwayCreator($poule, $sportVariant);
+        $creator = new HomeAwayCreator($poule);
         $homeAways = $creator->createForOneH2H();
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(10, $homeAways);

@@ -6,7 +6,7 @@ namespace SportsPlanning\Resource\Service;
 
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Resource\GameCounter;
+use SportsPlanning\Place\GameCounter;
 
 class InfoToAssign
 {
@@ -47,7 +47,7 @@ class InfoToAssign
                 if (!isset($this->placeGameCounters[$place->getUniqueIndex()])) {
                     $this->placeGameCounters[$place->getUniqueIndex()] = new GameCounter($place, 1);
                 } else {
-                    $this->placeGameCounters[$place->getUniqueIndex()]->increase();
+                    $this->placeGameCounters[$place->getUniqueIndex()]->increment();
                 }
             }
         }

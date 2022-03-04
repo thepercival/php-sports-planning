@@ -10,8 +10,10 @@ use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsHelpers\Sport\VariantWithPoule;
+use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCreator;
+use SportsPlanning\Combinations\HomeAwayCreator\H2h as H2hHomeAwayCreator;
 use SportsPlanning\Combinations\AgainstHomeAway;
+use SportsPlanning\Combinations\Output\HomeAway;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\GameRound\Creator\Against\GamesPerPlace as AgainstGppGameRoundCreator;
 use SportsPlanning\GameRound\Creator\Against\H2h as AgainstH2hGameRoundCreator;
@@ -40,6 +42,8 @@ class Against
      */
     public function createSportSchedules(Schedule $schedule, Poule $poule, array $sports, AssignedCounter $assignedCounter): void
     {
+        $h2hHomeAwayCreator = new H2hHomeAwayCreator($poule);
+        $gppHomeAwayCreator = new GppHomeAwayCreator($poule);
         $sortedSports = $this->sortSportsByEquallyAssigned($poule, $sports);
         foreach ($sortedSports as $sport) {
             $sportVariant = $sport->createVariant();
@@ -47,7 +51,8 @@ class Against
                 throw new Exception('only against-sport-variant accepted', E_ERROR);
             }
             $sportSchedule = new SportSchedule($schedule, $sport->getNumber(), $sportVariant->toPersistVariant());
-            $gameRound = $this->generateGameRounds($poule, $sportVariant, $assignedCounter);
+            $homeAwayCreator = ($sportVariant instanceof AgainstGpp) ? $gppHomeAwayCreator : $h2hHomeAwayCreator;
+            $gameRound = $this->generateGameRounds($poule, $sportVariant, $homeAwayCreator, $assignedCounter);
             $this->createGames($sportSchedule, $gameRound);
         }
     }
@@ -79,14 +84,27 @@ class Against
     protected function generateGameRounds(
         Poule $poule,
         AgainstH2h|AgainstGpp $sportVariant,
+        H2hHomeAwayCreator|GppHomeAwayCreator $homeAwayCreator,
         AssignedCounter $assignedCounter
     ): AgainstGameRound {
-        if ($sportVariant instanceof AgainstGpp) {
+        if ($sportVariant instanceof AgainstGpp && $homeAwayCreator instanceof GppHomeAwayCreator) {
             $gameRoundCreator = new AgainstGppGameRoundCreator($this->logger);
-            $gameRound = $gameRoundCreator->createGameRound($poule, $sportVariant, $assignedCounter);
+            $gameRound = $gameRoundCreator->createGameRound($poule, $sportVariant, $homeAwayCreator, $assignedCounter);
+//            $this->logger->info('gameround ' . $gameRound->getNumber());
+//            (new HomeAway($this->logger))->outputHomeAways( $this->gameRoundsToHomeAways($gameRound) );
+//            $ss = 12;
         } else {
-            $gameRoundCreator = new AgainstH2hGameRoundCreator($this->logger);
-            $gameRound = $gameRoundCreator->createGameRound($poule, $sportVariant, $assignedCounter);
+            if ($sportVariant instanceof AgainstH2h && $homeAwayCreator instanceof H2hHomeAwayCreator) {
+                $gameRoundCreator = new AgainstH2hGameRoundCreator($this->logger);
+                $gameRound = $gameRoundCreator->createGameRound(
+                    $poule,
+                    $sportVariant,
+                    $homeAwayCreator,
+                    $assignedCounter
+                );
+            } else {
+                throw new \Exception('unkown homeawaycreator', E_ERROR);
+            }
         }
         $this->assignHomeAways($assignedCounter, $gameRound);
         return $gameRound;
@@ -123,35 +141,6 @@ class Against
             return $sport->getNrOfH2H() >= $nrOfH2H;
         }));
     }
-
-//
-//    /**
-//     * @param Poule $poule
-//     * @param AgainstGameRound $gameRound
-//     * @throws Exception
-//     */
-//    protected function gameRoundsToGames(Poule $poule, AgainstGameRound $gameRound): void
-//    {
-//        while ($gameRound !== null) {
-//            foreach ($gameRound->getHomeAways() as $homeAway) {
-//                $game = new AgainstGame($this->planning, $poule, $this->getDefaultField(), $gameRound->getNumber());
-//                foreach ([AgainstSide::Home, AgainstSide::Away] as $side) {
-//                    foreach ($homeAway->get($side)->getPlaces() as $place) {
-//                        new AgainstGamePlace($game, $place, $side);
-//                    }
-//                }
-//            }
-//            $gameRound = $gameRound->getNext();
-//        }
-//    }
-//
-//    protected function getDefaultField(): Field
-//    {
-//        if ($this->defaultField === null) {
-//            throw new Exception('geen standaard veld gedefinieerd', E_ERROR);
-//        }
-//        return $this->defaultField;
-//    }
 
     protected function createGames(SportSchedule $sportSchedule, AgainstGameRound $gameRound): void
     {

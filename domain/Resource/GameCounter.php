@@ -3,34 +3,31 @@
 namespace SportsPlanning\Resource;
 
 use SportsPlanning\Resource as PlanningResource;
+use SportsHelpers\Counter;
 
-class GameCounter implements \Stringable
+/**
+ * @template-extends Counter<PlanningResource>
+ */
+class GameCounter extends Counter implements \Stringable
 {
-    protected int $nrOfGames;
-
-    public function __construct(protected PlanningResource $resource, int $nrOfGames = 0)
+    public function __construct(PlanningResource $resource, int $nrOfGames = 0)
     {
-        $this->nrOfGames = $nrOfGames;
+        parent::__construct($resource, $nrOfGames);
     }
 
     public function getResource(): PlanningResource
     {
-        return $this->resource;
+        return $this->countedObject;
     }
 
     public function getIndex(): string
     {
-        return $this->resource->getUniqueIndex();
-    }
-
-    public function increase(): void
-    {
-        $this->nrOfGames++;
+        return $this->countedObject->getUniqueIndex();
     }
 
     public function getNrOfGames(): int
     {
-        return $this->nrOfGames;
+        return $this->count();
     }
 
     public function __toString(): string

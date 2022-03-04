@@ -27,34 +27,34 @@ final class GamesPerPlace extends HomeAwayCreator
     protected int $minNrOfHomeGamesPerPlace = 0;
     protected int $nrOfGamesPerPlace = 0;
 
-    public function __construct(Poule $poule, protected AgainstGpp $sportVariant)
+    public function __construct(protected Poule $poule/*, protected AgainstGpp $sportVariant*/)
     {
-        parent::__construct($poule, $sportVariant);
+        parent::__construct();
     }
 
     /**
      * @return list<AgainstHomeAway>
      */
-    public function create(): array
+    public function create(AgainstGpp $sportVariant): array
     {
         $this->initCounters($this->poule);
-        // $nrOfPlaces = $this->poule->getPlaces()->count();
+        $this->nrOfGamesPerPlace = $sportVariant->getNrOfGamesPerPlace();
         $this->minNrOfHomeGamesPerPlace = (int)floor($this->nrOfGamesPerPlace / 2);
 
         $homeAways = [];
 
         /** @var \Iterator<string, list<Place>> $homeIt */
-        $homeIt = new CombinationIt($this->poule->getPlaceList(), $this->sportVariant->getNrOfHomePlaces());
+        $homeIt = new CombinationIt($this->poule->getPlaceList(), $sportVariant->getNrOfHomePlaces());
         while ($homeIt->valid()) {
             $homePlaceCombination = new PlaceCombination($homeIt->current());
             $awayPlaces = array_diff($this->poule->getPlaceList(), $homeIt->current());
             /** @var \Iterator<string, list<Place>> $awayIt */
-            $awayIt = new CombinationIt($awayPlaces, $this->sportVariant->getNrOfAwayPlaces());
+            $awayIt = new CombinationIt($awayPlaces, $sportVariant->getNrOfAwayPlaces());
             while ($awayIt->valid()) {
                 $awayPlaceCombination = new PlaceCombination($awayIt->current());
-                if ($this->sportVariant->getNrOfHomePlaces() !== $this->sportVariant->getNrOfAwayPlaces()
+                if ($sportVariant->getNrOfHomePlaces() !== $sportVariant->getNrOfAwayPlaces()
                     || $homePlaceCombination->getNumber() < $awayPlaceCombination->getNumber()) {
-                    $homeAway = $this->createHomeAway($homePlaceCombination, $awayPlaceCombination);
+                    $homeAway = $this->createHomeAway($sportVariant, $homePlaceCombination, $awayPlaceCombination);
                     array_push($homeAways, $homeAway);
                 }
                 $awayIt->next();
@@ -77,9 +77,12 @@ final class GamesPerPlace extends HomeAwayCreator
         }
     }
 
-    protected function createHomeAway(PlaceCombination $home, PlaceCombination $away): AgainstHomeAway
-    {
-        if ($this->shouldSwap($home, $away)) {
+    protected function createHomeAway(
+        AgainstGpp $sportVariant,
+        PlaceCombination $home,
+        PlaceCombination $away
+    ): AgainstHomeAway {
+        if ($this->shouldSwap($sportVariant, $home, $away)) {
             foreach ($home->getPlaces() as $homePlace) {
                 $this->gameCounterMap[$homePlace->getNumber()]->increment();
             }
@@ -99,12 +102,12 @@ final class GamesPerPlace extends HomeAwayCreator
         return new AgainstHomeAway($home, $away);
     }
 
-    protected function shouldSwap(PlaceCombination $home, PlaceCombination $away): bool
+    protected function shouldSwap(AgainstGpp $sportVariant, PlaceCombination $home, PlaceCombination $away): bool
     {
-        if ($this->sportVariant->getNrOfHomePlaces() !== $this->sportVariant->getNrOfAwayPlaces()) {
+        if ($sportVariant->getNrOfHomePlaces() !== $sportVariant->getNrOfAwayPlaces()) {
             return false;
         }
-        if ($this->sportVariant->getNrOfHomePlaces() === 1) {
+        if ($sportVariant->getNrOfHomePlaces() === 1) {
             return $this->arePlaceNumbersEqualOrUnequal($home, $away);
         }
         if ($this->mustBeHome($home)) {

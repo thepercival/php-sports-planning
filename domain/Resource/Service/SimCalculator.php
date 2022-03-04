@@ -9,7 +9,7 @@ use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsPlanning\Input;
 use SportsPlanning\Input\Calculator as InputCalculator;
-use SportsPlanning\PouleCounter;
+use SportsPlanning\Resource\UniquePlacesCounter;
 use SportsPlanning\Referee\Info as RefereeInfo;
 
 class SimCalculator
@@ -59,9 +59,9 @@ class SimCalculator
     protected function getPouleStructureFromPoulesToAssign(SportInfo $sportInfo): PouleStructure
     {
         /** @var list<int> $nrOfPlacesPerPoule */
-        $nrOfPlacesPerPoule = array_map(function (PouleCounter $poouleGameCounter): int {
-            return count($poouleGameCounter->getPoule()->getPlaces());
-        }, $sportInfo->getPouleGameCounters());
+        $nrOfPlacesPerPoule = array_map(function (UniquePlacesCounter $uniquePlacesCounter): int {
+            return count($uniquePlacesCounter->getPoule()->getPlaces());
+        }, $sportInfo->getUniquePlacesCounters());
         return new PouleStructure(...$nrOfPlacesPerPoule);
     }
 

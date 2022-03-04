@@ -46,58 +46,55 @@ class ExtraTest extends TestCase
     }
 
     // [18] - [against(1vs1) h2h:gpp=>2:0 f(1)] - gpstrat=>eql - ref=>0:
-//    public function test18(): void
-//    {
-//        $nrOfGamesPerBatchRange = new SportRange(1, 1);
-//        $sportVariantsWithFields = $this->getAgainstSportVariantWithFields(1, 1, 1, 2);
-//        $planning = $this->createPlanning(
-//            $this->createInput(
-//                [18],
-//                [$sportVariantsWithFields],
-//                0,
-//                SelfReferee::Disabled
-//            ),
-//            $nrOfGamesPerBatchRange,
-//            0,
-//            true
-//        );
-//
-//        // (new PlanningOutput())->outputWithGames($planning, true);
-//
-//        $planningValidator = new PlanningValidator();
-//        $validity = $planningValidator->validate($planning);
-//        self::assertSame(PlanningValidator::VALID, $validity);
-//    }
+    public function test18(): void
+    {
+        $nrOfGamesPerBatchRange = new SportRange(1, 1);
+        $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(1, 1, 1, 2);
+        $planning = $this->createPlanning(
+            $this->createInput(
+                [18],
+                [$sportVariantsWithFields],
+                new RefereeInfo(0)
+            ),
+            $nrOfGamesPerBatchRange
+        );
+
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::VALID, $validity);
+    }
 
 //    // [14,14] - [
-//    //      against(1vs1) h2h:gpp=>1:0 f(2) &
-//    //      against(1vs1) h2h:gpp=>1:0 f(2) &
-//    //      against(1vs1) h2h:gpp=>1:0 f(2) &
-//    //      against(1vs1) h2h:gpp=>1:0 f(2) &
-//    //      against(1vs1) h2h:gpp=>1:0 f(2)] - gpstrat=>eql - ref=>0:
+//    //      against(1vs1) h2h:gpp=>0:13 f(2) &
+//    //      against(1vs1) h2h:gpp=>0:13 f(2) &
+//    //      against(1vs1) h2h:gpp=>0:13 f(2) &
+//    //      against(1vs1) h2h:gpp=>0:13 f(2) &
+//    //      against(1vs1) h2h:gpp=>0:13 f(2)] - ref=>0:
 //    public function test1414(): void
 //    {
 //        $nrOfGamesPerBatchRange = new SportRange(10,10);
 //        $sportVariantsWithFields = [
-//            $this->getAgainstSportVariantWithFields(2),
-//            $this->getAgainstSportVariantWithFields(2),
-//            $this->getAgainstSportVariantWithFields(2),
-//            $this->getAgainstSportVariantWithFields(2),
-//            $this->getAgainstSportVariantWithFields(2),
+//            $this->getAgainstGppSportVariantWithFields(2, 1, 1, 13),
+//            $this->getAgainstGppSportVariantWithFields(2, 1, 1, 13),
+//            $this->getAgainstGppSportVariantWithFields(2, 1, 1, 13),
+//            $this->getAgainstGppSportVariantWithFields(2, 1, 1, 13),
+//            $this->getAgainstGppSportVariantWithFields(2, 1, 1, 13),
 //        ];
 //        $planning = $this->createPlanning(
 //            $this->createInput(
 //                [14,14],
 //                $sportVariantsWithFields,
-//                0,
-//                SelfReferee::Disabled
+//                new RefereeInfo(0)
 //            ),
 //            $nrOfGamesPerBatchRange,
 //            0,
+//            true,
 //            true
 //        );
 //
-    ////        (new PlanningOutput())->outputWithGames($planning, true);
+//    //        (new PlanningOutput())->outputWithGames($planning, true);
 //
 //        $planningValidator = new PlanningValidator();
 //        $validity = $planningValidator->validate($planning);
@@ -127,7 +124,7 @@ class ExtraTest extends TestCase
         self::assertSame(PlanningValidator::VALID, $validity);
     }
 
-    // [5,5,5,5,5,5,5,5] - [against(1vs1) h2h:gpp=>1:0 f(14)] - gpstrat=>eql - ref=>0:
+    // [5,5,5,5,5,5,5,5] - [against(1vs1) h2h:gpp=>1:0 f(14)] -  ref=>0:
     public function test14BatchGames(): void
     {
         $nrOfGamesPerBatchRange = new SportRange(14, 14);
@@ -140,7 +137,14 @@ class ExtraTest extends TestCase
             $sportVariantsWithFields,
             $refereeInfo
         );
-        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange/*, 0, true, true*/);
+        $planning = $this->createPlanning(
+            $input,
+            $nrOfGamesPerBatchRange,
+            0,
+            false,
+            false,
+            (new TimeoutConfig())->nextTimeoutState(null)
+        );
 
 //        (new PlanningOutput())->outputWithGames($planning, true);
 
@@ -155,7 +159,7 @@ class ExtraTest extends TestCase
 //        against(1vs1) h2h:gpp=>0:7 f(1) &
 //        against(1vs1) h2h:gpp=>0:7 f(1) &
 //        against(1vs1) h2h:gpp=>0:7 f(1) -
-//     gpstrat=>eql - ref=>0:
+//     ref=>0:
 //    public function test5Sports8Places(): void
 //    {
 //        $nrOfGamesPerBatchRange = new SportRange(4, 4);
@@ -172,12 +176,17 @@ class ExtraTest extends TestCase
 //            $sportVariantsWithFields,
 //            $refereeInfo
 //        );
-//        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange,0, true, true);
+//        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange,
+//                                          0/*,
+//                                          true,
+//                                          true,
+//                                          (new TimeoutConfig())->nextTimeoutState(null)*/
+//        );
 //
 //        self::assertLessThanOrEqual(40, $planning->getNrOfBatches());
 //
 //
-////        (new PlanningOutput())->outputWithGames($planning, true);
+//    //        (new PlanningOutput())->outputWithGames($planning, true);
 //
 //        $planningValidator = new PlanningValidator();
 //        $validity = $planningValidator->validate($planning);
@@ -197,7 +206,13 @@ class ExtraTest extends TestCase
             $sportVariantsWithFields,
             new RefereeInfo(0)
         );
-        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange/*,0, true, true*/);
+        $planning = $this->createPlanning(
+            $input,
+            $nrOfGamesPerBatchRange/*,
+                      0,
+                      true,
+                                          true*/
+        );
 
         self::assertLessThan(6, $planning->getNrOfBatches());
 
@@ -247,11 +262,11 @@ class ExtraTest extends TestCase
         );
         $planning = $this->createPlanning(
             $input,
-            $nrOfGamesPerBatchRange,
+            $nrOfGamesPerBatchRange/*,
             0,
             false,
             false,
-            (new TimeoutConfig())->nextTimeoutState(null)
+            (new TimeoutConfig())->nextTimeoutState(null)*/
         );
 
         self::assertEquals(9, $planning->getNrOfBatches());
@@ -264,8 +279,45 @@ class ExtraTest extends TestCase
     }
 
     // ----------------     NOT OK FROM HERE   --------------------------------
+
+    // [13] -
+    // [against(1vs1) h2h:gpp=>0:1 f(1) & against(1vs1) h2h:gpp=>0:1 f(1)
+    // & against(1vs1) h2h:gpp=>0:1 f(1) & against(1vs1) h2h:gpp=>0:1 f(1)] -
+    // ref=>0:
+//    public function test4SingleSports11Places(): void
+//    {
+//        $nrOfGamesPerBatchRange = new SportRange(4, 4);
+//        $sportVariantsWithFields = [
+//            $this->getAgainstGppSportVariantWithFields(1,1,1, 1),
+//            $this->getAgainstGppSportVariantWithFields(1,1,1, 1),
+//            $this->getAgainstGppSportVariantWithFields(1,1,1, 1),
+//            $this->getAgainstGppSportVariantWithFields(1,1,1, 1)
+//        ];
+//        $input = $this->createInput(
+//            [11],
+//            $sportVariantsWithFields,
+//            new RefereeInfo(0)
+//        );
+//        $planning = $this->createPlanning(
+//            $input,
+//            $nrOfGamesPerBatchRange,
+//            0,
+//            true,
+//            true/*,
+//            (new TimeoutConfig())->nextTimeoutState(null)*/
+//        );
+//
+//        // 6 games x 5 sports = 30 games / 5 = 6 batches
+//        self::assertLessThan(12, $planning->getNrOfBatches());
+//
+//        (new PlanningOutput())->outputWithGames($planning, true);
+//
+//        $planningValidator = new PlanningValidator();
+//        $validity = $planningValidator->validate($planning);
+//        self::assertSame(PlanningValidator::VALID, $validity);
+//    }
+
     // [11] - [single(2) gpp=>2 f(1) & single(2) gpp=>2 f(1) & single(2) gpp=>2 f(1) & single(2) gpp=>2 f(1) & single(2) gpp=>2 f(1)] - gpstrat=>eql - ref=>0:
-    // [5,4,4] - [against(1vs1) h2h:gpp=>2:0 f(6)] - gpstrat=>eql - ref=>0:
 //    public function test5SingleSports11Places(): void
 //    {
 //        $nrOfGamesPerBatchRange = new SportRange(5, 5);
@@ -281,7 +333,14 @@ class ExtraTest extends TestCase
 //            $sportVariantsWithFields,
 //            new RefereeInfo(0)
 //        );
-//        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange, 0, true, true);
+//        $planning = $this->createPlanning(
+//            $input,
+//            $nrOfGamesPerBatchRange,
+//            0,
+//            true,
+//            true
+//            // ,(new TimeoutConfig())->nextTimeoutState(null)
+//        );
 //
 //        self::assertLessThan(8, $planning->getNrOfBatches());
 //
@@ -292,19 +351,23 @@ class ExtraTest extends TestCase
 //        self::assertSame(PlanningValidator::VALID, $validity);
 //    }
 //
-//    // [5,4,4] - [against(1vs1) h2h:gpp=>2:0 f(6)] - gpstrat=>eql - ref=>0:
+    // [5,4,4] - [against(1vs1) h2h:gpp=>2:0 f(6)] - gpstrat=>eql - ref=>0:
 //    public function testAgainstSportUnbalancedStructure(): void
 //    {
 //        $nrOfGamesPerBatchRange = new SportRange(4, 6);
 //        $sportVariantsWithFields = [
-//            $this->getAgainstSportVariantWithFields(6, 1, 1, 2)
+//            $this->getAgainstH2hSportVariantWithFields(6, 1, 1, 2)
 //        ];
 //        $input = $this->createInput(
 //            [5, 4, 4],
 //            $sportVariantsWithFields,
 //            new RefereeInfo(0)
 //        );
-//        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange,0, true, true);
+//        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange,
+//                                          0,
+//                                          true,
+//                                          true,
+//                                null);
 //
 //        self::assertLessThan(8, $planning->getNrOfBatches());
 //
@@ -314,6 +377,4 @@ class ExtraTest extends TestCase
 //        $validity = $planningValidator->validate($planning);
 //        self::assertSame(PlanningValidator::VALID, $validity);
 //    }
-
-
 }

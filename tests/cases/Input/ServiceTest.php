@@ -10,7 +10,6 @@ use SportsPlanning\Input\Service as InputService;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-
 class ServiceTest extends TestCase
 {
     use PlanningCreator;

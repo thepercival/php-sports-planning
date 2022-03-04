@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Tests;
+namespace SportsPlanning\Tests\Poule;
 
-use SportsPlanning\PouleCounter;
+use SportsPlanning\Poule\PouleCounter;
 use SportsPlanning\TestHelper\PlanningCreator;
 use SportsPlanning\TestHelper\PlanningReplacer;
 

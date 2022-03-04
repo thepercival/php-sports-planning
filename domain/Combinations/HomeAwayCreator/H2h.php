@@ -13,9 +13,9 @@ use SportsPlanning\Poule;
 
 final class H2h extends HomeAwayCreator
 {
-    public function __construct(Poule $poule, protected AgainstH2h $sportVariant)
+    public function __construct(protected Poule $poule/*, protected AgainstH2h $sportVariant*/)
     {
-        parent::__construct($poule, $sportVariant);
+        parent::__construct(/*$poule, $sportVariant*/);
     }
 
     /**

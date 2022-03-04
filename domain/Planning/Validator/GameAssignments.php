@@ -60,16 +60,16 @@ class GameAssignments
 
         $games = $this->planning->getGames(Game::ORDER_BY_BATCH);
         foreach ($games as $game) {
-            $this->fieldMap[$game->getField()->getUniqueIndex()]->increase();
+            $this->fieldMap[$game->getField()->getUniqueIndex()]->increment();
             if ($this->planning->getInput()->selfRefereeEnabled()) {
                 $refereePlace = $game->getRefereePlace();
                 if ($refereePlace !== null) {
-                    $this->refereePlaceMap[$refereePlace->getUniqueIndex()]->increase();
+                    $this->refereePlaceMap[$refereePlace->getUniqueIndex()]->increment();
                 }
             } else {
                 $referee = $game->getReferee();
                 if ($referee !== null) {
-                    $this->refereeMap[$referee->getUniqueIndex()]->increase();
+                    $this->refereeMap[$referee->getUniqueIndex()]->increment();
                 }
             }
         }

@@ -9,7 +9,7 @@ use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
-use SportsPlanning\PouleCounter;
+use SportsPlanning\Poule\PouleCounter;
 
 abstract class SelfReferee
 {

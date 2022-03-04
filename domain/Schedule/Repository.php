@@ -7,6 +7,7 @@ namespace SportsPlanning\Schedule;
 use Doctrine\ORM\EntityRepository;
 use SportsHelpers\Repository as BaseRepository;
 use SportsPlanning\Input;
+use SportsPlanning\Input as InputBase;
 use SportsPlanning\Poule;
 use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Name as ScheduleName;
@@ -42,6 +43,7 @@ class Repository extends EntityRepository
             ->andWhere('grsch.sportsConfigName = :sportsConfigName')
             ->setParameter('sportsConfigName', $scheduleName);
 
+        /** @var list<Schedule> $schedules */
         $schedules = $query->getQuery()->getResult();
         return $schedules;
     }

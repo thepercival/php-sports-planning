@@ -12,11 +12,11 @@ use SportsPlanning\Poule;
 abstract class HomeAwayCreator
 {
     private bool $swap = false;
-    protected VariantWithPoule $variantWithPoule;
+    // protected VariantWithPoule $variantWithPoule;
 
-    public function __construct(protected Poule $poule, AgainstH2h|AgainstGpp $sportVariant)
+    public function __construct(/*protected Poule $poule, AgainstH2h|AgainstGpp $sportVariant*/)
     {
-        $this->variantWithPoule = new VariantWithPoule($sportVariant, count($poule->getPlaces()));
+        // $this->variantWithPoule = new VariantWithPoule($sportVariant, count($poule->getPlaces()));
     }
 
     /**

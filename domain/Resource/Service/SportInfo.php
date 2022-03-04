@@ -10,16 +10,16 @@ use SportsHelpers\Sport\Variant\AllInOneGame;
 use SportsHelpers\Sport\Variant\Single;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\PouleCounter;
+use SportsPlanning\Resource\UniquePlacesCounter;
 use SportsPlanning\Sport;
 
 class SportInfo
 {
     protected int $nrOfGames = 0;
     /**
-     * @var array<int, PouleCounter> $pouleGameCounters
+     * @var array<int, UniquePlacesCounter> $uniquePlacesCounters
      */
-    protected array $pouleGameCounters = [];
+    protected array $uniquePlacesCounters = [];
     protected Single|AgainstH2h|AgainstGpp|AllInOneGame|null $variant = null;
 
     /**
@@ -33,18 +33,18 @@ class SportInfo
     {
         $this->nrOfGames++;
         $pouleNr = $game->getPoule()->getNumber();
-        if (!array_key_exists($pouleNr, $this->pouleGameCounters)) {
-            $this->pouleGameCounters[$pouleNr] = new PouleCounter($game->getPoule());
+        if (!array_key_exists($pouleNr, $this->uniquePlacesCounters)) {
+            $this->uniquePlacesCounters[$pouleNr] = new UniquePlacesCounter($game->getPoule());
         }
-        $this->pouleGameCounters[$pouleNr]->addGame($game);
+        $this->uniquePlacesCounters[$pouleNr]->addGame($game);
     }
 
     /**
-     * @return array<int, PouleCounter>
+     * @return array<int, UniquePlacesCounter>
      */
-    public function getPouleGameCounters(): array
+    public function getUniquePlacesCounters(): array
     {
-        return $this->pouleGameCounters;
+        return $this->uniquePlacesCounters;
     }
 
     public function getNrOfGames(): int

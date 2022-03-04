@@ -232,10 +232,12 @@ class Validator
                         return self::UNEQUAL_GAME_WITH_AGAINST;
                     }
                 }
-                $againstValidator = new AgainstValidator($poule, $sport);
-                $againstValidator->addGames($planning);
-                if (!$againstValidator->balanced()) {
-                    return self::UNEQUAL_GAME_WITH_AGAINST;
+                if ($sportVariant instanceof AgainstH2h || $sportVariant->equalNrOfHomePlaces($nrOfPlaces)) {
+                    $againstValidator = new AgainstValidator($poule, $sport);
+                    $againstValidator->addGames($planning);
+                    if (!$againstValidator->balanced()) {
+                        return self::UNEQUAL_GAME_WITH_AGAINST;
+                    }
                 }
             }
         }

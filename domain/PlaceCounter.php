@@ -18,6 +18,11 @@ class PlaceCounter extends Counter
 
     public function getNumber(): int
     {
-        return $this->countedObject->getNumber();
+        return $this->getPlace()->getNumber();
+    }
+
+    public function getPlace(): Place
+    {
+        return $this->countedObject;
     }
 }
