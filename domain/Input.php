@@ -29,7 +29,7 @@ class Input extends Identifiable
     protected bool|null $hasBalancedStructure = null;
     protected SelfReferee $selfReferee;
     protected int $seekingPercentage = -1;
-    private const MaxNrOfGamesInARow = 10;
+    private const MaxNrOfGamesInARow = 5;
 
     /**
      * @var Collection<int|string, Poule>
