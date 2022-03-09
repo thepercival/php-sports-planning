@@ -26,7 +26,6 @@ class Timeout
 {
     use Color;
 
-    protected TimeoutState $timeoutState;
     protected InputService $inputService;
     protected PlanningOutput $planningOutput;
     protected TimeoutConfig $timeoutConfig;
@@ -42,43 +41,96 @@ class Timeout
         $this->inputService = new InputService();
         $this->throwOnTimeout = true;
         $this->timeoutConfig = new TimeoutConfig();
-        $this->timeoutState = $this->timeoutConfig->nextTimeoutState(null);
     }
 
-    public function setTimeoutState(TimeoutState $timeoutState): void
+    public function process(Input $input, TimeoutState $timeoutState): bool
     {
-        $this->timeoutState = $timeoutState;
-    }
-
-    public function process(Input $input): bool
-    {
-        $succeeded = $this->processEqualBatchGames($input);
+        $succeeded = $this->processEqualBatchGames($input, $timeoutState);
         if ($succeeded) {
             return $succeeded;
         }
-        $succeeded = $this->processUnequalBatchGames($input);
+        $succeeded = $this->processUnequalBatchGames($input, $timeoutState);
         if ($succeeded) {
             return $succeeded;
         }
-        return $this->processGamesInARow($input);
+        return $this->processGamesInARow($input, $timeoutState);
     }
 
-    /**
-     * @param Input $input
-     * @param list<Schedule> $schedules
-     * @return bool
-     */
-    public function processEqualBatchGames(Input $input): bool
+    public function processBatchGames(Input $input, TimeoutState $timeoutState): bool
+    {
+        $succeeded = $this->processEqualBatchGames($input, $timeoutState);
+        if ($succeeded) {
+            return $succeeded;
+        }
+        return $this->processUnequalBatchGames($input, $timeoutState);
+    }
+
+    public function processEqualBatchGames(Input $input, TimeoutState $timeoutState): bool
     {
         try {
             $schedules = $this->scheduleRepos->findByInput($input);
 
             $plannings = $input->getEqualBatchGamesPlannings(PlanningState::TimedOut);
-            return $this->processHelper($input, $plannings, $schedules);
+            $statePlannings = $this->getPlanningsWithState($plannings, $timeoutState);
+            return $this->processHelper($input, $statePlannings, $schedules);
         } catch (Exception $e) {
             $this->logger->error('   ' . '   ' . " => " . $e->getMessage());
         }
         return false;
+    }
+
+    public function processUnequalBatchGames(Input $input, TimeoutState $timeoutState): bool
+    {
+        try {
+            $schedules = $this->scheduleRepos->findByInput($input);
+
+            $plannings = $input->getUnequalBatchGamesPlannings(PlanningState::TimedOut);
+            $statePlannings = $this->getPlanningsWithState($plannings, $timeoutState);
+
+            foreach ($statePlannings as $planning) {
+                $this->processPlanningHelper($planning, $schedules);
+                if ($planning->getState() === PlanningState::Succeeded) {
+                    return true;
+                }
+            }
+        } catch (Exception $e) {
+            $this->logger->error('   ' . '   ' . " => " . $e->getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * @param Input $input
+     * @return bool
+     */
+    public function processGamesInARow(Input $input, TimeoutState $timeoutState): bool
+    {
+        try {
+            $schedules = $this->scheduleRepos->findByInput($input);
+
+            $bestBatchGamesPlanning = $input->getBestPlanning(PlanningType::BatchGames);
+
+            $plannings = $bestBatchGamesPlanning->getGamesInARowPlannings(PlanningState::TimedOut);
+            $statePlannings = $this->getPlanningsWithState($plannings, $timeoutState);
+            return $this->processHelper($input, $statePlannings, $schedules);
+        } catch (Exception $e) {
+            $this->logger->error('   ' . '   ' . " => " . $e->getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * @param list<Planning> $plannings
+     * @param TimeoutState $timeoutState
+     * @return list<Planning>
+     */
+    private function getPlanningsWithState(array $plannings, TimeoutState $timeoutState): array
+    {
+        return array_values(
+            array_filter($plannings, function (Planning $planning) use ($timeoutState): bool {
+                return $planning->getTimeoutState() === $timeoutState;
+            })
+        );
     }
 
     /**
@@ -89,7 +141,7 @@ class Timeout
      */
     public function processHelper(Input $input, array $plannings, array $schedules): bool
     {
-        $easiestPlanning = $this->getFirstTimedoutPlanning($plannings);
+        $easiestPlanning = array_pop($plannings);
         if ($easiestPlanning === null) {
             return false;
         }
@@ -106,22 +158,6 @@ class Timeout
     }
 
     /**
-     * @param list<Planning> $plannings
-     * @return Planning|null
-     */
-    protected function getFirstTimedoutPlanning(array &$plannings): Planning|null
-    {
-        $easiestPlanning = array_pop($plannings);
-        if ($easiestPlanning === null) {
-            return null;
-        }
-        if ($easiestPlanning->getTimeoutState() === $this->timeoutState) {
-            return $easiestPlanning;
-        }
-        return null;
-    }
-
-    /**
      * @param Planning $planning
      * @param list<Schedule> $schedules
      * @throws Exception
@@ -132,16 +168,12 @@ class Timeout
         $this->planningOutput->output(
             $planning,
             false,
-            '   ',
-            ' timeoutState "' . $nextTimeoutState->value . '"'
+            '   trying ',
+            ' for timeoutState "' . $nextTimeoutState->value . '"'
         );
-        // $this->planningRepos->save($planning);
-
-        $this->planningOutput->output($planning, false, '   ', " trying .. ");
 
         $gameCreator = new GameCreator($this->logger);
         $gameCreator->createGames($planning, $schedules);
-        // $this->planningRepos->save($planning);
 
         $gameAssigner = new GameAssigner($this->logger);
         if (!$this->throwOnTimeout) {
@@ -184,58 +216,6 @@ class Timeout
     }
 
     /**
-     * @param Input $input
-     * @param list<Schedule> $schedules
-     * @return bool
-     */
-    public function processUnequalBatchGames(Input $input): bool
-    {
-        try {
-            $schedules = $this->scheduleRepos->findByInput($input);
-
-            $plannings = $input->getUnequalBatchGamesPlannings(PlanningState::TimedOut);
-
-            foreach ($plannings as $planning) {
-                $this->processPlanningHelper($planning, $schedules);
-                if ($planning->getState() === PlanningState::Succeeded) {
-                    return true;
-                }
-            }
-        } catch (Exception $e) {
-            $this->logger->error('   ' . '   ' . " => " . $e->getMessage());
-        }
-        return false;
-    }
-
-    /**
-     * @param Input $input
-     * @return bool
-     */
-    public function processGamesInARow(Input $input): bool
-    {
-        try {
-            $schedules = $this->scheduleRepos->findByInput($input);
-
-            $bestBatchGamesPlanning = $input->getBestPlanning(PlanningType::BatchGames);
-
-            $plannings = $bestBatchGamesPlanning->getGamesInARowPlannings(PlanningState::TimedOut);
-            return $this->processHelper($input, $plannings, $schedules);
-        } catch (Exception $e) {
-            $this->logger->error('   ' . '   ' . " => " . $e->getMessage());
-        }
-        return false;
-    }
-
-    public function processBatchGames(Input $input): bool
-    {
-        $succeeded = $this->processEqualBatchGames($input);
-        if ($succeeded) {
-            return $succeeded;
-        }
-        return $this->processUnequalBatchGames($input);
-    }
-
-    /**
      * @param Planning $planning
      * @throws Exception
      */
@@ -255,10 +235,5 @@ class Timeout
             return 'timeout-' . $timeoutState->value;
         }
         return '?';
-    }
-
-    public function disableThrowOnTimeout(): void
-    {
-        $this->throwOnTimeout = false;
     }
 }

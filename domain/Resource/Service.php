@@ -300,9 +300,8 @@ class Service
             throw new TimeoutException('exceeded maximum duration of ' . $timeoutSeconds . ' seconds', E_ERROR);
         }
         $minNrOfBatchGames = $this->planning->getMinNrOfBatchGames();
-        if (count($games) >= $minNrOfBatchGames && (count($gamesForBatch) + count(
-                    $batch->getGames()
-                )) < $minNrOfBatchGames) {
+        if (count($games) >= $minNrOfBatchGames
+            && (count($gamesForBatch) + count($batch->getGames())) < $minNrOfBatchGames) {
             return false;
         }
 

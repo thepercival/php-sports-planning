@@ -102,8 +102,13 @@ class Helper
         if ($this->willMaxNrOfBatchesBeExceeded($maxNrOfBatchesToGo, $infoToAssign)) {
             return false;
         }
-        if ($infoToAssign->getNrOfGames() < $this->planning->getMinNrOfBatchGames()
-            || $this->willMinNrOfBatchGamesBeReached($infoToAssign)) {
+        if (
+            (
+                $infoToAssign->getNrOfGames() < $this->planning->getMinNrOfBatchGames()
+                && $this->planning->isEqualBatchGames()
+            )
+            ||
+            $this->willMinNrOfBatchGamesBeReached($infoToAssign)) {
             return true;
         }
         return false;
