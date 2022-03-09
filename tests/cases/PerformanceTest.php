@@ -39,7 +39,7 @@ class PerformanceTest extends TestCase
         //(new PlanningOutput())->outputWithGames($planning, true);
         // echo "============ " . (microtime(true) - $time_start);
 
-        self::assertLessThan(0.6, microtime(true) - $time_start);
+        self::assertLessThan(1.0, microtime(true) - $time_start);
     }
 
     public function testSelfRefereeRange7to7(): void
