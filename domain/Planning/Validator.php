@@ -144,6 +144,9 @@ class Validator
         if (($validity & self::INVALID_REFEREESELF_AND_REFEREES) === self::INVALID_REFEREESELF_AND_REFEREES) {
             $invalidations[] = "nrofreferees should we 0 when selfreferee is enabled";
         }
+        if (($validity & self::INVALID_NROFBATCHES) === self::INVALID_NROFBATCHES) {
+            $invalidations[] = "maxBatchNr of games is not equal to planning->getNrOfBatches";
+        }
         if ($planning !== null) {
             if ((($validity & self::UNEQUALLY_ASSIGNED_FIELDS) === self::UNEQUALLY_ASSIGNED_FIELDS
                 || ($validity & self::UNEQUALLY_ASSIGNED_REFEREES) === self::UNEQUALLY_ASSIGNED_REFEREES
