@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
+use SportsPlanning\Exception\NoBestPlanning as NoBestPlanningException;
 use SportsHelpers\Identifiable;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
@@ -482,7 +483,7 @@ class Input extends Identifiable
 
         $bestPlanning = array_shift($filteredPlannings);
         if ($bestPlanning === null) {
-            throw new Exception('er kan geen planning worden gevonden', E_ERROR);
+            throw new NoBestPlanningException('er kan geen planning worden gevonden', E_ERROR);
         }
         return $bestPlanning;
     }

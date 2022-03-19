@@ -8,6 +8,7 @@ use SportsHelpers\Sport\VariantWithPoule;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
+use SportsPlanning\Exception\NoBestPlanning as NoBestPlanningException;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Input;
@@ -19,6 +20,7 @@ class Helper
 {
     protected bool $balancedStructure;
     protected int $totalNrOfGames;
+    protected int|null $maxNrOfBatches = null;
     protected Input $input;
 
     public function __construct(protected Planning $planning, protected LoggerInterface $logger)
@@ -28,6 +30,11 @@ class Helper
 
         $sportVariants = array_values($this->input->createSportVariants()->toArray());
         $this->totalNrOfGames = $this->input->createPouleStructure()->getTotalNrOfGames($sportVariants);
+
+        try { // -1 because needs to be less nrOfBatches
+            $this->maxNrOfBatches = $this->planning->getInput()->getBestPlanning(null)->getNrOfBatches() - 1;
+        } catch (NoBestPlanningException $e) {
+        }
     }
 
     /**
@@ -98,7 +105,8 @@ class Helper
         if ($infoToAssign->isEmpty()) {
             return true;
         }
-        $maxNrOfBatchesToGo = $this->planning->getMaxNrOfBatches() - $batchNumber;
+        $maxNrOfBatches = $this->maxNrOfBatches === null ? $this->planning->getMaxNrOfBatches() : $this->maxNrOfBatches;
+        $maxNrOfBatchesToGo = $maxNrOfBatches - $batchNumber;
         if ($this->willMaxNrOfBatchesBeExceeded($maxNrOfBatchesToGo, $infoToAssign)) {
             return false;
         }

@@ -13,7 +13,7 @@ use SportsHelpers\Sport\Variant\Single;
 use SportsHelpers\Sport\VariantWithPoule;
 use SportsPlanning\Combinations\Validator\Against as AgainstValidator;
 use SportsPlanning\Combinations\Validator\With as WithValidator;
-use SportsPlanning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
+use SportsPlanning\Exception\NoBestPlanning as UnequalAssignedFieldsException;
 use SportsPlanning\Exception\UnequalAssignedRefereePlaces as UnequalAssignedRefereePlacesException;
 use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
 use SportsPlanning\Game;

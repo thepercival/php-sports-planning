@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Planning\Validator;
 
 use SportsHelpers\SelfReferee;
-use SportsPlanning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
+use SportsPlanning\Exception\NoBestPlanning as UnequalAssignedFieldsException;
 use SportsPlanning\Exception\UnequalAssignedRefereePlaces as UnequalAssignedRefereePlacesException;
 use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
 use SportsPlanning\Game;

@@ -34,6 +34,6 @@ class TimeoutStateType extends EnumDbType
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        return 'string';
+        return 'varchar(20)';;
     }
 }
