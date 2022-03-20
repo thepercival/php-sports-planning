@@ -147,6 +147,8 @@ class Timeout
         }
         $this->processPlanningHelper($easiestPlanning, $schedules);
         if ($easiestPlanning->getState() === PlanningState::Succeeded) {
+            $lessEfficient = $this->getLessEfficientPlannings($input, $easiestPlanning->getMinNrOfBatchGames());
+            $this->removePlannings($input, $lessEfficient);
             return true;
         }
         if ($easiestPlanning->getState() === PlanningState::TimedOut) {
@@ -200,6 +202,23 @@ class Timeout
             $planning->setTimeoutState($easiestPlanning->getTimeoutState());
             $this->planningRepos->save($planning);
         }
+    }
+
+    /**
+     * @param Input $input
+     * @param int $maxNrOfBatchGames
+     * @return list<Planning>
+     */
+    private function getLessEfficientPlannings(Input $input, int $maxNrOfBatchGames): array
+    {
+        $lessEfficient = $input->getPlannings()->filter(function (PLanning $planning) use ($maxNrOfBatchGames): bool {
+            return $planning->getMaxNrOfBatchGames() < $maxNrOfBatchGames ||
+                (
+                    $planning->getMaxNrOfBatchGames() === $maxNrOfBatchGames
+                    && $planning->getMinNrOfBatchGames() < $maxNrOfBatchGames
+                );
+        });
+        return array_values($lessEfficient->toArray());
     }
 
     /**
