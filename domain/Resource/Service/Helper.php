@@ -31,8 +31,22 @@ class Helper
         $sportVariants = array_values($this->input->createSportVariants()->toArray());
         $this->totalNrOfGames = $this->input->createPouleStructure()->getTotalNrOfGames($sportVariants);
 
-        try { // -1 because needs to be less nrOfBatches
-            $this->maxNrOfBatches = $this->planning->getInput()->getBestPlanning(null)->getNrOfBatches() - 1;
+        $this->initMaxNrOfBatches();
+    }
+
+    private function initMaxNrOfBatches(): void
+    {
+        try {
+            if ($this->planning->isBatchGames()) {
+                // -1 because needs to be less nrOfBatches
+                $this->maxNrOfBatches = $this->planning->getInput()->getBestPlanning(null)->getNrOfBatches() - 1;
+            } else {
+                $planningFilter = new Planning\Filter($this->planning->getNrOfBatchGames(), 0);
+                $batchGamePlanning = $this->planning->getInput()->getPlanning($planningFilter);
+                if ($batchGamePlanning !== null) {
+                    $this->maxNrOfBatches = $batchGamePlanning->getNrOfBatches();
+                }
+            }
         } catch (NoBestPlanningException $e) {
         }
     }
