@@ -257,18 +257,18 @@ class Service
 //            $this->logger->info('batch '.$batch->getNumber().' completed, trying for batch '.$nextBatch->getNumber().', ' . $maxNrOfBatchesTmp . ' to go');
 
             if ($doSort) {
-//                $this->logger->info('unassigned pre sorted games: ');
-//                $this->batchOutput->outputGames($gamesForBatchTmp);
+//                if ($batch->getNumber() === 5) {
+//                    $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber());
+//                    $this->logger->info('unassigned pre sorted games: ');
+//                    $this->batchOutput->outputGames($gamesForBatchTmp);
+//                }
                 $this->helper->sortGamesForNextBatch($batch, $gamesForBatchTmp, $infoAssign);
-//                $this->logger->info('unassigned post sorted games: ');
-//                $this->batchOutput->outputGames($gamesForBatchTmp);
+//                if ($batch->getNumber() === 5) {
+//                    $this->logger->info('unassigned post sorted games: ');
+//                    $this->batchOutput->outputGames($gamesForBatchTmp);
+//                    $er = 12;
+//                }
             }
-
-//            if ($nextBatch->getNumber() >= 8) {
-//                $this->logger->info('unassigned sorted games: ');
-//                $this->batchOutput->outputGames($gamesForBatchTmp);
-//                $breakPointResourceService = 12;
-//            }
 
 //            $this->logger->info(' nr of games to process after gamesinarow-filter(max '.$this->planning->getMaxNrOfGamesInARow().') : '  . count($gamesForBatchTmp) );
 //            $this->gameOutput->outputGames($gamesForBatchTmp);

@@ -14,6 +14,7 @@ use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Planning\Filter;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\TimeoutConfig;
@@ -288,7 +289,13 @@ class Planning extends Identifiable
         return $this->orderGamesInARowPlannings($gamesInARowPlannings);
     }
 
+    public function createFilter(): Filter
+    {
+        return new Filter($this->getNrOfBatchGames(), $this->getMaxNrOfGamesInARow());
+    }
+
     // from most efficient to less efficient
+
     /**
      * @param Collection<int|string,Planning> $gamesInARowPlannings
      * @return list<Planning>

@@ -78,12 +78,13 @@ class Predicter
         $this->addGamesToPouleCounterMap($pouleCounterMap, $batch);
 
         foreach ($pouleCounterMap as $pouleCounter) {
-            $otherPouleCounters = array_values(array_filter(
-                                                   $pouleCounterMap,
-                                                   function (PouleCounter $pouleCounterIt) use ($pouleCounter): bool {
-                                                       return $pouleCounter !== $pouleCounterIt;
-                                                   }
-            ));
+            $otherPouleCounters = array_values(
+                array_filter(
+                    $pouleCounterMap,
+                    function (PouleCounter $pouleCounterIt) use ($pouleCounter): bool {
+                        return $pouleCounter !== $pouleCounterIt;
+                    }
+                ));
             $nrOfPlacesAvailable = $this->getNrOfPlacesAvailable($otherPouleCounters);
             if ($pouleCounter->getNrOfGames() > $nrOfPlacesAvailable) {
                 return false;
