@@ -457,7 +457,7 @@ class Validator
                 /** @var bool|int|string $search */
                 $search = array_search($placeIt, $batchMap[$game->getBatchNr()]["places"], true);
                 if ($search !== false) {
-                    return self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH;
+                    return self::MULTIPLE_ASSIGNED_PLACES_IN_BATCH;
                 }
                 array_push($batchMap[$game->getBatchNr()]["places"], $placeIt);
             }
