@@ -6,6 +6,7 @@ namespace SportsPlanning\Place;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
+use SportsHelpers\Output\Color;
 use SportsPlanning\Place;
 
 class Output extends OutputHelper
@@ -20,9 +21,8 @@ class Output extends OutputHelper
         string|null $suffix,
         bool $useColors
     ): string {
-        $colorNumber = $useColors ? $place->getNumber() : -1;
+        $color = Color::convertNumberToColor($useColors ? $place->getNumber() : -1);
         // $gamesInARowSuffix = $gamesInARow !== null ? '(' . $gamesInARow . ')' : '';
-        $content = $place->getLocation() . ($suffix ?? '');
-        return $this->getColored($colorNumber, $content);
+        return Color::getColored($color, $place->getLocation() . ($suffix ?? ''));
     }
 }

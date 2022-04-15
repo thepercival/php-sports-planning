@@ -6,6 +6,7 @@ namespace SportsPlanning\Planning;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
+use SportsHelpers\Output\Color;
 use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Planning;
@@ -50,7 +51,8 @@ class Output extends OutputHelper
         string $prefix = null,
         string $suffix = null,
         int $colorNr = -1
-    ): void {
+    ): void
+    {
         $timeoutState = $planning->getTimeoutState()?->value ?? 'no timeout';
         $output = 'batchGames ' . $planning->getNrOfBatchGames()->getMin()
             . '->' . $planning->getNrOfBatchGames()->getMax()
@@ -59,7 +61,8 @@ class Output extends OutputHelper
         if ($withInput) {
             $output = $this->getInputAsString($planning->getInput()) . ', ' . $output;
         }
-        $output = $this->getColored($colorNr, ($prefix ?? '') . $output . ($suffix ?? ''));
+        $color = Color::convertNumberToColor($colorNr);
+        $output = Color::getColored($color, ($prefix ?? '') . $output . ($suffix ?? ''));
         $this->logger->info($output);
         if ($withGames) {
             $batchOutput = new BatchOutput($this->logger);

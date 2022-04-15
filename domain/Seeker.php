@@ -26,8 +26,6 @@ use SportsPlanning\Schedule\Repository as ScheduleRepository;
 
 class Seeker
 {
-    use Color;
-
     protected InputService $inputService;
     protected PlanningOutput $planningOutput;
     // protected EqualBatchGamesPostProcessor $equalbatchGamesPostProcessor;

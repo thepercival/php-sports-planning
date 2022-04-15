@@ -24,8 +24,6 @@ use SportsPlanning\Schedule\Repository as ScheduleRepository;
 
 class Timeout
 {
-    use Color;
-
     protected InputService $inputService;
     protected PlanningOutput $planningOutput;
     protected TimeoutConfig $timeoutConfig;

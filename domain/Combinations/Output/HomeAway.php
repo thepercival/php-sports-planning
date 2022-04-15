@@ -6,6 +6,7 @@ namespace SportsPlanning\Combinations\Output;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
+use SportsHelpers\Output\Color;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
@@ -55,10 +56,14 @@ class HomeAway extends OutputHelper
     public function output(AgainstHomeAway $homeAway, AgainstGameRound|null $gameRound = null, string|null $prefix = null): void
     {
         $useColors = $this->useColors();
-        $gameRoundColor = ($useColors && $gameRound !== null) ? ($gameRound->getNumber() % 10) : -1;
+        $gameRoundColorNr = ($useColors && $gameRound !== null) ? ($gameRound->getNumber() % 10) : -1;
+        $gameRoundColor = Color::convertNumberToColor($gameRoundColorNr);
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
-            ($gameRound !== null ? $this->getColored($gameRoundColor, 'gameRound ' . $gameRound->getNumber()) .  ', ' : '')
+            ($gameRound !== null ? Color::getColored(
+                    $gameRoundColor,
+                    'gameRound ' . $gameRound->getNumber()
+                ) . ', ' : '')
             // . 'substr(' . $game->getRoundNumber(), 2 ) . substr( $game->getSubNumber(), 2 ) . ") "
             . $this->getPlaces($homeAway, $gameRound)
         );
@@ -86,6 +91,7 @@ class HomeAway extends OutputHelper
     {
         $useColors = $this->useColors();
         $colorNumber = $useColors ? $place->getNumber() : -1;
-        return $this->getColored($colorNumber, $place->getLocation());
+        $color = Color::convertNumberToColor($colorNumber);
+        return Color::getColored($color, $place->getLocation());
     }
 }
