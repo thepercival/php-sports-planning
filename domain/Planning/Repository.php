@@ -8,7 +8,6 @@ use Doctrine\ORM\EntityRepository;
 use SportsHelpers\Repository as BaseRepository;
 use SportsHelpers\SportRange;
 use SportsPlanning\Input;
-use SportsPlanning\Planning;
 use SportsPlanning\Planning as PlanningBase;
 
 /**
@@ -24,7 +23,6 @@ class Repository extends EntityRepository
     public function resetBatchGamePlanning(PlanningBase $planning, State $state): void
     {
         $this->resetPlanning($planning, $state);
-        $this->removeGamesInARowPlannings($planning);
         $this->save($planning);
     }
 
@@ -106,7 +104,7 @@ class Repository extends EntityRepository
 //
 
 
-    public function findBatchGames(Input $input, SportRange $nrOfBatchGamesRange): Planning|null
+    public function findBatchGames(Input $input, SportRange $nrOfBatchGamesRange): PlanningBase|null
     {
         return $this->findOneByExt($input, $nrOfBatchGamesRange, 0);
     }
@@ -115,7 +113,7 @@ class Repository extends EntityRepository
         Input $input,
         SportRange $nrOfBatchGamesRange,
         int $maxNrOfGamesInARow
-    ): Planning|null {
+    ): PlanningBase|null {
         if ($maxNrOfGamesInARow > 0) {
             return null;
         }
@@ -126,7 +124,7 @@ class Repository extends EntityRepository
         Input $input,
         SportRange $nrOfBatchGamesRange,
         int $maxNrOfGamesInARow
-    ): Planning|null {
+    ): PlanningBase|null {
         $query = $this->createQueryBuilder('p')
             ->where('p.input = :input')
             ->andWhere('p.minNrOfBatchGames = :minNrOfBatchGames')
@@ -139,9 +137,8 @@ class Repository extends EntityRepository
         $query = $query->setParameter('maxNrOfGamesInARow', $maxNrOfGamesInARow);
 
         $query->setMaxResults(1);
-
+        /** @var PlanningBase[] $results */
         $results = $query->getQuery()->getResult();
-        /** @var PlanningBase|false $first */
         $first = reset($results);
         return $first !== false ? $first : null;
     }

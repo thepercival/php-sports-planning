@@ -227,7 +227,6 @@ class Helper
 
     /**
      * @param InfoToAssign $infoToAssign
-     * @param int $nrOfGamesToAssign
      * @return bool
      */
     public function willMinNrOfBatchGamesBeReached(InfoToAssign $infoToAssign): bool

@@ -30,8 +30,8 @@ class Repository extends EntityRepository
         $query = $query->setParameter('uniqueString', $uniqueString);
 
         $query->setMaxResults(1);
+        /** @var InputBase[] $results */
         $results = $query->getQuery()->getResult();
-        /** @var InputBase|false $first */
         $first = reset($results);
         return $first !== false ? $first : null;
     }

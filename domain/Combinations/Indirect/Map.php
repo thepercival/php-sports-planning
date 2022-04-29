@@ -52,6 +52,14 @@ class Map
         return 0;
     }
 
+    /**
+     * @param Place $current
+     * @param Place $end
+     * @param int $depth
+     * @param array<int, bool> $counted
+     * @param int $count
+     * @return bool
+     */
     private function countHelper(Place $current, Place $end, int $depth, array $counted, int &$count): bool
     {
         // als depth = 1 dan count teruggeven van

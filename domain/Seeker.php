@@ -144,9 +144,7 @@ class Seeker
     }
 
     /**
-     *
-     *
-     * @param Planning $batchGamesPlanning
+     * @param Input $input
      * @param list<Schedule> $schedules
      * @throws Exception
      */

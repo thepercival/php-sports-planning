@@ -51,8 +51,7 @@ class Output extends OutputHelper
         string $prefix = null,
         string $suffix = null,
         int $colorNr = -1
-    ): void
-    {
+    ): void {
         $timeoutState = $planning->getTimeoutState()?->value ?? 'no timeout';
         $output = 'batchGames ' . $planning->getNrOfBatchGames()->getMin()
             . '->' . $planning->getNrOfBatchGames()->getMax()

@@ -84,7 +84,8 @@ class Predicter
                     function (PouleCounter $pouleCounterIt) use ($pouleCounter): bool {
                         return $pouleCounter !== $pouleCounterIt;
                     }
-                ));
+                )
+            );
             $nrOfPlacesAvailable = $this->getNrOfPlacesAvailable($otherPouleCounters);
             if ($pouleCounter->getNrOfGames() > $nrOfPlacesAvailable) {
                 return false;
