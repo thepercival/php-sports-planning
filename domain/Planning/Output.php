@@ -60,7 +60,7 @@ class Output extends OutputHelper
         if ($withInput) {
             $output = $this->getInputAsString($planning->getInput()) . ', ' . $output;
         }
-        $color = Color::convertNumberToColor($colorNr);
+        $color = $this->convertNumberToColor($colorNr);
         $output = Color::getColored($color, ($prefix ?? '') . $output . ($suffix ?? ''));
         $this->logger->info($output);
         if ($withGames) {

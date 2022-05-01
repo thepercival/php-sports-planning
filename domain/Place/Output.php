@@ -21,7 +21,7 @@ class Output extends OutputHelper
         string|null $suffix,
         bool $useColors
     ): string {
-        $color = Color::convertNumberToColor($useColors ? $place->getNumber() : -1);
+        $color = $this->convertNumberToColor($useColors ? $place->getNumber() : -1);
         // $gamesInARowSuffix = $gamesInARow !== null ? '(' . $gamesInARow . ')' : '';
         return Color::getColored($color, $place->getLocation() . ($suffix ?? ''));
     }

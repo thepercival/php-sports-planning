@@ -51,11 +51,11 @@ class Output extends OutputHelper
         if ($game instanceof AgainstGame) {
             $gameRoundNumber = $game->getGameRoundNumber();
         }
-        $batchColor = Color::convertNumberToColor($useColors ? ($batchNr % 10) : -1);
+        $batchColor = $this->convertNumberToColor($useColors ? ($batchNr % 10) : -1);
         $fieldNr = $game->getField()->getNumber();
-        $fieldColor = Color::convertNumberToColor($useColors ? $fieldNr : -1);
+        $fieldColor = $this->convertNumberToColor($useColors ? $fieldNr : -1);
         $sportNr = $game->getSport()->getNumber();
-        $sportColor = Color::convertNumberToColor($useColors ? $sportNr : -1);
+        $sportColor = $this->convertNumberToColor($useColors ? $sportNr : -1);
 
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
@@ -127,14 +127,14 @@ class Output extends OutputHelper
         $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
         $refereePlace = $game->getRefereePlace();
         if ($refereePlace !== null) {
-            $refColor = Color::convertNumberToColor($useColors ? $refereePlace->getNumber() : -1);
+            $refColor = $this->convertNumberToColor($useColors ? $refereePlace->getNumber() : -1);
             return Color::getColored($refColor, 'ref ' . $refereePlace->getLocation());
         }
         $referee = $game->getReferee();
         if ($referee === null) {
             return 'ref ?';
         }
-        $refColor = Color::convertNumberToColor($useColors ? $referee->getNumber() : -1);
+        $refColor = $this->convertNumberToColor($useColors ? $referee->getNumber() : -1);
         return Color::getColored($refColor, 'ref ' . $referee->getNumber());
     }
 }

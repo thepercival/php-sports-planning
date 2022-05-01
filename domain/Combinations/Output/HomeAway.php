@@ -57,7 +57,7 @@ class HomeAway extends OutputHelper
     {
         $useColors = $this->useColors();
         $gameRoundColorNr = ($useColors && $gameRound !== null) ? ($gameRound->getNumber() % 10) : -1;
-        $gameRoundColor = Color::convertNumberToColor($gameRoundColorNr);
+        $gameRoundColor = $this->convertNumberToColor($gameRoundColorNr);
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
             ($gameRound !== null ? Color::getColored(
@@ -91,7 +91,7 @@ class HomeAway extends OutputHelper
     {
         $useColors = $this->useColors();
         $colorNumber = $useColors ? $place->getNumber() : -1;
-        $color = Color::convertNumberToColor($colorNumber);
+        $color = $this->convertNumberToColor($colorNumber);
         return Color::getColored($color, $place->getLocation());
     }
 }
