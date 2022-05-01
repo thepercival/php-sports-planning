@@ -2101,28 +2101,28 @@
         },
         {
           "name": "thepercival/php-sports-helpers",
-          "version": "v1.2.6",
+          "version": "v1.2.7",
           "source": {
             "type": "git",
             "url": "https://github.com/thepercival/php-sports-helpers.git",
-            "reference": "20cef4b5ce4edf1227e7e99e6af12d2f165a802b"
+            "reference": "f75c4b4a3c7a75ae385f0c23435de7d2171ea820"
           },
           "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/20cef4b5ce4edf1227e7e99e6af12d2f165a802b",
-            "reference": "20cef4b5ce4edf1227e7e99e6af12d2f165a802b",
+            "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/f75c4b4a3c7a75ae385f0c23435de7d2171ea820",
+            "reference": "f75c4b4a3c7a75ae385f0c23435de7d2171ea820",
             "shasum": ""
           },
-            "require": {
-                "doctrine/orm": "^2.10",
-                "monolog/monolog": "^2.0",
-                "php": ">=8.1"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^3.2",
-                "phpstan/extension-installer": "^1.0",
-                "phpstan/phpstan": "^1.2",
-                "phpstan/phpstan-doctrine": "^1.0",
+          "require": {
+            "doctrine/orm": "^2.10",
+            "monolog/monolog": "^2.0",
+            "php": ">=8.1"
+          },
+          "require-dev": {
+            "friendsofphp/php-cs-fixer": "^3.2",
+            "phpstan/extension-installer": "^1.0",
+            "phpstan/phpstan": "^1.2",
+            "phpstan/phpstan-doctrine": "^1.0",
                 "phpstan/phpstan-phpunit": "^1.0",
                 "phpstan/phpstan-strict-rules": "^1.1",
                 "phpunit/phpunit": "^9.5",
@@ -2161,9 +2161,9 @@
             "support": {
                 "email": "coendunnink@gmail.com",
                 "issues": "https://github.com/thepercival/php-sports-helpers/issues",
-              "source": "https://github.com/thepercival/php-sports-helpers/tree/v1.2.6"
+              "source": "https://github.com/thepercival/php-sports-helpers/tree/v1.2.7"
             },
-          "time": "2022-05-01T11:44:38+00:00"
+          "time": "2022-05-01T11:54:58+00:00"
         }
     ],
     "packages-dev": [
