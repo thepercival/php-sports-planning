@@ -6,14 +6,23 @@ namespace SportsPlanning\Combinations\Indirect;
 
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Place;
+use Stringable;
 
-class Map
+class  Map
 {
     /**
      * @param array<int, Counter> $counters
      */
     public function __construct(protected array $counters = [])
     {
+    }
+
+    /**
+     * @return array<int, Counter> $counters
+     */
+    public function getCopiedCounters(): array
+    {
+        return $this->counters;
     }
 
     public function addHomeAway(AgainstHomeAway $homeAway): Map

@@ -25,4 +25,9 @@ class PlaceCounter extends Counter
     {
         return $this->countedObject;
     }
+
+    public function __toString(): string
+    {
+        return $this->getNumber() . ' ' . $this->count() . 'x';
+    }
 }

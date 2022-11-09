@@ -23,6 +23,14 @@ class Counter
 //        unset($this->counters[$place->getNumber()]);
     }
 
+    /**
+     * @return array<int, PlaceCounter> $counters
+     */
+    public function getCopiedPlaceCounters(): array
+    {
+        return $this->counters;
+    }
+
     public function add(Place $place): void
     {
         if (!isset($this->counters[$place->getNumber()])) {
