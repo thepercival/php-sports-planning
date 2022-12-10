@@ -66,9 +66,17 @@ class Against extends ListNode
     {
         foreach ($homeAway->getPlaces() as $place) {
             if ($this->isParticipating($place)) {
-                return false;
+                return true;
             }
         }
-        return true;
+        return false;
+    }
+
+    public function getNrOfHomeAwaysRecursive(): int {
+        $previous = $this->getPrevious();
+        if( $previous !== null ) {
+            return count($this->getHomeAways()) + $previous->getNrOfHomeAwaysRecursive();
+        }
+        return count($this->getHomeAways());
     }
 }

@@ -7,8 +7,11 @@ namespace SportsPlanning\Tests;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
+use SportsPlanning\Game\Creator as GameCreator;
+use SportsPlanning\Planning;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Referee\Info as RefereeInfo;
+use SportsPlanning\Schedule\Creator as ScheduleCreator;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class PerformanceTest extends TestCase
@@ -44,7 +47,7 @@ class PerformanceTest extends TestCase
 
     public function testSelfRefereeRange7to7(): void
     {
-        $time_start = microtime(true);
+        // $time_start = microtime(true);
         $nrOfGamesPerBatchRange = new SportRange(7, 7);
         $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(9);
         $planning = $this->createPlanning(
@@ -70,7 +73,7 @@ class PerformanceTest extends TestCase
 //        (new PlanningOutput())->outputWithTotals($planning,  false);
 
 //
-        self::assertLessThan(1.5, microtime(true) - $time_start);
+//        self::assertLessThan(1.5, microtime(true) - $time_start);
     }
 
     // [7,7,7,7] - [against(1vs1) h2h:gpp=>1:0 f(9)] - gpstrat=>eql - ref=>0:SP
@@ -138,4 +141,5 @@ class PerformanceTest extends TestCase
 //
         self::assertEquals(4, $planning->createFirstBatch()->getLeaf()->getNumber());
     }
+
 }

@@ -45,7 +45,7 @@ class Service
         $timeoutConfig = new TimeoutConfig();
         $nextTimeoutState = $timeoutConfig->nextTimeoutState($this->planning);
         $timeoutSeconds = $timeoutConfig->getTimeoutSeconds($this->planning->getInput(), $nextTimeoutState);
-        $timeoutDateTime = (new DateTimeImmutable())->modify("+" . $timeoutSeconds . " seconds");
+        $timeoutDateTime = (new DateTimeImmutable())->add(new \DateInterval('PT' . $timeoutSeconds . 'S'));
         $this->replacer->setTimeoutDateTime($timeoutDateTime);
         $refereePlaceMap = $this->getRefereePlaceMap();
         try {

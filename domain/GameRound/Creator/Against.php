@@ -80,26 +80,6 @@ abstract class Against
     }
 
     /**
-     * @param VariantWithPoule $variantWithPoule
-     * @param array<int, PlaceCounter> $assignedMap
-     * @return bool
-     */
-    protected function isCompleted(VariantWithPoule $variantWithPoule, array $assignedMap): bool
-    {
-        $nrOfIncompletePlaces = 0;
-        foreach ($assignedMap as $assignedCounter) {
-            if ($assignedCounter->count() < $variantWithPoule->getTotalNrOfGamesPerPlace()) {
-                $nrOfIncompletePlaces++;
-            }
-
-            if ($nrOfIncompletePlaces >= $variantWithPoule->getNrOfGamePlaces()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
      * @param AgainstGameRound $gameRound
      * @param AgainstHomeAway $homeAway
      * @param array<int, PlaceCounter> $assignedSportMap
@@ -107,6 +87,7 @@ abstract class Against
      * @param array<int, PlaceCombinationCounter> $assignedWithMap
      * @param IndirectMap $assignedAgainstMap
      * @param array<int, PlaceCounter> $assignedHomeMap
+     * @return IndirectMap
      */
     protected function assignHomeAway(
         AgainstGameRound $gameRound,
@@ -123,12 +104,14 @@ abstract class Against
         }
         $assignedWithMap[$homeAway->getHome()->getNumber()]->increment();
         $assignedWithMap[$homeAway->getAway()->getNumber()]->increment();
-//        $assignedAgainstMap[$homeAway->getHome()->getNumber()]->addCombination($homeAway->getAway());
-//        $assignedAgainstMap[$homeAway->getAway()->getNumber()]->addCombination($homeAway->getHome());
+
         foreach ($homeAway->getHome()->getPlaces() as $homePlace) {
             $assignedHomeMap[$homePlace->getNumber()]->increment();
         }
         $gameRound->add($homeAway);
+//        if( count($homeAway->getPlaces()) <= 2) {
+//            return $assignedAgainstMap;
+//        }
         return $assignedAgainstMap->addHomeAway($homeAway);
     }
 
@@ -171,50 +154,35 @@ abstract class Against
         $gameRound->remove($homeAway);
     }
 
-    /**
-     * @param VariantWithPoule $variantWithPoule
-     * @param AgainstGameRound $gameRound
-     * @param AgainstHomeAway $homeAway
-     * @param array<int, PlaceCounter> $assignedSportMap
-     * @return bool
-     */
-    protected function isHomeAwayAssignable(
-        VariantWithPoule $variantWithPoule,
-        AgainstGameRound $gameRound,
-        AgainstHomeAway $homeAway,
-        array $assignedSportMap
-    ): bool {
-        foreach ($homeAway->getPlaces() as $place) {
-            if ($gameRound->isParticipating($place) || $this->willBeOverAssigned(
-                    $variantWithPoule,
-                    $place,
-                    $assignedSportMap
-                )) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * @param VariantWithPoule $variantWithPoule
-     * @param Place $place
-     * @param array<int, PlaceCounter> $assignedSportMap
-     * @return bool
-     */
-    private function willBeOverAssigned(VariantWithPoule $variantWithPoule, Place $place, array $assignedSportMap): bool
-    {
-        $totalNrOfGamesPerPlace = $variantWithPoule->getTotalNrOfGamesPerPlace();
-        $sportVariant = $variantWithPoule->getSportVariant();
-        $nrOfPlaces = $variantWithPoule->getNrOfPlaces();
-        $notAllPlacesPlaySameNrOfGames = $sportVariant instanceof AgainstGpp
-            && !$sportVariant->allPlacesPlaySameNrOfGames($nrOfPlaces);
-        $totalNrOfGamesPerPlace = $totalNrOfGamesPerPlace + ($notAllPlacesPlaySameNrOfGames ? 1 : 0);
-//        if ($assignedMap[$place->getNumber()]->count() > $totalNrOfGamesPerPlace === true) {
-//            $rofirjf = 123;
+//    /**
+//     * @param AgainstHomeAway $homeAway
+//     * @param array<int, PlaceCounter> $assignedSportMap
+//     * @return bool
+//     */
+//    private function willBeTooMuchAssignedDiff(AgainstHomeAway $homeAway, array $assignedSportMap): bool
+//    {
+//        $diff = 2;
+//
+//        foreach ($homeAway->getPlaces() as $place) {
+//            $minOfGames = $assignedSportMap[$place->getNumber()]->count() - $diff;
+//            foreach( $assignedSportMap as $assignedCounter ) {
+//                if( $assignedCounter->getPlace() === $place) {
+//                    continue;
+//                }
+//                if( $assignedCounter->count() < $minOfGames ) {
+//                    // if in same game and only 1 outOfBounds than still continue
+//                    if( $homeAway->hasPlace($assignedCounter->getPlace())
+//                        && $assignedCounter->count() === ($minOfGames - 1 )
+//                    ) {
+//                        continue;
+//                    }
+//                    return true;
+//                }
+//            }
+//
 //        }
-        return $assignedSportMap[$place->getNumber()]->count() > $totalNrOfGamesPerPlace;
-    }
+//        return false;
+//    }
 
     /**
      * @param VariantWithPoule $variantWithPoule
@@ -298,4 +266,5 @@ abstract class Against
             $this->logger->info($location . ' => ' . $placeCounter->count());
         }
     }
+
 }

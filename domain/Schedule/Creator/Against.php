@@ -35,9 +35,16 @@ class Against
      * @param Poule $poule
      * @param list<Sport> $sports
      * @param AssignedCounter $assignedCounter
+     * @param Schedule\TimeoutState|null $timeoutState
      * @throws Exception
      */
-    public function createSportSchedules(Schedule $schedule, Poule $poule, array $sports, AssignedCounter $assignedCounter): void
+    public function createSportSchedules(
+        Schedule $schedule,
+        Poule $poule,
+        array $sports,
+        AssignedCounter $assignedCounter,
+        Schedule\TimeoutState|null $timeoutState
+    ): void
     {
         $h2hHomeAwayCreator = new H2hHomeAwayCreator($poule);
         $gppHomeAwayCreator = new GppHomeAwayCreator($poule);
@@ -49,7 +56,7 @@ class Against
             }
             $sportSchedule = new SportSchedule($schedule, $sport->getNumber(), $sportVariant->toPersistVariant());
             $homeAwayCreator = ($sportVariant instanceof AgainstGpp) ? $gppHomeAwayCreator : $h2hHomeAwayCreator;
-            $gameRound = $this->generateGameRounds($poule, $sportVariant, $homeAwayCreator, $assignedCounter);
+            $gameRound = $this->generateGameRounds($poule, $sportVariant, $homeAwayCreator, $assignedCounter, $timeoutState);
             $this->createGames($sportSchedule, $gameRound);
         }
     }
@@ -82,10 +89,11 @@ class Against
         Poule $poule,
         AgainstH2h|AgainstGpp $sportVariant,
         H2hHomeAwayCreator|GppHomeAwayCreator $homeAwayCreator,
-        AssignedCounter $assignedCounter
+        AssignedCounter $assignedCounter,
+        Schedule\TimeoutState|null $timeoutState
     ): AgainstGameRound {
         if ($sportVariant instanceof AgainstGpp && $homeAwayCreator instanceof GppHomeAwayCreator) {
-            $gameRoundCreator = new AgainstGppGameRoundCreator($this->logger);
+            $gameRoundCreator = new AgainstGppGameRoundCreator($this->logger, $timeoutState);
             $gameRound = $gameRoundCreator->createGameRound($poule, $sportVariant, $homeAwayCreator, $assignedCounter);
 //            $this->logger->info('gameround ' . $gameRound->getNumber());
 //            (new HomeAway($this->logger))->outputHomeAways( $this->gameRoundsToHomeAways($gameRound) );

@@ -107,7 +107,7 @@ class ExtraTest extends TestCase
         $sportVariantsWithFields = [
             $this->getAgainstGppSportVariantWithFields(2, 1, 1, 9),
             $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9),
-            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9),
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9)
         ];
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
         $planning = $this->createPlanning(
@@ -117,7 +117,7 @@ class ExtraTest extends TestCase
             true, true*/
         );
 
-//        (new PlanningOutput())->outputWithGames($planning, true);
+        // (new PlanningOutput())->outputWithGames($planning, true);
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);

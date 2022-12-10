@@ -32,9 +32,10 @@ class Creator
 
     /**
      * @param Input $input
+     * @param TimeoutState|null $timeoutState
      * @return list<Schedule>
      */
-    public function createFromInput(Input $input): array
+    public function createFromInput(Input $input, TimeoutState|null $timeoutState = null): array
     {
         /** @var array<int, Schedule> $schedules */
         $schedules = [];
@@ -58,7 +59,7 @@ class Creator
                     continue;
                 }
                 $scheduleCreator = $this->getSportScheduleCreator($input, $gameMode);
-                $scheduleCreator->createSportSchedules($schedule, $poule, $sports, $assignedCounter);
+                $scheduleCreator->createSportSchedules($schedule, $poule, $sports, $assignedCounter, $timeoutState);
             }
         }
         return array_values($schedules);

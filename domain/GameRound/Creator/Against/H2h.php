@@ -7,6 +7,7 @@ namespace SportsPlanning\GameRound\Creator\Against;
 use Psr\Log\LoggerInterface;
 use SportsPlanning\Combinations\Indirect\Map as IndirectMap;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsPlanning\GameRound\Creator\StatisticsCalculator;
 use SportsPlanning\SportVariant\WithPoule as VariantWithPoule;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\HomeAwayCreator\H2h as H2hHomeAwayCreator;
@@ -40,17 +41,23 @@ class H2h extends AgainstCreator
         $assignedAgainstMap = $assignedCounter->getAssignedAgainstMap();
         $assignedHomeMap = $assignedCounter->getAssignedHomeMap();
         $homeAways = $this->createHomeAwaysForOneH2H($homeAwayCreator);
+
+        $statisticsCalculator = new StatisticsCalculator(
+            $variantWithPoule,
+            $this->getAssignedSportCounters($poule),
+            $assignedMap,
+            $assignedWithMap,
+            $assignedAgainstMap,
+            $assignedHomeMap,
+        );
+
         // $this->outputUnassignedHomeAways($homeAways);
         if ($this->assignGameRound(
                 $variantWithPoule,
                 $homeAwayCreator,
                 $homeAways,
                 $homeAways,
-                $this->getAssignedSportCounters($poule),
-                $assignedMap,
-                $assignedWithMap,
-                $assignedAgainstMap,
-                $assignedHomeMap,
+                $statisticsCalculator,
                 $gameRound
             ) === false) {
             throw new \Exception('creation of homeaway can not be false', E_ERROR);
@@ -63,11 +70,7 @@ class H2h extends AgainstCreator
      * @param H2hHomeAwayCreator $homeAwayCreator
      * @param list<AgainstHomeAway> $homeAwaysForGameRound
      * @param list<AgainstHomeAway> $homeAways
-     * @param array<int, PlaceCounter> $assignedSportMap ,
-     * @param array<int, PlaceCounter> $assignedMap
-     * @param array<int, PlaceCombinationCounter> $assignedWithMap
-     * @param IndirectMap $assignedAgainstMap
-     * @param array<int, PlaceCounter> $assignedHomeMap
+     * @param StatisticsCalculator $statisticsCalculator,
      * @param AgainstGameRound $gameRound
      * @param int $nrOfHomeAwaysTried
      * @return bool
@@ -77,15 +80,11 @@ class H2h extends AgainstCreator
         H2hHomeAwayCreator $homeAwayCreator,
         array $homeAwaysForGameRound,
         array $homeAways,
-        array $assignedSportMap,
-        array $assignedMap,
-        array $assignedWithMap,
-        IndirectMap $assignedAgainstMap,
-        array $assignedHomeMap,
+        StatisticsCalculator $statisticsCalculator,
         AgainstGameRound $gameRound,
         int $nrOfHomeAwaysTried = 0
     ): bool {
-        if ($this->isCompleted($variantWithPoule, $assignedSportMap)) {
+        if ($statisticsCalculator->allAssigned()) {
             return true;
         }
 
@@ -126,11 +125,7 @@ class H2h extends AgainstCreator
                 $homeAwayCreator,
                 $nextHomeAways,
                 $homeAways,
-                $assignedSportMap,
-                $assignedMap,
-                $assignedWithMap,
-                $assignedAgainstMap,
-                $assignedHomeMap,
+                $statisticsCalculator,
                 $nextGameRound
             );
         }
@@ -143,21 +138,11 @@ class H2h extends AgainstCreator
             return false;
         }
 
-        if ($this->isHomeAwayAssignable($variantWithPoule, $gameRound, $homeAway, $assignedSportMap)) {
-            $assignedMapTry = $this->copyCounters($assignedMap);
-            $assignedWithMapTry = $this->copyWithCounters($assignedWithMap);
-            // $assignedAgainstMapTry = $this->copyAgainstCounters($assignedAgainstMap);
-            $assignedHomeMapTry = $this->copyCounters($assignedHomeMap);
-            $assignedSportMapTry = $this->copyCounters($assignedSportMap);
-            $this->assignHomeAway(
-                $gameRound,
-                $homeAway,
-                $assignedSportMapTry,
-                $assignedMapTry,
-                $assignedWithMapTry,
-                $assignedAgainstMap,
-                $assignedHomeMapTry
-            );
+        if ($this->isHomeAwayAssignable($variantWithPoule, $gameRound, $homeAway, $statisticsCalculator)) {
+
+            $gameRound->add($homeAway);
+            $statisticsCalculatorTry = $statisticsCalculator->addHomeAway($homeAway);
+
 //            if ($gameRound->getNumber() === 15 ) {
 //                $this->gameRoundOutput->outputHomeAways($gameRound->getHomeAways(), null, 'homeawys of gameround 15');
 //                $this->gameRoundOutput->outputHomeAways($homeAwaysForGameRound, null,'choosable homeawys of gameround 15');
@@ -168,7 +153,7 @@ class H2h extends AgainstCreator
                 array_filter(
                     $homeAwaysForGameRound,
                     function (AgainstHomeAway $homeAway) use ($gameRound): bool {
-                        return $gameRound->isHomeAwayPlaceParticipating($homeAway);
+                        return !$gameRound->isHomeAwayPlaceParticipating($homeAway);
                     }
                 )
             );
@@ -177,11 +162,7 @@ class H2h extends AgainstCreator
                 $homeAwayCreator,
                 $homeAwaysForGameRoundTmp,
                 $homeAways,
-                $assignedSportMapTry,
-                $assignedMapTry,
-                $assignedWithMapTry,
-                $assignedAgainstMap,
-                $assignedHomeMapTry,
+                $statisticsCalculatorTry,
                 $gameRound
             )) {
                 return true;
@@ -195,11 +176,7 @@ class H2h extends AgainstCreator
             $homeAwayCreator,
             $homeAwaysForGameRound,
             $homeAways,
-            $assignedSportMap,
-            $assignedMap,
-            $assignedWithMap,
-            $assignedAgainstMap,
-            $assignedHomeMap,
+            $statisticsCalculator,
             $gameRound,
             $nrOfHomeAwaysTried
         );
@@ -212,5 +189,19 @@ class H2h extends AgainstCreator
     protected function createHomeAwaysForOneH2H(H2hHomeAwayCreator $homeAwayCreator): array
     {
         return $homeAwayCreator->createForOneH2H();
+    }
+
+    protected function isHomeAwayAssignable(
+        VariantWithPoule $variantWithPoule,
+        AgainstGameRound $gameRound,
+        AgainstHomeAway $homeAway,
+        StatisticsCalculator $statisticsCalculator
+    ): bool {
+        foreach ($homeAway->getPlaces() as $place) {
+            if ($gameRound->isParticipating($place) || $statisticsCalculator->sportWillBeOverAssigned($place)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

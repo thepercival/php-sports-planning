@@ -30,6 +30,16 @@ class AgainstHomeAway implements \Stringable
         return $this->away;
     }
 
+    public function hasPlace(Place $place): bool
+    {
+        return $this->home->has($place) || $this->away->has($place);
+    }
+
+    public function playAgainst(Place $place, Place $againstPlace): bool {
+        return ($this->getHome()->has($place) && $this->getAway()->has($againstPlace))
+            || ($this->getHome()->has($againstPlace) && $this->getAway()->has($place));
+    }
+
     /**
      * @return list<Place>
      */

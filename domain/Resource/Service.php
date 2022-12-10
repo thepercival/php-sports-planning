@@ -75,7 +75,7 @@ class Service
         $oCurrentDateTime = new DateTimeImmutable();
         $nextTimeoutState = $this->timeoutConfig->nextTimeoutState($this->planning);
         $timeoutSeconds = $this->timeoutConfig->getTimeoutSeconds($this->planning->getInput(), $nextTimeoutState);
-        $this->timeoutDateTime = $oCurrentDateTime->modify('+' . $timeoutSeconds . ' seconds');
+        $this->timeoutDateTime = $oCurrentDateTime->add(new \DateInterval('PT' . $timeoutSeconds . 'S'));
         $batch = new Batch();
         if ($this->input->selfRefereeEnabled()) {
             if ($this->input->getSelfReferee() === SelfReferee::SamePoule) {

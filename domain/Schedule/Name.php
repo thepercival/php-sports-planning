@@ -10,7 +10,7 @@ use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
 use SportsHelpers\Sport\Variant\Single as Single;
 
-class Name implements \Stringable
+class   Name implements \Stringable
 {
     protected string|null $name = null;
 

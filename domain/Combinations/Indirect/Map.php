@@ -51,15 +51,15 @@ class  Map
         return new Map($counters);
     }
 
-    public function count(Place $start, Place $end, int $depth): int
-    {
-        $counted = [$start->getNumber() => true];
-        $count = 0;
-        if ($this->countHelper($start, $end, $depth, $counted, $count)) {
-            return $count;
-        }
-        return 0;
-    }
+//    public function count(Place $start, Place $end, int $depth): int
+//    {
+//        $counted = [$start->getNumber() => true];
+//        $count = 0;
+//        if ($this->countHelper($start, $end, $depth, $counted, $count)) {
+//            return $count;
+//        }
+//        return 0;
+//    }
 
     /**
      * @param Place $current

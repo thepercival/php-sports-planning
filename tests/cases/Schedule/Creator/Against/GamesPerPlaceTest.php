@@ -246,6 +246,44 @@ class GamesPerPlaceTest extends TestCase
         self::assertCount(11, $planning->getAgainstGames());
     }
 
+    public function test2V2And6PlacesAnd8GamesPerPlace(): void
+    {
+        $sportVariants = [
+            $this->getAgainstGppSportVariantWithFields(4, 2, 2, 26),
+        ];
+        $input = $this->createInput([18], $sportVariants);
+        $planning = new Planning($input, new SportRange(1, 1), 0);
+
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input);
+        $gameCreator = new GameCreator($this->getLogger());
+        $gameCreator->createGames($planning, $schedules);
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
+        self::assertCount(117, $planning->getAgainstGames());
+        $validator = new PlanningValidator();
+        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
+    }
+
+//    public function test2V2Places18GamesPerPlace16(): void
+//    {
+//        $sportVariants = [
+//            $this->getAgainstGppSportVariantWithFields(4, 2, 2, 13),
+//        ];
+//        $input = $this->createInput([8], $sportVariants);
+//        $planning = new Planning($input, new SportRange(1, 1), 0);
+//
+//        $scheduleCreator = new ScheduleCreator($this->getLogger());
+//        $schedules = $scheduleCreator->createFromInput($input);
+//        $gameCreator = new GameCreator($this->getLogger());
+//        $gameCreator->createGames($planning, $schedules);
+//        // (new PlanningOutput())->outputWithGames($planning, true);
+//
+//        self::assertCount(2, $planning->getAgainstGames());
+//        $validator = new PlanningValidator();
+//        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
+//    }
+
 
     // commented for performance reasons
 //    public function test2VS2Places10GamesPerPlace50(): void
