@@ -11,9 +11,9 @@ use SportsHelpers\Counter;
  */
 class PlaceCombinationCounter extends Counter implements \Stringable
 {
-    public function __construct(PlaceCombination $placeCombination)
+    public function __construct(PlaceCombination $placeCombination, int $count = 0)
     {
-        parent::__construct($placeCombination);
+        parent::__construct($placeCombination, $count);
     }
 
     public function getPlaceCombination(): PlaceCombination

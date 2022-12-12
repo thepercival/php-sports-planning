@@ -49,6 +49,7 @@ class H2h extends AgainstCreator
             $assignedWithMap,
             $assignedAgainstMap,
             $assignedHomeMap,
+            0
         );
 
         // $this->outputUnassignedHomeAways($homeAways);
@@ -138,7 +139,7 @@ class H2h extends AgainstCreator
             return false;
         }
 
-        if ($this->isHomeAwayAssignable($variantWithPoule, $gameRound, $homeAway, $statisticsCalculator)) {
+        if ($this->isHomeAwayAssignable($gameRound, $homeAway, $statisticsCalculator)) {
 
             $gameRound->add($homeAway);
             $statisticsCalculatorTry = $statisticsCalculator->addHomeAway($homeAway);
@@ -192,13 +193,12 @@ class H2h extends AgainstCreator
     }
 
     protected function isHomeAwayAssignable(
-        VariantWithPoule $variantWithPoule,
         AgainstGameRound $gameRound,
         AgainstHomeAway $homeAway,
         StatisticsCalculator $statisticsCalculator
     ): bool {
         foreach ($homeAway->getPlaces() as $place) {
-            if ($gameRound->isParticipating($place) || $statisticsCalculator->sportWillBeOverAssigned($place)) {
+            if ($gameRound->isParticipating($place) || $statisticsCalculator->sportWillBeOverAssigned($place, 1)) {
                 return false;
             }
         }

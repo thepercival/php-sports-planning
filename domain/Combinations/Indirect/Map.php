@@ -6,6 +6,7 @@ namespace SportsPlanning\Combinations\Indirect;
 
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Place;
+use SportsPlanning\PlaceCounter;
 use Stringable;
 
 class  Map
@@ -38,7 +39,8 @@ class  Map
 
     public function add(Place $start, Place $end): Map
     {
-        $counters = $this->counters;
+        $counters = $this->copyCounters($this->counters);
+
         if (!isset($counters[$start->getNumber()])) {
             $counters[$start->getNumber()] = new Counter($start);
         }
@@ -51,6 +53,22 @@ class  Map
         return new Map($counters);
     }
 
+    /**
+     * @param array<int, Counter> $counters
+     * @return array<int, Counter>
+     */
+    private function copyCounters(array $counters): array {
+        $newCounters = [];
+        foreach( $counters as $idx => $counter ) {
+            $newCounter = new Counter($counter->getPlace());
+            foreach( $counter->getCopiedPlaceCounters() as $placeCounter) {
+                $newCounter->addCounter($placeCounter->getPlace(), $placeCounter->count());
+            }
+            $newCounters[$idx] = $newCounter;
+        }
+        return $newCounters;
+    }
+
 //    public function count(Place $start, Place $end, int $depth): int
 //    {
 //        $counted = [$start->getNumber() => true];
@@ -61,48 +79,48 @@ class  Map
 //        return 0;
 //    }
 
-    /**
-     * @param Place $current
-     * @param Place $end
-     * @param int $depth
-     * @param array<int, bool> $counted
-     * @param int $count
-     * @return bool
-     */
-    private function countHelper(Place $current, Place $end, int $depth, array $counted, int &$count): bool
-    {
-        // als depth = 1 dan count teruggeven van
-        $counter = $this->getCounter($current);
-        if ($counter === null) {
-            return false;
-        }
-        if ($depth === 1) {
-            $count += $counter->count($end);
-            return true;
-        }
+//    /**
+//     * @param Place $current
+//     * @param Place $end
+//     * @param int $depth
+//     * @param array<int, bool> $counted
+//     * @param int $count
+//     * @return bool
+//     */
+//    private function countHelper(Place $current, Place $end, int $depth, array $counted, int &$count): bool
+//    {
+//        // als depth = 1 dan count teruggeven van
+//        $counter = $this->getCounter($current);
+//        if ($counter === null) {
+//            return false;
+//        }
+//        if ($depth === 1) {
+//            $count += $counter->count($end);
+//            return true;
+//        }
+//
+//        $retVal = false;
+//        foreach ($counter->getPlaces() as $newStartPlace) {
+//            if (isset($counted[$newStartPlace->getNumber()])) {
+//                continue;
+//            }
+//            $countedIt = $counted;
+//            $countedIt[$newStartPlace->getNumber()] = true;
+//            $countIt = 0;
+//            if (!$this->countHelper($newStartPlace, $end, $depth - 1, $countedIt, $countIt)) {
+//                continue;
+//            }
+//            $count += $countIt;
+//            $retVal = true;
+//        }
+//        return $retVal;
+//    }
 
-        $retVal = false;
-        foreach ($counter->getPlaces() as $newStartPlace) {
-            if (isset($counted[$newStartPlace->getNumber()])) {
-                continue;
-            }
-            $countedIt = $counted;
-            $countedIt[$newStartPlace->getNumber()] = true;
-            $countIt = 0;
-            if (!$this->countHelper($newStartPlace, $end, $depth - 1, $countedIt, $countIt)) {
-                continue;
-            }
-            $count += $countIt;
-            $retVal = true;
-        }
-        return $retVal;
-    }
-
-    private function getCounter(Place $place): Counter|null
-    {
-        if (!isset($this->counters[$place->getNumber()])) {
-            return null;
-        }
-        return $this->counters[$place->getNumber()];
-    }
+//    private function getCounter(Place $place): Counter|null
+//    {
+//        if (!isset($this->counters[$place->getNumber()])) {
+//            return null;
+//        }
+//        return $this->counters[$place->getNumber()];
+//    }
 }

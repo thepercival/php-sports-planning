@@ -11,9 +11,9 @@ use SportsHelpers\Counter;
  */
 class PlaceCounter extends Counter
 {
-    public function __construct(Place $place)
+    public function __construct(Place $place, int $count = 0)
     {
-        parent::__construct($place);
+        parent::__construct($place, $count);
     }
 
     public function getNumber(): int

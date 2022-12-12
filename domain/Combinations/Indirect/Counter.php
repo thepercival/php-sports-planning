@@ -23,6 +23,10 @@ class Counter
 //        unset($this->counters[$place->getNumber()]);
     }
 
+    public function getPlace(): Place {
+        return $this->start;
+    }
+
     /**
      * @return array<int, PlaceCounter> $counters
      */
@@ -37,6 +41,13 @@ class Counter
             $this->counters[$place->getNumber()] = new PlaceCounter($place);
         }
         $this->counters[$place->getNumber()]->increment();
+    }
+
+    public function addCounter(Place $place, int $count): void
+    {
+        if (!isset($this->counters[$place->getNumber()])) {
+            $this->counters[$place->getNumber()] = new PlaceCounter($place, $count);
+        }
     }
 
     public function count(Place $place): int

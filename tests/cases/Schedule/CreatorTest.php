@@ -47,13 +47,13 @@ class CreatorTest extends TestCase
 
         self::assertEquals(4, $this->getNrOfGames($schedule));
 
-        // (new Output($this->getLogger()))->output($schedules);
+        //(new Output($this->getLogger()))->output($schedules);
 
         self::assertEquals(2, $this->getNrOfGames($schedule, 1));
-        self::assertEquals(2, $this->getNrOfGames($schedule, 2));
-        self::assertEquals(2, $this->getNrOfGames($schedule, 3));
-        self::assertEquals(1, $this->getNrOfGames($schedule, 4));
-        self::assertEquals(1, $this->getNrOfGames($schedule, 5));
+        self::assertEquals(1, $this->getNrOfGames($schedule, 2));
+        self::assertEquals(1, $this->getNrOfGames($schedule, 3));
+        self::assertEquals(2, $this->getNrOfGames($schedule, 4));
+        self::assertEquals(2, $this->getNrOfGames($schedule, 5));
     }
 
     protected function getLogger(): LoggerInterface
@@ -194,15 +194,16 @@ class CreatorTest extends TestCase
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
         $schedules = $scheduleCreator->createFromInput($input);
+        // (new Output($this->getLogger()))->output($schedules);
         $schedule = reset($schedules);
         self::assertNotFalse($schedule);
 
         foreach ($schedule->getSportSchedules() as $sportSchedule) {
             if ($sportSchedule->getNumber() === 1) {
-                $this->checkNotParticipating($sportSchedule, 5);
+                $this->checkNotParticipating($sportSchedule, 2);
             }
             if ($sportSchedule->getNumber() === 2) {
-                $this->checkFirstGamePlace($sportSchedule, 5);
+                $this->checkFirstGamePlace($sportSchedule, 2);
             }
         }
 

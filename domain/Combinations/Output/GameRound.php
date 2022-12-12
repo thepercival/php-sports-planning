@@ -22,6 +22,7 @@ class GameRound extends OutputHelper
 
     public function output(
         AgainstGameRound $gameRound,
+        bool $showGameRoundHeaderLine,
         string $title = null,
         int $max = null,
         int $min = null
@@ -32,29 +33,32 @@ class GameRound extends OutputHelper
 //        if( $batch->getNumber() > 2 ) {
 //            return;
 //        }
-        $this->outputHelper($gameRound->getFirst(), $min, $max);
+        $this->outputHelper($gameRound->getFirst(), $showGameRoundHeaderLine, $min, $max);
     }
 
     protected function outputHelper(
         AgainstGameRound $gameRound,
+        bool $showGameRoundHeaderLine,
         int|null $min = null,
         int|null $max = null
     ): void {
         if ($min !== null && $gameRound->getNumber() < $min) {
             $nextGameRound = $gameRound->getNext();
             if ($nextGameRound !== null) {
-                $this->outputHelper($nextGameRound, $max);
+                $this->outputHelper($nextGameRound, $showGameRoundHeaderLine, $max);
             }
             return;
         }
         if ($max !== null && $gameRound->getNumber() > $max) {
             return;
         }
-        $this->logger->info('------ gameround ' . $gameRound->getNumber() . ' -------------');
+        if( $showGameRoundHeaderLine) {
+            $this->logger->info('------ gameround ' . $gameRound->getNumber() . ' -------------');
+        }
         $this->outputHomeAways($gameRound->getHomeAways());
         $nextGameRound = $gameRound->getNext();
         if ($nextGameRound !== null) {
-            $this->outputHelper($nextGameRound, $max);
+            $this->outputHelper($nextGameRound, $showGameRoundHeaderLine, $max);
         }
     }
 

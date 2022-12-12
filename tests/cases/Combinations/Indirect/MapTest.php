@@ -12,6 +12,11 @@ class MapTest extends TestCase
 {
     use PlanningCreator;
 
+    public function testBaseDepth1(): void
+    {
+        self::assertSame(1, 1 *1);
+    }
+
 //    public function testBaseDepth1(): void
 //    {
 //        $input = $this->createInput([4]);

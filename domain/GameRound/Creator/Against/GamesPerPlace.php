@@ -9,8 +9,6 @@ use SportsHelpers\Dev\ByteFormatter;
 use SportsHelpers\Output;
 use SportsHelpers\Sport\Variant\Against;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
-use SportsPlanning\Combinations\MultipleCombinationsCounter\Against as AgainstCounter;
-use SportsPlanning\GameRound\Creator\Against\H2h as H2hGameRoundCreator;
 use SportsPlanning\GameRound\Creator\StatisticsCalculator;
 use SportsPlanning\Schedule\TimeoutState;
 use SportsPlanning\SportVariant\WithPoule as VariantWithPoule;
@@ -27,6 +25,8 @@ use SportsPlanning\Schedule\Creator\AssignedCounter;
 
 class GamesPerPlace extends AgainstCreator
 {
+    protected int $margin = 0;
+
     public function __construct(LoggerInterface $logger, protected TimeoutState|null $timeoutState)
     {
         parent::__construct($logger);
@@ -42,20 +42,29 @@ class GamesPerPlace extends AgainstCreator
 //        $assignedCounterEmpty = new AssignedCounter($poule, [$sportVariant]);
         $gameRound = new AgainstGameRound();
         $assignedMap = $assignedCounter->getAssignedMap();
-        $assignedWithMap = $assignedCounter->getAssignedWithMap();
-        $assignedAgainstMap = $assignedCounter->getAssignedAgainstMap();
+
+        // Over all Sports
+//        $assignedWithMap = $assignedCounter->getAssignedWithMap();
+//        $assignedAgainstMap = $assignedCounter->getAssignedAgainstMap();
+
         $assignedHomeMap = $assignedCounter->getAssignedHomeMap();
 
-        $homeAways = $this->createHomeAways($homeAwayCreator, $sportVariant);
+        $homeAways = $this->createHomeAways($homeAwayCreator, $poule, $sportVariant);
+        $homeAways = $this->initHomeAways($homeAways);
+
+        // shuffle($homeAways);
 
         $statisticsCalculator = new StatisticsCalculator(
             $variantWithPoule,
             $this->getAssignedSportCounters($poule),
             $assignedMap,
-            $assignedWithMap,
-            $assignedAgainstMap,
+            $assignedCounter->getWithMap($homeAways)/*$assignedWithMap*/,
+            new IndirectMap()/*$assignedAgainstMap*/,
             $assignedHomeMap,
+            $this->margin
         );
+
+        $homeAways = $statisticsCalculator->sortHomeAways($homeAways);
 
         //$time_start = microtime(true);
 //        $sortedHomeAways = $this->sortHomeAways(
@@ -71,7 +80,6 @@ class GamesPerPlace extends AgainstCreator
         // $this->outputUnassignedHomeAways($homeAways);
         if ($this->assignGameRound(
                 $variantWithPoule,
-                $homeAwayCreator,
                 $homeAways,
                 $homeAways,
                 $statisticsCalculator,
@@ -84,217 +92,345 @@ class GamesPerPlace extends AgainstCreator
 
     /**
      * @param VariantWithPoule $variantWithPoule
-     * @param GppHomeAwayCreator $homeAwayCreator
-     * @param list<AgainstHomeAway>|null $homeAwaysForGameRound
+     * @param list<AgainstHomeAway> $homeAwaysForGameRound,
      * @param list<AgainstHomeAway> $homeAways
      * @param StatisticsCalculator $statisticsCalculator,
      * @param AgainstGameRound $gameRound
-     * @param int $nrOfHomeAwaysTried
      * @param int $depth
      * @return bool
      */
     protected function assignGameRound(
         VariantWithPoule $variantWithPoule,
-        GppHomeAwayCreator $homeAwayCreator,
-        array|null $homeAwaysForGameRound,
-        array $homeAwaysX,
+        array $homeAwaysForGameRound,
+        array $homeAways,
         StatisticsCalculator $statisticsCalculator,
         AgainstGameRound $gameRound,
-        int $nrOfHomeAwaysTried = 0,
         int $depth = 0
     ): bool {
-        $mem_usage = memory_get_usage();
-        $out = 'GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.';
-        $homeAways = $homeAwaysX;
-        $mem_usage = memory_get_usage();
-        $out = 'GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.';
-        if ($statisticsCalculator->allAssigned()) {
 
-//            $this->gameRoundOutput->output($gameRound, 'ASSIGNED HOMEAWAYS');
-//            $this->outputHomeAwayWithTotals($assignedWithMap);
-//            $this->outputPlacesAgainstTotals($variantWithPoule->getPoule(), $assignedAgainstMap);
-//            $this->outputUnassignedHomeAwayTotals($homeAways);
-            return true;
+        if( $variantWithPoule->getTotalNrOfGames() === $statisticsCalculator->getNrOfHomeAwaysAsigned() ) {
+
+            if( $statisticsCalculator->allAssigned() ) {
+//                $this->gameRoundOutput->output($gameRound, false, 'ASSIGNED HOMEAWAYS GR' . $gameRound->getNumber());
+//                $statisticsCalculator->output($this->logger, true, true);
+                return true;
+            }
+            return false;
         }
 
         if ($this->isGameRoundCompleted($variantWithPoule, $gameRound)) {
-//            $this->logger->info("gameround " . $gameRound->getNumber() . " completed");
-
             $nextGameRound = $this->toNextGameRound($gameRound, $homeAways);
-            if (count($homeAways) === 0) {
-                $sportVariant = $variantWithPoule->getSportVariant();
-                if (!($sportVariant instanceof AgainstGpp)) {
-                    throw new \Exception('wrong sportvariant', E_ERROR);
-                }
-                $homeAways = $this->createHomeAways($homeAwayCreator, $sportVariant);
+
+            if( !$statisticsCalculator->minimalSportCanStillBeAssigned() ) {
+                return false;
             }
 
-            if ($gameRound->getNumber() === 6) {
+            $filteredHomeAways = $statisticsCalculator->filter($homeAways);
 
-//                $x = $this->getMemoryUsageInMB($gameRound);
-//                $this->logger->info('gameRound in MB: ' . $x);
-
-                /* Currently used memory */
-                $mem_usage = memory_get_usage();
-                $out = 'GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.';$this->logger->info('GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.');
-                $this->logger->info($out);
-
-//                $this->gameRoundOutput->output($gameRound, 'ASSIGNED HOMEAWAYS');
+//            if( $gameRound->getNumber() === 27 ) {
 //                $statisticsCalculator->output($this->logger, true, true);
-//                // $this->outputUnassignedTotals($homeAways);
-//                die();
-            }
+//                $er = 12;
+//            }
+//            if( $gameRound->getNumber() > 20 ) {
+//                $this->logger->info('GR'.$gameRound->getNumber().' completed');
+//                $statisticsCalculator->output($this->logger, true, true);
+//            }
 
-            if ($gameRound->getNumber() > 1) { // 7 = 567MB
-
-                $mem_usage = memory_get_usage();
-                $out = 'GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.';
-                $out = 'GR'.$gameRound->getNumber().' depth: ' . $depth;
-                $this->logger->info($out);
-            }
-
-//            $sortedHomeAways = $this->sortHomeAways(
-//                $homeAways,
-//                $assignedMap,
-//                $assignedWithMap,
-//                $assignedAgainstMap,
-//                $assignedHomeMap
-//            );
-
-
-//            shuffle($homeAways);
-            $mem_usage = memory_get_usage();
-            $out = 'GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.';
             return $this->assignGameRound(
                 $variantWithPoule,
-                $homeAwayCreator,
-                null,
-                $homeAways,
+                $filteredHomeAways,
+                $filteredHomeAways,
                 $statisticsCalculator,
                 $nextGameRound,
-                0,
                 $depth + 1
             );
         }
-        if( $homeAwaysForGameRound === null ) {
-            $homeAwaysForGameRound = $homeAways;
-        }
-
-        if ($nrOfHomeAwaysTried === count($homeAwaysForGameRound)) {
-            return false;
-        }
-        $homeAway = array_shift($homeAwaysForGameRound);
-        if ($homeAway === null) {
-            return false;
-        }
-
-        if ($this->isHomeAwayAssignable($gameRound, $homeAway, $statisticsCalculator)) {
-
-//            $assignedMapTry = $this->copyCounters($assignedMap);
-//            $assignedWithMapTry = $this->copyWithCounters($assignedWithMap);
-//            $assignedHomeMapTry = $this->copyCounters($assignedHomeMap);
-//            $assignedSportMapTry = $this->copyCounters($assignedSportMap);
-            $gameRound->add($homeAway);
-            $statisticsCalculatorTry = $statisticsCalculator->addHomeAway($homeAway);
-//            $assignedAgainstMapTry =
-//                $this->assignHomeAway(
-//                $gameRound,
-//                $homeAway,
-//                $assignedSportMapTry,
-//                $assignedMapTry,
-//                $assignedWithMapTry,
-//                $assignedAgainstMap,
-//                $assignedHomeMapTry
-//            );
-//            if ($gameRound->getNumber() > 11 ) {
-//                $this->gameRoundOutput->output($gameRound, 'homeawys of gameround');
-////                $this->gameRoundOutput->outputHomeAways($gameRound->getHomeAways(), null, 'homeawys of gameround');
-////                $this->gameRoundOutput->outputHomeAways($homeAwaysForGameRound, null,'choosable homeawys of gameround');
-//                // $this->gameRoundOutput->outputHomeAways($homeAways, null, "unassigned");
-//                $qw = 12;
-//            }
-            $c = (memory_get_usage() / (1024*1024)) . 'MB';
-            $homeAwaysForGameRoundTmp = array_values(
-                array_filter(
-                    $homeAwaysForGameRound,
-                    function (AgainstHomeAway $homeAway) use ($gameRound): bool {
-                        return !$gameRound->isHomeAwayPlaceParticipating($homeAway);
-                    }
-                )
-            );
-            $d = (memory_get_usage() / (1024*1024)) . 'MB';
-            if ($this->assignGameRound(
-                $variantWithPoule,
-                $homeAwayCreator,
-                $homeAwaysForGameRoundTmp,
-                $homeAways,
-                $statisticsCalculatorTry,
-                $gameRound,
-                0,
-                $depth + 1
-            )) {
-                return true;
-            }
-            unset($homeAwaysForGameRoundTmp);
-            $this->releaseHomeAway($gameRound, $homeAway);
-        }
-        $c = (memory_get_usage() / (1024*1024)) . 'MB';
-        $homeAwaysForGameRound[] = $homeAway;
-        ++$nrOfHomeAwaysTried;
-        return $this->assignGameRound(
+        return $this->assignSingleGameRound(
             $variantWithPoule,
-            $homeAwayCreator,
             $homeAwaysForGameRound,
             $homeAways,
             $statisticsCalculator,
             $gameRound,
-            $nrOfHomeAwaysTried,
             $depth + 1
         );
     }
 
     /**
+     * @param VariantWithPoule $variantWithPoule
+     * @param list<AgainstHomeAway> $homeAwaysForGameRound
+     * @param list<AgainstHomeAway> $homeAways
+     * @param StatisticsCalculator $statisticsCalculator,
+     * @param AgainstGameRound $gameRound
+     * @param int $depth
+     * @return bool
+     */
+    protected function assignSingleGameRound(
+        VariantWithPoule $variantWithPoule,
+        array $homeAwaysForGameRound,
+        array $homeAways,
+        StatisticsCalculator $statisticsCalculator,
+        AgainstGameRound $gameRound,
+        int $depth = 0
+    ): bool {
+
+        $triedHomeAways = [];
+        // $nrOfHomeAways = count($homeAwaysForGameRound);
+        while($homeAway = array_shift($homeAwaysForGameRound)) {
+//            if($gameRound->getNumber() === 2 ) {
+//                $this->xxx++;
+//                $this->logger->info('try nr ' . $this->xxx);
+//            }
+//              $id = 'GR' . $gameRound->getNumber() . ': ' . count($homeAwaysForGameRound) . ' -> ' . count($triedHomeAways);
+////            $this->logger->info($id);
+
+            if (!$this->isHomeAwayAssignable($homeAway, $statisticsCalculator)) {
+                array_push($triedHomeAways, $homeAway);
+                continue;
+            }
+            $gameRound->add($homeAway);
+
+            $homeAwaysForGameRoundTmp = array_values(
+                array_filter(
+                    array_merge( $homeAwaysForGameRound, $triedHomeAways),
+                    function (AgainstHomeAway $homeAway) use ($gameRound): bool {
+                        return !$gameRound->isHomeAwayPlaceParticipating($homeAway);
+                    }
+                )
+            );
+
+            // if( $this->isGameRoundCompleted($variantWithPoule, $gameRound) ) {
+            if ($this->assignGameRound(
+                $variantWithPoule,
+                $homeAwaysForGameRoundTmp,
+                $homeAways,
+                $statisticsCalculator->addHomeAway($homeAway),
+                $gameRound,
+                $depth + 1
+            )) {
+                return true;
+            }
+//            unset($homeAwaysForGameRoundTmp);
+            $this->releaseHomeAway($gameRound, $homeAway);
+            array_push($triedHomeAways, $homeAway);
+            // }
+
+        }
+        return false;
+    }
+//
+//    /**
+//     * @param VariantWithPoule $variantWithPoule
+//     * @param list<AgainstHomeAway>|null $homeAwaysForGameRound
+//     * @param list<AgainstHomeAway> $homeAways
+//     * @param StatisticsCalculator $statisticsCalculator,
+//     * @param AgainstGameRound $gameRound
+//     * @param int $nrOfHomeAwaysTried
+//     * @param int $depth
+//     * @return bool
+//     */
+//    protected function assignSingleGameRound(
+//        VariantWithPoule $variantWithPoule,
+//        array|null $homeAwaysForGameRound,
+//        array $homeAways,
+//        StatisticsCalculator $statisticsCalculator,
+//        AgainstGameRound $gameRound,
+//        int $nrOfHomeAwaysTried = 0,
+//        int $depth = 0
+//    ): bool {
+//
+////        $mem_usage = memory_get_usage();
+////        $out = 'GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.';
+////        $homeAways = $homeAways;
+////        $mem_usage = memory_get_usage();
+////        $out = 'GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.';
+//        if ($statisticsCalculator->allAssigned()) {
+//
+////            $this->gameRoundOutput->output($gameRound, 'ASSIGNED HOMEAWAYS');
+////            $this->outputHomeAwayWithTotals($assignedWithMap);
+////            $this->outputPlacesAgainstTotals($variantWithPoule->getPoule(), $assignedAgainstMap);
+////            $this->outputUnassignedHomeAwayTotals($homeAways);
+//            return true;
+//        }
+//
+//        if ($this->isGameRoundCompleted($variantWithPoule, $gameRound)) {
+////            $this->logger->info("gameround " . $gameRound->getNumber() . " completed");
+//
+//            $nextGameRound = $this->toNextGameRound($gameRound, $homeAways);
+//            if (count($homeAways) === 0) {
+//                $sportVariant = $variantWithPoule->getSportVariant();
+//                if (!($sportVariant instanceof AgainstGpp)) {
+//                    throw new \Exception('wrong sportvariant', E_ERROR);
+//                }
+//                $homeAways = $this->createHomeAways($homeAwayCreator, $sportVariant);
+//            }
+//
+//            if ($gameRound->getNumber() === 6) {
+//
+////                $x = $this->getMemoryUsageInMB($gameRound);
+////                $this->logger->info('gameRound in MB: ' . $x);
+//
+//                /* Currently used memory */
+//                $mem_usage = memory_get_usage();
+//                $out = 'GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.';$this->logger->info('GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.');
+//                $this->logger->info($out);
+//
+////                $this->gameRoundOutput->output($gameRound, 'ASSIGNED HOMEAWAYS');
+////                $statisticsCalculator->output($this->logger, true, true);
+////                // $this->outputUnassignedTotals($homeAways);
+////                die();
+//            }
+//
+//            if ($gameRound->getNumber() > 1) { // 7 = 567MB
+//
+//                $mem_usage = memory_get_usage();
+//                $out = 'GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.';
+//                $out = 'GR'.$gameRound->getNumber().' depth: ' . $depth;
+//                $this->logger->info($out);
+//            }
+//
+////            $sortedHomeAways = $this->sortHomeAways(
+////                $homeAways,
+////                $assignedMap,
+////                $assignedWithMap,
+////                $assignedAgainstMap,
+////                $assignedHomeMap
+////            );
+//
+//
+////            shuffle($homeAways);
+//            $mem_usage = memory_get_usage();
+//            $out = 'GR'.$gameRound->getNumber().' Now usage: ' . round($mem_usage / (1024*1024)) . 'MB of memory.';
+//            return $this->assignGameRound(
+//                $variantWithPoule,
+//                $homeAwayCreator,
+//                null,
+//                $homeAways,
+//                $statisticsCalculator,
+//                $nextGameRound,
+//                0,
+//                $depth + 1
+//            );
+//        }
+//        if( $homeAwaysForGameRound === null ) {
+//            $homeAwaysForGameRound = $homeAways;
+//        }
+//
+//        if ($nrOfHomeAwaysTried === count($homeAwaysForGameRound)) {
+//            return false;
+//        }
+//        $homeAway = array_shift($homeAwaysForGameRound);
+//        if ($homeAway === null) {
+//            return false;
+//        }
+//
+//        if ($this->isHomeAwayAssignable($gameRound, $homeAway, $statisticsCalculator)) {
+//
+////            $assignedMapTry = $this->copyCounters($assignedMap);
+////            $assignedWithMapTry = $this->copyWithCounters($assignedWithMap);
+////            $assignedHomeMapTry = $this->copyCounters($assignedHomeMap);
+////            $assignedSportMapTry = $this->copyCounters($assignedSportMap);
+//            $gameRound->add($homeAway);
+//            $statisticsCalculatorTry = $statisticsCalculator->addHomeAway($homeAway);
+////            $assignedAgainstMapTry =
+////                $this->assignHomeAway(
+////                $gameRound,
+////                $homeAway,
+////                $assignedSportMapTry,
+////                $assignedMapTry,
+////                $assignedWithMapTry,
+////                $assignedAgainstMap,
+////                $assignedHomeMapTry
+////            );
+////            if ($gameRound->getNumber() > 11 ) {
+////                $this->gameRoundOutput->output($gameRound, 'homeawys of gameround');
+//////                $this->gameRoundOutput->outputHomeAways($gameRound->getHomeAways(), null, 'homeawys of gameround');
+//////                $this->gameRoundOutput->outputHomeAways($homeAwaysForGameRound, null,'choosable homeawys of gameround');
+////                // $this->gameRoundOutput->outputHomeAways($homeAways, null, "unassigned");
+////                $qw = 12;
+////            }
+//            $c = (memory_get_usage() / (1024*1024)) . 'MB';
+//            $homeAwaysForGameRoundTmp = array_values(
+//                array_filter(
+//                    $homeAwaysForGameRound,
+//                    function (AgainstHomeAway $homeAway) use ($gameRound): bool {
+//                        return !$gameRound->isHomeAwayPlaceParticipating($homeAway);
+//                    }
+//                )
+//            );
+//            $d = (memory_get_usage() / (1024*1024)) . 'MB';
+//            if ($this->assignGameRound(
+//                $variantWithPoule,
+//                $homeAwayCreator,
+//                $homeAwaysForGameRoundTmp,
+//                $homeAways,
+//                $statisticsCalculatorTry,
+//                $gameRound,
+//                0,
+//                $depth + 1
+//            )) {
+//                return true;
+//            }
+//            unset($homeAwaysForGameRoundTmp);
+//            $this->releaseHomeAway($gameRound, $homeAway);
+//        }
+//        $c = (memory_get_usage() / (1024*1024)) . 'MB';
+//        $homeAwaysForGameRound[] = $homeAway;
+//        ++$nrOfHomeAwaysTried;
+//        return $this->assignGameRound(
+//            $variantWithPoule,
+//            $homeAwayCreator,
+//            $homeAwaysForGameRound,
+//            $homeAways,
+//            $statisticsCalculator,
+//            $gameRound,
+//            $nrOfHomeAwaysTried,
+//            $depth + 1
+//        );
+
+    /**
      * @param GppHomeAwayCreator $homeAwayCreator
+     * @param Poule $poule
      * @param AgainstGpp $sportVariant
      * @return list<AgainstHomeAway>
      */
-    protected function createHomeAways(GppHomeAwayCreator $homeAwayCreator, AgainstGpp $sportVariant): array
+    protected function createHomeAways(
+        GppHomeAwayCreator $homeAwayCreator,
+        Poule $poule,
+        AgainstGpp $sportVariant): array
     {
-        return $homeAwayCreator->create($sportVariant);
+        $variantWithPoule = new VariantWithPoule($sportVariant, $poule);
+        $totalNrOfGames = $variantWithPoule->getTotalNrOfGames();
+        $homeAways = [];
+        while ( count($homeAways) < $totalNrOfGames ) {
+            $homeAways = array_merge($homeAways, $homeAwayCreator->create($sportVariant));
+        }
+        return $homeAways;
     }
 
     protected function isHomeAwayAssignable(
-        AgainstGameRound $gameRound,
-        AgainstHomeAway $homeAway,
-        StatisticsCalculator $statisticsCalculator
+        AgainstHomeAway $homeAway, StatisticsCalculator $statisticsCalculator
     ): bool {
-        $c = (memory_get_usage() / (1024*1024)) . 'MB';
-        if ($gameRound->isHomeAwayPlaceParticipating($homeAway) ) {
+
+        if( !$statisticsCalculator->minimalAgainstCanStillBeAssigned($homeAway) ) {
             return false;
         }
-        $d = (memory_get_usage() / (1024*1024)) . 'MB';
-        if( !$statisticsCalculator->minimalWithCanStillBeAssigned($gameRound, $homeAway) ) {
-            return false;
-        }
-        $e = (memory_get_usage() / (1024*1024)) . 'MB';
-        if( !$statisticsCalculator->minimalAgainstCanStillBeAssigned($gameRound, $homeAway) ) {
-            return false;
-        }
-        $f = (memory_get_usage() / (1024*1024)) . 'MB';
-        if( $statisticsCalculator->withWillBeOverAssigned($homeAway) ) {
-            return false;
-        }
-        $g = (memory_get_usage() / (1024*1024)) . 'MB';
         if( $statisticsCalculator->againstWillBeOverAssigned($homeAway) ) {
             return false;
         }
-        $h = (memory_get_usage() / (1024*1024)) . 'MB';
         foreach ($homeAway->getPlaces() as $place) {
-            if ( $statisticsCalculator->sportWillBeOverAssigned($place) ) {
+            if ( $statisticsCalculator->sportWillBeOverAssigned($place, 1) ) {
                 return false;
             }
         }
-        $i = (memory_get_usage() / (1024*1024)) . 'MB';
+        if( !$statisticsCalculator->useWith()) {
+            return true;
+        }
+        if( !$statisticsCalculator->minimalWithCanStillBeAssigned($homeAway) ) {
+            return false;
+        }
+        if( $statisticsCalculator->withWillBeOverAssigned($homeAway) ) {
+            return false;
+        }
         return true;
     }
 
@@ -420,11 +556,38 @@ class GamesPerPlace extends AgainstCreator
         return false;
     }
 
-    function getMemoryUsageInMB($var): float {
-        $mem = memory_get_usage();
-        $tmp = unserialize(serialize($var));
-        // Return the unserialized memory usage
-        return (memory_get_usage() - $mem) / (1024*1024);
+//    function getMemoryUsageInMB($var): float {
+//        $mem = memory_get_usage();
+//        $tmp = unserialize(serialize($var));
+//        // Return the unserialized memory usage
+//        return (memory_get_usage() - $mem) / (1024*1024);
+//    }
+
+    /**
+     * @param list<AgainstHomeAway> $homeAways
+     * @return list<AgainstHomeAway>
+     */
+    private function initHomeAways(array $homeAways): array {
+        /** @var list<AgainstHomeAway> $newHomeAways */
+        $newHomeAways = [];
+        while( $homeAway = array_shift($homeAways) ) {
+            if( (count($homeAways) % 2) === 0 ) {
+                array_unshift($newHomeAways, $homeAway);
+            } else {
+                array_push($newHomeAways, $homeAway);
+            }
+        }
+
+//        while( count($homeAways) > 0 ) {
+//            if( (count($homeAways) % 2) === 0 ) {
+//                $homeAway = array_shift($homeAways);
+//            } else {
+//                $homeAway = array_pop($homeAways);
+//            }
+//            array_push($newHomeAways, $homeAway);
+//        }
+
+        return $newHomeAways;
     }
 
 }

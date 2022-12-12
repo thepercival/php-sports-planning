@@ -63,10 +63,10 @@ class AssignedCounter
                 $homeAwayCreator = $this->getHomeAwayCreator($poule, $sportVariant);
                 if ($homeAwayCreator instanceof H2hHomeAwayCreator) {
                     $homeAways = $homeAwayCreator->createForOneH2H();
-                    $this->initAssignedWithMap($homeAways);
+                    $this->assignedWithMap = $this->getWithMap($homeAways);
                 } elseif ($sportVariant instanceof AgainstGpp) {
                     $homeAways = $homeAwayCreator->create($sportVariant);
-                    $this->initAssignedWithMap($homeAways);
+                    $this->assignedWithMap = $this->getWithMap($homeAways);
                 }
                 // $this->initAssignedAgainstMap();
             }
@@ -76,19 +76,22 @@ class AssignedCounter
 
     /**
      * @param list<AgainstHomeAway> $homeAways
+     * @return array<int, PlaceCombinationCounter>
      */
-    protected function initAssignedWithMap(array $homeAways): void
+    public function getWithMap(array $homeAways): array
     {
+        $map = [];
         foreach ($homeAways as $homeAway) {
             $home = $homeAway->getHome();
-            if (!isset($this->assignedWithMap[$home->getNumber()])) {
-                $this->assignedWithMap[$home->getNumber()] = new PlaceCombinationCounter($home);
+            if (!array_key_exists($home->getNumber(), $map)) {
+                $map[$home->getNumber()] = new PlaceCombinationCounter($home);
             }
             $away = $homeAway->getAway();
-            if (!isset($this->assignedWithMap[$away->getNumber()])) {
-                $this->assignedWithMap[$away->getNumber()] = new PlaceCombinationCounter($away);
+            if (!array_key_exists($away->getNumber(), $map)) {
+                $map[$away->getNumber()] = new PlaceCombinationCounter($away);
             }
         }
+        return $map;
     }
 
 //    protected function initAssignedAgainstMap(): void
