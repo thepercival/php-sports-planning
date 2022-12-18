@@ -190,10 +190,6 @@ class Service
                 return true;
             }
 
-//            if ($batch->getNumber() === 2) {
-//                $this->logger->info('completed batch  ' . $batch->getNumber());
-//            }
-
             $nextBatch = $this->toNextBatch($batch, $fieldResources, $games);
             // $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber(), 1, 1);
 //            if ($nextBatch->getNumber() === 12) {
@@ -223,10 +219,6 @@ class Service
 //            }
 //             ------------- END: OUTPUT --------------- //
 
-//            $minNrOfBatchGames = ;
-//            if () {
-//                return false;
-//            }
             $infoAssign = new InfoToAssign($games);
             if (!$this->helper->canGamesBeAssigned($batch->getNumber(), $infoAssign)) {
 //                $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber());

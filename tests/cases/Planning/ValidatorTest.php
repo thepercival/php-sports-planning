@@ -250,6 +250,22 @@ class ValidatorTest extends TestCase
             $validity & PlanningValidator::UNEQUALLY_ASSIGNED_FIELDS
         );
     }
+    public function testValidatePerPouleTooMuchCompetitors(): void
+    {
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(6);
+        $planning = $this->createPlanning(
+            $this->createInput(
+                [8,8,8],
+                [$sportVariantWithFields],
+                new RefereeInfo(0),
+                true),
+            new SportRange(6,6)
+        );
+
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
+        self::assertSame(14, $planning->createFirstBatch()->getLeaf()->getNumber());
+    }
 
     public function testValidResourcesPerReferee(): void
     {

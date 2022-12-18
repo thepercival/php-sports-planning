@@ -256,31 +256,34 @@ class GamesPerPlaceTest extends TestCase
         $schedules = $scheduleCreator->createFromInput($input);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
-//        (new PlanningOutput())->outputWithGames($planning, true);
+        // (new PlanningOutput())->outputWithGames($planning, true);
 
         self::assertCount(12, $planning->getAgainstGames());
         $validator = new PlanningValidator();
         self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
     }
 
-//    public function test2V2With18PlacesAnd26GamesPerPlace(): void
-//    {
-//        $sportVariants = [
-//            $this->getAgainstGppSportVariantWithFields(4, 2, 2, 26),
-//        ];
-//        $input = $this->createInput([18], $sportVariants);
-//        $planning = new Planning($input, new SportRange(1, 1), 0);
-//
-//        $scheduleCreator = new ScheduleCreator($this->getLogger());
-//        $schedules = $scheduleCreator->createFromInput($input);
-//        $gameCreator = new GameCreator($this->getLogger());
-//        $gameCreator->createGames($planning, $schedules);
-//        (new PlanningOutput())->outputWithGames($planning, true);
-//
-//        self::assertCount(117, $planning->getAgainstGames());
-//        $validator = new PlanningValidator();
-//        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
-//    }
+    public function test2V2With8PlacesAnd16GamesPerPlace(): void
+    {
+        $sportVariants = [
+            $this->getAgainstGppSportVariantWithFields(1, 2, 2, 16),
+        ];
+        $input = $this->createInput([8], $sportVariants);
+        $planning = new Planning($input, new SportRange(2, 2), 0);
+
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        // $scheduleCreator->setAgainstGppMargin(1);
+        $schedules = $scheduleCreator->createFromInput($input);
+        $gameCreator = new GameCreator($this->getLogger());
+        $gameCreator->createGames($planning, $schedules);
+        // (new PlanningOutput())->outputWithGames($planning, true);
+
+        self::assertCount(32, $planning->getAgainstGames());
+        $validator = new PlanningValidator();
+        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
+    }
+
+
 
 //    public function test2V2Places18GamesPerPlace16(): void
 //    {

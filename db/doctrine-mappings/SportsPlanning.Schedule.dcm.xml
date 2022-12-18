@@ -4,6 +4,10 @@
     <field name="nrOfPlaces" column="nrOfPlaces" type="smallint" nullable="false" unique="false"/>
       <field name="sportsConfigName" column="sportsConfigName" type="string" length="1024" nullable="false"
              unique="false"/>
+      <field name="succeededMargin" column="succeededMargin" type="smallint" nullable="false"
+             unique="false"/>
+      <field name="nrOfTimeoutSecondsTried" column="nrOfTimeoutSecondsTried" type="smallint" nullable="false"
+             unique="false"/>
       <one-to-many field="sportSchedules" target-entity="SportsPlanning\Schedule\Sport" mapped-by="schedule">
           <cascade>
               <cascade-persist/>

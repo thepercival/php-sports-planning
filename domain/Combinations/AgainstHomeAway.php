@@ -41,11 +41,45 @@ class AgainstHomeAway implements \Stringable
     }
 
     /**
+     * @param AgainstSide|null $side
      * @return list<Place>
      */
-    public function getPlaces(): array
+    public function getPlaces(AgainstSide|null $side = null): array
     {
-        return array_merge($this->home->getPlaces(), $this->away->getPlaces());
+        if( $side === null ) {
+            return array_merge($this->home->getPlaces(), $this->away->getPlaces());
+        }
+        return $this->get($side)->getPlaces();
+
+    }
+
+    /**
+     * @return list<PlaceCombination>
+     */
+    public function getAgainstPlaceCombinations(): array {
+
+        $againstPlaceCombinations = [];
+        foreach($this->getPlaces(AgainstSide::Home) as $homePlace) {
+            foreach($this->getPlaces(AgainstSide::Away) as $awayPlace) {
+                array_push($againstPlaceCombinations, new PlaceCombination([$homePlace, $awayPlace]));
+            }
+        }
+        return $againstPlaceCombinations;
+    }
+
+    /**
+     * @return list<PlaceCombination>
+     */
+    public function getWithPlaceCombinations(): array {
+
+        $withPlaceCombinations = [];
+        foreach([AgainstSide::Home, AgainstSide::Away] as $side) {
+            $placeCombination = $this->get($side);
+            if(count($placeCombination->getPlaces()) > 1) {
+                array_push($withPlaceCombinations, $placeCombination);
+            }
+        }
+        return $withPlaceCombinations;
     }
 
     public function equals(AgainstHomeAway $game): bool

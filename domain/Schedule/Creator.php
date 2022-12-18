@@ -25,6 +25,7 @@ class Creator
      * @var list<Schedule>|null
      */
     protected array|null $existingSchedules = null;
+    protected int $againstGppMargin = 2;
 
     public function __construct(protected LoggerInterface $logger)
     {
@@ -32,10 +33,10 @@ class Creator
 
     /**
      * @param Input $input
-     * @param TimeoutState|null $timeoutState
+     * @param int|null $nrOfSecondsBeforeTimeout
      * @return list<Schedule>
      */
-    public function createFromInput(Input $input, TimeoutState|null $timeoutState = null): array
+    public function createFromInput(Input $input, int|null $nrOfSecondsBeforeTimeout = null): array
     {
         /** @var array<int, Schedule> $schedules */
         $schedules = [];
@@ -59,10 +60,14 @@ class Creator
                     continue;
                 }
                 $scheduleCreator = $this->getSportScheduleCreator($input, $gameMode);
-                $scheduleCreator->createSportSchedules($schedule, $poule, $sports, $assignedCounter, $timeoutState);
+                $scheduleCreator->createSportSchedules($schedule, $poule, $sports, $assignedCounter, $nrOfSecondsBeforeTimeout);
             }
         }
         return array_values($schedules);
+    }
+
+    public function setAgainstGppMargin(int $margin): void {
+        $this->againstGppMargin = $margin;
     }
 
     /**
@@ -89,7 +94,7 @@ class Creator
         }
         $this->generatorMap = [];
         $this->generatorMap[GameMode::AllInOneGame->name] = new AllInOneGameCreator();
-        $this->generatorMap[GameMode::Against->name] = new AgainstCreator($this->logger);
+        $this->generatorMap[GameMode::Against->name] = new AgainstCreator($this->logger, $this->againstGppMargin);
         $this->generatorMap[GameMode::Single->name] = new SingleCreator($this->logger);
         return $this->generatorMap;
     }

@@ -2,6 +2,7 @@
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
   <entity name="SportsPlanning\Input" table="planningInputs" repository-class="SportsPlanning\Input\Repository">
       <field name="selfReferee" column="selfReferee" type="enum_SelfReferee" nullable="false" unique="false"/>
+      <field name="perPoule" column="perPoule" type="boolean" nullable="false" unique="false"/>
       <field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
       <field name="recreatedAt" column="recreatedAt" type="datetime_immutable" nullable="true" unique="false"/>
       <field name="minNrOfBatches" column="minNrOfBatches" type="smallint" nullable="true" unique="false"/>
@@ -32,6 +33,7 @@
     </one-to-many>
     <indexes>
       <index columns="selfReferee"/>
+      <index columns="perPoule"/>
       <index columns="createdAt"/>
     </indexes>
   </entity>

@@ -18,6 +18,8 @@ use SportsPlanning\Schedule\Sport as SportSchedule;
 class Schedule extends Identifiable implements \Stringable
 {
     protected string $sportsConfigName;
+    protected int $succeededMargin = -1;
+    protected int $nrOfTimeoutSecondsTried = -1;
 
     /**
      * @phpstan-var ArrayCollection<int|string, SportSchedule>|PersistentCollection<int|string, SportSchedule>|SportSchedule[]
@@ -60,6 +62,26 @@ class Schedule extends Identifiable implements \Stringable
                 return $sportSchedule->createVariant();
             }
         );
+    }
+
+    public function getSucceededMargin(): int
+    {
+        return $this->succeededMargin;
+    }
+
+    public function putSucceededMargin(int $succeededMargin): void
+    {
+        $this->succeededMargin = $succeededMargin;
+    }
+
+    public function getNrOfTimeoutSecondsTried(): int
+    {
+        return $this->nrOfTimeoutSecondsTried;
+    }
+
+    public function putNrOfTimeoutSecondsTried(int $nrOfTimeoutSecondsTried): void
+    {
+        $this->nrOfTimeoutSecondsTried = $nrOfTimeoutSecondsTried;
     }
 
     public function __toString()

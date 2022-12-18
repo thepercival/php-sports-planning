@@ -5,14 +5,11 @@ declare(strict_types=1);
 namespace SportsPlanning\GameRound\Creator;
 
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Against\Side;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsPlanning\Combinations\AgainstHomeAway;
-use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCreator;
-use SportsPlanning\Combinations\Indirect\Map as IndirectMap;
+use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
-use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsHelpers\Sport\Variant\Against;
 use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
@@ -23,15 +20,20 @@ class StatisticsCalculator
     protected int $withShortage = 0;
     protected int $againstShortage = 0;
     protected int $amountOverAgainstAmountForAllPlaces = 0;
+    protected int $leastNrOfAgainstAssigned = 0;
+    protected int $amountLeastAgainstAssigned = 0;
     protected bool $useWith;
+    protected int $leastNrOfWithAssigned = 0;
+    protected int $amountLeastWithAssigned = 0;
 
     /**
      * @param VariantWithPoule $variantWithPoule
      * @param array<int, PlaceCounter> $assignedSportMap
      * @param array<int, PlaceCounter> $assignedMap
      * @param array<int, PlaceCombinationCounter> $assignedWithSportMap
-     * @param IndirectMap $assignedAgainstSportMap
+     * @param array<int, PlaceCombinationCounter> $assignedAgainstSportMap
      * @param array<int, PlaceCounter> $assignedHomeMap
+     * @param array<int, PlaceCombination> $leastAgainstAssigned
      * @param int $margin
      * @param int $nrOfHomeAwaysAsigned
      */
@@ -40,9 +42,10 @@ class StatisticsCalculator
         protected array $assignedSportMap,
         protected array $assignedMap,
         protected array $assignedWithSportMap,
-        protected IndirectMap $assignedAgainstSportMap,
+        protected array $assignedAgainstSportMap,
         protected array $assignedHomeMap,
-        private int $margin,
+        protected array $leastAgainstAssigned,
+        private readonly int $margin,
         protected int $nrOfHomeAwaysAsigned = 0
     )
     {
@@ -65,29 +68,20 @@ class StatisticsCalculator
 
     private function initAgainstSportShortage(): void {
 
-        $counters = $this->assignedAgainstSportMap->getCopiedCounters();
         $minAgainstAmountPerPlace = $this->getMinAgainstAmountPerPlace($this->variantWithPoule);
         $maxAgainstAmountPerPlace = $this->getMaxAgainstAmountPerPlace($this->variantWithPoule);
-        $nrOfOpponents = count($this->variantWithPoule->getPoule()->getPlaces()) - 1;
-        foreach( $this->variantWithPoule->getPoule()->getPlaces() as $place ) {
-            if( !array_key_exists($place->getNumber(), $counters) ) {
-                $this->againstShortage += $minAgainstAmountPerPlace * $nrOfOpponents;
-                continue;
+        foreach( $this->assignedAgainstSportMap as $placeCombinationCounter ) {
+            $nrOfAgainst = $placeCombinationCounter->count();
+
+            if( $nrOfAgainst < ($minAgainstAmountPerPlace - $this->margin) ) {
+                $this->againstShortage += $minAgainstAmountPerPlace - $nrOfAgainst;
             }
-            $placeCounter = $counters[$place->getNumber()];
-
-            foreach( $this->variantWithPoule->getPoule()->getPlaces() as $againstPlace ) {
-                if( $place === $againstPlace) {
-                    continue;
-                }
-                $nrOfAgainst = $placeCounter->count($againstPlace);
-
-                if( $nrOfAgainst < ($minAgainstAmountPerPlace - $this->margin) ) {
-                    $this->againstShortage += $minAgainstAmountPerPlace - $nrOfAgainst;
-                }
-                if( $nrOfAgainst > ($maxAgainstAmountPerPlace + $this->margin) ) {
-                    $this->amountOverAgainstAmountForAllPlaces += $nrOfAgainst - $maxAgainstAmountPerPlace;
-                }
+            if( $nrOfAgainst > ($maxAgainstAmountPerPlace + $this->margin) ) {
+                $this->amountOverAgainstAmountForAllPlaces += $nrOfAgainst - $maxAgainstAmountPerPlace;
+            }
+            if( $nrOfAgainst <= $this->leastNrOfAgainstAssigned ) {
+                $this->leastNrOfAgainstAssigned = $nrOfAgainst;
+                $this->amountLeastAgainstAssigned++;
             }
         }
     }
@@ -95,8 +89,13 @@ class StatisticsCalculator
     private function initWithSportShortage(int $nrOfPlaces, AgainstGpp $sportVariaant): void {
         $minWithAmount = $this->getMinWithAmount($nrOfPlaces, $sportVariaant) - $this->margin;
         foreach( $this->assignedWithSportMap as $placeCombinationCounter ) {
-            if( $placeCombinationCounter->count() < $minWithAmount ) {
-                $this->withShortage += $minWithAmount - $placeCombinationCounter->count();
+            $nrOfWith = $placeCombinationCounter->count();
+            if( $nrOfWith < $minWithAmount ) {
+                $this->withShortage += $minWithAmount - $nrOfWith;
+            }
+            if( $nrOfWith <= $this->leastNrOfWithAssigned ) {
+                $this->leastNrOfWithAssigned = $nrOfWith;
+                $this->amountLeastWithAssigned++;
             }
         }
     }
@@ -110,25 +109,102 @@ class StatisticsCalculator
             $assignedMap[$place->getNumber()]->increment();
         }
 
+        $assignedAgainstMap = $this->copyPlaceCombinationCounterMap($this->assignedAgainstSportMap);
+        foreach( $homeAway->getAgainstPlaceCombinations() as $placeCombination) {
+            $assignedAgainstMap[$placeCombination->getNumber()]->increment();
+        }
         $assignedWithMap = $this->copyPlaceCombinationCounterMap($this->assignedWithSportMap);
-        $assignedWithMap[$homeAway->getHome()->getNumber()]->increment();
-        $assignedWithMap[$homeAway->getAway()->getNumber()]->increment();
+        if( $this->useWith) {
+            if(count($homeAway->getHome()->getPlaces()) > 1 ) {
+                $assignedWithMap[$homeAway->getHome()->getNumber()]->increment();
+            }
+            $assignedWithMap[$homeAway->getAway()->getNumber()]->increment();
+        }
 
         $assignedHomeMap = $this->copyPlaceCounterMap($this->assignedHomeMap);
         foreach ($homeAway->getHome()->getPlaces() as $homePlace) {
             $assignedHomeMap[$homePlace->getNumber()]->increment();
         }
 
+        $leastAgainstAssigned = $this->leastAgainstAssigned;
+//        $unsetForNewLeastAssigned = [];
+//        foreach($homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination ) {
+//            if (array_key_exists($againstPlaceCombination->getNumber(), $leastAgainstAssigned)) {
+//                unset($leastAgainstAssigned[$againstPlaceCombination->getNumber()]);
+//            } else {
+//                $unsetForNewLeastAssigned[] = $againstPlaceCombination;
+//            }
+//        }
+//        if( count($leastAgainstAssigned) === 0) {
+//            $leastAgainstAssigned = $this->convertToPlaceCombinationMap($this->assignedAgainstSportMap);
+//            foreach($unsetForNewLeastAssigned as $againstPlaceCombination ) {
+//                unset($leastAgainstAssigned[$againstPlaceCombination->getNumber()]);
+//            }
+//        }
+
         return new self(
             $this->variantWithPoule,
             $assignedSportMap,
             $assignedMap,
             $assignedWithMap,
-            $this->assignedAgainstSportMap->addHomeAway($homeAway),
+            $assignedAgainstMap,
             $assignedHomeMap,
+            $leastAgainstAssigned,
             $this->margin,
             $this->nrOfHomeAwaysAsigned + 1
         );
+    }
+
+    public function againstWillBeTooMuchDiffAssigned(AgainstHomeAway $homeAway): bool
+    {
+        return false;
+//        $againstPlaceCombinations = $homeAway->getAgainstPlaceCombinations();
+//        $nrOfAgainstCombinations = count($againstPlaceCombinations);
+//
+//        $nrOfOverAssigned = 0;
+//        foreach($againstPlaceCombinations as $againstPlaceCombination ) {
+//            if (!array_key_exists($againstPlaceCombination->getNumber(), $this->assignedAgainstSportMap)) {
+//                continue;
+//            }
+//            $nrAssigned = $this->assignedAgainstSportMap[$againstPlaceCombination->getNumber()]->count();
+//            if( $nrAssigned - $this->leastNrOfAgainstAssigned > (0 + $this->margin)) {
+//                $nrOfOverAssigned++;
+//                if( $this->amountLeastAgainstAssigned >= $nrOfAgainstCombinations) {
+//                    return true;
+//                }
+//            }
+//        }
+//
+//        if( $nrOfOverAssigned > $this->amountLeastAgainstAssigned) {
+//            return true;
+//        }
+//        return false;
+    }
+
+    public function withWillBeTooMuchDiffAssigned(AgainstHomeAway $homeAway): bool
+    {
+        if( !$this->useWith ) {
+            return false;
+        }
+        $withPlaceCombinations = $homeAway->getWithPlaceCombinations();
+        $nrOfWithCombinations = count($withPlaceCombinations);
+        if( $this->amountLeastWithAssigned < $nrOfWithCombinations ) {
+            return false;
+        }
+        foreach($withPlaceCombinations as $withPlaceCombination ) {
+            if (!array_key_exists($withPlaceCombination->getNumber(), $this->assignedWithSportMap)) {
+                continue;
+            }
+            $nrAssigned = $this->assignedWithSportMap[$withPlaceCombination->getNumber()]->count();
+            if( $nrAssigned - $this->leastNrOfWithAssigned > 0) {
+                return true;
+            }
+        }
+//        if( $nrOfAgainstCombinations === count($leastAgainstAssigned)
+//        || count($leastAgainstAssigned) === count($this->leastAgainstAssigned)) {
+//            return true;
+//        }
+        return false;
     }
 
     /**
@@ -155,6 +231,18 @@ class StatisticsCalculator
         return $newMap;
     }
 
+    /**
+     * @param array<int, PlaceCombinationCounter> $map
+     * @return array<int, PlaceCombination>
+     */
+    private function convertToPlaceCombinationMap(array $map): array {
+        $newMap = [];
+        foreach( $map as $idx => $counter ) {
+            $newMap[$idx] = $counter->getPlaceCombination();
+        }
+        return $newMap;
+    }
+
     public function minimalSportCanStillBeAssigned(): bool {
         $nrOfGamesToGo = $this->variantWithPoule->getTotalNrOfGames() - $this->nrOfHomeAwaysAsigned;
         $minNrOfGamesPerPlace = $this->getMinNrOfGamesPerPlace();
@@ -169,13 +257,9 @@ class StatisticsCalculator
 
     public function sportWillBeOverAssigned(Place $place, int $delta): bool
     {
-        // $i = (memory_get_usage() / (1024*1024)) . 'MB';
-
         if( ($this->assignedSportMap[$place->getNumber()]->count() + $delta) > $this->getMaxNrOfGamesPerPlace() ) {
-            // $j = (memory_get_usage() / (1024*1024)) . 'MB';
             return true;
         }
-        // $k = (memory_get_usage() / (1024*1024)) . 'MB';
         return false;
     }
 
@@ -189,16 +273,19 @@ class StatisticsCalculator
         return $this->variantWithPoule->getTotalNrOfGamesPerPlace();
     }
 
-    public function minimalWithCanStillBeAssigned(AgainstHomeAway $homeAway): bool {
+    public function minimalWithCanStillBeAssigned(AgainstHomeAway|null $homeAway): bool {
 
         $nrOfGamesToGo = $this->variantWithPoule->getTotalNrOfGames() - $this->nrOfHomeAwaysAsigned;
 
-        // $maxHomeAwayWiths = 2;
-        if( ($this->withShortage /*- $maxHomeAwayWiths*/) <= ($nrOfGamesToGo * 2) ) {
+        $nrOfWithCombinationsTogo = $nrOfGamesToGo * 2;
+        if( ($this->withShortage) <= $nrOfWithCombinationsTogo ) {
             return true;
         }
+        if( $homeAway === null) {
+            return false;
+        }
         $withShortageIncludingHomeAway = $this->getWithShortageIncludingHomeAway($homeAway);
-        return $withShortageIncludingHomeAway <= ($nrOfGamesToGo * 2);
+        return $withShortageIncludingHomeAway <= $nrOfWithCombinationsTogo;
     }
 
     private function getWithShortageIncludingHomeAway(AgainstHomeAway $homeAway): int {
@@ -206,7 +293,7 @@ class StatisticsCalculator
         if( !($sportVariant instanceof AgainstGpp)) {
             return 0;
         }
-        $minWithAmount = $this->getMinWithAmount($this->variantWithPoule->getNrOfPlaces(), $sportVariant);
+        $minWithAmount = $this->getMinWithAmount($this->variantWithPoule->getNrOfPlaces(), $sportVariant) - $this->margin;
         $withShortage = $this->withShortage;
 
         $homeAmount = 0;
@@ -235,66 +322,42 @@ class StatisticsCalculator
         $homeAways = array_filter(
             $homeAways,
             function (AgainstHomeAway $homeAway): bool {
-                return !$this->withWillBeOverAssigned($homeAway) && !$this->againstWillBeOverAssigned($homeAway);
+                return !$this->withWillBeOverAssigned($homeAway) && !$this->againstWillBeOverAssigned($homeAway)
+                    && !$this->againstWillBeTooMuchDiffAssigned($homeAway)
+                    && !$this->withWillBeTooMuchDiffAssigned($homeAway);
             }
         );
         return array_values($homeAways);
     }
 
-    /**
-     * @param list<AgainstHomeAway> $homeAways
-     * @return list<AgainstHomeAway>
-     */
-    public function sortHomeAways(array $homeAways): array {
-        uasort($homeAways, function (AgainstHomeAway $ha1, AgainstHomeAway $ha2) {
-            return $this->getHomeAwayAssigned($ha1) - $this->getHomeAwayAssigned($ha2);
-        });
-        return array_values($homeAways);
-    }
-
     public function minimalAgainstCanStillBeAssigned(AgainstHomeAway|null $homeAway): bool {
 
-        $nrOfCombinationsPerGame = $this->getSportVariant($this->variantWithPoule)->getNrOfHomeAwayCombinations() * 2;
-        // 8
+        $nrOfCombinationsPerGame = $this->getSportVariant($this->variantWithPoule)->getNrOfHomeAwayCombinations();
         $nrOfGamesToGo = $this->variantWithPoule->getTotalNrOfGames() - $this->nrOfHomeAwaysAsigned;
-        // $nrOfGamesToGo--;
+        $nrOfAgainstCombinationsTogo = $nrOfGamesToGo * $nrOfCombinationsPerGame;
 
-        if( ($this->againstShortage/* - $nrOfCombinationsPerGame*/) <= ($nrOfGamesToGo * $nrOfCombinationsPerGame) ) {
+        if( ($this->againstShortage) <= $nrOfAgainstCombinationsTogo ) {
             return true;
         }
         if( $homeAway === null ) {
             return false;
         }
         $againstShortageIncludingHomeAway = $this->getAgainstShortageIncludingHomeAway($homeAway);
-        return $againstShortageIncludingHomeAway <= ($nrOfGamesToGo * $nrOfCombinationsPerGame);
+        return $againstShortageIncludingHomeAway <= $nrOfAgainstCombinationsTogo;
     }
 
     private function getAgainstShortageIncludingHomeAway(AgainstHomeAway $homeAway): int {
         $minAgainstAmountPerPlace = $this->getMinAgainstAmountPerPlace($this->variantWithPoule);
-        $placeAgainstCounters = $this->assignedAgainstSportMap->getCopiedCounters();
         $againstShortage = $this->againstShortage;
 
-        foreach( [Side::Home,Side::Away] as $side ) {
-            $placeCombination = $homeAway->get($side);
-
-            foreach( $placeCombination->getPlaces() as $place ) {
-                $opponents = $homeAway->get($side->getOpposite());
-                if( !array_key_exists($place->getNumber(), $placeAgainstCounters ) ) {
-                    $againstShortage -= count($opponents->getPlaces());
-                    continue;
-                }
-                $opponentCounters = $placeAgainstCounters[$place->getNumber()]->getCopiedPlaceCounters();
-
-                foreach( $opponents->getPlaces() as $opponent ) {
-                    if( !array_key_exists($opponent->getNumber(), $opponentCounters ) ) {
-                        $againstShortage--;
-                        continue;
-                    }
-                    $amount = $opponentCounters[$opponent->getNumber()]->count();
-                    if( $amount < ($minAgainstAmountPerPlace - $this->margin) ) {
-                        $againstShortage--;
-                    }
-                }
+        foreach( $homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination ) {
+            if( !array_key_exists($againstPlaceCombination->getNumber(), $this->assignedAgainstSportMap ) ) {
+                $againstShortage -= ($minAgainstAmountPerPlace - $this->margin);
+                continue;
+            }
+            $amount = $this->assignedAgainstSportMap[$againstPlaceCombination->getNumber()]->count();
+            if( $amount < ($minAgainstAmountPerPlace - $this->margin) ) {
+                $againstShortage--;
             }
         }
         return $againstShortage;
@@ -309,37 +372,34 @@ class StatisticsCalculator
         if( !($againstGppSportVariant instanceof AgainstGpp)) {
             return false;
         }
-        $homeWithAmount = $this->assignedWithSportMap[$homeAway->getHome()->getNumber()]->count();
+
+        $homeWithAmount = $this->getHomeWithAmountAssigned($homeAway);
         $awayWithAmount = $this->assignedWithSportMap[$homeAway->getAway()->getNumber()]->count();
 
         $nrOfPlaces = $this->variantWithPoule->getNrOfPlaces();
 
-        $maxWithAmount = $this->getMaxWithAmount($nrOfPlaces, $againstGppSportVariant);
+        $maxWithAmount = $this->getMaxWithAmount($nrOfPlaces, $againstGppSportVariant) + $this->margin;
         return ($homeWithAmount + 1) > $maxWithAmount || ($awayWithAmount + 1) > $maxWithAmount;
     }
 
     public function againstWillBeOverAssigned(AgainstHomeAway $homeAway): bool
     {
-        // if( $this->variantWithPoule->e)
-        $counters = $this->assignedAgainstSportMap->getCopiedCounters();
-        $maxAgainstAmountPerPlace = $this->getMaxAgainstAmountPerPlace($this->variantWithPoule);
+        $maxAgainstAmountPerPlace = $this->getMaxAgainstAmountPerPlace($this->variantWithPoule) + $this->margin;
         $amountOverAgainstPerPlace = 0;
-        foreach( $homeAway->getHome()->getPlaces() as $homePlace ) {
-            if( empty($counters[$homePlace->getNumber()]) ) {
+        foreach( $homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination ) {
+            if( !array_key_exists($againstPlaceCombination->getNumber(), $this->assignedAgainstSportMap) ) {
                 continue;
             }
-            $homePlaceCounter = $counters[$homePlace->getNumber()];
-            foreach( $homeAway->getAway()->getPlaces() as $awayPlace ) {
-                $newAmount = $homePlaceCounter->count($awayPlace) + 1;
-                if( $newAmount <= $maxAgainstAmountPerPlace ) {
-                    continue;
-                }
-                if( $newAmount === ($maxAgainstAmountPerPlace + 1 ) ) {
-                    $amountOverAgainstPerPlace += (1 * 2);
-                    continue;
-                }
-                return true;
+            $newAmount = $this->assignedAgainstSportMap[$againstPlaceCombination->getNumber()]->count() + 1;
+
+            if( $newAmount <= $maxAgainstAmountPerPlace ) {
+                continue;
             }
+            if( $newAmount === ($maxAgainstAmountPerPlace + 1 ) ) {
+                $amountOverAgainstPerPlace++;
+                continue;
+            }
+            return true;
         }
         return ($this->amountOverAgainstAmountForAllPlaces + $amountOverAgainstPerPlace) > $this->getMaxAmountOverMaxAgainstAmountForAllPlaces($this->variantWithPoule);
     }
@@ -350,7 +410,7 @@ class StatisticsCalculator
             return true;
         }
 
-        $minWithAmount = $this->getMinWithAmount($this->variantWithPoule->getNrOfPlaces(), $sportVariant);
+        $minWithAmount = $this->getMinWithAmount($this->variantWithPoule->getNrOfPlaces(), $sportVariant) - $this->margin;
 
         foreach( $this->assignedWithSportMap as $placeCombinationCounter ) {
             if( $placeCombinationCounter->count() < $minWithAmount ) {
@@ -416,10 +476,9 @@ class StatisticsCalculator
     }
 
     protected function getMaxAmountOverMaxAgainstAmountForAllPlaces(VariantWithPoule $variantWithPoule): int {
-
-        $rest = $this->getMaxNrOfAgainstPlacesForPlace($variantWithPoule) % ($variantWithPoule->getNrOfPlaces() - 1);
+        $maxAgainst = $this->getMaxNrOfAgainstPlacesForPlace($variantWithPoule) + $this->margin;
+        $rest = $maxAgainst % ($variantWithPoule->getNrOfPlaces() - 1);
         return ($rest * $variantWithPoule->getNrOfPlaces() );
-        // (int)ceil(($sportVariant->getNrOfGamesPerPlace() * $maxNrOfSidePlaces) / ($variantWithPoule->getNrOfPlaces() - 1));
     }
 
     protected function getMinAgainstAmountPerPlace(VariantWithPoule $variantWithPoule): int {
@@ -458,7 +517,21 @@ class StatisticsCalculator
     }
 
     public function output(LoggerInterface $logger, bool $againstTotals, bool $withTotals): void {
-        $logger->info('nrOfHomeAwaysAsigned: ' . $this->nrOfHomeAwaysAsigned);
+        $header = 'nrOfHomeAwaysAsigned: ' . $this->nrOfHomeAwaysAsigned;
+        $nrOfPlaces = $this->variantWithPoule->getNrOfPlaces();
+        $againstSportVariant = $this->getSportVariant($this->variantWithPoule);
+        if( $againstSportVariant instanceof AgainstGpp) {
+            $minWith = $this->getMinWithAmount($nrOfPlaces, $againstSportVariant);
+            $maxWith = $this->getMaxWithAmount($nrOfPlaces, $againstSportVariant);
+            $minAgainst = $this->getMinAgainstAmountPerPlace($this->variantWithPoule);
+            $maxAgainst = $this->getMaxAgainstAmountPerPlace($this->variantWithPoule);
+            $header .= ', withRange: ' . $minWith . ' - ' . $maxWith;
+            $header .= ', againstRange ' . $minAgainst . ' - ' . $maxAgainst;
+        }
+        if( $this->margin > 0 ) {
+            $header .= ', margin ' . $this->margin;
+        }
+        $logger->info($header);
         if( $againstTotals ) {
             $this->outputAgainstTotals($logger);
         }
@@ -480,24 +553,17 @@ class StatisticsCalculator
         $out = '    ' . $placeNr . " => ";
         foreach( $this->variantWithPoule->getPoule()->getPlaces() as $opponent ) {
             $opponentNr = $opponent->getNumber() < 10 ? '0' . $opponent->getNumber() : $opponent->getNumber();
-            $out .= '' . $opponentNr . ':' . $this->getAmount($place, $opponent) . ',';
+            $placeCombination = new PlaceCombination([$place, $opponent]);
+            $out .= '' . $opponentNr . ':' . $this->getAmount($placeCombination) . ',';
         }
         $logger->info($out);
     }
 
-    private function getAmount(Place $place, Place $opponent): string {
-        if( $place === $opponent) {
-            return '  ';
-        }
-        $placeCounters = $this->assignedAgainstSportMap->getCopiedCounters();
-        if( !array_key_exists($place->getNumber(), $placeCounters)) {
+    private function getAmount(PlaceCombination $placeCombination): string {
+        if( !array_key_exists($placeCombination->getNumber(), $this->assignedAgainstSportMap)) {
             return '0x';
         }
-        $opponentCounters = $placeCounters[$place->getNumber()]->getCopiedPlaceCounters();
-        if( !array_key_exists($opponent->getNumber(), $opponentCounters)) {
-            return '0x';
-        }
-        return $opponentCounters[$opponent->getNumber()]->count() . 'x';
+        return $this->assignedAgainstSportMap[$placeCombination->getNumber()]->count() . 'x';
 
     }
 
@@ -519,5 +585,142 @@ class StatisticsCalculator
         }
     }
 
+//    /**
+//     * @param list<AgainstHomeAway> $homeAways
+//     * @return list<AgainstHomeAway>
+//     */
+//    public function sortHomeAways(array $homeAways): array {
+//        uasort($homeAways, function (AgainstHomeAway $ha1, AgainstHomeAway $ha2) {
+//            return $this->getHomeAwayAssigned($ha1) - $this->getHomeAwayAssigned($ha2);
+//        });
+//        return array_values($homeAways);
+//    }
+
+    /**
+     * @param list<AgainstHomeAway> $homeAways
+     * @param LoggerInterface $logger
+     * @return list<AgainstHomeAway>
+     */
+    public function sortHomeAways(array $homeAways, LoggerInterface $logger): array {
+//        $time_start = microtime(true);
+
+        if(count($homeAways) > 10000 ) {
+            $splitted = true;
+            /** @var list<AgainstHomeAway> $firstPartHomeAways */
+            $firstPartHomeAways = array_splice($homeAways, 0, 10000);
+        } else {
+            $splitted = false;
+            $firstPartHomeAways = $homeAways;
+        }
+
+        $leastAmountAssigned = [];
+        foreach($firstPartHomeAways as $homeAway ) {
+            $leastAmountAssigned[(string)$homeAway] = $this->getLeastAmountAssigned($homeAway);
+        }
+
+        uasort($firstPartHomeAways, function (
+            AgainstHomeAway $homeAwayA,
+            AgainstHomeAway $homeAwayB
+        ) use($leastAmountAssigned): int {
+
+            list($amountA, $nrOfPlacesA) = $leastAmountAssigned[(string)$homeAwayA];
+            list($amountB, $nrOfPlacesB) = $leastAmountAssigned[(string)$homeAwayB];
+            if ($amountA !== $amountB) {
+                return $amountA - $amountB;
+            }
+            if ($nrOfPlacesA !== $nrOfPlacesB) {
+                return $nrOfPlacesB - $nrOfPlacesA;
+            }
+            $amountAgainstA = $this->getAgainstAmountAssigned($homeAwayA);
+            $amountAgainstB = $this->getAgainstAmountAssigned($homeAwayB);
+            if ($amountAgainstA !== $amountAgainstB) {
+                return $amountAgainstA - $amountAgainstB;
+            }
+            if( $this->useWith ) {
+                $amountWithA = $this->getWithAmountAssigned($homeAwayA);
+                $amountWithB = $this->getWithAmountAssigned($homeAwayB);
+                if ($amountWithA !== $amountWithB) {
+                    return $amountWithA - $amountWithB;
+                }
+            }
+
+
+//            list($amountHomeA, $nrOfPlacesHomeA) = $this->getLeastHomeAmountAssigned($homeAwayA, $assignedHomeMap);
+//            list($amountHomeB, $nrOfPlacesHomeB) = $this->getLeastHomeAmountAssigned($homeAwayB, $assignedHomeMap);
+//            if ($amountHomeA !== $amountHomeB) {
+//                return $amountHomeA - $amountHomeB;
+//            }
+//            if ($nrOfPlacesHomeA !== $nrOfPlacesHomeB) {
+//                return $nrOfPlacesHomeA - $nrOfPlacesHomeB;
+//            }
+            return 0; // $nrOfPlacesHomeA - $nrOfPlacesHomeB;
+        });
+        //        $logger->info("sorting homeaways .. " . (microtime(true) - $time_start));
+        if( $splitted ) {
+            return array_merge($firstPartHomeAways, $homeAways);
+        }
+        return array_values($firstPartHomeAways);
+    }
+
+    // ALL BENEATH SHOULD PERFORM BETTER
+    private function getAgainstAmountAssigned(AgainstHomeAway $homeAway): int {
+        $amount = 0;
+        foreach($homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination ) {
+            if( !array_key_exists($againstPlaceCombination->getNumber(), $this->assignedAgainstSportMap ) ) {
+                continue;
+            }
+            $amount += $this->assignedAgainstSportMap[$againstPlaceCombination->getNumber()]->count();
+        }
+        return $amount;
+    }
+
+    /**
+     * @param AgainstHomeAway $homeAway
+     * @return list<int>
+     */
+    public function getLeastAmountAssigned(AgainstHomeAway $homeAway): array
+    {
+        $leastAmount = -1;
+        $nrOfPlaces = 0;
+        foreach ($homeAway->getPlaces() as $place) {
+            $amountAssigned = $this->assignedMap[$place->getNumber()]->count();
+            if ($leastAmount === -1 || $amountAssigned < $leastAmount) {
+                $leastAmount = $amountAssigned;
+                $nrOfPlaces = 0;
+            }
+            if ($amountAssigned === $leastAmount) {
+                $nrOfPlaces++;
+            }
+        }
+        return [$leastAmount, $nrOfPlaces];
+    }
+
+    protected function getWithAmountAssigned(AgainstHomeAway $homeAway): int
+    {
+        $awayWithAmountAssigned = $this->assignedWithSportMap[$homeAway->getAway()->getNumber()]->count();
+        return $this->getHomeWithAmountAssigned($homeAway) + $awayWithAmountAssigned;
+    }
+
+    protected function getHomeWithAmountAssigned(AgainstHomeAway $homeAway): int
+    {
+        if( $this->getSportVariant($this->variantWithPoule)->getNrOfHomePlaces() > 1 ) {
+            return $this->assignedWithSportMap[$homeAway->getHome()->getNumber()]->count();
+        }
+        return 0;
+    }
+
+//    /**
+//     * @param AgainstHomeAway $homeAway
+//     * @param array<int, AgainstCounter> $assignedAgainstMap
+//     * @return int
+//     */
+//    protected function getAgainstAmountAssigned(AgainstHomeAway $homeAway, array $assignedAgainstMap): int
+//    {
+//        $home = $homeAway->getHome();
+//        $away = $homeAway->getAway();
+//        $homeAgainstAmountAssigned = $assignedAgainstMap[$home->getNumber()]->count($away);
+//        $awayAgainstAmountAssigned = $assignedAgainstMap[$away->getNumber()]->count($home);
+//        return $homeAgainstAmountAssigned + $awayAgainstAmountAssigned;
+//    }
 
 }

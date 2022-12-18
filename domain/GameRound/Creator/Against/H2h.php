@@ -41,6 +41,7 @@ class H2h extends AgainstCreator
         $assignedAgainstMap = $assignedCounter->getAssignedAgainstMap();
         $assignedHomeMap = $assignedCounter->getAssignedHomeMap();
         $homeAways = $this->createHomeAwaysForOneH2H($homeAwayCreator);
+        $leastAgainstAssigned = $this->convertToPlaceCombinationMap($assignedAgainstMap);
 
         $statisticsCalculator = new StatisticsCalculator(
             $variantWithPoule,
@@ -49,6 +50,7 @@ class H2h extends AgainstCreator
             $assignedWithMap,
             $assignedAgainstMap,
             $assignedHomeMap,
+            $leastAgainstAssigned,
             0
         );
 

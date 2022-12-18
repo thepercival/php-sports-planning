@@ -27,7 +27,7 @@ class AllInOneGame
      * @param Poule $poule
      * @param list<Sport> $sports
      * @param AssignedCounter $assignedCounter
-     * @param Schedule\TimeoutState|null $timeoutState
+     * @param int|null $nrOfSecondsBeforeTimeout
      * @throws Exception
      */
     public function createSportSchedules(
@@ -35,7 +35,7 @@ class AllInOneGame
         Poule $poule,
         array $sports,
         AssignedCounter $assignedCounter,
-        Schedule\TimeoutState|null $timeoutState): void
+        int|null $nrOfSecondsBeforeTimeout): void
     {
         foreach ($sports as $sport) {
             // $this->defaultField = $sport->getField(1);

@@ -26,7 +26,7 @@ use SportsPlanning\Sport;
 
 class Against
 {
-    public function __construct(protected LoggerInterface $logger)
+    public function __construct(protected LoggerInterface $logger, protected int $gamesPerPlaceMargin)
     {
     }
 
@@ -43,7 +43,7 @@ class Against
         Poule $poule,
         array $sports,
         AssignedCounter $assignedCounter,
-        Schedule\TimeoutState|null $timeoutState
+        int|null $nrOfSecondsBeforeTimeout
     ): void
     {
         $h2hHomeAwayCreator = new H2hHomeAwayCreator($poule);
@@ -52,14 +52,18 @@ class Against
         foreach ($sortedSports as $sport) {
             $sportVariant = $sport->createVariant();
             if (!($sportVariant instanceof AgainstSportVariant)) {
-                throw new Exception('only against-sport-variant accepted', E_ERROR);
+                throw new \Exception('only against-sport-variant accepted', E_ERROR);
             }
             $sportSchedule = new SportSchedule($schedule, $sport->getNumber(), $sportVariant->toPersistVariant());
             $homeAwayCreator = ($sportVariant instanceof AgainstGpp) ? $gppHomeAwayCreator : $h2hHomeAwayCreator;
-            $gameRound = $this->generateGameRounds($poule, $sportVariant, $homeAwayCreator, $assignedCounter, $timeoutState);
+            $gameRound = $this->generateGameRounds($poule, $sportVariant, $homeAwayCreator, $assignedCounter, $nrOfSecondsBeforeTimeout);
             $this->createGames($sportSchedule, $gameRound);
         }
     }
+
+//    public function setGamesPerPlaceMargin(int $margin): void {
+//        $this->gamesPerPlaceMargin = $margin;
+//    }
 
     /**
      * @param Poule $poule
@@ -90,10 +94,10 @@ class Against
         AgainstH2h|AgainstGpp $sportVariant,
         H2hHomeAwayCreator|GppHomeAwayCreator $homeAwayCreator,
         AssignedCounter $assignedCounter,
-        Schedule\TimeoutState|null $timeoutState
+        int|null $nrOfSecondsBeforeTimeout
     ): AgainstGameRound {
         if ($sportVariant instanceof AgainstGpp && $homeAwayCreator instanceof GppHomeAwayCreator) {
-            $gameRoundCreator = new AgainstGppGameRoundCreator($this->logger, $timeoutState);
+            $gameRoundCreator = new AgainstGppGameRoundCreator($this->logger, $this->gamesPerPlaceMargin, $nrOfSecondsBeforeTimeout);
             $gameRound = $gameRoundCreator->createGameRound($poule, $sportVariant, $homeAwayCreator, $assignedCounter);
 //            $this->logger->info('gameround ' . $gameRound->getNumber());
 //            (new HomeAway($this->logger))->outputHomeAways( $this->gameRoundsToHomeAways($gameRound) );
@@ -133,18 +137,6 @@ class Against
             }
         }
         return $homeAways;
-    }
-
-    /**
-     * @param list<Sport> $sports
-     * @param int $nrOfH2H
-     * @return list<Sport>
-     */
-    protected function filterSports(array $sports, int $nrOfH2H): array
-    {
-        return array_values(array_filter($sports, function (Sport $sport) use ($nrOfH2H): bool {
-            return $sport->getNrOfH2H() >= $nrOfH2H;
-        }));
     }
 
     protected function createGames(SportSchedule $sportSchedule, AgainstGameRound $gameRound): void

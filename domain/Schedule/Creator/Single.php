@@ -32,7 +32,7 @@ class Single
      * @param Poule $poule
      * @param list<Sport> $sports
      * @param AssignedCounter $assignedCounter
-     * @param Schedule\TimeoutState|null $timeoutState
+     * @param int|null $nrOfSecondsBeforeTimeout
      * @throws Exception
      */
     public function createSportSchedules(
@@ -40,7 +40,7 @@ class Single
         Poule $poule,
         array $sports,
         AssignedCounter $assignedCounter,
-        Schedule\TimeoutState|null $timeoutState): void
+        int|null $nrOfSecondsBeforeTimeout): void
     {
         foreach ($sports as $sport) {
             $sportVariant = $sport->createVariant();

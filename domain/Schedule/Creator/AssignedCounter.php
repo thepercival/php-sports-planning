@@ -29,7 +29,10 @@ class AssignedCounter
      * @var array<int, PlaceCombinationCounter>
      */
     protected array $assignedWithMap = [];
-    protected IndirectMap $assignedAgainstMap;
+    /**
+     * @var array<int, PlaceCombinationCounter>
+     */
+    protected array $assignedAgainstMap = [];
     /**
      * @var array<int, PlaceCounter>
      */
@@ -63,22 +66,22 @@ class AssignedCounter
                 $homeAwayCreator = $this->getHomeAwayCreator($poule, $sportVariant);
                 if ($homeAwayCreator instanceof H2hHomeAwayCreator) {
                     $homeAways = $homeAwayCreator->createForOneH2H();
-                    $this->assignedWithMap = $this->getWithMap($homeAways);
+                    $this->assignedWithMap = $this->getPlaceCombinationMap($homeAways);
+                    $this->assignedAgainstMap = $this->getAgainstPlaceCombinationMap($homeAways);
                 } elseif ($sportVariant instanceof AgainstGpp) {
                     $homeAways = $homeAwayCreator->create($sportVariant);
-                    $this->assignedWithMap = $this->getWithMap($homeAways);
+                    $this->assignedWithMap = $this->getPlaceCombinationMap($homeAways);
+                    $this->assignedAgainstMap = $this->getAgainstPlaceCombinationMap($homeAways);
                 }
-                // $this->initAssignedAgainstMap();
             }
         }
-        $this->assignedAgainstMap = new IndirectMap();
     }
 
     /**
      * @param list<AgainstHomeAway> $homeAways
      * @return array<int, PlaceCombinationCounter>
      */
-    public function getWithMap(array $homeAways): array
+    public function getPlaceCombinationMap(array $homeAways): array
     {
         $map = [];
         foreach ($homeAways as $homeAway) {
@@ -89,6 +92,23 @@ class AssignedCounter
             $away = $homeAway->getAway();
             if (!array_key_exists($away->getNumber(), $map)) {
                 $map[$away->getNumber()] = new PlaceCombinationCounter($away);
+            }
+        }
+        return $map;
+    }
+
+    /**
+     * @param list<AgainstHomeAway> $homeAways
+     * @return array<int, PlaceCombinationCounter>
+     */
+    public function getAgainstPlaceCombinationMap(array $homeAways): array
+    {
+        $map = [];
+        foreach ($homeAways as $homeAway) {
+            foreach( $homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination) {
+                if (!array_key_exists($againstPlaceCombination->getNumber(), $map)) {
+                    $map[$againstPlaceCombination->getNumber()] = new PlaceCombinationCounter($againstPlaceCombination);
+                }
             }
         }
         return $map;
@@ -126,7 +146,10 @@ class AssignedCounter
         return $this->assignedWithMap;
     }
 
-    public function getAssignedAgainstMap(): IndirectMap
+    /**
+     * @return array<int, PlaceCombinationCounter>
+     */
+    public function getAssignedAgainstMap(): array
     {
         return $this->assignedAgainstMap;
     }
@@ -167,7 +190,9 @@ class AssignedCounter
 
         $this->assignToWithMap($homeAway->getHome());
         $this->assignToWithMap($homeAway->getAway());
-        $this->assignedAgainstMap = $this->assignedAgainstMap->addHomeAway($homeAway);
+        foreach ($homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination) {
+            $this->assignToWithMap($againstPlaceCombination);
+        }
 
         foreach ($homeAway->getHome()->getPlaces() as $homePlace) {
             $this->assignedHomeMap[$homePlace->getNumber()]->increment();

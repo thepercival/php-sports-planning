@@ -120,7 +120,8 @@ trait PlanningCreator
     protected function createInput(
         array $pouleStructureAsArray,
         array $sportVariantsWithFields = null,
-        RefereeInfo|null $refereeInfo = null
+        RefereeInfo|null $refereeInfo = null,
+        bool $perPoule = false
     ) {
         if ($sportVariantsWithFields === null) {
             $sportVariantsWithFields = [$this->getAgainstH2hSportVariantWithFields(2)];
@@ -131,7 +132,8 @@ trait PlanningCreator
         $input = new Input(
             new PouleStructure(...$pouleStructureAsArray),
             $sportVariantsWithFields,
-            $refereeInfo
+            $refereeInfo,
+            $perPoule
         );
 
         return $input;

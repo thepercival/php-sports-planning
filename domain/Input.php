@@ -62,7 +62,8 @@ class Input extends Identifiable
     public function __construct(
         PouleStructure $pouleStructure,
         array $sportVariantsWithFields,
-        RefereeInfo $refereeInfo
+        RefereeInfo $refereeInfo,
+        protected bool $perPoule
     ) {
         $this->poules = new ArrayCollection();
         $this->sports = new ArrayCollection();
@@ -94,11 +95,14 @@ class Input extends Identifiable
                 new Field($sport);
             }
         }
-        if ($hasAgainstH2h && $this->hasMultipleSports()) {
-            throw new Exception(
-                'bij meerdere sporten mag h2h niet gebruikt worden(Input), pas de sporten aan',
-                E_ERROR
-            );
+        if ($this->hasMultipleSports()) {
+            $this->perPoule = false;
+            if ($hasAgainstH2h) {
+                throw new Exception(
+                    'bij meerdere sporten mag h2h niet gebruikt worden(Input), pas de sporten aan',
+                    E_ERROR
+                );
+            }
         }
 
         $this->selfReferee = $refereeInfo->selfReferee;
@@ -113,6 +117,9 @@ class Input extends Identifiable
             '[' . join(' & ', $this->sports->toArray()) . ']',
             'ref=>' . $refereeInfo
         ];
+        if( $this->perPoule ) {
+            array_push($uniqueStrings, 'pp');
+        }
         $this->uniqueString = join(' - ', $uniqueStrings);
     }
 
@@ -184,18 +191,6 @@ class Input extends Identifiable
         return $nrOfPlaces;
     }
 
-//    /**
-//     * @param PouleStructure $pouleStructure
-//     * @return void
-//     */
-//    protected function initPoules(PouleStructure $pouleStructure): void
-//    {
-//        $this->poules = new ArrayCollection();
-//        foreach ($pouleStructure->toArray() as $nrOfPlaces) {
-//            $this->poules->add(new Poule($this, $this->poules->count() + 1, $nrOfPlaces));
-//        }
-//    }
-
     public function createPouleStructure(): PouleStructure
     {
         $poules = [];
@@ -222,27 +217,6 @@ class Input extends Identifiable
         }
         throw new Exception('sport kan niet gevonden worden', E_ERROR);
     }
-
-//    /**
-//     * @param list<SportGameAmountVariant> $sportVariants
-//     */
-//    protected function initSports(array $sportVariants): void
-//    {
-//        $this->sports = new ArrayCollection();
-//        foreach ($sportVariants as $sportVariant) {
-//            $sport = new Sport(
-//                $this,
-//                $this->sports->count() + 1,
-//                $sportVariant->getGameMode(),
-//                $sportVariant->getNrOfGamePlaces(),
-//                $sportVariant->getGameAmount(),
-//            );
-//            $this->sports->add($sport);
-//            for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportVariant->getNrOfFields() ; $fieldNrDelta++) {
-//                new Field($sport);
-//            }
-//        }
-//    }
 
     /**
      * @return Collection<int|string, SportVariantWithFields>
@@ -286,14 +260,6 @@ class Input extends Identifiable
         return $this->referees;
     }
 
-//    protected function initReferees(int $nrOfReferees): void
-//    {
-//        $this->referees = new ArrayCollection();
-//        for ($refereeNr = 1 ; $refereeNr <= $nrOfReferees ; $refereeNr++) {
-//            $this->referees->add(new Referee($this, $refereeNr));
-//        }
-//    }
-
     public function getReferee(int $refereeNr): Referee
     {
         foreach ($this->getReferees() as $referee) {
@@ -304,39 +270,10 @@ class Input extends Identifiable
         throw new Exception('scheidsrechter kan niet gevonden worden', E_ERROR);
     }
 
-//    /**
-//     * @return list<SingleSportVariant|AgainstSportVariant|AllInOneGameSportVariant>
-//     */
-//    public function getSportVariants(): array
-//    {
-//        if ($this->sportVariants === null) {
-//            $this->sportVariants = [];
-//            foreach ($this->sportConfigDb as $sportConfigDb) {
-//                // bepaal obv ggamemode welke instanceof er moet komen => switch$sportConfigDb["gameMode"]
-//                $this->sportVariants[] = new SportGameAmountVariant(
-//                    $sportConfigDb["gameMode"],
-//                    $sportConfigDb["nrOfGamePlaces"],
-//                    $sportConfigDb["nrOfFields"],
-//                    $sportConfigDb["gameAmount"]
-//                );
-//            }
-//        }
-//        return $this->sportVariants;
-//    }
-
     public function hasMultipleSports(): bool
     {
         return $this->sports->count() > 1;
     }
-
-//    public function getNrOfFields(): int
-//    {
-//        $nrOfFields = 0;
-//        foreach ($this->getSportVariants() as $sportVariant) {
-//            $nrOfFields += $sportVariant->getNrOfFields();
-//        }
-//        return $nrOfFields;
-//    }
 
     public function getSelfReferee(): SelfReferee
     {
@@ -346,6 +283,11 @@ class Input extends Identifiable
     public function selfRefereeEnabled(): bool
     {
         return $this->selfReferee !== SelfReferee::Disabled;
+    }
+
+    public function getPerPoule(): bool
+    {
+        return $this->perPoule;
     }
 
     public function getMaxNrOfBatchGames(): int
@@ -419,10 +361,8 @@ class Input extends Identifiable
             $batchGamesPlannings = $this->getPlannings();
         } else {
             $batchGamesPlannings = $this->getPlanningsWithState($stateValue)->filter(
-                function (Planning $planning) /*use ($batchGameRange)*/ : bool {
-                    return $planning->isUnequalBatchGames(); // &&
-                    // $batchGameRange->getMin() >= $planning->getMinNrOfBatchGames()
-                    // && $batchGameRange->getMax() <= $planning->getMaxNrOfBatchGames();
+                function (Planning $planning) : bool {
+                    return $planning->isUnequalBatchGames();
                 }
             );
         }

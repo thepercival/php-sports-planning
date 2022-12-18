@@ -9,6 +9,7 @@ use SportsPlanning\Combinations\Indirect\Map as IndirectMap;
 use SportsPlanning\Combinations\MultipleCombinationsCounter\Against as AgainstCounter;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\SportVariant\WithPoule as VariantWithPoule;
 use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCreator;
@@ -85,9 +86,8 @@ abstract class Against
      * @param array<int, PlaceCounter> $assignedSportMap
      * @param array<int, PlaceCounter> $assignedMap
      * @param array<int, PlaceCombinationCounter> $assignedWithMap
-     * @param IndirectMap $assignedAgainstMap
+     * @param array<int, PlaceCombinationCounter> $assignedAgainstMap
      * @param array<int, PlaceCounter> $assignedHomeMap
-     * @return IndirectMap
      */
     protected function assignHomeAway(
         AgainstGameRound $gameRound,
@@ -95,24 +95,23 @@ abstract class Against
         array &$assignedSportMap,
         array &$assignedMap,
         array &$assignedWithMap,
-        IndirectMap $assignedAgainstMap,
+        array &$assignedAgainstMap,
         array &$assignedHomeMap
-    ): IndirectMap {
+    ): void {
         foreach ($homeAway->getPlaces() as $place) {
             $assignedSportMap[$place->getNumber()]->increment();
             $assignedMap[$place->getNumber()]->increment();
         }
         $assignedWithMap[$homeAway->getHome()->getNumber()]->increment();
         $assignedWithMap[$homeAway->getAway()->getNumber()]->increment();
+        foreach($homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination) {
+            $assignedAgainstMap[$againstPlaceCombination->getNumber()]->increment();
+        }
 
         foreach ($homeAway->getHome()->getPlaces() as $homePlace) {
             $assignedHomeMap[$homePlace->getNumber()]->increment();
         }
         $gameRound->add($homeAway);
-//        if( count($homeAway->getPlaces()) <= 2) {
-//            return $assignedAgainstMap;
-//        }
-        return $assignedAgainstMap->addHomeAway($homeAway);
     }
 
     /**
@@ -267,4 +266,15 @@ abstract class Against
         }
     }
 
+    /**
+     * @param array<int, PlaceCombinationCounter> $map
+     * @return array<int, PlaceCombination>
+     */
+    protected function convertToPlaceCombinationMap(array $map): array {
+        $newMap = [];
+        foreach( $map as $idx => $counter ) {
+            $newMap[$idx] = $counter->getPlaceCombination();
+        }
+        return $newMap;
+    }
 }

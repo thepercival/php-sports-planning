@@ -7,6 +7,7 @@ namespace SportsPlanning\Game;
 use SportsHelpers\Sport\VariantWithPoule;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\Input;
 use SportsPlanning\Planning;
 
@@ -23,9 +24,26 @@ class PreAssignSorter
      */
     public function getGames(Planning $planning): array
     {
+        $games = $planning->getGames();
+        if( $planning->getInput()->getPerPoule() ) {
+            uasort($games, function (AgainstGame|TogetherGame $g1, AgainstGame|TogetherGame $g2): int {
+
+                $g1GameRoundNumber = $this->getGameRoundNumber($g1);
+                $g2GameRoundNumber = $this->getGameRoundNumber($g2);
+                if ($g1GameRoundNumber !== $g2GameRoundNumber) {
+                    return $g1GameRoundNumber - $g2GameRoundNumber;
+                }
+                $pouleNr1 = $g1->getPoule()->getNumber();
+                $pouleNr2 = $g2->getPoule()->getNumber();
+                if ($pouleNr1 !== $pouleNr2) {
+                    return $pouleNr1 - $pouleNr2;
+                }
+                return 0;
+            });
+            return array_values($games);
+        }
         $this->initMultiplierMap($planning->getInput());
 
-        $games = $planning->getGames();
         uasort($games, function (AgainstGame|TogetherGame $g1, AgainstGame|TogetherGame $g2): int {
             $gameRoundNumber1 = $this->getWeightedGameRoundNumber($g1);
             $gameRoundNumber2 = $this->getWeightedGameRoundNumber($g2);
@@ -45,6 +63,20 @@ class PreAssignSorter
             return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
         });
         return array_values($games);
+    }
+
+    protected function getGameRoundNumber(AgainstGame|TogetherGame $game): int
+    {
+        if ($game instanceof AgainstGame) {
+            return $game->getGameRoundNumber();
+        }
+        $gameRoundNumbers = array_map(function (TogetherGamePlace $gamePlace): int {
+            return $gamePlace->getGameRoundNumber();
+        }, $game->getPlaces()->toArray() );
+        if( count($gameRoundNumbers) === 0 ) {
+            return 0;
+        }
+        return max($gameRoundNumbers);
     }
 
     protected function getSumPlaceNrs(AgainstGame|TogetherGame $game): int

@@ -145,7 +145,8 @@ class Iterator implements \Iterator
         return new PlanningInput(
             $pouleStructure,
             [$sportVariantWithFields],
-            new RefereeInfo($this->selfReferee === SelfReferee::Disabled ? $this->nrOfReferees : $this->selfReferee)
+            new RefereeInfo($this->selfReferee === SelfReferee::Disabled ? $this->nrOfReferees : $this->selfReferee),
+            false
         );
     }
 

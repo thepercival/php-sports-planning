@@ -35,7 +35,7 @@ class Fields
 
     private function initFieldPouleMap(Input $input): void
     {
-        if ($input->hasMultipleSports() || !$input->createPouleStructure()->isBalanced()) {
+        if ($input->hasMultipleSports() || !$input->createPouleStructure()->isBalanced() || $input->getPerPoule()) {
             return;
         }
         $fields = $input->getFields();
