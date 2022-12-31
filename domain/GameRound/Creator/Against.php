@@ -5,19 +5,14 @@ declare(strict_types=1);
 namespace SportsPlanning\GameRound\Creator;
 
 use Psr\Log\LoggerInterface;
-use SportsPlanning\Combinations\Indirect\Map as IndirectMap;
 use SportsPlanning\Combinations\MultipleCombinationsCounter\Against as AgainstCounter;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
+use SportsPlanning\SportVariant\WithPoule\Against\H2h as AgainstH2hWithPoule;
 use SportsPlanning\Combinations\PlaceCombination;
-use SportsPlanning\SportVariant\WithPoule as VariantWithPoule;
-use SportsPlanning\Combinations\AgainstHomeAway;
-use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCreator;
-use SportsPlanning\Combinations\HomeAwayCreator\H2h as H2hHomeAwayCreator;
+use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\Output\GameRound as GameRoundOutput;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
-use SportsPlanning\GameRound\Creator\Against\GamesPerPlace as GppGameRoundCreator;
 use SportsPlanning\GameRound\Creator\Against\H2h as H2hGameRoundCreator;
 use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
@@ -34,7 +29,7 @@ abstract class Against
 
     /**
      * @param AgainstGameRound $gameRound
-     * @param list<AgainstHomeAway> $homeAways
+     * @param list<HomeAway> $homeAways
      * @return AgainstGameRound
      */
     protected function toNextGameRound(AgainstGameRound $gameRound, array &$homeAways): AgainstGameRound
@@ -58,8 +53,8 @@ abstract class Against
     }
 
     /**
-     * @param array<int, PlaceCombinationCounter> $counters
-     * @return array<int, PlaceCombinationCounter>
+     * @param array<string, PlaceCombinationCounter> $counters
+     * @return array<string, PlaceCombinationCounter>
      */
     protected function copyWithCounters(array $counters): array
     {
@@ -75,37 +70,37 @@ abstract class Against
         return array_map(fn(AgainstCounter $againstCounter) => clone $againstCounter, $againstCounters);
     }
 
-    protected function isGameRoundCompleted(VariantWithPoule $variantWithPoule, AgainstGameRound $gameRound): bool
+    protected function isGameRoundCompleted(AgainstH2hWithPoule|AgainstGppWithPoule $variantWithPoule, AgainstGameRound $gameRound): bool
     {
         return count($gameRound->getHomeAways()) === $variantWithPoule->getNrOfGamesSimultaneously();
     }
 
     /**
      * @param AgainstGameRound $gameRound
-     * @param AgainstHomeAway $homeAway
+     * @param HomeAway $homeAway
      * @param array<int, PlaceCounter> $assignedSportMap
      * @param array<int, PlaceCounter> $assignedMap
-     * @param array<int, PlaceCombinationCounter> $assignedWithMap
-     * @param array<int, PlaceCombinationCounter> $assignedAgainstMap
+     * @param array<string, PlaceCombinationCounter> $assignedWithMap
+     * @param array<string, PlaceCombinationCounter> $assignedAgainstMap
      * @param array<int, PlaceCounter> $assignedHomeMap
      */
     protected function assignHomeAway(
         AgainstGameRound $gameRound,
-        AgainstHomeAway $homeAway,
-        array &$assignedSportMap,
-        array &$assignedMap,
-        array &$assignedWithMap,
-        array &$assignedAgainstMap,
-        array &$assignedHomeMap
+        HomeAway         $homeAway,
+        array            &$assignedSportMap,
+        array            &$assignedMap,
+        array            &$assignedWithMap,
+        array            &$assignedAgainstMap,
+        array            &$assignedHomeMap
     ): void {
         foreach ($homeAway->getPlaces() as $place) {
             $assignedSportMap[$place->getNumber()]->increment();
             $assignedMap[$place->getNumber()]->increment();
         }
-        $assignedWithMap[$homeAway->getHome()->getNumber()]->increment();
-        $assignedWithMap[$homeAway->getAway()->getNumber()]->increment();
+        $assignedWithMap[$homeAway->getHome()->getIndex()]->increment();
+        $assignedWithMap[$homeAway->getAway()->getIndex()]->increment();
         foreach($homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination) {
-            $assignedAgainstMap[$againstPlaceCombination->getNumber()]->increment();
+            $assignedAgainstMap[$againstPlaceCombination->getIndex()]->increment();
         }
 
         foreach ($homeAway->getHome()->getPlaces() as $homePlace) {
@@ -114,41 +109,7 @@ abstract class Against
         $gameRound->add($homeAway);
     }
 
-    /**
-     * @param AgainstHomeAway $homeAway
-     * @param array<int, PlaceCounter> $assignedMap
-     * @return list<int>
-     */
-    protected function getLeastAmountAssigned(AgainstHomeAway $homeAway, array $assignedMap): array
-    {
-        $leastAmount = -1;
-        $nrOfPlaces = 0;
-        foreach ($homeAway->getPlaces() as $place) {
-            $amountAssigned = $assignedMap[$place->getNumber()]->count();
-            if ($leastAmount === -1 || $amountAssigned < $leastAmount) {
-                $leastAmount = $amountAssigned;
-                $nrOfPlaces = 0;
-            }
-            if ($amountAssigned === $leastAmount) {
-                $nrOfPlaces++;
-            }
-        }
-        return [$leastAmount, $nrOfPlaces];
-    }
-
-    /**
-     * @param AgainstHomeAway $homeAway
-     * @param array<int, PlaceCombinationCounter> $assignedWithMap
-     * @return int
-     */
-    protected function getWithAmountAssigned(AgainstHomeAway $homeAway, array $assignedWithMap): int
-    {
-        $homeWithAmountAssigned = $assignedWithMap[$homeAway->getHome()->getNumber()]->count();
-        $awayWithAmountAssigned = $assignedWithMap[$homeAway->getAway()->getNumber()]->count();
-        return $homeWithAmountAssigned + $awayWithAmountAssigned;
-    }
-
-    protected function releaseHomeAway(AgainstGameRound $gameRound, AgainstHomeAway $homeAway): void
+    protected function releaseHomeAway(AgainstGameRound $gameRound, HomeAway $homeAway): void
     {
         $gameRound->remove($homeAway);
     }
@@ -183,45 +144,6 @@ abstract class Against
 //        return false;
 //    }
 
-    /**
-     * @param VariantWithPoule $variantWithPoule
-     * @param int $currentGameRoundNumber
-     * @param list<AgainstHomeAway> $homeAways
-     * @return bool
-     */
-    protected function isOverAssigned(
-        VariantWithPoule $variantWithPoule,
-        int $currentGameRoundNumber,
-        array $homeAways
-    ): bool {
-        if ($this instanceof H2hGameRoundCreator) {
-            return false;
-        }
-//        $sportVariant = $this->getSportVariant();
-//        if ($sportVariant instanceof AgainstGpp
-//                && !$sportVariant->allPlacesPlaySameNrOfGames(count($poule->getPlaces()))
-//            ) {
-//            return false;
-//        }
-        $poule = $variantWithPoule->getPoule();
-        $unassignedMap = [];
-        foreach ($poule->getPlaces() as $place) {
-            $unassignedMap[$place->getNumber()] = new PlaceCounter($place);
-        }
-        foreach ($homeAways as $homeAway) {
-            foreach ($homeAway->getPlaces() as $place) {
-                $unassignedMap[$place->getNumber()]->increment();
-            }
-        }
-
-        $maxNrOfGameGroups = $variantWithPoule->getNrOfGameGroups();
-        foreach ($poule->getPlaces() as $place) {
-            if ($currentGameRoundNumber + $unassignedMap[$place->getNumber()]->count() > $maxNrOfGameGroups) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * @param Poule $poule
@@ -237,7 +159,7 @@ abstract class Against
     }
 
     /**
-     * @param list<AgainstHomeAway> $homeAways
+     * @param list<HomeAway> $homeAways
      */
     protected function outputUnassignedHomeAways(array $homeAways): void
     {
@@ -248,7 +170,7 @@ abstract class Against
     }
 
     /**
-     * @param list<AgainstHomeAway> $homeAways
+     * @param list<HomeAway> $homeAways
      */
     protected function outputUnassignedTotals(array $homeAways): void
     {
@@ -267,8 +189,8 @@ abstract class Against
     }
 
     /**
-     * @param array<int, PlaceCombinationCounter> $map
-     * @return array<int, PlaceCombination>
+     * @param array<string, PlaceCombinationCounter> $map
+     * @return array<string, PlaceCombination>
      */
     protected function convertToPlaceCombinationMap(array $map): array {
         $newMap = [];

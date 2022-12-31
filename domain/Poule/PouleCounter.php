@@ -48,7 +48,7 @@ class PouleCounter
 
     public function remove(int $nrOfPlacesToUnassign): void
     {
-        $this->gameCounter->decrement();
+        $this->gameCounter = $this->gameCounter->decrement2();
         $this->nrOfPlacesAssigned -= $nrOfPlacesToUnassign;
     }
 

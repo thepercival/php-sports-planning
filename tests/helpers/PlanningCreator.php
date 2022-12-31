@@ -145,7 +145,8 @@ trait PlanningCreator
         int $maxNrOfGamesInARow = 0,
         bool $disableThrowOnTimeout = false,
         bool $showHighestCompletedBatchNr = false,
-        TimeoutState|null $timeoutState = null
+        TimeoutState|null $timeoutState = null,
+        int|null $allowedGppMargin = null
     ): Planning {
         if ($nrOfGamesPerBatchRange === null) {
             $nrOfGamesPerBatchRange = new SportRange(1, 1);
@@ -156,6 +157,9 @@ trait PlanningCreator
         }
 
         $scheduleCreatorService = new ScheduleCreator($this->getLogger());
+        if( $allowedGppMargin !== null) {
+            $scheduleCreatorService->setAllowedGppMargin($allowedGppMargin);
+        }
         $schedules = $scheduleCreatorService->createFromInput($input);
 
         $gameCreator = new GameCreator($this->getLogger());

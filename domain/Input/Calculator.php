@@ -7,13 +7,13 @@ namespace SportsPlanning\Input;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\GamePlaceCalculator;
-use SportsHelpers\Sport\Variant as SportVariant;
+use SportsHelpers\Sport\Variant\Creator as VariantCreator;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\AllInOneGame;
+use SportsHelpers\Sport\Variant\WithPoule\AllInOneGame as AllInOneGameWithPoule;
 use SportsHelpers\Sport\Variant\Single;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
-use SportsHelpers\Sport\VariantWithPoule;
 use SportsPlanning\Input;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Sport;
@@ -64,32 +64,12 @@ class Calculator
     ): int {
         $maxNrOfGamesPerBatch = 0;
         foreach ($pouleStructure->toArray() as $nrOfPlaces) {
-            $variantWithPoule = new VariantWithPoule($sportVariantWithFields->getSportVariant(), $nrOfPlaces);
-            $maxNrOfGamesPerBatch += $this->getMaxNrOfSportPouleGamesPerBatchByPlaces(
-                $variantWithPoule,
-                $refereeInfo->selfReferee
-            );
+            $variantWithPoule = (new VariantCreator())->createWithPoule($nrOfPlaces, $sportVariantWithFields->getSportVariant());
+            $maxNrOfGamesPerBatch += $variantWithPoule->getMaxNrOfGamesSimultaneously($refereeInfo->selfReferee);
         }
 
         $maxNrOfGamesPerBatch = $this->reduceByFields($maxNrOfGamesPerBatch, $sportVariantWithFields->getNrOfFields());
         return $this->reduceByReferees($maxNrOfGamesPerBatch, $refereeInfo);
-    }
-
-    public function getMaxNrOfSportPouleGamesPerBatchByPlaces(
-        VariantWithPoule $variantWithPoule,
-        SelfReferee $selfReferee
-    ): int {
-        $sportVariant = $variantWithPoule->getSportVariant();
-        if ($sportVariant instanceof AllInOneGame) {
-            return 1;
-        }
-
-        $nrOfGamePlaces = $sportVariant->getNrOfGamePlaces();
-        if ($selfReferee === SelfReferee::SamePoule) {
-            $nrOfGamePlaces++;
-        }
-        $nrOfSimGames = (int)floor($variantWithPoule->getNrOfPlaces() / $nrOfGamePlaces);
-        return $nrOfSimGames === 0 ? 1 : $nrOfSimGames;
     }
 
     public function reduceByFields(int $maxNrOfGamesPerBatch, int $nrOfFields): int
@@ -192,8 +172,11 @@ class Calculator
 
     protected function getNrOfGamePlaces(AgainstH2h|AgainstGpp|Single|AllInOneGame $sportVariant, int $nrOfPlaces): int
     {
-        $variantWithPoule = new VariantWithPoule($sportVariant, $nrOfPlaces);
-        return $variantWithPoule->getNrOfGamePlaces();
+        $variantWithPoule = (new VariantCreator())->createWithPoule($nrOfPlaces, $sportVariant);
+        if( $variantWithPoule instanceof AllInOneGameWithPoule) {
+            return $variantWithPoule->getNrOfGamePlaces();
+        }
+        return $variantWithPoule->getSportVariant()->getNrOfGamePlaces();
     }
 
     protected function applyBalancedStructureAndSingleSportCheck(
@@ -238,10 +221,8 @@ class Calculator
         $nrOfRestPlaces = $nrOfPlaces - $maxNrOfBatchPlaces;
         if ($nrOfRestPlaces <= 0) {
             $sportVariants = array_values($input->createSportVariants()->toArray());
-            $maxNrOfGamesPerPlace = $this->sportGamePlaceCalculator->getMaxNrOfGamesPerPlace(
-                $nrOfPlaces,
-                $sportVariants
-            );
+            $variantsWithPoules = (new VariantCreator())->createWithPoules($nrOfPlaces, $sportVariants);
+            $maxNrOfGamesPerPlace = $this->sportGamePlaceCalculator->getMaxNrOfGamesPerPlace($variantsWithPoules);
             if ($maxNrOfGamesPerPlace > ($biggestPouleNrOfPlaces - 1)) {
                 $maxNrOfGamesPerPlace = $biggestPouleNrOfPlaces - 1;
             }

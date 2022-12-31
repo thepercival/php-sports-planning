@@ -49,7 +49,7 @@ class Against extends Validator
             $againstPlaceCombinations = array_values(array_filter($againstPlaceCombinations, function (PlaceCombination $againstPlaceCombinationIt) use ($placeCombination): bool {
                 return !$againstPlaceCombinationIt->hasOverlap($placeCombination);
             }));
-            $this->counters[$placeCombination->getNumber()] = new AgainstCounter($placeCombination, $againstPlaceCombinations);
+            $this->counters[$placeCombination->getIndex()] = new AgainstCounter($placeCombination, $againstPlaceCombinations);
             $placesIt->next();
         }
     }
@@ -61,11 +61,11 @@ class Against extends Validator
         }
         $homePlaceCombination = $this->getPlaceCombination($game, Side::Home);
         $awayPlaceCombination = $this->getPlaceCombination($game, Side::Away);
-        if (isset($this->counters[$homePlaceCombination->getNumber()])) {
-            $this->counters[$homePlaceCombination->getNumber()]->addCombination($awayPlaceCombination);
+        if (isset($this->counters[$homePlaceCombination->getIndex()])) {
+            $this->counters[$homePlaceCombination->getIndex()]->addCombination($awayPlaceCombination);
         }
-        if (isset($this->counters[$awayPlaceCombination->getNumber()])) {
-            $this->counters[$awayPlaceCombination->getNumber()]->addCombination($homePlaceCombination);
+        if (isset($this->counters[$awayPlaceCombination->getIndex()])) {
+            $this->counters[$awayPlaceCombination->getIndex()]->addCombination($homePlaceCombination);
         }
     }
 

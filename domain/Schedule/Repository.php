@@ -7,7 +7,6 @@ namespace SportsPlanning\Schedule;
 use Doctrine\ORM\EntityRepository;
 use SportsHelpers\Repository as BaseRepository;
 use SportsPlanning\Input;
-use SportsPlanning\Input as InputBase;
 use SportsPlanning\Poule;
 use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Name as ScheduleName;
@@ -55,5 +54,45 @@ class Repository extends EntityRepository
                 return $poule->getPlaces()->count();
             })->toArray()
         ));
+    }
+
+    /**
+     * @param int $nrToProcess
+     * @return list<Schedule>
+     */
+    public function findWithoutMargin(int $nrToProcess): array
+    {
+        $queryBuilder = $this->createQueryBuilder('sch')
+            ->where('sch.succeededMargin = -1');
+        $queryBuilder->setMaxResults($nrToProcess);
+
+        /** @var list<Schedule> $schedules */
+        $schedules = $queryBuilder->getQuery()->getResult();
+        return $schedules;
+    }
+
+    /**
+     * @param int $nrToProcess
+     * @param int $maxNrOfTimeoutSeconds
+     * @return list<Schedule>
+     */
+    public function findOrderedByNrOfTimeoutSecondsAndMargin(int $nrToProcess, int|null $maxNrOfTimeoutSeconds = null): array
+    {
+        $queryBuilder = $this->createQueryBuilder('sch')
+            ->where('sch.succeededMargin > 0')
+            ->where('sch.nrOfTimeoutSecondsTried >= 0')
+            ->orderBy('sch.nrOfTimeoutSecondsTried', 'ASC')
+            ->addOrderBy('sch.succeededMargin', 'DESC')
+        ;
+        if( $maxNrOfTimeoutSeconds !== null ) {
+            $queryBuilder = $queryBuilder
+                ->andWhere('sch.nrOfTimeoutSecondsTried <= :nrOfTimeoutSeconds')
+                ->setParameter('nrOfTimeoutSeconds', $maxNrOfTimeoutSeconds);
+        }
+        $queryBuilder->setMaxResults($nrToProcess);
+
+        /** @var list<Schedule> $schedules */
+        $schedules = $queryBuilder->getQuery()->getResult();
+        return $schedules;
     }
 }

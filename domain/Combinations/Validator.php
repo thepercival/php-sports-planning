@@ -20,7 +20,7 @@ abstract class Validator
 {
     protected AgainstSportVariant $sportVariant;
     /**
-     * @var array<int, T>
+     * @var array<int|string, T>
      */
     protected array $counters = [];
 

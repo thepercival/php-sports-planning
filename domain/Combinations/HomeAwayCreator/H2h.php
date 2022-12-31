@@ -5,34 +5,34 @@ declare(strict_types=1);
 namespace SportsPlanning\Combinations\HomeAwayCreator;
 
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsPlanning\Combinations\AgainstHomeAway;
+use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\HomeAwayCreator;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
+use SportsPlanning\SportVariant\WithPoule\Against\H2h as AgainstH2hWithPoule;
 
 final class H2h extends HomeAwayCreator
 {
-    public function __construct(protected Poule $poule/*, protected AgainstH2h $sportVariant*/)
+    public function __construct()
     {
-        parent::__construct(/*$poule, $sportVariant*/);
+        parent::__construct();
     }
 
     /**
-     * @return list<AgainstHomeAway>
+     * @param AgainstH2hWithPoule $againstH2hWithPoule
+     * @return list<HomeAway>
      */
-    public function createForOneH2H(): array
+    public function createForOneH2H(AgainstH2hWithPoule $againstH2hWithPoule): array
     {
-//        $nrOfPlaces = $this->poule->getPlaces()->count();
-//        $this->nrOfGamesPerPlace = $this->sportVariant->getNrOfGamesPerPlaceOneH2H($nrOfPlaces);
-//        $this->minNrOfHomeGamesPerPlace = (int)floor($this->nrOfGamesPerPlace / 2);
+        $poule = $againstH2hWithPoule->getPoule();
 
         $homeAways = [];
 
         /** @var list<Place|null> $schedulePlaces */
-        $schedulePlaces = array_values($this->poule->getPlaces()->toArray());
+        $schedulePlaces = array_values($poule->getPlaces()->toArray());
 
-        if (count($this->poule->getPlaces()) % 2 != 0) {
+        if (count($poule->getPlaces()) % 2 != 0) {
             array_push($schedulePlaces, null);
         }
         $away = array_splice($schedulePlaces, (int)(count($schedulePlaces) / 2));
@@ -58,12 +58,12 @@ final class H2h extends HomeAwayCreator
         return $this->swap($homeAways);
     }
 
-    protected function createHomeAway(Place $home, Place $away): AgainstHomeAway
+    protected function createHomeAway(Place $home, Place $away): HomeAway
     {
         if ($this->shouldSwap($home, $away)) {
-            return new AgainstHomeAway(new PlaceCombination([$away]), new PlaceCombination([$home]));
+            return new HomeAway(new PlaceCombination([$away]), new PlaceCombination([$home]));
         }
-        return new AgainstHomeAway(new PlaceCombination([$home]), new PlaceCombination([$away]));
+        return new HomeAway(new PlaceCombination([$home]), new PlaceCombination([$away]));
     }
 
     protected function shouldSwap(Place $home, Place $away): bool

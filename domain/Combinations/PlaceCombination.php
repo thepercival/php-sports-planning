@@ -8,14 +8,32 @@ use SportsPlanning\Place;
 
 class PlaceCombination implements \Stringable
 {
+    private string|null $index = null;
+    /**
+     * @var list<Place> $places
+     */
+    private array $places;
+
     /**
      * @param list<Place> $places
      */
-    public function __construct(private array $places)
+    public function __construct(array $places)
     {
+        uasort($places, function(Place $place1, Place $place2): int {
+            return $place1->getNumber() - $place2->getNumber();
+        });
+        $this->places = array_values($places);
     }
 
-    public function getNumber(): int
+    public function getIndex(): string
+    {
+        if( $this->index === null) {
+            $this->index = (string)$this;
+        }
+        return $this->index;
+    }
+
+    protected function getNumber(): int
     {
         $number = 0;
         foreach ($this->places as $place) {
@@ -24,7 +42,7 @@ class PlaceCombination implements \Stringable
         return $number;
     }
 
-    public function getPlaceNumber(Place $place): int
+    protected function getPlaceNumber(Place $place): int
     {
         return (int)pow(2, $place->getNumber() - 1);
     }

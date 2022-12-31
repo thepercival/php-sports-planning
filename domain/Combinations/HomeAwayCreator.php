@@ -20,8 +20,8 @@ abstract class HomeAwayCreator
     }
 
     /**
-     * @param list<AgainstHomeAway> $homeAways
-     * @return list<AgainstHomeAway>
+     * @param list<HomeAway> $homeAways
+     * @return list<HomeAway>
      */
     protected function swap(array $homeAways): array
     {
@@ -33,8 +33,8 @@ abstract class HomeAwayCreator
     }
 
     /**
-     * @param list<AgainstHomeAway> $homeAways
-     * @return list<AgainstHomeAway>
+     * @param list<HomeAway> $homeAways
+     * @return list<HomeAway>
      */
     private function swapHomeAways(array $homeAways): array
     {

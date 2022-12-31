@@ -8,10 +8,15 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use SportsHelpers\Identifiable;
+use SportsHelpers\PouleStructure;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
 use SportsHelpers\Sport\Variant\Single as Single;
+use SportsHelpers\Sport\VariantWithFields;
+use SportsHelpers\Sport\VariantWithPoule;
+use SportsHelpers\SportRange;
+use SportsPlanning\Referee\Info;
 use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 
@@ -19,7 +24,8 @@ class Schedule extends Identifiable implements \Stringable
 {
     protected string $sportsConfigName;
     protected int $succeededMargin = -1;
-    protected int $nrOfTimeoutSecondsTried = -1;
+    protected Poule|null $poule = null;
+    protected int $nrOfTimeoutSecondsTried = 0;
 
     /**
      * @phpstan-var ArrayCollection<int|string, SportSchedule>|PersistentCollection<int|string, SportSchedule>|SportSchedule[]
@@ -64,12 +70,33 @@ class Schedule extends Identifiable implements \Stringable
         );
     }
 
+//    public function createSportVariantWithPoules(): array
+//    {
+//        return array_values(
+//                array_map( function(Single|AgainstH2h|AgainstGpp|AllInOneGame $sportVariant): VariantWithPoule {
+//                return new VariantWithPoule($sportVariant, $this->getNrOfPlaces());
+//            } , $this->createSportVariants()->toArray() )
+//        );
+//    }
+
+    /**
+     * @return list<VariantWithFields>
+     */
+    public function createSportVariantWithFields(): array
+    {
+        return array_values(
+            array_map( function(Single|AgainstH2h|AgainstGpp|AllInOneGame $sportVariant): VariantWithFields {
+                return new VariantWithFields($sportVariant, 1);
+            } , $this->createSportVariants()->toArray() )
+        );
+    }
+
     public function getSucceededMargin(): int
     {
         return $this->succeededMargin;
     }
 
-    public function putSucceededMargin(int $succeededMargin): void
+    public function setSucceededMargin(int $succeededMargin): void
     {
         $this->succeededMargin = $succeededMargin;
     }
@@ -79,9 +106,25 @@ class Schedule extends Identifiable implements \Stringable
         return $this->nrOfTimeoutSecondsTried;
     }
 
-    public function putNrOfTimeoutSecondsTried(int $nrOfTimeoutSecondsTried): void
+    public function setNrOfTimeoutSecondsTried(int $nrOfTimeoutSecondsTried): void
     {
         $this->nrOfTimeoutSecondsTried = $nrOfTimeoutSecondsTried;
+    }
+
+    public function getPoule(): Poule {
+        if( $this->poule === null ) {
+            $input = new Input(
+                new PouleStructure( $this->getNrOfPlaces() ),
+                array_values( array_map(
+                    function(Single|AgainstH2h|AgainstGpp|AllInOneGame $variant): VariantWithFields {
+                    return new VariantWithFields($variant, 1);
+                }, $this->createSportVariants()->toArray() ) ),
+                new Info(0),
+                false
+            );
+            $this->poule = $input->getPoule(1);
+        }
+        return $this->poule;
     }
 
     public function __toString()

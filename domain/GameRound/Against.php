@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace SportsPlanning\GameRound;
 
-use SportsPlanning\Combinations\AgainstHomeAway;
+use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\GameRound;
+use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\Planning\ListNode;
 
 /**
@@ -16,7 +17,7 @@ class Against extends ListNode
     use GameRound;
 
     /**
-     * @var list<AgainstHomeAway>
+     * @var list<HomeAway>
      */
     protected array $homeAways = [];
 
@@ -31,7 +32,7 @@ class Against extends ListNode
         return $this->next;
     }
 
-    public function add(AgainstHomeAway $homeAway): void
+    public function add(HomeAway $homeAway): void
     {
         $this->homeAways[] = $homeAway;
         foreach ($homeAway->getPlaces() as $place) {
@@ -39,7 +40,7 @@ class Against extends ListNode
         }
     }
 
-    public function remove(AgainstHomeAway $homeAway): void
+    public function remove(HomeAway $homeAway): void
     {
         $index = array_search($homeAway, $this->homeAways, true);
         if ($index !== false) {
@@ -50,19 +51,31 @@ class Against extends ListNode
         }
     }
 
+    public function reverseSidesOfHomeAway(HomeAway $reversedHomeAway): bool
+    {
+        foreach( $this->homeAways as $needle => $homeAwayIt) {
+            if( $homeAwayIt->equals($reversedHomeAway) ) {
+                array_splice($this->homeAways, $needle, 1, [$reversedHomeAway]);
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     /**
      * @param bool $swap
-     * @return list<AgainstHomeAway>
+     * @return list<HomeAway>
      */
     public function getHomeAways(bool $swap = false): array
     {
         if ($swap === false) {
             return $this->homeAways;
         }
-        return array_map(fn(AgainstHomeAway $homeAway) => $homeAway->swap(), $this->homeAways);
+        return array_map(fn(HomeAway $homeAway) => $homeAway->swap(), $this->homeAways);
     }
 
-    public function isHomeAwayPlaceParticipating(AgainstHomeAway $homeAway): bool
+    public function isHomeAwayPlaceParticipating(HomeAway $homeAway): bool
     {
         foreach ($homeAway->getPlaces() as $place) {
             if ($this->isParticipating($place)) {
@@ -78,5 +91,21 @@ class Against extends ListNode
             return count($this->getHomeAways()) + $previous->getNrOfHomeAwaysRecursive();
         }
         return count($this->getHomeAways());
+    }
+
+    /**
+     * @return list<HomeAway>
+     */
+    public function getAllHomeAways(): array
+    {
+        $homeAways = [];
+        $gameRound = $this->getFirst();
+        while ($gameRound) {
+            foreach ($gameRound->getHomeAways() as $homeAway) {
+                array_push($homeAways, $homeAway);
+            }
+            $gameRound = $gameRound->getNext();
+        }
+        return $homeAways;
     }
 }

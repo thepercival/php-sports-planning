@@ -10,9 +10,13 @@ use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\Variant\Creator as VariantCreator;
+use SportsHelpers\Sport\Variant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
+use SportsHelpers\Sport\Variant\WithPoule\Against\H2h as AgainstH2hWithPoule;
+use SportsHelpers\Sport\Variant\WithPoule\AllInOneGame as AllInOneGameWithPoule;
+use SportsHelpers\Sport\Variant\WithPoule\Single as SingleWithPoule;
 use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCreator;
 use SportsPlanning\Combinations\HomeAwayCreator\H2h as H2hHomeAwayCreator;
-use SportsPlanning\Combinations\AgainstHomeAway;
 use SportsPlanning\Combinations\Output\HomeAway;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\GameRound\Creator\Against\GamesPerPlace as AgainstGppGameRoundCreator;
@@ -26,7 +30,7 @@ use SportsPlanning\Sport;
 
 class Against
 {
-    public function __construct(protected LoggerInterface $logger, protected int $gamesPerPlaceMargin)
+    public function __construct(protected LoggerInterface $logger, protected int $allowedGppMargin)
     {
     }
 
@@ -35,7 +39,7 @@ class Against
      * @param Poule $poule
      * @param list<Sport> $sports
      * @param AssignedCounter $assignedCounter
-     * @param Schedule\TimeoutState|null $timeoutState
+     * @param int|null $nrOfSecondsBeforeTimeout
      * @throws Exception
      */
     public function createSportSchedules(
@@ -46,8 +50,8 @@ class Against
         int|null $nrOfSecondsBeforeTimeout
     ): void
     {
-        $h2hHomeAwayCreator = new H2hHomeAwayCreator($poule);
-        $gppHomeAwayCreator = new GppHomeAwayCreator($poule);
+        $h2hHomeAwayCreator = new H2hHomeAwayCreator();
+        $gppHomeAwayCreator = new GppHomeAwayCreator();
         $sortedSports = $this->sortSportsByEquallyAssigned($poule, $sports);
         foreach ($sortedSports as $sport) {
             $sportVariant = $sport->createVariant();
@@ -72,14 +76,13 @@ class Against
      */
     protected function sortSportsByEquallyAssigned(Poule $poule, array $sports): array
     {
-        uasort($sports, function (Sport $sportA, Sport $sportB) use ($poule): int {
-            $sportVariantA = $sportA->createVariant();
-            $sportVariantB = $sportB->createVariant();
-            if (!($sportVariantA instanceof AgainstGpp) || !($sportVariantB instanceof AgainstGpp)) {
-                return 0;
-            }
-            $allPlacesSameNrOfGamesA = $sportVariantA->allPlacesPlaySameNrOfGames($poule->getPlaces()->count());
-            $allPlacesSameNrOfGamesB = $sportVariantB->allPlacesPlaySameNrOfGames($poule->getPlaces()->count());
+        $creator = new VariantCreator();
+        $nrOfPlaces = $poule->getPlaces()->count();
+        uasort($sports, function (Sport $sportA, Sport $sportB) use ($nrOfPlaces, $creator): int {
+            $sportVariantA = $creator->createWithPoule($nrOfPlaces, $sportA->createVariant() );
+            $sportVariantB = $creator->createWithPoule($nrOfPlaces, $sportB->createVariant() );
+            $allPlacesSameNrOfGamesA = $this->allPlacesSameNrOfGamesAssignable($sportVariantA);
+            $allPlacesSameNrOfGamesB = $this->allPlacesSameNrOfGamesAssignable($sportVariantB);
             if (($allPlacesSameNrOfGamesA && $allPlacesSameNrOfGamesB)
                 || (!$allPlacesSameNrOfGamesA && !$allPlacesSameNrOfGamesB)) {
                 return 0;
@@ -97,11 +100,10 @@ class Against
         int|null $nrOfSecondsBeforeTimeout
     ): AgainstGameRound {
         if ($sportVariant instanceof AgainstGpp && $homeAwayCreator instanceof GppHomeAwayCreator) {
-            $gameRoundCreator = new AgainstGppGameRoundCreator($this->logger, $this->gamesPerPlaceMargin, $nrOfSecondsBeforeTimeout);
+            $gameRoundCreator = new AgainstGppGameRoundCreator($this->logger, $this->allowedGppMargin, $nrOfSecondsBeforeTimeout);
             $gameRound = $gameRoundCreator->createGameRound($poule, $sportVariant, $homeAwayCreator, $assignedCounter);
 //            $this->logger->info('gameround ' . $gameRound->getNumber());
-//            (new HomeAway($this->logger))->outputHomeAways( $this->gameRoundsToHomeAways($gameRound) );
-//            $ss = 12;
+//            (new HomeAway($this->logger))->outputHomeAways($gameRound->getAllHomeAways() );
         } else {
             if ($sportVariant instanceof AgainstH2h && $homeAwayCreator instanceof H2hHomeAwayCreator) {
                 $gameRoundCreator = new AgainstH2hGameRoundCreator($this->logger);
@@ -115,28 +117,8 @@ class Against
                 throw new \Exception('unkown homeawaycreator', E_ERROR);
             }
         }
-        $this->assignHomeAways($assignedCounter, $gameRound);
+        $assignedCounter->assignHomeAways($gameRound->getAllHomeAways());
         return $gameRound;
-    }
-
-    protected function assignHomeAways(AssignedCounter $assignedCounter, AgainstGameRound $gameRound): void
-    {
-        $assignedCounter->assignAgainstHomeAways($this->gameRoundsToHomeAways($gameRound));
-    }
-
-    /**
-     * @param AgainstGameRound $gameRound
-     * @return list<AgainstHomeAway>
-     */
-    protected function gameRoundsToHomeAways(AgainstGameRound $gameRound): array
-    {
-        $homeAways = $gameRound->getHomeAways();
-        while ($gameRound = $gameRound->getNext()) {
-            foreach ($gameRound->getHomeAways() as $homeAway) {
-                array_push($homeAways, $homeAway);
-            }
-        }
-        return $homeAways;
     }
 
     protected function createGames(SportSchedule $sportSchedule, AgainstGameRound $gameRound): void
@@ -153,5 +135,14 @@ class Against
             }
             $gameRound = $gameRound->getNext();
         }
+    }
+
+    private function allPlacesSameNrOfGamesAssignable(
+    AllInOneGameWithPoule|SingleWithPoule|AgainstH2hWithPoule|AgainstGppWithPoule $variantWithPoule): bool
+    {
+        if( !($variantWithPoule instanceof AgainstGppWithPoule) ) {
+            return true;
+        }
+        return $variantWithPoule->allPlacesSameNrOfGamesAssignable();
     }
 }

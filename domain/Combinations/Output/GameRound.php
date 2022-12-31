@@ -6,7 +6,7 @@ namespace SportsPlanning\Combinations\Output;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
-use SportsPlanning\Combinations\AgainstHomeAway;
+use SportsPlanning\Combinations\HomeAway as HomeAwayBase;
 use SportsPlanning\Combinations\Output\HomeAway as HomeAwayOutput;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 
@@ -63,7 +63,7 @@ class GameRound extends OutputHelper
     }
 
     /**
-     * @param list<AgainstHomeAway> $homeAways
+     * @param list<HomeAwayBase> $homeAways
      * @param AgainstGameRound|null $gameRound
      * @return void
      */

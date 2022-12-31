@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Identifiable;
+use SportsPlanning\Combinations\HomeAway;
+use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 use SportsPlanning\Schedule\Sport as SportSchedule;
@@ -58,6 +60,13 @@ class Game extends Identifiable
             }
         }
         return $poulePlaces;
+    }
+
+    public function toHomeAway(Poule $poule): HomeAway {
+        $homePlaces = $this->getSidePlaces($poule, AgainstSide::Home);
+        $awayPlaces = $this->getSidePlaces($poule, AgainstSide::Away);
+
+        return new HomeAway( new PlaceCombination( $homePlaces  ), new PlaceCombination( $awayPlaces ) );
     }
 
     public function __toString(): string

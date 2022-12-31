@@ -21,9 +21,19 @@ class PlaceCombinationCounter extends Counter implements \Stringable
         return $this->countedObject;
     }
 
-    public function getNumber(): int
+    public function decrement(): self
     {
-        return $this->getPlaceCombination()->getNumber();
+        return new self($this->getPlaceCombination(), $this->count - 1 );
+    }
+
+    public function increment2(): self
+    {
+        return new self($this->getPlaceCombination(), $this->count() + 1 );
+    }
+
+    public function getIndex(): string
+    {
+        return $this->getPlaceCombination()->getIndex();
     }
 
     public function __toString(): string

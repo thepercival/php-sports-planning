@@ -7,12 +7,22 @@ namespace SportsPlanning\Combinations;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Place;
 
-class AgainstHomeAway implements \Stringable
+class HomeAway implements \Stringable
 {
+    private string|null $index = null;
+
     public function __construct(
         private PlaceCombination $home,
         private PlaceCombination $away
     ) {
+    }
+
+    public function getIndex(): string
+    {
+        if( $this->index === null ) {
+            $this->index = (string)$this;
+        }
+        return $this->index;
     }
 
     public function get(AgainstSide $side): PlaceCombination
@@ -82,15 +92,15 @@ class AgainstHomeAway implements \Stringable
         return $withPlaceCombinations;
     }
 
-    public function equals(AgainstHomeAway $game): bool
+    public function equals(HomeAway $game): bool
     {
-        return ($game->getAway()->getNumber() === $this->getHome()->getNumber()
-                || $game->getHome()->getNumber() === $this->getHome()->getNumber())
-            && ($game->getAway()->getNumber() === $this->getAway()->getNumber()
-                || $game->getHome()->getNumber() === $this->getAway()->getNumber());
+        return ($game->getAway()->getIndex() === $this->getHome()->getIndex()
+                || $game->getHome()->getIndex() === $this->getHome()->getIndex())
+            && ($game->getAway()->getIndex() === $this->getAway()->getIndex()
+                || $game->getHome()->getIndex() === $this->getAway()->getIndex());
     }
 
-    public function hasOverlap(AgainstHomeAway $game): bool
+    public function hasOverlap(HomeAway $game): bool
     {
         return $game->getAway()->hasOverlap($this->getHome())
             || $game->getAway()->hasOverlap($this->getAway())
@@ -100,7 +110,7 @@ class AgainstHomeAway implements \Stringable
 
     public function swap(): self
     {
-        return new AgainstHomeAway($this->getAway(), $this->getHome());
+        return new HomeAway($this->getAway(), $this->getHome());
     }
 
     public function __toString(): string

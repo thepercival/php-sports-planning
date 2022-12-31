@@ -2,19 +2,18 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Tests\ProductionErrors;
+namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
 use SportsPlanning\Planning\TimeoutConfig;
-use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class ExtraTest extends TestCase
+class ProductionErrorsTest extends TestCase
 {
     use PlanningCreator;
 
@@ -101,28 +100,28 @@ class ExtraTest extends TestCase
 //        self::assertSame(PlanningValidator::VALID, $validity);
 //    }
 
-    public function test10(): void
-    {
-        $nrOfGamesPerBatchRange = new SportRange(3, 3);
-        $sportVariantsWithFields = [
-            $this->getAgainstGppSportVariantWithFields(2, 1, 1, 9),
-            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9),
-            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9)
-        ];
-        $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
-        $planning = $this->createPlanning(
-            $this->createInput([10], $sportVariantsWithFields, $refereeInfo),
-            $nrOfGamesPerBatchRange/*,
-            0,
-            true, true*/
-        );
-
-        // (new PlanningOutput())->outputWithGames($planning, true);
-
-        $planningValidator = new PlanningValidator();
-        $validity = $planningValidator->validate($planning);
-        self::assertSame(PlanningValidator::VALID, $validity);
-    }
+//    public function test10(): void
+//    {
+//        $nrOfGamesPerBatchRange = new SportRange(5, 5);
+//        $sportVariantsWithFields = [
+//            $this->getAgainstGppSportVariantWithFields(2, 1, 1, 9),
+//            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9),
+//            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9)
+//        ];
+//        $refereeInfo = new RefereeInfo(0);
+//        $planning = $this->createPlanning(
+//            $this->createInput([10], $sportVariantsWithFields, $refereeInfo),
+//            $nrOfGamesPerBatchRange,
+//            0, false, false, null, 0
+//        );
+//
+////        (new PlanningOutput())->outputWithGames($planning, true);
+////        (new PlanningOutput())->outputWithTotals($planning, true);
+//
+//        $planningValidator = new PlanningValidator();
+//        $validity = $planningValidator->validate($planning);
+//        self::assertSame(PlanningValidator::VALID, $validity);
+//    }
 
     // [5,5,5,5,5,5,5,5] - [against(1vs1) h2h:gpp=>1:0 f(14)] -  ref=>0:
     public function test14BatchGames(): void

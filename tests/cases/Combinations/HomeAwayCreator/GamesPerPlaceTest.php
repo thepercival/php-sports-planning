@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as HomeAwayCreator;
 use SportsPlanning\TestHelper\PlanningCreator;
+use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
 use SportsPlanning\Combinations\Output\HomeAway as HomeAwayOutput;
 
 class GamesPerPlaceTest extends TestCase
@@ -22,8 +23,10 @@ class GamesPerPlaceTest extends TestCase
     {
         $sportVariant = new AgainstGpp(1, 1, 1);
         $input = $this->createInput([5]);
-        $creator = new HomeAwayCreator($input->getFirstPoule());
-        $homeAways = $creator->create($sportVariant);
+        $poule = $input->getPoule(1);
+        $creator = new HomeAwayCreator();
+        $variantWithPoule = new AgainstGppWithPoule($poule, $sportVariant);
+        $homeAways = $creator->create($variantWithPoule);
         // (new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(10, $homeAways);
     }
@@ -33,8 +36,9 @@ class GamesPerPlaceTest extends TestCase
         $sportVariant = new AgainstGpp(1, 2, 1);
         $input = $this->createInput([3]);
         $poule = $input->getPoule(1);
-        $creator = new HomeAwayCreator($poule);
-        $homeAways = $creator->create($sportVariant);
+        $creator = new HomeAwayCreator();
+        $variantWithPoule = new AgainstGppWithPoule($poule, $sportVariant);
+        $homeAways = $creator->create($variantWithPoule);
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(3, $homeAways);
     }
@@ -44,8 +48,9 @@ class GamesPerPlaceTest extends TestCase
         $sportVariant = new AgainstGpp(1, 2, 1);
         $input = $this->createInput([4]);
         $poule = $input->getPoule(1);
-        $creator = new HomeAwayCreator($poule);
-        $homeAways = $creator->create($sportVariant);
+        $creator = new HomeAwayCreator();
+        $variantWithPoule = new AgainstGppWithPoule($poule, $sportVariant);
+        $homeAways = $creator->create($variantWithPoule);
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(12, $homeAways);
     }
@@ -55,8 +60,9 @@ class GamesPerPlaceTest extends TestCase
         $sportVariant = new AgainstGpp(2, 2, 1);
         $input = $this->createInput([4]);
         $poule = $input->getPoule(1);
-        $creator = new HomeAwayCreator($poule);
-        $homeAways = $creator->create($sportVariant);
+        $creator = new HomeAwayCreator();
+        $variantWithPoule = new AgainstGppWithPoule($poule, $sportVariant);
+        $homeAways = $creator->create($variantWithPoule);
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(3, $homeAways);
     }
@@ -66,8 +72,9 @@ class GamesPerPlaceTest extends TestCase
         $sportVariant = new AgainstGpp(2, 2, 1);
         $input = $this->createInput([5]);
         $poule = $input->getPoule(1);
-        $creator = new HomeAwayCreator($poule);
-        $homeAways = $creator->create($sportVariant);
+        $creator = new HomeAwayCreator();
+        $variantWithPoule = new AgainstGppWithPoule($poule, $sportVariant);
+        $homeAways = $creator->create($variantWithPoule);
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(15, $homeAways);
     }
@@ -77,8 +84,9 @@ class GamesPerPlaceTest extends TestCase
         $sportVariant = new AgainstGpp(2, 2, 1);
         $input = $this->createInput([6]);
         $poule = $input->getPoule(1);
-        $creator = new HomeAwayCreator($poule);
-        $homeAways = $creator->create($sportVariant);
+        $creator = new HomeAwayCreator();
+        $variantWithPoule = new AgainstGppWithPoule($poule, $sportVariant);
+        $homeAways = $creator->create($variantWithPoule);
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(45, $homeAways);
     }
@@ -88,8 +96,9 @@ class GamesPerPlaceTest extends TestCase
         $sportVariant = new AgainstGpp(2, 2, 1);
         $input = $this->createInput([7]);
         $poule = $input->getPoule(1);
-        $creator = new HomeAwayCreator($poule);
-        $homeAways = $creator->create($sportVariant);
+        $creator = new HomeAwayCreator();
+        $variantWithPoule = new AgainstGppWithPoule($poule, $sportVariant);
+        $homeAways = $creator->create($variantWithPoule);
         //(new HomeAwayOutput($this->getLogger()))->outputHomeAways($homeAways);
         self::assertCount(105, $homeAways);
     }

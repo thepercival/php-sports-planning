@@ -7,7 +7,7 @@ namespace SportsPlanning\Combinations;
 class MultipleCombinationsCounter
 {
     /**
-     * @var array<int, PlaceCombinationCounter>
+     * @var array<string, PlaceCombinationCounter>
      */
     protected array $counters;
 
@@ -18,14 +18,14 @@ class MultipleCombinationsCounter
     {
         $this->counters = [];
         foreach ($placeCombinations as $placeCombinationIt) {
-            $this->counters[$placeCombinationIt->getNumber()] = new PlaceCombinationCounter($placeCombinationIt);
+            $this->counters[$placeCombinationIt->getIndex()] = new PlaceCombinationCounter($placeCombinationIt);
         }
     }
 
     public function addCombination(PlaceCombination $placeCombination): void
     {
-        if (isset($this->counters[$placeCombination->getNumber()])) {
-            $this->counters[$placeCombination->getNumber()]->increment();
+        if (isset($this->counters[$placeCombination->getIndex()])) {
+            $this->counters[$placeCombination->getIndex()]->increment();
         }
     }
 
@@ -45,10 +45,10 @@ class MultipleCombinationsCounter
 
     public function count(PlaceCombination $placeCombination): int
     {
-        if (!isset($this->counters[$placeCombination->getNumber()])) {
+        if (!isset($this->counters[$placeCombination->getIndex()])) {
             return 0;
         }
-        return $this->counters[$placeCombination->getNumber()]->count();
+        return $this->counters[$placeCombination->getIndex()]->count();
     }
 
     public function totalCount(): int

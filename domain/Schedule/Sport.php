@@ -7,6 +7,9 @@ namespace SportsPlanning\Schedule;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Sport\PersistVariant;
+use SportsHelpers\Sport\Variant\Creator as VariantCreator;
+use SportsHelpers\Sport\Variant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
+use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Schedule;
 
 class Sport extends PersistVariant
@@ -32,6 +35,10 @@ class Sport extends PersistVariant
         $this->games = new ArrayCollection();
     }
 
+    public function getSchedule(): Schedule {
+        return $this->schedule;
+    }
+
     public function getNumber(): int
     {
         return $this->number;
@@ -45,4 +52,23 @@ class Sport extends PersistVariant
         return $this->games;
     }
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])
+
+    /**
+     * @return list<HomeAway>
+     */
+    public function convertGamesToHomeAways(): array {
+        return array_values( array_map( function(Game $game): HomeAway {
+            return $game->toHomeAway($this->schedule->getPoule());
+        }, $this->getGames()->toArray() ) );
+    }
+
+    public function allPlacesSameNrOfGamesAssignable(): bool
+    {
+        $nrOfPlaces = $this->schedule->getNrOfPlaces();
+        $variantWithPoule = (new VariantCreator())->createWithPoule($nrOfPlaces, $this->createVariant());
+        if( !($variantWithPoule instanceof AgainstGppWithPoule) ) {
+            return true;
+        }
+        return $variantWithPoule->allPlacesSameNrOfGamesAssignable();
+    }
 }

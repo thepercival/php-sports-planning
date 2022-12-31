@@ -6,7 +6,8 @@ namespace SportsPlanning\Combinations\HomeAwayCreator;
 
 use drupol\phpermutations\Iterators\Combinations as CombinationIt;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
-use SportsPlanning\Combinations\AgainstHomeAway;
+use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
+use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\HomeAwayCreator;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Place;
@@ -27,34 +28,37 @@ final class GamesPerPlace extends HomeAwayCreator
     protected int $minNrOfHomeGamesPerPlace = 0;
     protected int $nrOfGamesPerPlace = 0;
 
-    public function __construct(protected Poule $poule/*, protected AgainstGpp $sportVariant*/)
+    public function __construct()
     {
         parent::__construct();
     }
 
     /**
-     * @return list<AgainstHomeAway>
+     * @param AgainstGppWithPoule $againstGppWithPoule
+     * @return list<HomeAway>
      */
-    public function create(AgainstGpp $sportVariant): array
+    public function create(AgainstGppWithPoule $againstGppWithPoule): array
     {
-        $this->initCounters($this->poule);
-        $this->nrOfGamesPerPlace = $sportVariant->getNrOfGamesPerPlace();
+        $poule = $againstGppWithPoule->getPoule();
+        $againstGpp = $againstGppWithPoule->getSportVariant();
+        $this->initCounters($againstGppWithPoule->getPoule());
+        $this->nrOfGamesPerPlace = $againstGpp->getNrOfGamesPerPlace();
         $this->minNrOfHomeGamesPerPlace = (int)floor($this->nrOfGamesPerPlace / 2);
 
         $homeAways = [];
 
         /** @var \Iterator<string, list<Place>> $homeIt */
-        $homeIt = new CombinationIt($this->poule->getPlaceList(), $sportVariant->getNrOfHomePlaces());
+        $homeIt = new CombinationIt($poule->getPlaceList(), $againstGpp->getNrOfHomePlaces());
         while ($homeIt->valid()) {
             $homePlaceCombination = new PlaceCombination($homeIt->current());
-            $awayPlaces = array_diff($this->poule->getPlaceList(), $homeIt->current());
+            $awayPlaces = array_diff($poule->getPlaceList(), $homeIt->current());
             /** @var \Iterator<string, list<Place>> $awayIt */
-            $awayIt = new CombinationIt($awayPlaces, $sportVariant->getNrOfAwayPlaces());
+            $awayIt = new CombinationIt($awayPlaces, $againstGpp->getNrOfAwayPlaces());
             while ($awayIt->valid()) {
                 $awayPlaceCombination = new PlaceCombination($awayIt->current());
-                if ($sportVariant->getNrOfHomePlaces() !== $sportVariant->getNrOfAwayPlaces()
-                    || $homePlaceCombination->getNumber() < $awayPlaceCombination->getNumber()) {
-                    $homeAway = $this->createHomeAway($sportVariant, $homePlaceCombination, $awayPlaceCombination);
+                if ($againstGpp->getNrOfHomePlaces() !== $againstGpp->getNrOfAwayPlaces()
+                    || $homePlaceCombination->getIndex() < $awayPlaceCombination->getIndex()) {
+                    $homeAway = $this->createHomeAway($againstGpp, $homePlaceCombination, $awayPlaceCombination);
                     array_push($homeAways, $homeAway);
                 }
                 $awayIt->next();
@@ -81,7 +85,7 @@ final class GamesPerPlace extends HomeAwayCreator
         AgainstGpp $sportVariant,
         PlaceCombination $home,
         PlaceCombination $away
-    ): AgainstHomeAway {
+    ): HomeAway {
         if ($this->shouldSwap($sportVariant, $home, $away)) {
             foreach ($home->getPlaces() as $homePlace) {
                 $this->gameCounterMap[$homePlace->getNumber()]->increment();
@@ -90,7 +94,7 @@ final class GamesPerPlace extends HomeAwayCreator
                 $this->gameCounterMap[$awayPlace->getNumber()]->increment();
                 $this->homeCounterMap[$awayPlace->getNumber()]->increment();
             }
-            return new AgainstHomeAway($away, $home);
+            return new HomeAway($away, $home);
         }
         foreach ($home->getPlaces() as $homePlace) {
             $this->gameCounterMap[$homePlace->getNumber()]->increment();
@@ -99,7 +103,7 @@ final class GamesPerPlace extends HomeAwayCreator
         foreach ($away->getPlaces() as $awayPlace) {
             $this->gameCounterMap[$awayPlace->getNumber()]->increment();
         }
-        return new AgainstHomeAway($home, $away);
+        return new HomeAway($home, $away);
     }
 
     protected function shouldSwap(AgainstGpp $sportVariant, PlaceCombination $home, PlaceCombination $away): bool

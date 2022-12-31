@@ -10,11 +10,14 @@ use Monolog\Logger;
 use Monolog\Processor\UidProcessor;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsPlanning\Schedule;
+use SportsPlanning\Schedule\Output as ScheduleOutput;
 use SportsPlanning\Schedule\Creator as ScheduleCreator;
+use SportsPlanning\Schedule\Creator\AssignedCounter;
 use SportsPlanning\Schedule\Game;
 use SportsPlanning\Schedule\GamePlace;
-use SportsPlanning\Schedule\Output;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -47,7 +50,7 @@ class CreatorTest extends TestCase
 
         self::assertEquals(4, $this->getNrOfGames($schedule));
 
-        //(new Output($this->getLogger()))->output($schedules);
+        // (new ScheduleOutput($this->getLogger()))->output($schedules);
 
         self::assertEquals(2, $this->getNrOfGames($schedule, 1));
         self::assertEquals(1, $this->getNrOfGames($schedule, 2));
@@ -211,6 +214,45 @@ class CreatorTest extends TestCase
 
 //        (new Output($this->getLogger()))->output($schedules);
     }
+
+    public function test3SportsEqualNrOfAgainst(): void
+    {
+        $sportVariantsWithFields = [
+            $this->getAgainstGppSportVariantWithFields(1),
+            $this->getAgainstGppSportVariantWithFields(1),
+            $this->getAgainstGppSportVariantWithFields(1)
+        ];
+
+        $input = $this->createInput([4], $sportVariantsWithFields);
+
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $scheduleCreator->setAllowedGppMargin(0);
+        $schedules = $scheduleCreator->createFromInput($input);
+        // (new ScheduleOutput($this->getLogger()))->output($schedules);
+        // (new ScheduleOutput($this->getLogger()))->outputTotals($schedules);
+
+        foreach( $schedules as $schedule) {
+            $sportVariants = array_values($schedule->createSportVariants()->toArray());
+            $assignedCounter = new AssignedCounter($schedule->getPoule(), $sportVariants);
+            foreach( $schedule->getSportSchedules() as $sportSchedule) {
+                $sportVariant = $sportSchedule->createVariant();
+                if( $sportVariant instanceof AgainstH2h || $sportVariant instanceof AgainstGpp) {
+                    $homeAways = $sportSchedule->convertGamesToHomeAways();
+                    $assignedCounter->assignHomeAways($homeAways);
+                }
+            }
+            self::assertSame(0, $assignedCounter->getAssignedAgainstDifference() );
+        }
+    }
+
+    protected function getWithAssignedDifference(SportSchedule $sportSchedule): int
+    {
+        $assignedCounter = new AssignedCounter($sportSchedule->getSchedule()->getPoule(),[$sportSchedule->createVariant()]);
+        $homeAways = $sportSchedule->convertGamesToHomeAways();
+        $assignedCounter->assignHomeAways($homeAways);
+        return $assignedCounter->getWithSportDifference();
+    }
+
 
     protected function checkNotParticipating(SportSchedule $sportSchedule, int $placeNr): void
     {
