@@ -2,10 +2,11 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Schedule\Creator;
+namespace SportsPlanning\Schedule\CreatorHelpers;
 
 use Exception;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsPlanning\Combinations\AssignedCounter;
 use SportsPlanning\GameRound\Together as TogetherGameRound;
 use SportsPlanning\GameRound\Together\Game as TogetherGame;
 use SportsPlanning\GameRound\Together\GamePlace as TogetherGamePlace;
@@ -25,26 +26,15 @@ class AllInOneGame
     /**
      * @param Schedule $schedule
      * @param Poule $poule
-     * @param list<Sport> $sports
-     * @param AssignedCounter $assignedCounter
-     * @param int|null $nrOfSecondsBeforeTimeout
-     * @throws Exception
+     * @param array<int, AllInOneGameSportVariant> $sportVariants
      */
     public function createSportSchedules(
         Schedule $schedule,
         Poule $poule,
-        array $sports,
-        AssignedCounter $assignedCounter,
-        int|null $nrOfSecondsBeforeTimeout): void
+        array $sportVariants): void
     {
-        foreach ($sports as $sport) {
-            // $this->defaultField = $sport->getField(1);
-            $sportVariant = $sport->createVariant();
-            if (!($sportVariant instanceof AllInOneGameSportVariant)) {
-                throw new \Exception('only allinonegame-sport-variant accepted', E_ERROR);
-            }
-
-            $sportSchedule = new SportSchedule($schedule, $sport->getNumber(), $sportVariant->toPersistVariant());
+        foreach ($sportVariants as $sportNr => $sportVariant) {
+            $sportSchedule = new SportSchedule($schedule, $sportNr, $sportVariant->toPersistVariant());
             $gameRound = $this->generateGameRounds($poule, $sportVariant);
             $this->createGames($sportSchedule, $gameRound);
         }

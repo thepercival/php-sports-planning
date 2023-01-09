@@ -26,6 +26,16 @@ class PlaceCounter extends Counter
         return $this->countedObject;
     }
 
+    public function decrement(): self
+    {
+        return new self($this->getPlace(), $this->count - 1 );
+    }
+
+    public function increment2(): self
+    {
+        return new self($this->getPlace(), $this->count() + 1 );
+    }
+
     public function __toString(): string
     {
         return $this->getNumber() . ' ' . $this->count() . 'x';

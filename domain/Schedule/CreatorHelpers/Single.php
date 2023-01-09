@@ -2,24 +2,21 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Schedule\Creator;
+namespace SportsPlanning\Schedule\CreatorHelpers;
 
-use Exception;
+use drupol\phpermutations\Generators\Combinations as CombinationsGenerator;
 use Psr\Log\LoggerInterface;
+use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsPlanning\Combinations\AssignedCounter;
+use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\GameRound\Creator\Single as SingleGameRoundCreator;
+use SportsPlanning\GameRound\Together as TogetherGameRound;
+use SportsPlanning\Place;
+use SportsPlanning\Poule;
+use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Game;
 use SportsPlanning\Schedule\GamePlace;
-use SportsPlanning\Schedule;
-use SportsPlanning\GameRound\Together as TogetherGameRound;
-use SportsPlanning\Combinations\PlaceCombination;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsPlanning\Schedule\Sport as SportSchedule;
-use SportsPlanning\Place;
-use drupol\phpermutations\Generators\Combinations as CombinationsGenerator;
-use SportsPlanning\PlaceCounter;
-use SportsPlanning\Poule;
-use SportsPlanning\Sport;
-use SportsPlanning\SportVariant\WithPoule as VariantWithPoule;
 
 class Single
 {
@@ -30,24 +27,17 @@ class Single
     /**
      * @param Schedule $schedule
      * @param Poule $poule
-     * @param list<Sport> $sports
+     * @param array<int, SingleSportVariant> $sportVariants
      * @param AssignedCounter $assignedCounter
-     * @param int|null $nrOfSecondsBeforeTimeout
-     * @throws Exception
      */
     public function createSportSchedules(
         Schedule $schedule,
         Poule $poule,
-        array $sports,
-        AssignedCounter $assignedCounter,
-        int|null $nrOfSecondsBeforeTimeout): void
+        array $sportVariants,
+        AssignedCounter $assignedCounter): void
     {
-        foreach ($sports as $sport) {
-            $sportVariant = $sport->createVariant();
-            if (!($sportVariant instanceof SingleSportVariant)) {
-                throw new \Exception('only single-sport-variant accepted', E_ERROR);
-            }
-            $sportSchedule = new SportSchedule($schedule, $sport->getNumber(), $sportVariant->toPersistVariant());
+        foreach ($sportVariants as $sportNr => $sportVariant) {
+            $sportSchedule = new SportSchedule($schedule, $sportNr, $sportVariant->toPersistVariant());
             $gameRound = $this->generateGameRounds($poule, $sportVariant, $assignedCounter);
             $this->createGames($sportSchedule, $gameRound);
         }

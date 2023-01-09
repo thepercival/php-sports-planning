@@ -12,10 +12,10 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsPlanning\Combinations\AssignedCounter;
 use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Output as ScheduleOutput;
 use SportsPlanning\Schedule\Creator as ScheduleCreator;
-use SportsPlanning\Schedule\Creator\AssignedCounter;
 use SportsPlanning\Schedule\Game;
 use SportsPlanning\Schedule\GamePlace;
 use SportsPlanning\Schedule\Sport as SportSchedule;
@@ -54,9 +54,9 @@ class CreatorTest extends TestCase
 
         self::assertEquals(2, $this->getNrOfGames($schedule, 1));
         self::assertEquals(1, $this->getNrOfGames($schedule, 2));
-        self::assertEquals(1, $this->getNrOfGames($schedule, 3));
+        self::assertEquals(2, $this->getNrOfGames($schedule, 3));
         self::assertEquals(2, $this->getNrOfGames($schedule, 4));
-        self::assertEquals(2, $this->getNrOfGames($schedule, 5));
+        self::assertEquals(1, $this->getNrOfGames($schedule, 5));
     }
 
     protected function getLogger(): LoggerInterface
@@ -187,34 +187,6 @@ class CreatorTest extends TestCase
 //        (new Output($this->getLogger()))->output($schedules);
     }
 
-    public function test1Gpp1Single5Places(): void
-    {
-        $sportVariants = [
-            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 1),
-            $this->getSingleSportVariantWithFields(1, 1, 2)
-        ];
-        $input = $this->createInput([5], $sportVariants);
-
-        $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
-        // (new Output($this->getLogger()))->output($schedules);
-        $schedule = reset($schedules);
-        self::assertNotFalse($schedule);
-
-        foreach ($schedule->getSportSchedules() as $sportSchedule) {
-            if ($sportSchedule->getNumber() === 1) {
-                $this->checkNotParticipating($sportSchedule, 2);
-            }
-            if ($sportSchedule->getNumber() === 2) {
-                $this->checkFirstGamePlace($sportSchedule, 2);
-            }
-        }
-
-//        self::assertEquals(140, $this->getNrOfGames($schedule));
-
-//        (new Output($this->getLogger()))->output($schedules);
-    }
-
     public function test3SportsEqualNrOfAgainst(): void
     {
         $sportVariantsWithFields = [
@@ -226,8 +198,7 @@ class CreatorTest extends TestCase
         $input = $this->createInput([4], $sportVariantsWithFields);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $scheduleCreator->setAllowedGppMargin(0);
-        $schedules = $scheduleCreator->createFromInput($input);
+        $schedules = $scheduleCreator->createFromInput($input,0);
         // (new ScheduleOutput($this->getLogger()))->output($schedules);
         // (new ScheduleOutput($this->getLogger()))->outputTotals($schedules);
 

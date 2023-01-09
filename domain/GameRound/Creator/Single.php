@@ -6,16 +6,14 @@ namespace SportsPlanning\GameRound\Creator;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\Sport\Variant\WithPoule\Single as SingleWithPoule;
+use SportsPlanning\Combinations\AssignedCounter;
 use SportsPlanning\Combinations\Output\GameRound as GameRoundOutput;
-use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\GameRound\Together as TogetherGameRound;
 use SportsPlanning\GameRound\Together\Game;
 use SportsPlanning\GameRound\Together\GamePlace;
 use SportsPlanning\Place;
-use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
-use SportsPlanning\Schedule\Creator\AssignedCounter;
-use SportsHelpers\Sport\Variant\WithPoule\Single as SingleWithPoule;
 
 class Single
 {

@@ -62,13 +62,13 @@ class Sport extends PersistVariant
         }, $this->getGames()->toArray() ) );
     }
 
-    public function allPlacesSameNrOfGamesAssignable(): bool
-    {
-        $nrOfPlaces = $this->schedule->getNrOfPlaces();
-        $variantWithPoule = (new VariantCreator())->createWithPoule($nrOfPlaces, $this->createVariant());
-        if( !($variantWithPoule instanceof AgainstGppWithPoule) ) {
-            return true;
-        }
-        return $variantWithPoule->allPlacesSameNrOfGamesAssignable();
-    }
+//    public function allPlacesSameNrOfGamesAssignable(): bool
+//    {
+//        $nrOfPlaces = $this->schedule->getNrOfPlaces();
+//        $variantWithPoule = (new VariantCreator())->createWithPoule($nrOfPlaces, $this->createVariant());
+//        if( !($variantWithPoule instanceof AgainstGppWithPoule) ) {
+//            return true;
+//        }
+//        return $variantWithPoule->allPlacesSameNrOfGamesAssignable();
+//    }
 }

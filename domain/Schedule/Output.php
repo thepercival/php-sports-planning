@@ -9,11 +9,11 @@ use SportsHelpers\Counter;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsPlanning\Combinations\PlaceCombinationCounter;
-use SportsPlanning\Schedule;
-use SportsPlanning\Schedule\Creator\AssignedCounter;
 use SportsHelpers\Sport\Variant\Creator as VariantCreator;
 use SportsHelpers\Sport\Variant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
+use SportsPlanning\Combinations\AssignedCounter;
+use SportsPlanning\Combinations\PlaceCombinationCounter;
+use SportsPlanning\Schedule;
 
 class Output extends OutputHelper
 {
@@ -97,13 +97,11 @@ class Output extends OutputHelper
         }
         if( $hasAgainstSport ) {
             $this->logger->info('');
-            $this->logger->info($prefix . 'Assigned Home Sport Totals');
-            $map = $assignedCounter->getAssignedHomeMap()->getList();
-            $this->outputPlaceCombinations($map, $prefix);
+            $assignedCounter->getAssignedHomeMap()->output($this->logger, $prefix, $prefix . 'Assigned Home Sport Totals');
         }
 
         $this->logger->info('');
-        $this->outputAssignedNrOfGames(array_values($assignedCounter->getAssignedMap()), '-- ');
+        $this->outputAssignedNrOfGames(array_values($assignedCounter->getAssignedMap()), $prefix);
         $this->logger->info('');
     }
 

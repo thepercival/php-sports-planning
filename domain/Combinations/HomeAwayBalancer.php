@@ -5,6 +5,7 @@ namespace SportsPlanning\Combinations;
 use Psr\Log\LoggerInterface;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\Combinations\Output\HomeAway as HomeAwayOutput;
+use SportsPlanning\Place;
 
 class HomeAwayBalancer
 {
@@ -34,14 +35,14 @@ class HomeAwayBalancer
             $assignedHomeMap = $assignedHomeMap->addPlaceCombination($sportHomeAway->getHome());
             $sportHomeAwaysMap[$sportHomeAway->getIndex()] = $sportHomeAway;
         }
-        $minDifference = $assignedHomeMap->getMinDifference();
+        // $minDifference = $assignedHomeMap->getMinDifference();
         $homeAwaysByDifference = $this->getHomeAwaysByDifference($assignedHomeMap, array_values($sportHomeAwaysMap));
         // $sportDifference = $this->getMaxDifference($homeAwaysByDifference);
         // (new HomeAwayOutput($this->logger))->outputHomeTotals($sportHomeAways);
 //        $assignedHomeMap->output($this->logger, 'HomeTotals');
 //        $this->outputHomeDiffsPerAmount($homeAwaysByDifference);
         //
-        while( $assignedHomeMap->getMaxDifference() > $minDifference ) {
+        while( $assignedHomeMap->getMaxDifference() > $maxDiff ) {
             $homeAwayMostDifference = $this->getBestHomeAway($reversedHomeAways, $homeAwaysByDifference);
             if( $homeAwayMostDifference === null) {
                 break;
@@ -121,9 +122,12 @@ class HomeAwayBalancer
 
 
     private function getHomeDiff(PlaceCombinationCounterMap $assignedHomeMap, HomeAway $sportHomeAway): int {
-        $homeDiff = $assignedHomeMap->count($sportHomeAway->getHome()) - $assignedHomeMap->count($sportHomeAway->getAway());
-        return $homeDiff; //  < 0 ? 0 : $homeDiff;
+        $homeDiff = $assignedHomeMap->count($sportHomeAway->getHome())
+            - $assignedHomeMap->count($sportHomeAway->getAway());
+        return $homeDiff < 0 ? 0 : $homeDiff;
     }
+
+
 
     /**
      * @param array<int, list<HomeAway>> $homeDiffsPerAmount

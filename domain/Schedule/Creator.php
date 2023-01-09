@@ -5,32 +5,30 @@ declare(strict_types=1);
 namespace SportsPlanning\Schedule;
 
 use Psr\Log\LoggerInterface;
-use SportsHelpers\GameMode;
 use SportsHelpers\PouleStructure;
+use SportsHelpers\Sport\Variant\AllInOneGame;
+use SportsHelpers\Sport\Variant\Single;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsPlanning\Combinations\AssignedCounter;
 use SportsPlanning\Input;
 use SportsPlanning\Referee\Info;
 use SportsPlanning\Schedule;
-use SportsPlanning\Schedule\Creator\AllInOneGame as AllInOneGameCreator;
-use SportsPlanning\Schedule\Creator\Against as AgainstCreator;
-use SportsPlanning\Schedule\Creator\Single as SingleCreator;
-use SportsPlanning\Schedule\Creator\AssignedCounter;
+use SportsPlanning\Schedule\CreatorHelpers\Against\H2h as AgainstH2hCreatorHelper;
+use SportsPlanning\Schedule\CreatorHelpers\Against\GamesPerPlace as AgainstGppCreatorHelper;
+use SportsPlanning\Schedule\CreatorHelpers\AgainstGppDifferenceManager;
+use SportsPlanning\Schedule\CreatorHelpers\AllInOneGame as AllInOneGameCreatorHelper;
+use SportsPlanning\Schedule\CreatorHelpers\Single as SingleCreatorHelper;
 use SportsPlanning\Schedule\Name as ScheduleName;
-use SportsPlanning\Sport;
-use SportsPlanning\Schedule\Output as ScheduleOutput;
 
 class Creator
 {
-    public const MAX_ALLOWED_GPP_MARGIN = 10;
+    public const MAX_ALLOWED_GPP_MARGIN = 4;
 
-    /**
-     * @var array<string, AllInOneGameCreator|AgainstCreator|SingleCreator>|null
-     */
-    protected array|null $generatorMap = null;
     /**
      * @var list<Schedule>|null
      */
     protected array|null $existingSchedules = null;
-    protected int $allowedGppMargin = self::MAX_ALLOWED_GPP_MARGIN;
 
 
     public function __construct(protected LoggerInterface $logger)
@@ -42,7 +40,10 @@ class Creator
      * @param int|null $nrOfSecondsBeforeTimeout
      * @return list<Schedule>
      */
-    public function createFromInput(Input $input, int|null $nrOfSecondsBeforeTimeout = null): array
+    public function createFromInput(
+        Input $input,
+        int $allowedGppMargin = self::MAX_ALLOWED_GPP_MARGIN,
+        int|null $nrOfSecondsBeforeTimeout = null): array
     {
         /** @var array<int, Schedule> $schedules */
         $schedules = [];
@@ -60,19 +61,45 @@ class Creator
             $schedules[$nrOfPlaces] = $schedule;
 
             $assignedCounter = new AssignedCounter($poule, $sportVariants);
-            foreach ([GameMode::AllInOneGame, GameMode::Against, GameMode::Single] as $gameMode) {
-                $sports = $this->getSports($input, $gameMode);
-                if (count($sports) === 0) {
-                    continue;
-                }
-                $scheduleCreator = $this->getSportScheduleCreator($gameMode);
-                $scheduleCreator->createSportSchedules($schedule, $poule, $sports, $assignedCounter, $nrOfSecondsBeforeTimeout);
-            }
+
+            $allInOneGameSportVariantMap = $this->getAllInOneGameSportVariantMap($input);
+            (new AllInOneGameCreatorHelper())->createSportSchedules($schedule, $poule, $allInOneGameSportVariantMap);
+
+            $singleSportVariantMap = $this->getSingleSportVariantMap($input);
+            $singleHelper = new SingleCreatorHelper($this->logger);
+            $singleHelper->createSportSchedules($schedule, $poule, $singleSportVariantMap, $assignedCounter);
+
+            $againstH2hSportVariantMap = $this->getAgainstH2hSportVariantMap($input);
+            $againstH2hHelper = new AgainstH2hCreatorHelper($this->logger);
+            $againstH2hHelper->createSportSchedules($schedule, $poule, $againstH2hSportVariantMap, $assignedCounter);
+
+            $againstGppVariantMap = $this->getAgainstGppSportVariantMap($input);
+
+            $differenceManager = new AgainstGppDifferenceManager(
+                $poule,
+                $againstGppVariantMap,
+                $allowedGppMargin,
+                $this->logger);
+            $againstGppHelper = new AgainstGppCreatorHelper($this->logger);
+            $againstGppHelper->createSportSchedules(
+                $schedule,
+                $poule,
+                $againstGppVariantMap,
+                $assignedCounter,
+                $differenceManager,
+                $nrOfSecondsBeforeTimeout);
+//            try {
+//            } catch(LessThanMinimumAgainstDifferenceException $e) {
+//
+//            }
         }
         return array_values($schedules);
     }
 
-    public function createBetterSchedule(Schedule $schedule, int $nrOfSecondsBeforeTimeout): Schedule
+    public function createBetterSchedule(
+        Schedule $schedule,
+        int $allowedGppMargin,
+        int $nrOfSecondsBeforeTimeout): Schedule
     {
         $input = new Input(
             new PouleStructure( $schedule->getNrOfPlaces() ),
@@ -85,54 +112,92 @@ class Creator
         $newPoule = $newSchedule->getPoule();
 
         $assignedCounter = new AssignedCounter($newPoule, $sportVariants);
-        foreach ([GameMode::AllInOneGame, GameMode::Against, GameMode::Single] as $gameMode) {
-            $sports = $this->getSports($input, $gameMode);
-            if (count($sports) === 0) {
-                continue;
-            }
-            $scheduleCreator = $this->getSportScheduleCreator($gameMode);
-            $scheduleCreator->createSportSchedules($newSchedule, $newPoule, $sports, $assignedCounter, $nrOfSecondsBeforeTimeout);
-        }
+
+        $allInOneGameSportVariantMap = $this->getAllInOneGameSportVariantMap($input);
+        (new AllInOneGameCreatorHelper())->createSportSchedules($newSchedule, $newPoule, $allInOneGameSportVariantMap);
+
+        $singleSportVariantMap = $this->getSingleSportVariantMap($input);
+        $singleHelper = new SingleCreatorHelper($this->logger);
+        $singleHelper->createSportSchedules($newSchedule, $newPoule, $singleSportVariantMap, $assignedCounter);
+
+        $againstH2hSportVariantMap = $this->getAgainstH2hSportVariantMap($input);
+        $againstH2hHelper = new AgainstH2hCreatorHelper($this->logger);
+        $againstH2hHelper->createSportSchedules($newSchedule, $newPoule, $againstH2hSportVariantMap, $assignedCounter);
+
+        $againstGppSportVariantMap = $this->getAgainstGppSportVariantMap($input);
+        $againstGppHelper = new AgainstGppCreatorHelper($this->logger);
+        $differenceManager = new AgainstGppDifferenceManager($newPoule, $againstGppSportVariantMap, $allowedGppMargin, $this->logger);
+        $againstGppHelper->createSportSchedules(
+            $newSchedule, $newPoule, $againstGppSportVariantMap,
+            $assignedCounter, $differenceManager, $nrOfSecondsBeforeTimeout);
+
         return $newSchedule;
-    }
-
-    public function setAllowedGppMargin(int $allowedGppMargin): void {
-        $this->allowedGppMargin = $allowedGppMargin;
-    }
-
-    protected function getSportScheduleCreator(GameMode $gameMode): AllInOneGameCreator|AgainstCreator|SingleCreator {
-        $generatorMap = $this->getScheduleCreatorMap();
-        return $generatorMap[$gameMode->name];
-    }
-
-    /**
-     * @return array<string, AllInOneGameCreator|AgainstCreator|SingleCreator>
-     */
-    protected function getScheduleCreatorMap(): array
-    {
-        if ($this->generatorMap !== null) {
-            return $this->generatorMap;
-        }
-        $this->generatorMap = [];
-        $this->generatorMap[GameMode::AllInOneGame->name] = new AllInOneGameCreator();
-        $this->generatorMap[GameMode::Against->name] = new AgainstCreator($this->logger, $this->allowedGppMargin);
-        $this->generatorMap[GameMode::Single->name] = new SingleCreator($this->logger);
-        return $this->generatorMap;
     }
 
     /**
      * @param Input $input
-     * @param GameMode $gameMode
-     * @return list<Sport>
+     * @return array<int, AllInOneGame>
      */
-    protected function getSports(Input $input, GameMode $gameMode): array
+    protected function getAllInOneGameSportVariantMap(Input $input): array
     {
-        return array_values(
-            $input->getSports()->filter(function (Sport $sport) use ($gameMode): bool {
-                return $sport->getGameMode() === $gameMode;
-            })->toArray()
-        );
+        $map = [];
+        foreach( $input->getSports() as $sport) {
+            $sportVariant = $sport->createVariant();
+            if( $sportVariant instanceof AllInOneGame) {
+                $map[$sport->getNumber()] = $sportVariant;
+            }
+        }
+        return $map;
     }
+
+    /**
+     * @param Input $input
+     * @return array<int, Single>
+     */
+    protected function getSingleSportVariantMap(Input $input): array
+    {
+        $map = [];
+        foreach( $input->getSports() as $sport) {
+            $sportVariant = $sport->createVariant();
+            if( $sportVariant instanceof Single) {
+                $map[$sport->getNumber()] = $sportVariant;
+            }
+        }
+        return $map;
+    }
+
+    /**
+     * @param Input $input
+     * @return array<int, AgainstH2h>
+     */
+    protected function getAgainstH2hSportVariantMap(Input $input): array
+    {
+        $map = [];
+        foreach( $input->getSports() as $sport) {
+            $sportVariant = $sport->createVariant();
+            if( $sportVariant instanceof AgainstH2h) {
+                $map[$sport->getNumber()] = $sportVariant;
+            }
+        }
+        return $map;
+    }
+
+    /**
+     * @param Input $input
+     * @return array<int, AgainstGpp>
+     */
+    protected function getAgainstGppSportVariantMap(Input $input): array
+    {
+        $map = [];
+        foreach( $input->getSports() as $sport) {
+            $sportVariant = $sport->createVariant();
+            if( $sportVariant instanceof AgainstGpp) {
+                $map[$sport->getNumber()] = $sportVariant;
+            }
+        }
+        return $map;
+    }
+
 
     /**
      * @param list<Schedule> $existingSchedules
