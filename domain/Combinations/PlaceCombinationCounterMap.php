@@ -15,18 +15,22 @@ class PlaceCombinationCounterMap
     private array $map;
     private bool|null $canBeBalanced = null;
     private SportRange|null $valueRange = null;
+    /**
+     * @var array<int, list<PlaceCombinationCounter>>|null
+     */
+    private array|null $perAmount = null;
     private int|null $nrOfAssignedToMin = null;
     // private int|null $nrOfAssignedToMax = null;
 
     /**
-     * @param list<PlaceCombinationCounter> $placeCombinationCounters
+     * @param array<string, PlaceCombinationCounter> $placeCombinationCounters
      */
     public function __construct(array $placeCombinationCounters)
     {
-        $this->map = [];
-        foreach( $placeCombinationCounters as $placeCombinationCounter) {
-            $this->map[$placeCombinationCounter->getIndex()] = $placeCombinationCounter;
-        }
+        $this->map = $placeCombinationCounters;
+//        foreach( $placeCombinationCounters as $placeCombinationCounter) {
+//            $this->map[$placeCombinationCounter->getIndex()] = $placeCombinationCounter;
+//        }
     }
 
     public function getPlaceCombination(string $index): PlaceCombination
@@ -56,10 +60,7 @@ class PlaceCombinationCounterMap
         $map = $this->map;
         $map[$placeCombination->getIndex()] = $newCounter;
 
-
-        return new self(
-            array_values($map)
-        );
+        return new self($map);
     }
 
     public function removePlaceCombination(PlaceCombination $placeCombination): self {
@@ -68,9 +69,7 @@ class PlaceCombinationCounterMap
         $map = $this->map;
         $map[$placeCombination->getIndex()] = $newCounter;
 
-        return new self(
-            array_values($map)
-        );
+        return new self($map);
     }
 
     /**
@@ -132,6 +131,14 @@ class PlaceCombinationCounterMap
 
     }
 
+    public function getNrOfAssignedTo(int $amount): int {
+        $perAmount = $this->getPerAmount();
+        if( !array_key_exists($amount, $perAmount) ) {
+            return 0;
+        }
+        return count($perAmount[$amount]);
+    }
+
 
     public function getMinDifference(): int {
         return $this->canBeBalanced() ? 0 : 1;
@@ -158,15 +165,17 @@ class PlaceCombinationCounterMap
      * @return array<int, list<PlaceCombinationCounter>>
      */
     public function getPerAmount(): array {
-        $perAmount = [];
-        foreach( $this->map as $combinationCounter) {
-            if( !array_key_exists($combinationCounter->count(), $perAmount)) {
-                $perAmount[$combinationCounter->count()] = [];
+        if( $this->perAmount === null) {
+            $this->perAmount = [];
+            foreach ($this->map as $combinationCounter) {
+                if (!array_key_exists($combinationCounter->count(), $this->perAmount)) {
+                    $this->perAmount[$combinationCounter->count()] = [];
+                }
+                $this->perAmount[$combinationCounter->count()][] = $combinationCounter;
             }
-            $perAmount[$combinationCounter->count()][] = $combinationCounter;
+            ksort($this->perAmount);
         }
-        ksort($perAmount);
-        return $perAmount;
+        return $this->perAmount;
     }
 
 

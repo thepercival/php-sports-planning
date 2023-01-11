@@ -55,7 +55,7 @@ class AssignedCounter
                 return (($sportVariant instanceof AgainstGpp) || ($sportVariant instanceof AgainstH2h));
             }));
         $this->assignedWithMap = $combinationMapper->getWithMap($poule, $againstVariants);
-        $this->assignedHomeMap = new PlaceCombinationCounterMap( array_values( $combinationMapper->getWithMap($poule, $againstVariants) ) );
+        $this->assignedHomeMap = new PlaceCombinationCounterMap( $combinationMapper->getWithMap($poule, $againstVariants) );
         foreach ($poule->getPlaces() as $place) {
             $this->assignedTogetherMap[$place->getLocation()] = [];
             foreach ($poule->getPlaces() as $coPlace) {

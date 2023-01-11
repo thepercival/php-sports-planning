@@ -13,7 +13,6 @@ abstract class StatisticsCalculator
 {
     // protected bool $useWith;
 
-
     public function __construct(
         protected PlaceCombinationCounterMap $assignedHomeMap,
         protected int $nrOfHomeAwaysAssigned
@@ -151,7 +150,7 @@ abstract class StatisticsCalculator
      * @param HomeAway $homeAway
      * @return list<int>
      */
-    protected function getLeastHomeAssigned(PlaceCombinationCounterMap $map, HomeAway $homeAway): array
+    protected function getLeastCombinationAssigned(PlaceCombinationCounterMap $map, HomeAway $homeAway): array
     {
         $leastAmount = -1;
         $nrOfSides = 0;

@@ -14,6 +14,7 @@ use SportsPlanning\Combinations\HomeAwayBalancer;
 use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCreator;
 use SportsPlanning\Combinations\Mapper;
 use SportsPlanning\Combinations\PlaceCombinationCounterMap;
+use SportsPlanning\Combinations\PlaceCombinationCounterMap\Ranged as RangedPlaceCombinationCounterMap;
 use SportsPlanning\Combinations\PlaceCounterMap;
 use SportsPlanning\Combinations\StatisticsCalculator\Against\GamesPerPlace as GppStatisticsCalculator;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
@@ -21,7 +22,6 @@ use SportsPlanning\GameRound\Creator\Against as AgainstCreator;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
 use SportsPlanning\Schedule\CreatorHelpers\AgainstGppDifference;
-use SportsPlanning\Schedule\CreatorHelpers\AgainstGppDifferenceManager;
 use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
 use SportsPlanning\TimeoutException;
 
@@ -58,20 +58,66 @@ class GamesPerPlace extends AgainstCreator
 
         $assignedHomeMap = $assignedCounter->getAssignedHomeMap();
 
+        // $nrOfPlaces = count($poule->getPlaceList());
+        $nrOfPossibleAgainstCombinations = $variantWithPoule->getNrOfPossibleAgainstCombinations();
+        if( $difference->minNrOfAgainstAllowedToAssignedToMinimumCum === 0) {
+            $againstShortage = $nrOfPossibleAgainstCombinations * $difference->allowedAgainstRange->getMin();
+        } else {
+            $minimum = $difference->allowedAgainstRange->getMin();
+            if( $minimum > 0 ) {
+                $minimum--;
+            }
+            $againstShortage = $nrOfPossibleAgainstCombinations * $minimum;
+            $againstShortage += $difference->minNrOfAgainstAllowedToAssignedToMinimumCum;
+        }
+
+        $assignedAgainstMap = new RangedPlaceCombinationCounterMap(
+            new PlaceCombinationCounterMap( $assignedCounter->getAssignedAgainstMap() ),
+            $difference->allowedAgainstRange->getMin(),
+            $difference->minNrOfAgainstAllowedToAssignedToMinimumCum,
+            $difference->allowedAgainstRange->getMax(),
+            $difference->maxNrOfAgainstAllowedToAssignedToMaximumCum,
+            $againstShortage,
+            false
+        );
+
+        $nrOfPossibleWithCombinations = $variantWithPoule->getNrOfPossibleWithCombinations();
+        if( $difference->minNrOfWithAllowedToAssignedToMinimumCum === 0) {
+            $withShortage = $nrOfPossibleWithCombinations * $difference->allowedWithRange->getMin();
+        } else {
+            $minimum = $difference->allowedWithRange->getMin();
+            if( $minimum > 0 ) {
+                $minimum--;
+            }
+            $withShortage = $nrOfPossibleWithCombinations * $minimum;
+            $withShortage += $difference->minNrOfWithAllowedToAssignedToMinimumCum;
+        }
+
+        $assignedWithMap = new RangedPlaceCombinationCounterMap(
+            new PlaceCombinationCounterMap( $assignedCounter->getAssignedWithMap() ),
+            $difference->allowedWithRange->getMin(),
+            $difference->minNrOfWithAllowedToAssignedToMinimumCum,
+            $difference->allowedWithRange->getMax(),
+            $difference->maxNrOfWithAllowedToAssignedToMaximumCum,
+            $withShortage,
+            false
+        );
+
         $statisticsCalculator = new GppStatisticsCalculator(
             $variantWithPoule,
             $assignedHomeMap,
             0,
             new PlaceCounterMap( array_values( $mapper->getPlaceMap($poule) ) ),
             new PlaceCounterMap( array_values($assignedCounter->getAssignedMap() ) ),
-            new PlaceCombinationCounterMap( array_values($assignedCounter->getAssignedWithMap() ) ),
-            new PlaceCombinationCounterMap( array_values($assignedCounter->getAssignedAgainstMap() ) ),
+            $assignedAgainstMap,
+            $assignedWithMap,
             $assignedCounter->assignAgainstGppSportsEqually(),
             $difference,
             $this->logger
         );
-
+//        $this->gameRoundOutput->outputHomeAways($homeAways, null, 'UNASSIGNED HOMEAWAYS BEFORE SORT');
         $homeAways = $statisticsCalculator->sortHomeAways($homeAways, $this->logger);
+//        $this->gameRoundOutput->outputHomeAways($homeAways, null, 'UNASSIGNED HOMEAWAYS AFTER SORT');
         if ($this->assignGameRound(
                 $variantWithPoule,
                 $homeAways,
@@ -112,7 +158,7 @@ class GamesPerPlace extends AgainstCreator
         if( $againstWithPoule->getTotalNrOfGames() === $statisticsCalculator->getNrOfHomeAwaysAssigned() ) {
             if( $statisticsCalculator->allAssigned() ) {
 //                $this->gameRoundOutput->output($gameRound, false, 'ASSIGNED HOMEAWAYS GR' . $gameRound->getNumber());
-//                $statisticsCalculator->output();
+//                $statisticsCalculator->output(true);
                 return true;
             }
 //            $this->gameRoundOutput->output($gameRound, false, 'ASSIGNED HOMEAWAYS GR' . $gameRound->getNumber());
@@ -138,22 +184,20 @@ class GamesPerPlace extends AgainstCreator
 //                return false;
 //            }
 
-//            if( $gameRound->getNumber() === 7 ) {
-//                $this->gameRoundOutput->output($gameRound, false, 'ASSIGNED HOMEAWAYS GR' . $gameRound->getNumber());
-//                $statisticsCalculator->output();
-//                $er = 12;
-//            }
-
             $filteredHomeAways = $statisticsCalculator->filterBeforeGameRound($homeAways);
             if ($gameRound->getNumber() > $this->highestGameRoundNumberCompleted) {
                 $this->highestGameRoundNumberCompleted = $gameRound->getNumber();
-//                 $this->logger->info('highestGameRoundNumberCompleted: ' . $gameRound->getNumber());
+                 $this->logger->info('highestGameRoundNumberCompleted: ' . $gameRound->getNumber());
+                $statisticsCalculator->output(false);
 //                $this->gameRoundOutput->output($gameRound, true, 'ASSIGNED HOMEAWAYS');
 
-//                $this->gameRoundOutput->outputHomeAways($filteredHomeAways, null, 'UNASSIGNED HOMEAWAYS BEFORE SORT');
+                //$this->gameRoundOutput->outputHomeAways($filteredHomeAways, null, 'UNASSIGNED HOMEAWAYS BEFORE SORT');
                 $filteredHomeAways = $statisticsCalculator->sortHomeAways($filteredHomeAways, $this->logger);
-//                $this->gameRoundOutput->outputHomeAways($filteredHomeAways, null, 'UNASSIGNED HOMEAWAYS AFTER SORT');
+                //$this->gameRoundOutput->outputHomeAways([$filteredHomeAways[0],$filteredHomeAways[1],$filteredHomeAways[2]], null, 'UNASSIGNED HOMEAWAYS AFTER SORT');
             }
+            // if( $this->highestGameRoundNumberCompleted === 13 ) {
+//                $statisticsCalculator->output(false);
+//            }
             // $this->logger->info('gr ' . $gameRound->getNumber() . ' completed ( ' . count($homeAways) . ' => ' . count($filteredHomeAways) .  ' )');
 
             if( count($filteredHomeAways) < $this->nrOfGamesPerGameRound ) {
@@ -207,6 +251,9 @@ class GamesPerPlace extends AgainstCreator
 
         $triedHomeAways = [];
         while($homeAway = array_shift($homeAwaysForGameRound)) {
+//            if( $statisticsCalculator->getNrOfHomeAwaysAssigned() === 8) {
+//                $statisticsCalculator->output(true);
+//            }
             if (!$this->isHomeAwayAssignable($homeAway, $statisticsCalculator)) {
                 array_push($triedHomeAways, $homeAway);
                 continue;
@@ -271,59 +318,18 @@ class GamesPerPlace extends AgainstCreator
         HomeAway $homeAway, GppStatisticsCalculator $statisticsCalculator
     ): bool {
 
-//        if( $statisticsCalculator->overAllowedAgainstDifference($homeAway) ) {
-////            $this->logger->info('HA : ' . $homeAway);
-////            $statisticsCalculator->output();
-//            return false;
-//        }
-//        if( $statisticsCalculator->overAllowedWithDifference($homeAway) ) {
-//            return false;
-//        }
-
-//        if ($statisticsCalculator->againstWillBeOverAssigned($homeAway)) {
-//            return false;
-//        }
-
-        // als aantal met minimum kleiner of gelijk is aan het aantal gameplaces, dan ook ok
-
-//        if ($this->nrOfHomeAwaysAssigned < $this->againstGppWithPoule->getTotalNrOfGames()) {
-//            return false;
-//        }
-//
-//        $allowedDifference = $this->assignAgainstGppSportsEqually ? 0 : 1;
-//        if( $this->assignedMap->getMaxDifference() > $allowedDifference ) {
-//            return false;
-//        }
-//
-//        if( $this->assignedAgainstMap->getMaxDifference() > $this->difference->allowedAgainstCumDiff ) {
-//            return false;
-//        }
-//        if( $this->assignedWithMap->getMaxDifference() > $this->difference->allowedWithCumDiff ) {
-//            return false;
-//        }
-
-//        if( $statisticsCalculator->againstWillBeTooMuchDiffAssigned($homeAway) ) {
-//            return false;
-//        }
-
-//        if( !$statisticsCalculator->minimalAgainstCanStillBeAssigned($homeAway) ) {
-//            return false;
-//        }
-//        if( $statisticsCalculator->againstWillBeOverAssigned($homeAway) ) {
-//            return false;
-//        }
         foreach ($homeAway->getPlaces() as $place) {
             if ( $statisticsCalculator->sportWillBeOverAssigned($place) ) {
                 return false;
             }
         }
 
-        $statisticsCalculator = $statisticsCalculator->addHomeAway($homeAway);
-        if( !$statisticsCalculator->againstWithinMarginDuring() ) {
+        $statisticsCalculator2 = $statisticsCalculator->addHomeAway($homeAway);
+        if( !$statisticsCalculator2->againstWithinMarginDuring() ) {
             return false;
         }
 
-        if( !$statisticsCalculator->withWithinMarginDuring() ) {
+        if( !$statisticsCalculator2->withWithinMarginDuring() ) {
             return false;
         }
 

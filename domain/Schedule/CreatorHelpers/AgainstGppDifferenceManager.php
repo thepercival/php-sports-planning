@@ -4,6 +4,7 @@ namespace SportsPlanning\Schedule\CreatorHelpers;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\WithPoule\Against\EquallyAssignCalculator;
+use SportsHelpers\SportRange;
 use SportsPlanning\Poule;
 use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
@@ -65,6 +66,9 @@ class AgainstGppDifferenceManager
                 // $allowedAgainstSportDiff = $againstGppsWithPoule->allAgainstSameNrOfGamesAssignable() ? 0: 1;
 
                 $allowedMarginCumulative = $lastSportVariant ? 0 : 1;
+                if( $allowedMarginCumulative === 0 && !$againstGppsWithPoule->allAgainstSameNrOfGamesAssignable() ) {
+                    $allowedMarginCumulative = 1;
+                }
             } else {
                 $allowedAgainstMarginSport = (int)ceil($nrOfSportGames / $nrOfGames * $this->allowedMargin);
                 $allowedMarginCumulative += $allowedAgainstMarginSport;
@@ -76,7 +80,9 @@ class AgainstGppDifferenceManager
                 $nrOfAgainstCombinationsCumulative,
                 $againstGppWithPoule->getNrOfPossibleAgainstCombinations()
             );
-            $allowedAgainstAmount = (new EquallyAssignCalculator())->getMaxAmount(
+            $maxNrOfAgainstAllowedToAssignedToMaximumCum = $againstGppWithPoule->getNrOfPossibleAgainstCombinations() - $minNrOfAgainstAllowedToAssignedToMinimumCum;
+
+            $allowedAgainstAmountCum = (new EquallyAssignCalculator())->getMaxAmount(
                 $nrOfAgainstCombinationsCumulative,
                 $againstGppWithPoule->getNrOfPossibleAgainstCombinations()
             );
@@ -94,23 +100,35 @@ class AgainstGppDifferenceManager
                     $nrOfWithCombinationsCumulative,
                     $againstGppWithPoule->getNrOfPossibleWithCombinations()
                 );
-                $allowedWithAmount = (new EquallyAssignCalculator())->getMaxAmount(
+                $maxNrOfWithAllowedToAssignedToMaximumCum = $againstGppWithPoule->getNrOfPossibleWithCombinations() - $minNrOfWithAllowedToAssignedToMinimumCum;
+                $allowedWithAmountCum = (new EquallyAssignCalculator())->getMaxAmount(
                     $nrOfWithCombinationsCumulative,
                     $againstGppWithPoule->getNrOfPossibleWithCombinations()
                 );
             } else {
                 $minNrOfWithAllowedToAssignedToMinimumCum = 0;
-                $allowedWithAmount = 0;
+                $maxNrOfWithAllowedToAssignedToMaximumCum = 0;
+                $allowedWithAmountCum = 0;
             }
 
+            $allowedAgainstAmountCum += (int)ceil($this->allowedMargin / 2);
+            $allowedWithAmountCum += (int)ceil($this->allowedMargin / 2);
+//            if( $this->allowedMargin > 0) {
+//                $minNrOfAgainstAllowedToAssignedToMinimumCum = 0;
+//                $maxNrOfAgainstAllowedToAssignedToMaximumCum = 0;
+//                $minNrOfWithAllowedToAssignedToMinimumCum = 0;
+//                $maxNrOfWithAllowedToAssignedToMaximumCum = 0;
+//            }
 
             $this->differenceMap[$sportNr] = new AgainstGppDifference(
                 $this->allowedMargin,
                 $allowedMarginCumulative,
                 $minNrOfAgainstAllowedToAssignedToMinimumCum,
+                $maxNrOfAgainstAllowedToAssignedToMaximumCum,
                 $minNrOfWithAllowedToAssignedToMinimumCum,
-                $allowedAgainstAmount,
-                $allowedWithAmount,
+                $maxNrOfWithAllowedToAssignedToMaximumCum,
+                new SportRange( $allowedAgainstAmountCum - $allowedMarginCumulative, $allowedAgainstAmountCum),
+                new SportRange( $allowedWithAmountCum - $allowedMarginCumulative, $allowedWithAmountCum),
                 $nrOfSportVariants === $counter
             );
         }

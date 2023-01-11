@@ -44,8 +44,7 @@ class GamesPerPlace extends AgainstHelper
     {
         $homeAwayCreator = new GppHomeAwayCreator();
 
-        $sortedSportVariantMap = $this->sortByEquallyAssigned($poule, $sportVariantMap);
-        foreach ($sortedSportVariantMap as $sportNr => $sportVariant) {
+        foreach ($sportVariantMap as $sportNr => $sportVariant) {
             $sportSchedule = new SportSchedule($schedule, $sportNr, $sportVariant->toPersistVariant());
 
             $gameRoundCreator = new AgainstGppGameRoundCreator($this->logger);
@@ -65,24 +64,5 @@ class GamesPerPlace extends AgainstHelper
 
 
 
-    /**
-     * @param Poule $poule
-     * @param array<int, AgainstGpp> $sportVariantMap
-     * @return array<int, AgainstGpp>
-     */
-    protected function sortByEquallyAssigned(Poule $poule, array $sportVariantMap): array
-    {
-        uasort($sportVariantMap, function (AgainstGpp $sportVariantA, AgainstGpp $sportVariantB) use($poule): int {
-            $sportVariantWithPouleA = new AgainstGppWithPoule($poule, $sportVariantA );
-            $sportVariantWithPouleB = new AgainstGppWithPoule($poule, $sportVariantB );
-            $allPlacesSameNrOfGamesA = $sportVariantWithPouleA->allPlacesSameNrOfGamesAssignable();
-            $allPlacesSameNrOfGamesB = $sportVariantWithPouleB->allPlacesSameNrOfGamesAssignable();
-            if (($allPlacesSameNrOfGamesA && $allPlacesSameNrOfGamesB)
-                || (!$allPlacesSameNrOfGamesA && !$allPlacesSameNrOfGamesB)) {
-                return 0;
-            }
-            return $allPlacesSameNrOfGamesA ? -1 : 1;
-        });
-        return $sportVariantMap;
-    }
+
 }
