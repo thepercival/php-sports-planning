@@ -246,6 +246,10 @@ class AssignedCounter
         return $this->getMapDifference(array_values($this->assignedMap));
     }
 
+    public function getHomeAmountDifference(): int {
+        return $this->assignedHomeMap->getAmountDifference();
+    }
+
     public function getAssignedAgainstDifference(): int {
         return $this->getMapDifference(array_values($this->assignedAgainstMap));
     }

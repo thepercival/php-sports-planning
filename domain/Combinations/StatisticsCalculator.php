@@ -121,7 +121,27 @@ abstract class StatisticsCalculator
 //        return $amount;
 //    }
 
-
+    /**
+     * @param PlaceCombinationCounterMap $map
+     * @param HomeAway $homeAway
+     * @return list<int>
+     */
+    protected function getLeastAgainstCombinationAssigned(PlaceCombinationCounterMap $map, HomeAway $homeAway): array
+    {
+        $leastAmount = -1;
+        $nrOfLeastAmount = 0;
+        foreach ($homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination ) {
+            $amountAssigned = $map->count($againstPlaceCombination);
+            if ($leastAmount === -1 || $amountAssigned < $leastAmount) {
+                $leastAmount = $amountAssigned;
+                $nrOfLeastAmount = 1;
+            }
+            if ($amountAssigned === $leastAmount) {
+                $nrOfLeastAmount++;
+            }
+        }
+        return [$leastAmount, $nrOfLeastAmount];
+    }
 
     /**
      * @param PlaceCounterMap $map
@@ -150,7 +170,7 @@ abstract class StatisticsCalculator
      * @param HomeAway $homeAway
      * @return list<int>
      */
-    protected function getLeastCombinationAssigned(PlaceCombinationCounterMap $map, HomeAway $homeAway): array
+    protected function getLeastWithCombinationAssigned(PlaceCombinationCounterMap $map, HomeAway $homeAway): array
     {
         $leastAmount = -1;
         $nrOfSides = 0;

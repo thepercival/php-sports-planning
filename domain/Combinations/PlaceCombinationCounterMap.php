@@ -6,6 +6,7 @@ namespace SportsPlanning\Combinations;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\SportRange;
+use SportsPlanning\Combinations\Amount\Range as AmountRange;
 
 class PlaceCombinationCounterMap
 {
@@ -14,12 +15,12 @@ class PlaceCombinationCounterMap
      */
     private array $map;
     private bool|null $canBeBalanced = null;
-    private SportRange|null $valueRange = null;
+    private AmountRange|null|false $range = false;
     /**
-     * @var array<int, list<PlaceCombinationCounter>>|null
+     * @var array<int, Amount>|null
      */
-    private array|null $perAmount = null;
-    private int|null $nrOfAssignedToMin = null;
+    private array|null $amounts = null;
+    // private int|null $nrOfAssignedToMin = null;
     // private int|null $nrOfAssignedToMax = null;
 
     /**
@@ -80,22 +81,23 @@ class PlaceCombinationCounterMap
         return array_values($this->map);
     }
 
-    public function getMin(): int {
-        return $this->getValueRange()->getMin();
-    }
+//    public function getMinAmount(): int {
+//        return $this->getAmountRange()->minimum->amount ?? 0;
+//    }
 
-    public function getNrOfAssignedToMin(): int {
-        $this->getMin();
-        if( $this->nrOfAssignedToMin === null) {
-            throw new \Exception('should always be set');
-        }
-        return $this->nrOfAssignedToMin;
-    }
+//    public function getNrOfAssignedToMin(): int {
+//        $this->getMin();
+//        if( $this->nrOfAssignedToMin === null) {
+//            throw new \Exception('should always be set');
+//        }
+//        return $this->nrOfAssignedToMin;
+//    }
 
 
-    public function getMax(): int {
-        return $this->getValueRange()->getMax();
-    }
+//    public function getMaxAmount(): int {
+//        // return $this->getValueRange()->getMax();
+//        return $this->getAmountRange()->maximum->amount ?? 0;
+//    }
 
 //    public function getNrOfAssignedToMax(): int {
 //        $this->getMax();
@@ -105,47 +107,49 @@ class PlaceCombinationCounterMap
 //        return $this->nrOfAssignedToMax;
 //    }
 
-    public function getValueRange(): SportRange {
-        if( $this->valueRange === null) {
-            $perAmount = $this->getPerAmount();
-            if( count($perAmount) === 0) {
-                $this->nrOfAssignedToMin = 0;
-                // $this->nrOfAssignedToMax = 0;
-                $this->valueRange = new SportRange(0, 0);
+//    public function getCountRange(): SportRange|null {
+//        $range = $this->getRange();
+//        return $range ? new SportRange($range->minimum->count, $range->maximum->count) : null;
+//    }
+
+    public function getAmountRange(): SportRange|null {
+        $range = $this->getRange();
+        return $range ? new SportRange($range->getMinAmount(), $range->getMaxAmount()) : null;
+    }
+
+    public function getRange(): AmountRange|null {
+        if( $this->range === false) {
+            $amounts = $this->getAmountMap();
+            $min = array_shift($amounts);
+            $max = array_pop($amounts);
+            if( $min === null || $max === null) {
+                $this->range = null;
             } else {
-                $min = null;
-                // $max = null;
-                foreach( $perAmount as $amount => $homeAways) {
-                    if( $min === null ) {
-                        $min = $amount;
-                        $this->nrOfAssignedToMin = count($homeAways);
-                    }
-                    // $max = $amount;
-                    // $this->nrOfAssignedToMax = count($homeAways);
-                }
-                $this->valueRange = new SportRange($min, $amount);
+                $this->range = new AmountRange($min, $max);
             }
-
         }
-        return $this->valueRange;
-
+        return $this->range;
     }
 
-    public function getNrOfAssignedTo(int $amount): int {
-        $perAmount = $this->getPerAmount();
-        if( !array_key_exists($amount, $perAmount) ) {
-            return 0;
-        }
-        return count($perAmount[$amount]);
+//    public function getNrOfAssignedTo(int $amount): int {
+//        $amountRange = $this->getAmounts();
+//        if( !array_key_exists($amount, $perAmount) ) {
+//            return 0;
+//        }
+//        return count($perAmount[$amount]);
+//    }
+
+
+//    public function getMinDifference(): int {
+//        return $this->canBeBalanced() ? 0 : 1;
+//    }
+
+    public function getAmountDifference(): int {
+        return $this->getAmountRange()?->difference() ?? 0;
     }
 
-
-    public function getMinDifference(): int {
-        return $this->canBeBalanced() ? 0 : 1;
-    }
-
-    public function getMaxDifference(): int {
-        return $this->getValueRange()->difference();
+    public function getMaxAmount(): int {
+        return $this->getAmountRange()?->getMax() ?? 0;
     }
 
 
@@ -162,21 +166,40 @@ class PlaceCombinationCounterMap
     }
 
     /**
-     * @return array<int, list<PlaceCombinationCounter>>
+     * @return array<int, Amount>
      */
-    public function getPerAmount(): array {
-        if( $this->perAmount === null) {
-            $this->perAmount = [];
+    public function getAmountMap(): array {
+        if( $this->amounts === null) {
+            $this->amounts = [];
             foreach ($this->map as $combinationCounter) {
-                if (!array_key_exists($combinationCounter->count(), $this->perAmount)) {
-                    $this->perAmount[$combinationCounter->count()] = [];
+                if (!array_key_exists($combinationCounter->count(), $this->amounts)) {
+                    $this->amounts[$combinationCounter->count()] = new Amount($combinationCounter->count(), 1);
+                } else {
+                    $amount = $this->amounts[$combinationCounter->count()];
+                    $this->amounts[$combinationCounter->count()] = new Amount($amount->amount, $amount->count + 1);
                 }
-                $this->perAmount[$combinationCounter->count()][] = $combinationCounter;
             }
-            ksort($this->perAmount);
+            ksort($this->amounts);
         }
-        return $this->perAmount;
+        return $this->amounts;
     }
+
+//    /**
+//     * @return array<int, list<PlaceCombinationCounter>>
+//     */
+//    public function getPerAmountOld(): array {
+//        if( $this->perAmount === null) {
+//            $this->perAmount = [];
+//            foreach ($this->map as $combinationCounter) {
+//                if (!array_key_exists($combinationCounter->count(), $this->perAmount)) {
+//                    $this->perAmount[$combinationCounter->count()] = [];
+//                }
+//                $this->perAmount[$combinationCounter->count()][] = $combinationCounter;
+//            }
+//            ksort($this->perAmount);
+//        }
+//        return $this->perAmount;
+//    }
 
 
     public function output(LoggerInterface $logger, string $prefix, string $header): void {

@@ -17,6 +17,7 @@ use SportsPlanning\Referee\Info;
 use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\CreatorHelpers\Against\H2h as AgainstH2hCreatorHelper;
 use SportsPlanning\Schedule\CreatorHelpers\Against\GamesPerPlace as AgainstGppCreatorHelper;
+use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Schedule\CreatorHelpers\AgainstGppDifferenceManager;
 use SportsPlanning\Schedule\CreatorHelpers\AllInOneGame as AllInOneGameCreatorHelper;
 use SportsPlanning\Schedule\CreatorHelpers\Single as SingleCreatorHelper;
@@ -76,20 +77,21 @@ class Creator
             $againstH2hHelper->createSportSchedules($schedule, $poule, $againstH2hSportVariantMap, $assignedCounter);
 
             $againstGppVariantMap = $this->getAgainstGppSportVariantMap($input, $poule);
-
-            $differenceManager = new AgainstGppDifferenceManager(
-                $poule,
-                $againstGppVariantMap,
-                $allowedGppMargin,
-                $this->logger);
-            $againstGppHelper = new AgainstGppCreatorHelper($this->logger);
-            $againstGppHelper->createSportSchedules(
-                $schedule,
-                $poule,
-                $againstGppVariantMap,
-                $assignedCounter,
-                $differenceManager,
-                $nrOfSecondsBeforeTimeout);
+            if( count($againstGppVariantMap) > 0) {
+                $differenceManager = new AgainstGppDifferenceManager(
+                    $poule,
+                    $againstGppVariantMap,
+                    $allowedGppMargin,
+                    $this->logger);
+                $againstGppHelper = new AgainstGppCreatorHelper($this->logger);
+                $againstGppHelper->createSportSchedules(
+                    $schedule,
+                    $poule,
+                    $againstGppVariantMap,
+                    $assignedCounter,
+                    $differenceManager,
+                    $nrOfSecondsBeforeTimeout);
+            }
 //            try {
 //            } catch(LessThanMinimumAgainstDifferenceException $e) {
 //
@@ -127,11 +129,13 @@ class Creator
         $againstH2hHelper->createSportSchedules($newSchedule, $newPoule, $againstH2hSportVariantMap, $assignedCounter);
 
         $againstGppSportVariantMap = $this->getAgainstGppSportVariantMap($input, $newPoule);
-        $againstGppHelper = new AgainstGppCreatorHelper($this->logger);
-        $differenceManager = new AgainstGppDifferenceManager($newPoule, $againstGppSportVariantMap, $allowedGppMargin, $this->logger);
-        $againstGppHelper->createSportSchedules(
-            $newSchedule, $newPoule, $againstGppSportVariantMap,
-            $assignedCounter, $differenceManager, $nrOfSecondsBeforeTimeout);
+        if( count($againstGppSportVariantMap) > 0) {
+            $differenceManager = new AgainstGppDifferenceManager($newPoule, $againstGppSportVariantMap, $allowedGppMargin, $this->logger);
+            $againstGppHelper = new AgainstGppCreatorHelper($this->logger);
+            $againstGppHelper->createSportSchedules(
+                $newSchedule, $newPoule, $againstGppSportVariantMap,
+                $assignedCounter, $differenceManager, $nrOfSecondsBeforeTimeout);
+        }
 
         return $newSchedule;
     }

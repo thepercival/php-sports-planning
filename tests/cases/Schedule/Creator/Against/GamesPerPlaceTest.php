@@ -23,7 +23,7 @@ class GamesPerPlaceTest extends TestCase
 {
     use PlanningCreator;
 
-    public function test2V2Places4GamesPerPlace1(): void
+    public function test2V2With4PlacesAnd1GamePerPlace(): void
     {
         $sportVariants = [
             $this->getAgainstGppSportVariantWithFields(1, 2, 2, 1 /* max = 2 */),
@@ -42,7 +42,7 @@ class GamesPerPlaceTest extends TestCase
         self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
     }
 
-    public function test2V2Places4GamesPerPlace2(): void
+    public function test2V2With4PlacesAnd2GamesPerPlace(): void
     {
         $sportVariants = [
             $this->getAgainstGppSportVariantWithFields(1, 2, 2, 2 /* max = 2 */),
@@ -51,7 +51,7 @@ class GamesPerPlaceTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $schedules = $scheduleCreator->createFromInput($input, 0);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -61,7 +61,7 @@ class GamesPerPlaceTest extends TestCase
         self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
     }
 
-    public function test2V2Places4GamesPerPlace3(): void
+    public function test2V2With4PlacesAnd3GamesPerPlace(): void
     {
         $sportVariants = [
             $this->getAgainstGppSportVariantWithFields(1, 2, 2, 3 /* max = 2 */),
@@ -70,7 +70,7 @@ class GamesPerPlaceTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $schedules = $scheduleCreator->createFromInput($input, 0);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -80,7 +80,7 @@ class GamesPerPlaceTest extends TestCase
         self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
     }
 
-    public function test2V2Places4GamesPerPlace4(): void
+    public function test2V2WithPlacesAnd4GamesPerPlace(): void
     {
         $sportVariants = [
             $this->getAgainstGppSportVariantWithFields(1, 2, 2, 4 /* max = 2 */),
@@ -277,7 +277,7 @@ class GamesPerPlaceTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input, 0);
+        $schedules = $scheduleCreator->createFromInput($input, 2);
         (new ScheduleOutput($this->getLogger()))->output($schedules);
         (new ScheduleOutput($this->getLogger()))->outputTotals($schedules);
         $gameCreator = new GameCreator($this->getLogger());
@@ -298,7 +298,7 @@ class GamesPerPlaceTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input, 2);
+        $schedules = $scheduleCreator->createFromInput($input, 0);
 //        (new ScheduleOutput($this->getLogger()))->output($schedules);
 //        (new ScheduleOutput($this->getLogger()))->outputTotals($schedules);
         $gameCreator = new GameCreator($this->getLogger());

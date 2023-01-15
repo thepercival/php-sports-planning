@@ -4,23 +4,29 @@ namespace SportsPlanning\Schedule\CreatorHelpers;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\WithPoule\Against\EquallyAssignCalculator;
-use SportsHelpers\SportRange;
+use SportsPlanning\Combinations\Amount;
 use SportsPlanning\Poule;
+use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 
 class AgainstGppDifferenceManager
 {
     /**
-     * @var array<int, AgainstGppDifference>
+     * @var array<int, AmountRange>
      */
-    private array $differenceMap = [];
-    private bool|null $canVariantAgainstBeEquallyAssigned = null;
-    private bool|null $canVariantWithBeEquallyAssigned = null;
+    private array $againstAmountRange = [];
+    /**
+     * @var array<int, AmountRange>
+     */
+    private array $withAmountRange = [];
+
+    // private bool|null $canVariantAgainstBeEquallyAssigned = null;
+    // private bool|null $canVariantWithBeEquallyAssigned = null;
 
     /**
      * @param Poule $poule
-     * @param array<int, AgainstGpp> $againstGppVariantMap
+     * @param non-empty-array<int, AgainstGpp> $againstGppVariantMap
      * @param int $allowedMargin
      * @param LoggerInterface $logger
      */
@@ -30,15 +36,15 @@ class AgainstGppDifferenceManager
         protected int $allowedMargin,
         protected LoggerInterface $logger)
     {
-        $this->initDifferenceMap($poule, $againstGppVariantMap);
+        $this->initAmountMaps($poule, $againstGppVariantMap);
     }
 
     /**
      * @param Poule $poule
-     * @param array<int, AgainstGpp> $againstGppVariantMap
+     * @param non-empty-array<int, AgainstGpp> $againstGppVariantMap
      * @return void
      */
-    private function initDifferenceMap(Poule $poule, array $againstGppVariantMap): void
+    private function initAmountMaps(Poule $poule, array $againstGppVariantMap): void
     {
         $nrOfGames = 0;
         foreach ($againstGppVariantMap as $againstGpp) {
@@ -49,26 +55,24 @@ class AgainstGppDifferenceManager
         $allowedMarginCumulative = 0;
         $nrOfAgainstCombinationsCumulative = 0;
         $nrOfWithCombinationsCumulative = 0;
-        $nrOfSportVariants = count($againstGppVariantMap);
+        // $nrOfSportVariants = count($againstGppVariantMap);
 
         $counter = 0;
-        // $nrOfPossibleWithCombinations = 0;
         foreach ($againstGppVariantMap as $sportNr => $againstGpp) {
-            // $againstGppVariantsCumulative[] = $againstGpp;
             $againstGppWithPoule = new AgainstGppWithPoule($poule, $againstGpp);
             $nrOfSportGames = $againstGppWithPoule->getTotalNrOfGames();
             $lastSportVariant = ++$counter === count($againstGppVariantMap);
 
-            // $nrOfGamesCumulative += $againstGppsWithPoule->getTotalNrOfGames();
-            //$allowedAgainstDeficitCumulative += $againstGppsWithPoule->getDeficit();
-
             if ($this->allowedMargin === 0) { // alle 1 en de laatste 0
-                // $allowedAgainstSportDiff = $againstGppsWithPoule->allAgainstSameNrOfGamesAssignable() ? 0: 1;
-
                 $allowedMarginCumulative = $lastSportVariant ? 0 : 1;
-                if( $allowedMarginCumulative === 0 && !$againstGppsWithPoule->allAgainstSameNrOfGamesAssignable() ) {
-                    $allowedMarginCumulative = 1;
-                }
+                // @TODO CDK
+                //            if( $lastSportVariant && !$againstGppsWithPoule->allAgainstSameNrOfGamesAssignable() ) {
+//                $allowedMarginCumulative++;
+//            }
+
+//                if( $allowedMarginCumulative === 0 && !$againstGppsWithPoule->allAgainstSameNrOfGamesAssignable() ) {
+//                    $allowedMarginCumulative = 1;
+//                }
             } else {
                 $allowedAgainstMarginSport = (int)ceil($nrOfSportGames / $nrOfGames * $this->allowedMargin);
                 $allowedMarginCumulative += $allowedAgainstMarginSport;
@@ -76,16 +80,17 @@ class AgainstGppDifferenceManager
 
             $nrOfAgainstCombinationsSport = $againstGpp->getNrOfAgainstCombinationsPerGame() * $nrOfSportGames;
             $nrOfAgainstCombinationsCumulative += $nrOfAgainstCombinationsSport;
-            $minNrOfAgainstAllowedToAssignedToMinimumCum = (new EquallyAssignCalculator())->getNrOfDeficit(
-                $nrOfAgainstCombinationsCumulative,
-                $againstGppWithPoule->getNrOfPossibleAgainstCombinations()
-            );
-            $maxNrOfAgainstAllowedToAssignedToMaximumCum = $againstGppWithPoule->getNrOfPossibleAgainstCombinations() - $minNrOfAgainstAllowedToAssignedToMinimumCum;
 
             $allowedAgainstAmountCum = (new EquallyAssignCalculator())->getMaxAmount(
                 $nrOfAgainstCombinationsCumulative,
                 $againstGppWithPoule->getNrOfPossibleAgainstCombinations()
             );
+
+            $minNrOfAgainstAllowedToAssignedToMinimumCum = (new EquallyAssignCalculator())->getNrOfDeficit(
+                $nrOfAgainstCombinationsCumulative,
+                $againstGppWithPoule->getNrOfPossibleAgainstCombinations()
+            );
+            $maxNrOfAgainstAllowedToAssignedToMaximumCum = $againstGppWithPoule->getNrOfPossibleAgainstCombinations() - $minNrOfAgainstAllowedToAssignedToMinimumCum;
 
             if( $againstGppWithPoule->getSportVariant()->hasMultipleSidePlaces()) {
 
@@ -96,56 +101,66 @@ class AgainstGppDifferenceManager
 
                 $nrOfWithCombinationsSport = $againstGpp->getNrOfWithCombinationsPerGame() * $nrOfSportGames;
                 $nrOfWithCombinationsCumulative += $nrOfWithCombinationsSport;
+
+                $allowedWithAmountCum = (new EquallyAssignCalculator())->getMaxAmount(
+                    $nrOfWithCombinationsCumulative,
+                    $againstGppWithPoule->getNrOfPossibleWithCombinations()
+                );
+
                 $minNrOfWithAllowedToAssignedToMinimumCum = (new EquallyAssignCalculator())->getNrOfDeficit(
                     $nrOfWithCombinationsCumulative,
                     $againstGppWithPoule->getNrOfPossibleWithCombinations()
                 );
                 $maxNrOfWithAllowedToAssignedToMaximumCum = $againstGppWithPoule->getNrOfPossibleWithCombinations() - $minNrOfWithAllowedToAssignedToMinimumCum;
-                $allowedWithAmountCum = (new EquallyAssignCalculator())->getMaxAmount(
-                    $nrOfWithCombinationsCumulative,
-                    $againstGppWithPoule->getNrOfPossibleWithCombinations()
-                );
             } else {
                 $minNrOfWithAllowedToAssignedToMinimumCum = 0;
                 $maxNrOfWithAllowedToAssignedToMaximumCum = 0;
                 $allowedWithAmountCum = 0;
             }
 
-            $allowedAgainstAmountCum += (int)ceil($this->allowedMargin / 2);
-            $allowedWithAmountCum += (int)ceil($this->allowedMargin / 2);
-//            if( $this->allowedMargin > 0) {
-//                $minNrOfAgainstAllowedToAssignedToMinimumCum = 0;
-//                $maxNrOfAgainstAllowedToAssignedToMaximumCum = 0;
-//                $minNrOfWithAllowedToAssignedToMinimumCum = 0;
-//                $maxNrOfWithAllowedToAssignedToMaximumCum = 0;
-//            }
+            $allowedAgainstMaxSport = $allowedAgainstAmountCum + (int)ceil($allowedMarginCumulative / 2);
+            $allowedAgainstMinSport = $allowedAgainstAmountCum - (int)ceil($allowedMarginCumulative / 2);
+            if( $minNrOfAgainstAllowedToAssignedToMinimumCum > 0 ) {
+                $allowedAgainstMinSport--;
+            }
 
-            $this->differenceMap[$sportNr] = new AgainstGppDifference(
-                $this->allowedMargin,
-                $allowedMarginCumulative,
-                $minNrOfAgainstAllowedToAssignedToMinimumCum,
-                $maxNrOfAgainstAllowedToAssignedToMaximumCum,
-                $minNrOfWithAllowedToAssignedToMinimumCum,
-                $maxNrOfWithAllowedToAssignedToMaximumCum,
-                new SportRange( $allowedAgainstAmountCum - $allowedMarginCumulative, $allowedAgainstAmountCum),
-                new SportRange( $allowedWithAmountCum - $allowedMarginCumulative, $allowedWithAmountCum),
-                $nrOfSportVariants === $counter
+            $allowedWithMaxSport = $allowedWithAmountCum + (int)ceil($allowedMarginCumulative / 2);
+            $allowedWithMinSport = $allowedWithAmountCum - (int)ceil($allowedMarginCumulative / 2);
+            if( $minNrOfWithAllowedToAssignedToMinimumCum > 0 ) {
+                $allowedWithMinSport--;
+            }
+            if( $allowedAgainstMinSport < 0 ) {
+                $allowedAgainstMinSport = 0;
+                $minNrOfAgainstAllowedToAssignedToMinimumCum = 0;
+            }
+            if( $allowedWithMinSport < 0 ) {
+                $allowedWithMinSport = 0;
+                $minNrOfWithAllowedToAssignedToMinimumCum = 0;
+            }
+
+             $this->againstAmountRange[$sportNr] = new AmountRange(
+                new Amount( $allowedAgainstMinSport, $minNrOfAgainstAllowedToAssignedToMinimumCum),
+                new Amount( $allowedAgainstMaxSport, $maxNrOfAgainstAllowedToAssignedToMaximumCum)
+            );
+            $this->withAmountRange[$sportNr] = new AmountRange(
+                new Amount( $allowedWithMinSport, $minNrOfWithAllowedToAssignedToMinimumCum),
+                new Amount( $allowedWithMaxSport, $maxNrOfWithAllowedToAssignedToMaximumCum)
             );
         }
     }
 
-    /**
-     * @param Poule $poule
-     * @param list<AgainstGpp> $againstGppVariants
-     * @return bool
-     */
-    private function canVariantAgainstBeEquallyAssigned(Poule $poule, array $againstGppVariants): bool {
-        if( $this->canVariantAgainstBeEquallyAssigned === null ) {
-            $calculator = new EquallyAssignCalculator();
-            $this->canVariantAgainstBeEquallyAssigned = $calculator->assignAgainstSportsEqually(count($poule->getPlaceList()), $againstGppVariants);
-        }
-        return $this->canVariantAgainstBeEquallyAssigned;
-    }
+//    /**
+//     * @param Poule $poule
+//     * @param list<AgainstGpp> $againstGppVariants
+//     * @return bool
+//     */
+//    private function canVariantAgainstBeEquallyAssigned(Poule $poule, array $againstGppVariants): bool {
+//        if( $this->canVariantAgainstBeEquallyAssigned === null ) {
+//            $calculator = new EquallyAssignCalculator();
+//            $this->canVariantAgainstBeEquallyAssigned = $calculator->assignAgainstSportsEqually(count($poule->getPlaceList()), $againstGppVariants);
+//        }
+//        return $this->canVariantAgainstBeEquallyAssigned;
+//    }
 
 //    /**
 //     * @param Poule $poule
@@ -160,7 +175,11 @@ class AgainstGppDifferenceManager
 //        return $this->canVariantWithBeEquallyAssigned;
 //    }
 
-    public function getDifference(int $sportNr): AgainstGppDifference {
-        return $this->differenceMap[$sportNr];
+    public function getAgainstRange(int $sportNr): AmountRange {
+        return $this->againstAmountRange[$sportNr];
+    }
+
+    public function getWithRange(int $sportNr): AmountRange {
+        return $this->withAmountRange[$sportNr];
     }
 }

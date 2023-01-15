@@ -36,14 +36,15 @@ class HomeAwayBalancer
             $sportHomeAwaysMap[$sportHomeAway->getIndex()] = $sportHomeAway;
         }
         // $minDifference = $assignedHomeMap->getMinDifference();
-        $homeAwaysByDifference = $this->getHomeAwaysByDifference($assignedHomeMap, array_values($sportHomeAwaysMap));
+        $homeAwaysPerDifference = $this->getHomeAwaysPerDifference($assignedHomeMap, array_values($sportHomeAwaysMap));
         // $sportDifference = $this->getMaxDifference($homeAwaysByDifference);
         // (new HomeAwayOutput($this->logger))->outputHomeTotals($sportHomeAways);
 //        $assignedHomeMap->output($this->logger, 'HomeTotals');
 //        $this->outputHomeDiffsPerAmount($homeAwaysByDifference);
         //
-        while( $assignedHomeMap->getMaxDifference() > $maxDiff ) {
-            $homeAwayMostDifference = $this->getBestHomeAway($reversedHomeAways, $homeAwaysByDifference);
+        $amountRange = $assignedHomeMap->getAmountRange();
+        while( $amountRange && $amountRange->difference() > $maxDiff ) {
+            $homeAwayMostDifference = $this->getBestHomeAway($reversedHomeAways, $homeAwaysPerDifference);
             if( $homeAwayMostDifference === null) {
                 break;
             }
@@ -54,9 +55,9 @@ class HomeAwayBalancer
             $sportHomeAwaysMap[$reversedHomeAway->getIndex()] = $reversedHomeAway;
 
             $assignedHomeMap = $assignedHomeMap->removePlaceCombination($homeAwayMostDifference->getHome());
-            $assignedHomeMap = $assignedHomeMap->addPlaceCombination($reversedHomeAway->getHome());
+            $assignedHomeMap = $assignedHomeMap->addPlaceCombination($homeAwayMostDifference->getAway());
 
-            $homeAwaysByDifference = $this->getHomeAwaysByDifference($assignedHomeMap, array_values($sportHomeAwaysMap));
+            $homeAwaysPerDifference = $this->getHomeAwaysPerDifference($assignedHomeMap, array_values($sportHomeAwaysMap));
             // $sportDifference = $this->getMaxDifference($homeAwaysByDifference);
 
             $reversedHomeAways[$reversedHomeAway->getIndex()] = $reversedHomeAway;
@@ -68,15 +69,15 @@ class HomeAwayBalancer
     }
 
     /**
-     * @param array<string, HomeAway> $reversedHomeAways
+     * @param array<string, HomeAway> $sportHomeAwaysMap
      * @param array<int,list<HomeAway>> $homeAwaysByDifference
      * @return HomeAway|null
      */
-    protected function getBestHomeAway(array &$reversedHomeAways, array $homeAwaysByDifference): HomeAway|null {
+    protected function getBestHomeAway(array $sportHomeAwaysMap, array $homeAwaysByDifference): HomeAway|null {
 
         foreach( $homeAwaysByDifference as $homeAways) {
             foreach ($homeAways as $homeAway) {
-                if (!array_key_exists($homeAway->getIndex(), $reversedHomeAways)) {
+                if (!array_key_exists($homeAway->getIndex(), $sportHomeAwaysMap)) {
                     return $homeAway;
                 }
             }
@@ -90,7 +91,7 @@ class HomeAwayBalancer
      * @param list<HomeAway> $sportHomeAways
      * @return array<int, list<HomeAway>>
      */
-    public function getHomeAwaysByDifference(PlaceCombinationCounterMap $assignedHomeMap, array $sportHomeAways): array {
+    public function getHomeAwaysPerDifference(PlaceCombinationCounterMap $assignedHomeMap, array $sportHomeAways): array {
         $homeDiffsPerAmount = [];
         foreach( $sportHomeAways as $sportHomeAway) {
             $homeDiff = $this->getHomeDiff($assignedHomeMap, $sportHomeAway);

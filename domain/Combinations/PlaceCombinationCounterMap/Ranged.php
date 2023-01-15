@@ -3,25 +3,25 @@
 namespace SportsPlanning\Combinations\PlaceCombinationCounterMap;
 
 use SportsPlanning\Combinations\PlaceCombination;
-use SportsPlanning\Combinations\PlaceCombinationCounter;
+use SportsPlanning\Combinations\Amount;
+use SportsPlanning\Combinations\Amount\Calculator as AmountCalculator;
 use SportsPlanning\Combinations\PlaceCombinationCounterMap;
 use SportsPlanning\Combinations\PlaceCombinationCounterMap as PlaceCombinationCounterMapBase;
-use SportsPlanning\Schedule\CreatorHelpers\AgainstGppDifference;
 
 class Ranged
 {
-    /**
-     * @param array<string, PlaceCombinationCounter> $placeCombinationCounters
-     */
-    public function __construct(
-        private readonly PlaceCombinationCounterMapBase $map,
-        public readonly int $minimum,
-        public readonly int $minNrToAssignToMinimum,
-        public readonly int $maximum,
-        public readonly int $maxNrToAssignToMaximum,
-        public readonly int $shortage,
-        private readonly bool $overAssigned = false) {
+    // private int|null $shortage = null;
+    // private bool|null $overAssigned = null;
+    private readonly PlaceCombinationCounterMapBase $map;
+    public readonly Amount $minimum;
+    public readonly Amount $maximum;
+    private int|null $nrOfPlaceCombinationsBelowMinimum = null;
+    private int|null $nrOfPlaceCombinationsAboveMaximum = null;
 
+    public function __construct( PlaceCombinationCounterMapBase $map, Amount $minimum, Amount $maximum) {
+        $this->map = $map;
+        $this->minimum = $minimum;
+        $this->maximum = $maximum;
     }
 
     public function getMap(): PlaceCombinationCounterMap {
@@ -30,90 +30,97 @@ class Ranged
 
     public function addPlaceCombination(PlaceCombination $placeCombination): self {
 
-        $count = $this->map->count($placeCombination);
-        $newMap = $this->map->addPlaceCombination($placeCombination);
-
-        $newShortage = $this->shortage;
-        $newCount = $newMap->count($placeCombination);
-
-        if( ($newCount < $this->minimum
-            || ($newCount === $this->minimum && $newMap->getNrOfAssignedTo($newCount) >= $this->minNrToAssignToMinimum)
-            || ($count === $this->minimum /*&& $this->map->getNrOfAssignedTo($count) < $this->minNrToAssignToMinimum*/))
-            // && ($newCount > $this->minimum || ( $newCount === $this->minimum && $newMap->getNrOfAssignedTo($newCount) >= $this->minNrToAssignToMinimum))
-        ) {
-            $newShortage--;
-        }
-
-        $newOverAssigned = $this->overAssigned;
-        if( !$this->overAssigned ) {
-            if( ($count < $this->maximum || ( $count === $this->maximum && $newMap->getNrOfAssignedTo($count) <= $this->maxNrToAssignToMaximum))
-                && ($newCount > $this->maximum || ( $newCount === $this->maximum && $newMap->getNrOfAssignedTo($newCount) > $this->maxNrToAssignToMaximum))
-            ) {
-                $newOverAssigned = true;
-            }
-        }
         return new self(
-            $newMap,
-            $this->minimum,
-            $this->minNrToAssignToMinimum,
-            $this->maximum,
-            $this->maxNrToAssignToMaximum,
-            $newShortage,
-            $newOverAssigned);
-
+            $this->map->addPlaceCombination($placeCombination),
+            $this->minimum, $this->maximum );
     }
 
     public function removePlaceCombination(PlaceCombination $placeCombination): self {
 
-        $count = $this->map->count($placeCombination);
-        $newMap = $this->map->removePlaceCombination($placeCombination);
-
-        $newShortage = $this->shortage;
-        $newCount = $newMap->count($placeCombination);
-
-        if( /*($count > $this->minimum || ( $count === $this->minimum && $newMap->getNrOfAssignedTo($count) >= $this->minNrToAssignToMinimum))
-            &&*/ $newCount < $this->minimum || ( $newCount === $this->minimum && $newMap->getNrOfAssignedTo($newCount) < $this->minNrToAssignToMinimum)
-        ) {
-            $newShortage--;
-        }
-
-        $newOverAssigned = $this->overAssigned;
-        if( $this->overAssigned ) {
-            if( ($count > $this->maximum || ( $count === $this->maximum && $newMap->getNrOfAssignedTo($count) > $this->maxNrToAssignToMaximum))
-                && ($newCount < $this->maximum || ( $newCount === $this->maximum && $newMap->getNrOfAssignedTo($newCount) <= $this->maxNrToAssignToMaximum))
-            ) {
-                $newOverAssigned = true;
-            }
-        }
-
         return new self(
-            $newMap,
-            $this->minimum,
-            $this->minNrToAssignToMinimum,
-            $this->maximum,
-            $this->maxNrToAssignToMaximum,
-            $newShortage,
-            $newOverAssigned);
+            $this->map->removePlaceCombination($placeCombination),
+            $this->minimum, $this->maximum);
     }
+
+//    public function getMaxShortage(): int
+//    {
+//        $nrOfPlaceCombinations = count($this->map->getList());
+//        $shortage = $nrOfPlaceCombinations * $this->minimum;
+//        $shortage += $this->minNrToAssignToMinimum;
+//        return $shortage;
+//    }
+
+//    public function getShortage(): int
+//    {
+//        if( $this->shortage === null) {
+//            $this->shortage = 0;
+//            $this->overAssigned = false;
+//            $nrOfAmountLessThanMinimum = 0;
+//            foreach( $this->map->getPerAmount() as $amount => $counters ) {
+//                $nrOfAmount = count($counters);
+//                if( $amount < $this->minimum) {
+//                    $this->shortage += (int)($nrOfAmount * ($this->minimum - $amount));
+//                }
+//                if( $amount < $this->minimum) {
+//                    $nrOfAmountLessThanMinimum += $nrOfAmount;
+//                }
+//                if( $amount === $this->maximum && $nrOfAmount > $this->maxNrToAssignToMaximum ) {
+//                    $this->overAssigned = true;
+//                }
+//                if( $amount > $this->maximum ) {
+//                    $this->overAssigned = true;
+//                }
+//            }
+//            if( $nrOfAmountLessThanMinimum < $this->minNrToAssignToMinimum) {
+//                $this->shortage += $this->minNrToAssignToMinimum - $nrOfAmountLessThanMinimum;
+//            }
+//        }
+//        return $this->shortage;
+//    }
+
+    public function getNrOfPlaceCombinationsBelowMinimum(): int
+    {
+        if( $this->nrOfPlaceCombinationsBelowMinimum === null) {
+            $calculator = new AmountCalculator(count($this->getMap()->getList()), $this->minimum, $this->maximum);
+            $this->nrOfPlaceCombinationsBelowMinimum = $calculator->countBeneathMinimum( $this->map->getAmountMap() );
+        }
+        return $this->nrOfPlaceCombinationsBelowMinimum;
+    }
+
+    public function getNrOfPlaceCombinationsAboveMaximum(): int
+    {
+        if( $this->nrOfPlaceCombinationsAboveMaximum === null) {
+            $calculator = new AmountCalculator(count($this->getMap()->getList()), $this->minimum, $this->maximum);
+            $this->nrOfPlaceCombinationsAboveMaximum = $calculator->countAboveMaximum( $this->map->getAmountMap() );
+        }
+        return $this->nrOfPlaceCombinationsAboveMaximum;
+    }
+
+
 
     public function count(PlaceCombination $placeCombination): int
     {
         return $this->map->count($placeCombination);
     }
 
-    public function getMaxDifference(): int
+    public function getAmountDifference(): int
     {
-        return $this->map->getMaxDifference();
+        return $this->map->getAmountDifference();
     }
 
-    public function getMax(): int
+    public function getMaxAmount(): int
     {
-        return $this->map->getMax();
+        return $this->map->getMaxAmount();
     }
 
     public function withinRange(int $nrOfCombinationsToGo): bool
     {
-        return ($this->minimum === 0 || $nrOfCombinationsToGo >= $this->shortage) && !$this->overAssigned;
+        return $this->minimumCanBeReached($nrOfCombinationsToGo) && $this->getNrOfPlaceCombinationsAboveMaximum() === 0;
+    }
+
+    public function minimumCanBeReached(int $nrOfCombinationsToGo): bool
+    {
+        return $this->getNrOfPlaceCombinationsBelowMinimum() <= $nrOfCombinationsToGo;
     }
 
 }

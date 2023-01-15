@@ -21,7 +21,6 @@ use SportsPlanning\Combinations\StatisticsCalculator\Against\GamesPerPlace as Gp
 use SportsPlanning\Input;
 use SportsPlanning\Schedule\Creator as ScheduleCreator;
 use SportsPlanning\Poule;
-use SportsPlanning\Schedule\CreatorHelpers\AgainstGppDifference;
 use SportsPlanning\Schedule\CreatorHelpers\AgainstGppDifferenceManager;
 use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
 use SportsPlanning\TestHelper\PlanningCreator;
@@ -39,32 +38,28 @@ class GamesPerPlaceTest extends TestCase
         $mapper = new Mapper();
         $assignedCounter = new AssignedCounter($poule, [$sportVariant]);
         $allowedGppMargin = ScheduleCreator::MAX_ALLOWED_GPP_MARGIN;
+        $againstGppMap = $this->getAgainstGppSportVariantMap($input);
+        if( count($againstGppMap) === 0 ) {
+            return;
+        }
         $differenceManager = new AgainstGppDifferenceManager(
             $poule,
-            $this->getAgainstGppSportVariantMap($input),
+            $againstGppMap,
             $allowedGppMargin,
             $this->getLogger());
-        $difference = $differenceManager->getDifference(1);
+        $againstAmountRange = $differenceManager->getAgainstRange(1);
 
-        $againstShortage = 5000;
         $assignedAgainstMap = new RangedPlaceCombinationCounterMap(
             new PlaceCombinationCounterMap( $assignedCounter->getAssignedAgainstMap() ),
-            $difference->allowedAgainstRange->getMin(),
-            $difference->minNrOfAgainstAllowedToAssignedToMinimumCum,
-            $difference->allowedAgainstRange->getMax(),
-            $difference->maxNrOfAgainstAllowedToAssignedToMaximumCum,
-            $againstShortage,
-            false
+            $againstAmountRange->getMin(),
+            $againstAmountRange->getMax()
         );
-        $withShortage = 5000;
+
+        $withAmountRange = $differenceManager->getWithRange(1);
         $assignedWithMap = new RangedPlaceCombinationCounterMap(
             new PlaceCombinationCounterMap( $assignedCounter->getAssignedWithMap() ),
-            $difference->allowedWithRange->getMin(),
-            $difference->minNrOfWithAllowedToAssignedToMinimumCum,
-            $difference->allowedWithRange->getMax(),
-            $difference->maxNrOfWithAllowedToAssignedToMaximumCum,
-            $withShortage,
-            false
+            $withAmountRange->getMin(),
+            $withAmountRange->getMax()
         );
 
         $statisticsCalculator = new GppStatisticsCalculator(
@@ -76,7 +71,8 @@ class GamesPerPlaceTest extends TestCase
             $assignedAgainstMap,
             $assignedWithMap,
             $assignedCounter->assignAgainstGppSportsEqually(),
-            $difference,
+            $againstAmountRange,
+            $withAmountRange,
             $this->getLogger()
         );
 
