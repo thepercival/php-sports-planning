@@ -35,6 +35,18 @@ class CreatorTest extends TestCase
         $this->createInput([2], $sportVariants);
     }
 
+    public function testMaxMargin(): void
+    {
+        $sportVariants = [
+            $this->getAgainstH2hSportVariantWithFields(1)
+        ];
+        $input = $this->createInput([5], $sportVariants);
+
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        self::assertEquals(0, $maxGppMargin);
+    }
+
     public function testGppAndGpp5Places1GamesPerPlace(): void
     {
         $sportVariants = [
@@ -44,19 +56,20 @@ class CreatorTest extends TestCase
         $input = $this->createInput([5], $sportVariants);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $schedule = reset($schedules);
         self::assertNotFalse($schedule);
 
         self::assertEquals(4, $this->getNrOfGames($schedule));
 
-        // (new ScheduleOutput($this->getLogger()))->output($schedules);
+//        (new ScheduleOutput($this->getLogger()))->output($schedules);
 
-        self::assertEquals(2, $this->getNrOfGames($schedule, 1));
+        self::assertEquals(1, $this->getNrOfGames($schedule, 1));
         self::assertEquals(1, $this->getNrOfGames($schedule, 2));
         self::assertEquals(2, $this->getNrOfGames($schedule, 3));
         self::assertEquals(2, $this->getNrOfGames($schedule, 4));
-        self::assertEquals(1, $this->getNrOfGames($schedule, 5));
+        self::assertEquals(2, $this->getNrOfGames($schedule, 5));
     }
 
     protected function getLogger(): LoggerInterface
@@ -98,7 +111,8 @@ class CreatorTest extends TestCase
         $input = $this->createInput([5], $sportVariants);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $schedule = reset($schedules);
         self::assertNotFalse($schedule);
 
@@ -118,7 +132,8 @@ class CreatorTest extends TestCase
         $input = $this->createInput([8], $sportVariants);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $schedule = reset($schedules);
         self::assertNotFalse($schedule);
 
@@ -135,7 +150,8 @@ class CreatorTest extends TestCase
         $input = $this->createInput([5], $sportVariants);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $schedule = reset($schedules);
         self::assertNotFalse($schedule);
 
@@ -169,7 +185,8 @@ class CreatorTest extends TestCase
         $input = $this->createInput([5], $sportVariants);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $schedule = reset($schedules);
         self::assertNotFalse($schedule);
 
@@ -198,7 +215,7 @@ class CreatorTest extends TestCase
         $input = $this->createInput([4], $sportVariantsWithFields);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input,0);
+        $schedules = $scheduleCreator->createFromInput($input, 0);
         // (new ScheduleOutput($this->getLogger()))->output($schedules);
         // (new ScheduleOutput($this->getLogger()))->outputTotals($schedules);
 
@@ -212,7 +229,7 @@ class CreatorTest extends TestCase
                     $assignedCounter->assignHomeAways($homeAways);
                 }
             }
-            self::assertSame(0, $assignedCounter->getAssignedAgainstDifference() );
+            self::assertSame(0, $assignedCounter->getAgainstSportAmountDifference() );
         }
     }
 
@@ -221,7 +238,7 @@ class CreatorTest extends TestCase
         $assignedCounter = new AssignedCounter($sportSchedule->getSchedule()->getPoule(),[$sportSchedule->createVariant()]);
         $homeAways = $sportSchedule->convertGamesToHomeAways();
         $assignedCounter->assignHomeAways($homeAways);
-        return $assignedCounter->getWithSportDifference();
+        return $assignedCounter->getWithSportAmountDifference();
     }
 
 

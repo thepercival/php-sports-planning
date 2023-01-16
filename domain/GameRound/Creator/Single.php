@@ -94,14 +94,12 @@ class Single
             }
             array_push($newRemainingGamePlaces, $bestGamePlace);
             if (count($newRemainingGamePlaces) === $variantWithPoule->getSportVariant()->getNrOfGamePlaces()) {
-                $game = new Game($gameRound, $newRemainingGamePlaces);
-                $assignedCounter->assignTogether([$game->toPlaceCombination()]);
+                new Game($gameRound, $newRemainingGamePlaces);
                 $newRemainingGamePlaces = [];
             }
         }
         if ($finalGameRound && count($newRemainingGamePlaces) > 0) {
-            $game = new Game($gameRound, $newRemainingGamePlaces);
-            $assignedCounter->assignTogether([$game->toPlaceCombination()]);
+            new Game($gameRound, $newRemainingGamePlaces);
         }
         return $newRemainingGamePlaces;
     }

@@ -51,7 +51,7 @@ class Against extends ListNode
         }
     }
 
-    public function reverseSidesOfHomeAway(HomeAway $reversedHomeAway): bool
+    public function swapSidesOfHomeAway(HomeAway $reversedHomeAway): bool
     {
         foreach( $this->homeAways as $needle => $homeAwayIt) {
             if( $homeAwayIt->equals($reversedHomeAway) ) {

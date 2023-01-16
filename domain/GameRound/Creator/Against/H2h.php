@@ -10,12 +10,14 @@ use SportsPlanning\Combinations\AssignedCounter;
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\HomeAwayCreator\H2h as H2hHomeAwayCreator;
 use SportsPlanning\Combinations\Mapper;
+use SportsPlanning\Combinations\PlaceCombinationCounterMap\Ranged as RangedPlaceCombinationCounterMap;
 use SportsPlanning\Combinations\PlaceCounterMap;
 use SportsPlanning\Combinations\StatisticsCalculator\Against\H2h as H2hStatisticsCalculator;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\GameRound\Creator\Against as AgainstCreator;
 use SportsPlanning\Poule;
 use SportsPlanning\SportVariant\WithPoule\Against\H2h as AgainstH2hWithPoule;
+use SportsPlanning\Combinations\Amount\Range as AmountRange;
 
 class H2h extends AgainstCreator
 {
@@ -28,7 +30,8 @@ class H2h extends AgainstCreator
         Poule $poule,
         AgainstH2h $sportVariant,
         H2hHomeAwayCreator $homeAwayCreator,
-        AssignedCounter $assignedCounter
+        AssignedCounter $assignedCounter,
+        AmountRange $homeAmountRange
     ): AgainstGameRound {
         $againstH2hWithPoule = new AgainstH2hWithPoule($poule, $sportVariant);
         $mapper = new Mapper();
@@ -37,7 +40,7 @@ class H2h extends AgainstCreator
 
         $statisticsCalculator = new H2hStatisticsCalculator(
             $againstH2hWithPoule,
-            $assignedCounter->getAssignedHomeMap(),
+            new RangedPlaceCombinationCounterMap($assignedCounter->getAssignedHomeMap(), $homeAmountRange),
             0,
             new PlaceCounterMap( array_values( $mapper->getPlaceMap($poule) ) ),
             $this->logger

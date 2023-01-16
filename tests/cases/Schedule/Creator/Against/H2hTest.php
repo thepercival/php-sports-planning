@@ -30,7 +30,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -60,7 +61,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -79,7 +81,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -98,7 +101,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -117,7 +121,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -136,7 +141,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -155,7 +161,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -174,7 +181,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -193,7 +201,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
         // (new PlanningOutput())->outputWithGames($planning, true);
@@ -212,7 +221,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -231,7 +241,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 //        (new PlanningOutput())->outputWithGames($planning, true);
@@ -250,7 +261,8 @@ class H2hTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
 

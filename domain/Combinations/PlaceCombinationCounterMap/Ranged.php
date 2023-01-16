@@ -2,6 +2,7 @@
 
 namespace SportsPlanning\Combinations\PlaceCombinationCounterMap;
 
+use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\Amount;
 use SportsPlanning\Combinations\Amount\Calculator as AmountCalculator;
@@ -13,15 +14,17 @@ class Ranged
     // private int|null $shortage = null;
     // private bool|null $overAssigned = null;
     private readonly PlaceCombinationCounterMapBase $map;
-    public readonly Amount $minimum;
-    public readonly Amount $maximum;
     private int|null $nrOfPlaceCombinationsBelowMinimum = null;
     private int|null $nrOfPlaceCombinationsAboveMaximum = null;
+    private readonly AmountRange $amountRange;
 
-    public function __construct( PlaceCombinationCounterMapBase $map, Amount $minimum, Amount $maximum) {
+    public function __construct( PlaceCombinationCounterMapBase $map, AmountRange $amountRange) {
         $this->map = $map;
-        $this->minimum = $minimum;
-        $this->maximum = $maximum;
+        $this->amountRange = $amountRange;
+    }
+
+    public function getRange(): AmountRange {
+        return $this->amountRange;
     }
 
     public function getMap(): PlaceCombinationCounterMap {
@@ -30,16 +33,12 @@ class Ranged
 
     public function addPlaceCombination(PlaceCombination $placeCombination): self {
 
-        return new self(
-            $this->map->addPlaceCombination($placeCombination),
-            $this->minimum, $this->maximum );
+        return new self($this->map->addPlaceCombination($placeCombination), $this->amountRange );
     }
 
     public function removePlaceCombination(PlaceCombination $placeCombination): self {
 
-        return new self(
-            $this->map->removePlaceCombination($placeCombination),
-            $this->minimum, $this->maximum);
+        return new self($this->map->removePlaceCombination($placeCombination), $this->amountRange);
     }
 
 //    public function getMaxShortage(): int
@@ -81,7 +80,7 @@ class Ranged
     public function getNrOfPlaceCombinationsBelowMinimum(): int
     {
         if( $this->nrOfPlaceCombinationsBelowMinimum === null) {
-            $calculator = new AmountCalculator(count($this->getMap()->getList()), $this->minimum, $this->maximum);
+            $calculator = new AmountCalculator(count($this->getMap()->getList()), $this->amountRange);
             $this->nrOfPlaceCombinationsBelowMinimum = $calculator->countBeneathMinimum( $this->map->getAmountMap() );
         }
         return $this->nrOfPlaceCombinationsBelowMinimum;
@@ -90,7 +89,7 @@ class Ranged
     public function getNrOfPlaceCombinationsAboveMaximum(): int
     {
         if( $this->nrOfPlaceCombinationsAboveMaximum === null) {
-            $calculator = new AmountCalculator(count($this->getMap()->getList()), $this->minimum, $this->maximum);
+            $calculator = new AmountCalculator(count($this->getMap()->getList()), $this->amountRange);
             $this->nrOfPlaceCombinationsAboveMaximum = $calculator->countAboveMaximum( $this->map->getAmountMap() );
         }
         return $this->nrOfPlaceCombinationsAboveMaximum;

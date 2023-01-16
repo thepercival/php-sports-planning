@@ -7,7 +7,7 @@ namespace SportsPlanning\Schedule\CreatorHelpers\Against;
 use Exception;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
-use SportsPlanning\Schedule\CreatorHelpers\AgainstGppDifferenceManager;
+use SportsPlanning\Schedule\CreatorHelpers\AgainstDifferenceManager;
 use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
 use SportsPlanning\Combinations\AssignedCounter;
 use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCreator;
@@ -29,17 +29,17 @@ class GamesPerPlace extends AgainstHelper
      * @param Poule $poule
      * @param array<int, AgainstGpp> $sportVariantMap
      * @param AssignedCounter $assignedCounter
-     * @param AgainstGppDifferenceManager $againstGppDifferenceManager,
+     * @param AgainstDifferenceManager $againstGppDifferenceManager,
      * @param int|null $nrOfSecondsBeforeTimeout
      * @throws Exception
      */
     public function createSportSchedules(
-        Schedule $schedule,
-        Poule $poule,
-        array $sportVariantMap,
-        AssignedCounter $assignedCounter,
-        AgainstGppDifferenceManager $againstGppDifferenceManager,
-        int|null $nrOfSecondsBeforeTimeout
+        Schedule                 $schedule,
+        Poule                    $poule,
+        array                    $sportVariantMap,
+        AssignedCounter          $assignedCounter,
+        AgainstDifferenceManager $againstGppDifferenceManager,
+        int|null                 $nrOfSecondsBeforeTimeout
     ): void
     {
         $homeAwayCreator = new GppHomeAwayCreator();
@@ -55,6 +55,7 @@ class GamesPerPlace extends AgainstHelper
                 $assignedCounter,
                 $againstGppDifferenceManager->getAgainstRange($sportNr),
                 $againstGppDifferenceManager->getWithRange($sportNr),
+                $againstGppDifferenceManager->getHomeRange($sportNr),
                 $nrOfSecondsBeforeTimeout
             );
 

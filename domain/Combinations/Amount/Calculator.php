@@ -7,22 +7,20 @@ use SportsPlanning\Combinations\Amount;
 class Calculator
 {
 
-    public function __construct(
-        private int $maxCount,
-        private Amount $minimum,
-        private Amount $maximum)
+    public function __construct(private int $maxCount, private Range $range)
     {
     }
 
-    public function isBeneathMinimum(Amount $amount): bool {
-        return $amount->amount < $this->minimum->amount
-            || ($amount->amount === $this->minimum->amount && $amount->amount < $this->minimum->amount);
-    }
-
-    public function isAboveMaximum(Amount $amount): bool {
-        return $amount->amount < $this->minimum->amount
-            || ($amount->amount === $this->minimum->amount && $amount->amount < $this->minimum->amount);
-    }
+//    public function isBeneathMinimum(Amount $amount): bool {
+//        $minAmount = $this->range->getMinAmount();
+//        return $amount->amount < $minAmount
+//            || ($amount->amount === $minAmount && $amount->count < $this->range->getMin()->count);
+//    }
+//
+//    public function isAboveMaximum(Amount $amount): bool {
+//        return $amount->amount < $this->minimum->amount
+//            || ($amount->amount === $this->range->getMinAmount() && $amount->amount < $this->range->getMinAmount());
+//    }
 
 
     /**
@@ -34,17 +32,18 @@ class Calculator
         $countBeneathMinimum = 0;
         $totalCountLessThanCount = 0;
         $hasSmallerAmount = false;
+        $minAmount = $this->range->getMinAmount();
         while ( $amount = array_shift($amountMap) ) {
-            if( $amount->amount < $this->minimum->amount ) {
-                $countBeneathMinimum += (int)($amount->count * ($this->minimum->amount - $amount->amount ) );
+            if( $amount->amount < $minAmount ) {
+                $countBeneathMinimum += (int)($amount->count * ($minAmount - $amount->amount ) );
                 $hasSmallerAmount = true;
             }
-            if( $amount->amount <= $this->minimum->amount  ) {
+            if( $amount->amount <= $minAmount ) {
                 $totalCountLessThanCount += $amount->count;
             }
         }
-        if( $hasSmallerAmount && $totalCountLessThanCount < $this->minimum->count) {
-            $countBeneathMinimum += ($this->minimum->count - $totalCountLessThanCount);
+        if( $hasSmallerAmount && $totalCountLessThanCount < $this->range->getMin()->count) {
+            $countBeneathMinimum += ($this->range->getMin()->count - $totalCountLessThanCount);
         }
         return $countBeneathMinimum;
     }
@@ -57,11 +56,12 @@ class Calculator
     {
         $countAboveMaximum = 0;
         $totalCountGreaterThanOrEqualToCount = 0;
+        $maxAmount = $this->range->getMaxAmount();
         while ( $amount = array_shift($amountMap) ) {
-            if( $amount->amount > $this->maximum->amount ) {
-                $countAboveMaximum += (int)($this->maxCount * ($amount->amount - $this->maximum->amount ) );
+            if( $amount->amount > $maxAmount ) {
+                $countAboveMaximum += (int)($this->maxCount * ($amount->amount - $maxAmount ) );
             }
-            if( $amount->amount >= $this->maximum->amount ) {
+            if( $amount->amount >= $maxAmount ) {
                 $totalCountGreaterThanOrEqualToCount += $amount->count;
             }
         }

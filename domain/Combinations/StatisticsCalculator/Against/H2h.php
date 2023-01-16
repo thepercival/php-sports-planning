@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace SportsPlanning\Combinations\StatisticsCalculator\Against;
 
 use Psr\Log\LoggerInterface;
+use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\PlaceCombinationCounterMap;
+use SportsPlanning\Combinations\PlaceCombinationCounterMap\Ranged as RangedPlaceCombinationCounterMap;
 use SportsPlanning\Combinations\PlaceCounterMap;
 use SportsPlanning\Combinations\StatisticsCalculator;
 use SportsPlanning\SportVariant\WithPoule\Against\H2h as AgainstH2hWithPoule;
@@ -16,13 +18,13 @@ class H2h extends StatisticsCalculator
 {
     public function __construct(
         protected Againsth2hWithPoule $againstH2hWithPoule,
-        PlaceCombinationCounterMap $assignedHomeMap,
+        RangedPlaceCombinationCounterMap $assignedHomeMap,
         int $nrOfHomeAwaysAssigned,
         protected PlaceCounterMap $assignedSportMap,
-        protected LoggerInterface $logger
+        LoggerInterface $logger
     )
     {
-        parent::__construct($assignedHomeMap, $nrOfHomeAwaysAssigned);
+        parent::__construct($assignedHomeMap, $nrOfHomeAwaysAssigned, $logger);
     }
 
     public function allAssigned(): bool
@@ -113,6 +115,6 @@ class H2h extends StatisticsCalculator
 
 
     public function output(string $prefix): void {
-        $this->assignedHomeMap->output($this->logger, $prefix, $prefix . 'HomeTotals');
+        $this->outputHomeTotals($prefix, true);
     }
 }

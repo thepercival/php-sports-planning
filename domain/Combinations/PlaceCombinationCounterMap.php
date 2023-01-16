@@ -20,8 +20,10 @@ class PlaceCombinationCounterMap
      * @var array<int, Amount>|null
      */
     private array|null $amounts = null;
-    // private int|null $nrOfAssignedToMin = null;
-    // private int|null $nrOfAssignedToMax = null;
+    /**
+     * @var array<int, list<PlaceCombinationCounter>>
+     */
+    private array|null $perAmount = null;
 
     /**
      * @param array<string, PlaceCombinationCounter> $placeCombinationCounters
@@ -29,9 +31,6 @@ class PlaceCombinationCounterMap
     public function __construct(array $placeCombinationCounters)
     {
         $this->map = $placeCombinationCounters;
-//        foreach( $placeCombinationCounters as $placeCombinationCounter) {
-//            $this->map[$placeCombinationCounter->getIndex()] = $placeCombinationCounter;
-//        }
     }
 
     public function getPlaceCombination(string $index): PlaceCombination
@@ -81,35 +80,12 @@ class PlaceCombinationCounterMap
         return array_values($this->map);
     }
 
-//    public function getMinAmount(): int {
-//        return $this->getAmountRange()->minimum->amount ?? 0;
-//    }
-
-//    public function getNrOfAssignedToMin(): int {
-//        $this->getMin();
-//        if( $this->nrOfAssignedToMin === null) {
-//            throw new \Exception('should always be set');
-//        }
-//        return $this->nrOfAssignedToMin;
-//    }
-
-
-//    public function getMaxAmount(): int {
-//        // return $this->getValueRange()->getMax();
-//        return $this->getAmountRange()->maximum->amount ?? 0;
-//    }
-
-//    public function getNrOfAssignedToMax(): int {
-//        $this->getMax();
-//        if( $this->nrOfAssignedToMax === null) {
-//            throw new \Exception('should always be set');
-//        }
-//        return $this->nrOfAssignedToMax;
-//    }
-
-//    public function getCountRange(): SportRange|null {
-//        $range = $this->getRange();
-//        return $range ? new SportRange($range->minimum->count, $range->maximum->count) : null;
+//    /**
+//     * @return array<string, PlaceCombinationCounter>
+//     */
+//    public function getMap(): array
+//    {
+//        return $this->map;
 //    }
 
     public function getAmountRange(): SportRange|null {
@@ -171,36 +147,31 @@ class PlaceCombinationCounterMap
     public function getAmountMap(): array {
         if( $this->amounts === null) {
             $this->amounts = [];
-            foreach ($this->map as $combinationCounter) {
-                if (!array_key_exists($combinationCounter->count(), $this->amounts)) {
-                    $this->amounts[$combinationCounter->count()] = new Amount($combinationCounter->count(), 1);
-                } else {
-                    $amount = $this->amounts[$combinationCounter->count()];
-                    $this->amounts[$combinationCounter->count()] = new Amount($amount->amount, $amount->count + 1);
-                }
+            $perAmount = $this->getPerAmount();
+            foreach ($perAmount as $amount => $combinationCounters) {
+                $this->amounts[$amount] = new Amount($amount, count($combinationCounters));
             }
-            ksort($this->amounts);
         }
         return $this->amounts;
     }
 
-//    /**
-//     * @return array<int, list<PlaceCombinationCounter>>
-//     */
-//    public function getPerAmountOld(): array {
-//        if( $this->perAmount === null) {
-//            $this->perAmount = [];
-//            foreach ($this->map as $combinationCounter) {
-//                if (!array_key_exists($combinationCounter->count(), $this->perAmount)) {
-//                    $this->perAmount[$combinationCounter->count()] = [];
-//                }
-//                $this->perAmount[$combinationCounter->count()][] = $combinationCounter;
-//            }
-//            ksort($this->perAmount);
-//        }
-//        return $this->perAmount;
-//    }
-
+    /**
+     * @return array<int, list<PlaceCombinationCounter>>
+     */
+    public function getPerAmount(): array {
+        if( $this->perAmount === null) {
+            $this->perAmount = [];
+            foreach ($this->map as $combinationCounter) {
+                $count = $combinationCounter->count();
+                if (!array_key_exists($count, $this->perAmount)) {
+                    $this->perAmount[$count] = [];
+                }
+                $this->perAmount[$count][] = $combinationCounter;
+            }
+            ksort($this->perAmount);
+        }
+        return $this->perAmount;
+    }
 
     public function output(LoggerInterface $logger, string $prefix, string $header): void {
         $logger->info($prefix . $header);
@@ -227,17 +198,4 @@ class PlaceCombinationCounterMap
         }
         $this->map = $map;
     }
-
-//    /**
-//     * @param array<string, PlaceCombinationCounter> $map
-//     * @return array<string, PlaceCombinationCounter>
-//     */
-//    protected function copyPlaceCombinationCounterMap(array $map): array {
-//        $newMap = [];
-//        foreach( $map as $idx => $counter ) {
-//            $newMap[$idx] = new PlaceCombinationCounter($counter->getPlaceCombination(), $counter->count());
-//        }
-//        return $newMap;
-//    }
-
 }

@@ -85,24 +85,21 @@ class Output extends OutputHelper
         $this->logger->info($prefix . 'unEqualNrOfGames: '.$unequalNrOfGames.'x');
         if( $hasAgainstSport ) {
             $this->logger->info('');
-            $againstAmountDifference = $assignedCounter->getAgainstSportDifference();
-            $this->logger->info($prefix . 'Against Sport Totals (diff:'.$againstAmountDifference.')');
-            $this->outputPlaceCombinations(array_values($assignedCounter->getAssignedAgainstMap()), $prefix);
+            $againstAmountDifference = $assignedCounter->getAgainstSportAmountDifference();
+            $header = 'Against Sport Totals (diff:'.$againstAmountDifference.')';
+            $assignedCounter->getAssignedAgainstMap()->output($this->logger, $prefix, $header);
         }
         if( $hasWithSport ) {
             $this->logger->info('');
-            $withAmountDifference = $assignedCounter->getWithSportDifference();
-            $this->logger->info($prefix . 'With Sport Totals (diff:'.$withAmountDifference.')');
-            $this->outputPlaceCombinations(array_values($assignedCounter->getAssignedWithMap()), $prefix);
+            $withAmountDifference = $assignedCounter->getWithSportAmountDifference();
+            $header = 'With Sport Totals (diff:'.$withAmountDifference.')';
+            $assignedCounter->getAssignedWithMap()->output($this->logger, $prefix, $header);
         }
         if( $hasAgainstSport ) {
             $this->logger->info('');
             $homeAmountDifference = $assignedCounter->getHomeAmountDifference();
             $header = 'Home Totals (diff:'.$homeAmountDifference.')';
-            // $this->logger->info($prefix . 'Home Totals (diff:'.$homeAmountDifference.')');
-            // $assignedCounter->getAssignedHomeMap()->output($this->logger, $prefix, 'Home Sport Totals');
             $assignedCounter->getAssignedHomeMap()->output($this->logger, $prefix, $header);
-            // $this->outputPlaceCombinations(array_values($assignedCounter->getAssignedHomeMap()), $prefix);
         }
 
         $this->logger->info('');

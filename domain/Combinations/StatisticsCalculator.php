@@ -5,23 +5,19 @@ declare(strict_types=1);
 namespace SportsPlanning\Combinations;
 
 
+use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\Side;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
-use SportsPlanning\Place;
+use SportsPlanning\Combinations\PlaceCombinationCounterMap\Ranged as RangedPlaceCombinationCounterMap;
 
 abstract class StatisticsCalculator
 {
-    // protected bool $useWith;
-
     public function __construct(
-        protected PlaceCombinationCounterMap $assignedHomeMap,
-        protected int $nrOfHomeAwaysAssigned
+        protected RangedPlaceCombinationCounterMap $assignedHomeMap,
+        protected int $nrOfHomeAwaysAssigned,
+        protected LoggerInterface $logger
     )
     {
-
     }
-
-
 
     public function getNrOfHomeAwaysAssigned(): int {
         return $this->nrOfHomeAwaysAssigned;
@@ -31,95 +27,6 @@ abstract class StatisticsCalculator
     abstract public function addHomeAway(HomeAway $homeAway): self;
 
     abstract public function allAssigned(): bool;
-
-
-
-
-
-//        $nrOfIncompletePlaces = 0;
-//        foreach ($this->assignedSportMap as $assignedCounter) {
-//            if ($assignedCounter->count() < $this->againstWithPoule->getSportVariant()->getNrOfGamesPerPlace()) {
-//                $nrOfIncompletePlaces++;
-//            }
-//
-//            if ($nrOfIncompletePlaces >= $this->againstWithPoule->getNrOfGamePlaces()) {
-//                return false;
-//            }
-//        }
-
-
-//    /**
-//     * @param array<int, PlaceCounter> $map
-//     * @return array<int, PlaceCounter>
-//     */
-//    protected function copyPlaceCounterMap(array $map): array {
-//        $newMap = [];
-//        foreach( $map as $idx => $counter ) {
-//            $newMap[$idx] = new PlaceCounter($counter->getPlace(), $counter->count());
-//        }
-//        return $newMap;
-//    }
-
-//    /**
-//     * @param array<string, PlaceCombinationCounter> $map
-//     * @return array<string, PlaceCombination>
-//     */
-//    protected function convertToPlaceCombinationMap(array $map): array {
-//        $newMap = [];
-//        foreach( $map as $idx => $counter ) {
-//            $newMap[$idx] = $counter->getPlaceCombination();
-//        }
-//        return $newMap;
-//    }
-
-//    private function getHomeAwayAssigned(AgainstHomeAway $ha): int {
-//        $assigned = 0;
-//        foreach( $ha->getPlaces() as $place) {
-//            if( !array_key_exists($place->getNumber(), $this->assignedSportMap)) {
-//               continue;
-//            }
-//            $assigned += $this->assignedSportMap[$place->getNumber()]->count();
-//            if( !array_key_exists($place->getNumber(), $this->assignedMap)) {
-//                continue;
-//            }
-//            $assigned += $this->assignedMap[$place->getNumber()]->count();
-//        }
-//        return $assigned;
-//    }
-
-
-
-//    protected function getMaxWithAmount(int $nrOfPlaces, AgainstGpp $sportVariant): int {
-//        $maxNrOfSidePlaces = max( $sportVariant->getNrOfHomePlaces(), $sportVariant->getNrOfAwayPlaces() );
-//        return (int)ceil($sportVariant->getNrOfGamesPerPlace() / ( ($nrOfPlaces - 1) * ($maxNrOfSidePlaces - 1) ));
-//    }
-//
-//    protected function getMinWithAmount(int $nrOfPlaces, AgainstGpp $sportVariant): int {
-//        $minNrOfSidePlaces = min( $sportVariant->getNrOfHomePlaces(), $sportVariant->getNrOfAwayPlaces() );
-//        if( $minNrOfSidePlaces === 1) {
-//            return 0;
-//        }
-//        return (int)floor($sportVariant->getNrOfGamesPerPlace() / ( ($nrOfPlaces - 1) * ($minNrOfSidePlaces - 1) ));
-//    }
-
-//    protected function getMaxAmountOverMaxAgainstAmountForAllPlaces(): int {
-//        $maxAgainst = $this->againstWithPoule->getMaxNrOfAgainstPlacesForPlace() + $this->allowedMargin;
-//        $rest = $maxAgainst % ($this->againstWithPoule->getNrOfPlaces() - 1);
-//        return ($rest * $this->againstWithPoule->getNrOfPlaces() );
-//    }
-
-
-
-
-    // ALL BENEATH SHOULD PERFORM BETTER
-//    private function getAgainstAmountAssigned(HomeAway $homeAway): int {
-//        $amount = 0;
-//        foreach($homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination ) {
-//            $amount += $this->assignedAgainstSportMap->count($againstPlaceCombination);
-//            $amount += $this->assignedAgainstPreviousSportsMap->count($againstPlaceCombination);
-//        }
-//        return $amount;
-//    }
 
     /**
      * @param PlaceCombinationCounterMap $map
@@ -188,32 +95,35 @@ abstract class StatisticsCalculator
         return [$leastAmount, $nrOfSides];
     }
 
-//    protected function getWithAmountAssigned(HomeAway $homeAway): int
-//    {
-//        $awayWithAmountAssigned = $this->assignedWithSportMap[$homeAway->getAway()->getIndex()]->count();
-//        return $this->getHomeWithAmountAssigned($homeAway) + $awayWithAmountAssigned;
-//    }
-//
-//    protected function getHomeWithAmountAssigned(HomeAway $homeAway): int
-//    {
-//        if( $this->againstWithPoule->getSportVariant()->getNrOfHomePlaces() > 1 ) {
-//            return $this->assignedWithSportMap[$homeAway->getHome()->getIndex()]->count();
-//        }
-//        return 0;
-//    }
+    public function outputHomeTotals(string $prefix, bool $withDetails): void
+    {
+        $header = 'HomeTotals : ';
+        $header .= ' allowedRange : ' . $this->assignedHomeMap->getRange();
+        $header .= ', belowMinimum : ' . $this->assignedHomeMap->getNrOfPlaceCombinationsBelowMinimum();
+        $this->logger->info($prefix . $header);
 
-//    /**
-//     * @param AgainstHomeAway $homeAway
-//     * @param array<int, AgainstCounter> $assignedAgainstMap
-//     * @return int
-//     */
-//    protected function getAgainstAmountAssigned(AgainstHomeAway $homeAway, array $assignedAgainstMap): int
-//    {
-//        $home = $homeAway->getHome();
-//        $away = $homeAway->getAway();
-//        $homeAgainstAmountAssigned = $assignedAgainstMap[$home->getNumber()]->count($away);
-//        $awayAgainstAmountAssigned = $assignedAgainstMap[$away->getNumber()]->count($home);
-//        return $homeAgainstAmountAssigned + $awayAgainstAmountAssigned;
-//    }
+        $map = $this->assignedHomeMap->getMap()->getAmountMap();
+        $mapOutput = $prefix . 'map: ';
+        foreach($map as $amount) {
+            $mapOutput .= $amount  . ', ';
+        }
+        $this->logger->info($prefix . $mapOutput . 'difference : '.$this->assignedHomeMap->getAmountDifference());
 
+        if( !$withDetails ) {
+            return;
+        }
+        $prefix =  '    ' . $prefix;
+        $amountPerLine = 4; $counter = 0; $line = '';
+        foreach( $this->assignedHomeMap->getMap()->getList() as $counterIt ) {
+            $line .= $counterIt->getPlaceCombination() . ' ' . $counterIt->count() . 'x, ';
+            if( ++$counter === $amountPerLine ) {
+                $this->logger->info($prefix . $line);
+                $counter = 0;
+                $line = '';
+            }
+        }
+        if( strlen($line) > 0 ) {
+            $this->logger->info($prefix . $line);
+        }
+    }
 }

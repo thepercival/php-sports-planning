@@ -52,7 +52,7 @@ class Single
         $gameRound = $gameRoundCreator->createGameRound($poule, $sportVariant, $assignedCounter);
 
         // $gameRound = $this->getGameRound($poule, $sportVariant, $assignedCounter, $totalNrOfGamesPerPlace);
-        $this->assignPlaceCombinations($assignedCounter, $gameRound);
+        $assignedCounter->assignTogether($gameRound->toPlaceCombinations());
         return $gameRound;
     }
 
@@ -70,11 +70,6 @@ class Single
             },
             $combinationsTmp
         ));
-    }
-
-    protected function assignPlaceCombinations(AssignedCounter $assignedCounter, TogetherGameRound $gameRound): void
-    {
-        $assignedCounter->assignTogether($gameRound->toPlaceCombinations());
     }
 
 //    /**

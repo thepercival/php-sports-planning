@@ -32,7 +32,8 @@ class CreatorTest extends TestCase
         $input = $this->createInput([2], null, $refereeInfo);
         $planning = $this->createPlanning($input);
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -83,7 +84,8 @@ class CreatorTest extends TestCase
 //        (new PlanningOutput())->outputWithGames($planning, true);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -109,7 +111,8 @@ class CreatorTest extends TestCase
 //        (new PlanningOutput())->outputWithGames($planning, true);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -133,7 +136,8 @@ class CreatorTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 1), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -159,7 +163,8 @@ class CreatorTest extends TestCase
 //        (new PlanningOutput())->outputWithGames($planning, true);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -183,7 +188,8 @@ class CreatorTest extends TestCase
         $planning = new Planning($input, new SportRange(6, 6), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
@@ -206,7 +212,8 @@ class CreatorTest extends TestCase
         $planning = new Planning($input, new SportRange(1, 2), 0);
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
-        $schedules = $scheduleCreator->createFromInput($input);
+        $maxGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+        $schedules = $scheduleCreator->createFromInput($input, $maxGppMargin);
 
         $gameCreator = new GameCreator($this->getLogger());
         $gameCreator->createGames($planning, $schedules);
