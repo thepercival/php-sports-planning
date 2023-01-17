@@ -246,8 +246,8 @@ class CreatorTest extends TestCase
 
         $scheduleCreator = new ScheduleCreator($this->getLogger());
         $schedules = $scheduleCreator->createFromInput($input, 1);
-        (new ScheduleOutput($this->getLogger()))->output($schedules);
-        (new ScheduleOutput($this->getLogger()))->outputTotals($schedules);
+//        (new ScheduleOutput($this->getLogger()))->output($schedules);
+//        (new ScheduleOutput($this->getLogger()))->outputTotals($schedules);
 
         foreach( $schedules as $schedule) {
             $sportVariants = array_values($schedule->createSportVariants()->toArray());
