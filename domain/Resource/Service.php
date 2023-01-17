@@ -8,12 +8,11 @@ use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
-use SportsHelpers\SportRange;
 use SportsPlanning\Batch;
-use SportsPlanning\Place\Output as PlaceOutput;
 use SportsPlanning\Batch\Output as BatchOutput;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
+use SportsPlanning\Exception\TimeoutException;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Output as GameOutput;
 use SportsPlanning\Game\Together as TogetherGame;
@@ -28,7 +27,6 @@ use SportsPlanning\Resource\RefereePlace\Predicter;
 use SportsPlanning\Resource\Service\Helper;
 use SportsPlanning\Resource\Service\InfoToAssign;
 use SportsPlanning\Sport;
-use SportsPlanning\TimeoutException;
 
 class Service
 {

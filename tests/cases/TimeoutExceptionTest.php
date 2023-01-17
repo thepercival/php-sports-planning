@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SportsPlanning\TimeoutException;
+use SportsPlanning\Exception\TimeoutException;
 
 class TimeoutExceptionTest extends TestCase
 {

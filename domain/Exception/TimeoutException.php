@@ -1,6 +1,6 @@
 <?php
 
-namespace SportsPlanning;
+namespace SportsPlanning\Exception;
 
 use Exception;
 

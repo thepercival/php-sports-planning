@@ -13,6 +13,7 @@ use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\Type as PlanningType;
 use SportsPlanning\Planning\Validator;
+use SportsPlanning\Schedule;
 
 /**
  * @template-extends EntityRepository<InputBase>
@@ -173,5 +174,63 @@ class Repository extends EntityRepository
         $results = $query->getQuery()->getResult();
         $first = reset($results);
         return $first === false ? null : $first;
+    }
+
+    /**
+     * @param Schedule $schedule
+     * @return list<InputBase>
+     */
+    public function findByScheduleSports(Schedule $schedule): array {
+//        $exprPouleWithNrOfPlaces = $this->getEntityManager()->getExpressionBuilder();
+//        $exprCountNrOfPoulePlaces = $this->getEntityManager()->getExpressionBuilder();
+//        $nrOfPlaces = $schedule->getPoule()->getPlaces()->count();
+        // input needs to have a poule with sameNrOfPlaces
+        // $qb = $this->getEntityManager()->createQueryBuilcder();
+
+        $queryBuilder = $this->createQueryBuilder('pi');
+//        $queryBuilder = $this->createQueryBuilder('pi')
+//            ->andWhere(
+//                $exprPouleWithNrOfPlaces->exists(
+//                    $qb ->select('poule.id')
+//                        ->from('SportsPlanning\Poule', 'poule2')
+//                        ->where('poule2.input = pi')
+//                        ->andWhere(
+//                            $exprCountNrOfPoulePlaces->exists(
+//                                $qb ->select('count(place.id)')
+//                                    ->from('SportsPlanning\Place', 'place')
+////                                    ->where('place.poule = poule.id')
+//                                    ->getDQL() . ' = ' . $nrOfPlaces
+//                            )
+//                        )
+//                        ->getDQL()
+//
+//                )
+//            );
+
+        // input needs to have all sports
+        foreach( $schedule->getSportSchedules() as $sportSchedule ) {
+            $alias = 's' .  $sportSchedule->getNumber();
+            $exprSport = $this->getEntityManager()->getExpressionBuilder();
+            $queryBuilder = $queryBuilder->andWhere(
+                $exprSport->exists(
+                    $this->getEntityManager()->createQueryBuilder()
+                        ->select($alias . '.id')
+                        ->from('SportsPlanning\Sport', $alias)
+                        ->where($alias . '.input = pi')
+                        ->andWhere($alias . '.number = ' . $sportSchedule->getNumber() )
+                        ->andWhere($alias . '.gameMode = ' . $sportSchedule->getGameMode()->value )
+                        ->andWhere($alias . '.nrOfHomePlaces = ' . $sportSchedule->getNrOfHomePlaces() )
+                        ->andWhere($alias . '.nrOfAwayPlaces = ' . $sportSchedule->getNrOfAwayPlaces() )
+                        ->andWhere($alias . '.nrOfH2H = ' . $sportSchedule->getNrOfH2H() )
+                        ->andWhere($alias . '.nrOfGamesPerPlace = ' . $sportSchedule->getNrOfGamesPerPlace() )
+                        ->getDQL()
+                )
+            );
+        }
+
+//        echo $queryBuilder->getQuery()->getSQL();
+        /** @var list<InputBase> $results */
+        $results = $queryBuilder->getQuery()->getResult();
+        return $results;
     }
 }

@@ -6,25 +6,23 @@ namespace SportsPlanning\GameRound\Creator\Against;
 
 use DateTimeImmutable;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Against\Side;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Combinations\AssignedCounter;
 use SportsPlanning\Combinations\HomeAway;
-use SportsPlanning\Combinations\Output\HomeAway as HomeAwayOutput;
 use SportsPlanning\Combinations\HomeAwayBalancer;
 use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCreator;
 use SportsPlanning\Combinations\Mapper;
-use SportsPlanning\Combinations\PlaceCombinationCounterMap;
 use SportsPlanning\Combinations\PlaceCombinationCounterMap\Ranged as RangedPlaceCombinationCounterMap;
 use SportsPlanning\Combinations\PlaceCounterMap;
 use SportsPlanning\Combinations\StatisticsCalculator\Against\GamesPerPlace as GppStatisticsCalculator;
+use SportsPlanning\Exception\NoSolutionException;
+use SportsPlanning\Exception\TimeoutException;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\GameRound\Creator\Against as AgainstCreator;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
 use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
-use SportsPlanning\TimeoutException;
 
 class GamesPerPlace extends AgainstCreator
 {
@@ -96,7 +94,7 @@ class GamesPerPlace extends AgainstCreator
                 $statisticsCalculator,
                 $gameRound
             ) === false) {
-            throw new \Exception('creation of homeaway can not be false', E_ERROR);
+            throw new NoSolutionException('creation of homeaway can not be false', E_ERROR);
         }
         $homeAwayBalancer = new HomeAwayBalancer($this->logger);
 

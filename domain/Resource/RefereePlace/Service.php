@@ -6,16 +6,16 @@ use DateTimeImmutable;
 use SportsHelpers\SelfReferee;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
+use SportsPlanning\Exception\TimeoutException;
 use SportsPlanning\Game;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Input;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
-use SportsPlanning\Planning\TimeoutConfig;
 use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\TimeoutConfig;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
-use SportsPlanning\TimeoutException;
 
 class Service
 {

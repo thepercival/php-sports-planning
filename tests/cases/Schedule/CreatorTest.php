@@ -233,6 +233,36 @@ class CreatorTest extends TestCase
         }
     }
 
+    public function test4SportsWith6Places(): void
+    {
+        $sportVariantsWithFields = [
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 1),
+            $this->getAgainstGppSportVariantWithFields(1, 2, 2, 1),
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 1),
+            $this->getAgainstGppSportVariantWithFields(1, 2, 2, 1)
+        ];
+
+        $input = $this->createInput([6], $sportVariantsWithFields);
+
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input, 1);
+        (new ScheduleOutput($this->getLogger()))->output($schedules);
+        (new ScheduleOutput($this->getLogger()))->outputTotals($schedules);
+
+        foreach( $schedules as $schedule) {
+            $sportVariants = array_values($schedule->createSportVariants()->toArray());
+            $assignedCounter = new AssignedCounter($schedule->getPoule(), $sportVariants);
+            foreach( $schedule->getSportSchedules() as $sportSchedule) {
+                $sportVariant = $sportSchedule->createVariant();
+                if( $sportVariant instanceof AgainstH2h || $sportVariant instanceof AgainstGpp) {
+                    $homeAways = $sportSchedule->convertGamesToHomeAways();
+                    $assignedCounter->assignHomeAways($homeAways);
+                }
+            }
+            self::assertSame(2, $assignedCounter->getAgainstSportAmountDifference() );
+        }
+    }
+
     protected function getWithAssignedDifference(SportSchedule $sportSchedule): int
     {
         $assignedCounter = new AssignedCounter($sportSchedule->getSchedule()->getPoule(),[$sportSchedule->createVariant()]);

@@ -28,7 +28,7 @@ class AssignedCounter
      * @var array<string,array<string,PlaceCounter>>
      */
     protected array $assignedTogetherMap = [];
-    protected bool $hasAgainstSport;
+    protected bool $hasAgainstSportWithMultipleSidePlaces;
 
     /**
      * @param Poule $poule
@@ -45,7 +45,10 @@ class AssignedCounter
             function(Single|AllInOneGame|AgainstGpp|AgainstH2h $sportVariant): bool {
                 return (($sportVariant instanceof AgainstGpp) || ($sportVariant instanceof AgainstH2h));
             }));
-        $this->hasAgainstSport = count($againstVariants) > 0;
+        $this->hasAgainstSportWithMultipleSidePlaces = count(array_filter($againstVariants,
+                function(AgainstGpp|AgainstH2h $againstVariant): bool {
+                    return $againstVariant->hasMultipleSidePlaces();
+                })) > 0;
         $withCounters = $combinationMapper->getWithMap($poule, $againstVariants);
         $this->assignedWithMap = new PlaceCombinationCounterMap( $withCounters );
         $this->assignedHomeMap = new PlaceCombinationCounterMap( $withCounters );
@@ -159,7 +162,7 @@ class AssignedCounter
         foreach ($placeCombinations as $placeCombination) {
             $this->assignToMap($placeCombination);
             $this->assignToTogetherMap($placeCombination);
-            if( $this->hasAgainstSport ) {
+            if( $this->hasAgainstSportWithMultipleSidePlaces ) {
                 $this->assignedWithMap = $this->assignedWithMap->addPlaceCombination($placeCombination);
             }
         }
