@@ -33,7 +33,7 @@ class PlaceCombination implements \Stringable
         return $this->index;
     }
 
-    protected function getNumber(): int
+    public function getNumber(): int
     {
         $number = 0;
         foreach ($this->places as $place) {

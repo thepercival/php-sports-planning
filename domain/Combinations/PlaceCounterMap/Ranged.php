@@ -1,24 +1,23 @@
 <?php
 
-namespace SportsPlanning\Combinations\PlaceCombinationCounterMap;
+namespace SportsPlanning\Combinations\PlaceCounterMap;
 
-use SportsPlanning\Combinations\Amount;
+use SportsPlanning\Place;
 use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\Amount\Calculator as AmountCalculator;
-use SportsPlanning\Combinations\PlaceCombinationCounterMap;
-use SportsPlanning\Combinations\PlaceCombinationCounterMap as PlaceCombinationCounterMapBase;
+use SportsPlanning\Combinations\PlaceCounterMap as PlaceCounterMapBase;
 
 class Ranged
 {
     // private int|null $shortage = null;
     // private bool|null $overAssigned = null;
-    private readonly PlaceCombinationCounterMapBase $map;
-    private int|null $nrOfPlaceCombinationsBelowMinimum = null;
-    private int|null $nrOfPlaceCombinationsAboveMaximum = null;
+    private readonly PlaceCounterMapBase $map;
+    private int|null $nrOfPlacesBelowMinimum = null;
+    private int|null $nrOfPlacesAboveMaximum = null;
     private readonly AmountRange $allowedRange;
 
-    public function __construct( PlaceCombinationCounterMapBase $map, AmountRange $allowedRange) {
+    public function __construct(PlaceCounterMapBase $map, AmountRange $allowedRange) {
         $this->map = $map;
         $this->allowedRange = $allowedRange;
     }
@@ -27,43 +26,43 @@ class Ranged
         return $this->allowedRange;
     }
 
-    public function getMap(): PlaceCombinationCounterMap {
+    public function getMap(): PlaceCounterMapBase {
         return $this->map;
     }
 
-    public function addPlaceCombination(PlaceCombination $placeCombination): self {
+    public function addPlace(Place $place): self {
 
-        return new self($this->map->addPlaceCombination($placeCombination), $this->allowedRange );
+        return new self($this->map->addPlace($place), $this->allowedRange );
     }
 
-    public function removePlaceCombination(PlaceCombination $placeCombination): self {
+    public function removePlace(Place $place): self {
 
-        return new self($this->map->removePlaceCombination($placeCombination), $this->allowedRange);
+        return new self($this->map->removePlace($place), $this->allowedRange);
     }
 
-    public function getNrOfPlaceCombinationsBelowMinimum(): int
+    public function getNrOfPlacesBelowMinimum(): int
     {
-        if( $this->nrOfPlaceCombinationsBelowMinimum === null) {
-            $calculator = new AmountCalculator(count($this->getMap()->getList()), $this->allowedRange);
-            $this->nrOfPlaceCombinationsBelowMinimum = $calculator->countBeneathMinimum( $this->map->getAmountMap() );
+        if( $this->nrOfPlacesBelowMinimum === null) {
+            $calculator = new AmountCalculator($this->getMap()->count(), $this->allowedRange);
+            $this->nrOfPlacesBelowMinimum = $calculator->countBeneathMinimum( $this->map->getAmountMap() );
         }
-        return $this->nrOfPlaceCombinationsBelowMinimum;
+        return $this->nrOfPlacesBelowMinimum;
     }
 
-    public function getNrOfPlaceCombinationsAboveMaximum(): int
+    public function getNrOfPlacesAboveMaximum(): int
     {
-        if( $this->nrOfPlaceCombinationsAboveMaximum === null) {
-            $calculator = new AmountCalculator(count($this->getMap()->getList()), $this->allowedRange);
-            $this->nrOfPlaceCombinationsAboveMaximum = $calculator->countAboveMaximum( $this->map->getAmountMap() );
+        if( $this->nrOfPlacesAboveMaximum === null) {
+            $calculator = new AmountCalculator($this->getMap()->count(), $this->allowedRange);
+            $this->nrOfPlacesAboveMaximum = $calculator->countAboveMaximum( $this->map->getAmountMap() );
         }
-        return $this->nrOfPlaceCombinationsAboveMaximum;
+        return $this->nrOfPlacesAboveMaximum;
     }
 
 
 
-    public function count(PlaceCombination $placeCombination): int
+    public function count(Place $place): int
     {
-        return $this->map->count($placeCombination);
+        return $this->map->count($place);
     }
 
     public function countAmount(int $amount): int {
@@ -109,12 +108,12 @@ class Ranged
 
     public function minimumCanBeReached(int $nrOfCombinationsToGo): bool
     {
-        if( $this->getNrOfPlaceCombinationsBelowMinimum() <= $nrOfCombinationsToGo ) {
+        if( $this->getNrOfPlacesBelowMinimum() <= $nrOfCombinationsToGo ) {
             return true;
         };
 
         $allowedMin = $this->allowedRange->getMin();
-        $nrOfPossibleCombinations = count( $this->getMap()->getList() );
+        $nrOfPossibleCombinations = $this->getMap()->count();
 
         if ( $this->getMinAmount() === $allowedMin->amount
             && $this->getCountOfMinAmount() + $nrOfCombinationsToGo <= $nrOfPossibleCombinations
@@ -126,12 +125,12 @@ class Ranged
 
     public function aboveMaximum(int $nrOfCombinationsToGo): bool
     {
-        if( $this->getNrOfPlaceCombinationsAboveMaximum() === 0 ) {
+        if( $this->getNrOfPlacesAboveMaximum() === 0 ) {
             return false;
         }
 
         $allowedMax = $this->allowedRange->getMax();
-        $nrOfPossibleCombinations = count( $this->getMap()->getList() );
+        $nrOfPossibleCombinations = $this->getMap()->count();
 
         if ( $this->getMaxAmount() === $allowedMax->amount
             &&

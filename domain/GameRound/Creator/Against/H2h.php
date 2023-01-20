@@ -42,7 +42,7 @@ class H2h extends AgainstCreator
             $againstH2hWithPoule,
             new RangedPlaceCombinationCounterMap($assignedCounter->getAssignedHomeMap(), $homeAmountRange),
             0,
-            new PlaceCounterMap( array_values( $mapper->getPlaceMap($poule) ) ),
+            new PlaceCounterMap( $mapper->getPlaceMap($poule) ),
             $this->logger
         );
 

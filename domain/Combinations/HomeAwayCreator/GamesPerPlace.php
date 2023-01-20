@@ -57,7 +57,7 @@ final class GamesPerPlace extends HomeAwayCreator
             while ($awayIt->valid()) {
                 $awayPlaceCombination = new PlaceCombination($awayIt->current());
                 if ($againstGpp->getNrOfHomePlaces() !== $againstGpp->getNrOfAwayPlaces()
-                    || $homePlaceCombination->getIndex() < $awayPlaceCombination->getIndex()) {
+                    || $homePlaceCombination->getNumber() < $awayPlaceCombination->getNumber()) {
                     $homeAway = $this->createHomeAway($againstGpp, $homePlaceCombination, $awayPlaceCombination);
                     array_push($homeAways, $homeAway);
                 }

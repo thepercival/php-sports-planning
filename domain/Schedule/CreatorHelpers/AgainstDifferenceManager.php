@@ -19,6 +19,10 @@ class AgainstDifferenceManager
     /**
      * @var array<int, AmountRange>
      */
+    private array $amountRange = [];
+    /**
+     * @var array<int, AmountRange>
+     */
     private array $againstAmountRange = [];
     /**
      * @var array<int, AmountRange>
@@ -55,6 +59,7 @@ class AgainstDifferenceManager
     private function initAmountMaps(Poule $poule, array $againstVariantMap): void
     {
         $againstGppMap = $this->getAgainstGppMap($againstVariantMap);
+        $this->initAmountMap($poule, $againstGppMap);
         $this->initAgainstAmountMap($poule, $againstGppMap);
         $this->initWithAmountMap($poule, $againstGppMap);
         $this->initHomeAmountMap($poule, $againstVariantMap);
@@ -65,33 +70,58 @@ class AgainstDifferenceManager
      * @param array<int, AgainstGpp> $againstGppMap
      * @return void
      */
-    private function initAgainstAmountMap(Poule $poule, array $againstGppMap): void
+    private function initAmountMap(Poule $poule, array $againstGppMap): void
     {
-      //  $totalNrOfGames = $this->getTotalNrOfGames($poule, $againstGppMap);
+        $nrOfAmountCumulative = 0;
 
-       // $allowedMarginCumulative = 0;
-        $nrOfAgainstCombinationsCumulative = 0;
-
-     //   $counter = 0;
         foreach ($againstGppMap as $sportNr => $againstGpp) {
             $againstGppWithPoule = new AgainstGppWithPoule($poule, $againstGpp);
             $nrOfSportGames = $againstGppWithPoule->getTotalNrOfGames();
-//            $lastSportVariant = ++$counter === count($againstGppMap);
 
-//            if ($this->allowedMargin === 0) { // alle 1 en de laatste 0
-//                $allowedMarginCumulative = $lastSportVariant ? 0 : 1;
-//                // @TODO CDK
-//                //            if( $lastSportVariant && !$againstGppsWithPoule->allAgainstSameNrOfGamesAssignable() ) {
-////                $allowedMarginCumulative++;
-////            }
-//
-////                if( $allowedMarginCumulative === 0 && !$againstGppsWithPoule->allAgainstSameNrOfGamesAssignable() ) {
-////                    $allowedMarginCumulative = 1;
-////                }
-//            } else {
-//                $allowedAgainstMarginSport = (int)ceil($nrOfSportGames / $totalNrOfGames * $this->allowedMargin);
-//                $allowedMarginCumulative += $allowedAgainstMarginSport;
-//            }
+            $nrOfAmountSport = $againstGpp->getNrOfGamePlaces() * $nrOfSportGames;
+            $nrOfAmountCumulative += $nrOfAmountSport;
+
+            $allowedAmountCum = (new EquallyAssignCalculator())->getMaxAmount(
+                $nrOfAmountCumulative,
+                $againstGppWithPoule->getNrOfPlaces()
+            );
+
+            $minNrAllowedToAssignToMinimumCum = (new EquallyAssignCalculator())->getNrOfDeficit(
+                $nrOfAmountCumulative,
+                $againstGppWithPoule->getNrOfPlaces()
+            );
+            $maxNrAllowedToAssignToMaximumCum = $againstGppWithPoule->getNrOfPlaces() - $minNrAllowedToAssignToMinimumCum;
+
+            $allowedMaxSport = $allowedAmountCum;
+            $allowedMinSport = $allowedAmountCum;
+            if( $minNrAllowedToAssignToMinimumCum > 0 ) {
+               $allowedMinSport--;
+            }
+
+            if( $allowedMinSport < 0 ) {
+                $allowedMinSport = 0;
+                $minNrAllowedToAssignToMinimumCum = 0;
+            }
+
+            $this->amountRange[$sportNr] = new AmountRange(
+                new Amount( $allowedMinSport, $minNrAllowedToAssignToMinimumCum),
+                new Amount( $allowedMaxSport, $maxNrAllowedToAssignToMaximumCum)
+            );
+        }
+    }
+
+    /**
+     * @param Poule $poule
+     * @param array<int, AgainstGpp> $againstGppMap
+     * @return void
+     */
+    private function initAgainstAmountMap(Poule $poule, array $againstGppMap): void
+    {
+        $nrOfAgainstCombinationsCumulative = 0;
+
+        foreach ($againstGppMap as $sportNr => $againstGpp) {
+            $againstGppWithPoule = new AgainstGppWithPoule($poule, $againstGpp);
+            $nrOfSportGames = $againstGppWithPoule->getTotalNrOfGames();
 
             $nrOfAgainstCombinationsSport = $againstGpp->getNrOfAgainstCombinationsPerGame() * $nrOfSportGames;
             $nrOfAgainstCombinationsCumulative += $nrOfAgainstCombinationsSport;
@@ -107,10 +137,11 @@ class AgainstDifferenceManager
             );
             $maxNrOfAgainstAllowedToAssignedToMaximumCum = $againstGppWithPoule->getNrOfPossibleAgainstCombinations() - $minNrOfAgainstAllowedToAssignedToMinimumCum;
 
-
             $allowedAgainstMaxSport = $allowedAgainstAmountCum + $this->allowedMargin;
             $allowedAgainstMinSport = $allowedAgainstAmountCum - $this->allowedMargin;
-            if( $minNrOfAgainstAllowedToAssignedToMinimumCum > 0 ) {
+            if( $this->allowedMargin > 0 ) {
+                $minNrOfAgainstAllowedToAssignedToMinimumCum = 0;
+            } else if( $minNrOfAgainstAllowedToAssignedToMinimumCum > 0 ) {
                 $allowedAgainstMinSport--;
             }
 
@@ -187,7 +218,9 @@ class AgainstDifferenceManager
 
             $allowedWithMaxSport = $allowedWithAmountCum + $this->allowedMargin;
             $allowedWithMinSport = $allowedWithAmountCum - $this->allowedMargin;
-            if( $minNrOfWithAllowedToAssignedToMinimumCum > 0 ) {
+            if( $this->allowedMargin > 0 ) {
+                $minNrOfWithAllowedToAssignedToMinimumCum = 0;
+            } else if( $minNrOfWithAllowedToAssignedToMinimumCum > 0 ) {
                 $allowedWithMinSport--;
             }
 
@@ -250,9 +283,11 @@ class AgainstDifferenceManager
             );
             $maxNrOfHomeAllowedToAssignedToMinimumCum = $againstWithPoule->getNrOfPossibleWithCombinations(Side::Home) - $minNrOfHomeAllowedToAssignedToMinimumCum;
 
-            $allowedHomeMaxSport = $allowedHomeAmountCum + (int)ceil($this->allowedMargin / 2);
-            $allowedHomeMinSport = $allowedHomeAmountCum - (int)ceil($this->allowedMargin / 2);
-            if( $minNrOfHomeAllowedToAssignedToMinimumCum > 0 ) {
+            $allowedHomeMaxSport = $allowedHomeAmountCum + $this->allowedMargin;
+            $allowedHomeMinSport = $allowedHomeAmountCum - $this->allowedMargin;
+            if( $this->allowedMargin > 0 ) {
+                $minNrOfHomeAllowedToAssignedToMinimumCum = 0;
+            }  else if( $minNrOfHomeAllowedToAssignedToMinimumCum > 0 ) {
                 $allowedHomeMinSport--;
             }
 
@@ -337,6 +372,10 @@ class AgainstDifferenceManager
 //        }
 //        return $this->canVariantWithBeEquallyAssigned;
 //    }
+
+    public function getAmountRange(int $sportNr): AmountRange {
+        return $this->amountRange[$sportNr];
+    }
 
     public function getAgainstRange(int $sportNr): AmountRange {
         return $this->againstAmountRange[$sportNr];

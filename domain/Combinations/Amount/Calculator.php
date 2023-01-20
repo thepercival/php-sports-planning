@@ -11,17 +11,9 @@ class Calculator
     {
     }
 
-//    public function isBeneathMinimum(Amount $amount): bool {
-//        $minAmount = $this->range->getMinAmount();
-//        return $amount->amount < $minAmount
-//            || ($amount->amount === $minAmount && $amount->count < $this->range->getMin()->count);
-//    }
-//
-//    public function isAboveMaximum(Amount $amount): bool {
-//        return $amount->amount < $this->minimum->amount
-//            || ($amount->amount === $this->range->getMinAmount() && $amount->amount < $this->range->getMinAmount());
-//    }
-
+    public function maxCountBeneathMinimum(): int {
+        return $this->countBeneathMinimum( [ 0 => new Amount(0, $this->maxCount ) ] );
+    }
 
     /**
      * @param array<int, Amount> $amountMap
@@ -32,7 +24,7 @@ class Calculator
         $countBeneathMinimum = 0;
         $totalCountLessThanCount = 0;
         $hasSmallerAmount = false;
-        $minAmount = $this->range->getMinAmount();
+        $minAmount = $this->range->getMin()->amount;
         while ( $amount = array_shift($amountMap) ) {
             if( $amount->amount < $minAmount ) {
                 $countBeneathMinimum += (int)($amount->count * ($minAmount - $amount->amount ) );
@@ -56,7 +48,7 @@ class Calculator
     {
         $countAboveMaximum = 0;
         $totalCountGreaterThanOrEqualToCount = 0;
-        $maxAmount = $this->range->getMaxAmount();
+        $maxAmount = $this->range->getMax()->amount;
         while ( $amount = array_shift($amountMap) ) {
             if( $amount->amount > $maxAmount ) {
                 $countAboveMaximum += (int)($this->maxCount * ($amount->amount - $maxAmount ) );

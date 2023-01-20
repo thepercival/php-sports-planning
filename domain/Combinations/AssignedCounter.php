@@ -17,10 +17,7 @@ use SportsPlanning\Poule;
 
 class AssignedCounter
 {
-    /**
-     * @var array<int, PlaceCounter>
-     */
-    protected array $assignedMap = [];
+    protected PlaceCounterMap $assignedMap;
     protected PlaceCombinationCounterMap $assignedAgainstMap;
     protected PlaceCombinationCounterMap $assignedWithMap;
     protected PlaceCombinationCounterMap $assignedHomeMap;
@@ -37,8 +34,7 @@ class AssignedCounter
     public function __construct(Poule $poule, array $sportVariants)
     {
         $combinationMapper = new Mapper();
-        $this->assignedMap = $combinationMapper->getPlaceMap($poule);
-
+        $this->assignedMap = new PlaceCounterMap( $combinationMapper->getPlaceMap($poule) );
         $this->assignedAgainstMap = new PlaceCombinationCounterMap( $combinationMapper->getAgainstMap($poule) );
 
         $againstVariants = array_values(array_filter($sportVariants,
@@ -63,10 +59,7 @@ class AssignedCounter
         }
     }
 
-    /**
-     * @return array<int, PlaceCounter>
-     */
-    public function getAssignedMap(): array
+    public function getAssignedMap(): PlaceCounterMap
     {
         return $this->assignedMap;
     }
@@ -120,8 +113,9 @@ class AssignedCounter
      */
     protected function assignHomeAway(HomeAway $homeAway): void
     {
-        $this->assignToMap($homeAway->getHome());
-        $this->assignToMap($homeAway->getAway());
+        foreach ($homeAway->getPlaces() as $place) {
+            $this->assignedMap = $this->assignedMap->addPlace($place);
+        }
 
         foreach ($homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination) {
             $this->assignedAgainstMap = $this->assignedAgainstMap->addPlaceCombination($againstPlaceCombination);
@@ -137,13 +131,14 @@ class AssignedCounter
         $this->assignToTogetherMap($homeAway->getAway());
     }
 
-    public function getAssignedPlaceCounter(Place $place): PlaceCounter|null
-    {
-        if (!isset($this->assignedMap[$place->getNumber()])) {
-            return null;
-        }
-        return $this->assignedMap[$place->getNumber()];
-    }
+//    public function getAssignedPlaceCounter(Place $place): PlaceCounter|null
+//    {
+//        $this->assignedMap->
+//        if (!isset($this->assignedMap[$place->getNumber()])) {
+//            return null;
+//        }
+//        return $this->assignedMap[$place->getNumber()];
+//    }
 
     public function getTogetherPlaceCounter(Place $place, Place $coPlace): PlaceCounter|null
     {
@@ -160,7 +155,9 @@ class AssignedCounter
     public function assignTogether(array $placeCombinations): void
     {
         foreach ($placeCombinations as $placeCombination) {
-            $this->assignToMap($placeCombination);
+//            foreach ($placeCombination->getPlaces() as $place) {
+//                $this->assignedMap = $this->assignedMap->addPlace($place);
+//            }
             $this->assignToTogetherMap($placeCombination);
             if( $this->hasAgainstSportWithMultipleSidePlaces ) {
                 $this->assignedWithMap = $this->assignedWithMap->addPlaceCombination($placeCombination);
@@ -168,15 +165,15 @@ class AssignedCounter
         }
     }
 
-    /**
-     * @param PlaceCombination $placeCombination
-     */
-    protected function assignToMap(PlaceCombination $placeCombination): void
-    {
-        foreach ($placeCombination->getPlaces() as $place) {
-            $this->assignedMap[$place->getNumber()]->increment();
-        }
-    }
+//    /**
+//     * @param PlaceCombination $placeCombination
+//     */
+//    protected function assignToMap(PlaceCombination $placeCombination): void
+//    {
+//        foreach ($placeCombination->getPlaces() as $place) {
+//            $this->assignedMap[$place->getNumber()]->increment();
+//        }
+//    }
 
     /**
      * @param PlaceCombination $placeCombination
@@ -194,15 +191,15 @@ class AssignedCounter
         }
     }
 
-    public function getAssignedDifference(): int {
-        return $this->getMapDifference(array_values($this->assignedMap));
+    public function getAmountDifference(): int {
+        return $this->assignedMap->getAmountDifference();
     }
 
-    public function getAgainstSportAmountDifference(): int {
+    public function getAgainstAmountDifference(): int {
         return $this->assignedAgainstMap->getAmountDifference();
     }
 
-    public function getWithSportAmountDifference(): int {
+    public function getWithAmountDifference(): int {
         return $this->assignedWithMap->getAmountDifference();
     }
 

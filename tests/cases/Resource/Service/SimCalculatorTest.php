@@ -26,7 +26,7 @@ class SimCalculatorTest extends TestCase
         ];
         $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
         $input = $this->createInput([10], $sportVariantsWithFields, $refereeInfo);
-        $planning = $this->createPlanning($input, new SportRange(3, 3), 0, false, false, null, 6);
+        $planning = $this->createPlanning($input, new SportRange(3, 3), 0, true, false, null, 6);
 
         $calculator = new SimCalculator($input);
         $infoToAssign = new InfoToAssign($planning->getGames());

@@ -67,6 +67,7 @@ class CreatorTest extends TestCase
         ];
 
         $planning = $this->createPlanning($this->createInput([4], $sportVariants));
+//        (new PlanningOutput())->outputWithGames($planning, true);
         self::assertCount(3, $planning->getAgainstGames());
         self::assertCount(8, $planning->getTogetherGames());
     }

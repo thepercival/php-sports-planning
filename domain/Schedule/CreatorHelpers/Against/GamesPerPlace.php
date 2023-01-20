@@ -53,6 +53,7 @@ class GamesPerPlace extends AgainstHelper
                 $sportVariant,
                 $homeAwayCreator,
                 $assignedCounter,
+                $againstGppDifferenceManager->getAmountRange($sportNr),
                 $againstGppDifferenceManager->getAgainstRange($sportNr),
                 $againstGppDifferenceManager->getWithRange($sportNr),
                 $againstGppDifferenceManager->getHomeRange($sportNr),

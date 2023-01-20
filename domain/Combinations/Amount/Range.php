@@ -24,16 +24,6 @@ class Range implements \Stringable
         return $this->maximum;
     }
 
-    public function getMinAmount(): int
-    {
-        return $this->minimum->amount;
-    }
-
-    public function getMaxAmount(): int
-    {
-        return $this->maximum->amount;
-    }
-
     public function getAmountDifference(): int
     {
         return $this->maximum->amount - $this->minimum->amount;

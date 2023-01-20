@@ -9,10 +9,13 @@ use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\Variant\WithPoule\Single as SingleWithPoule;
 use SportsPlanning\Combinations\AssignedCounter;
 use SportsPlanning\Combinations\Output\GameRound as GameRoundOutput;
+use SportsPlanning\Combinations\PlaceCombination;
+use SportsPlanning\Combinations\PlaceCounterMap;
 use SportsPlanning\GameRound\Together as TogetherGameRound;
 use SportsPlanning\GameRound\Together\Game;
 use SportsPlanning\GameRound\Together\GamePlace;
 use SportsPlanning\Place;
+use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
 
 class Single
@@ -36,7 +39,8 @@ class Single
         $nrOfPlaces = count($poule->getPlaces());
         $variantWithPoule = new SingleWithPoule($nrOfPlaces, $sportVariant);
         $gameRound = new TogetherGameRound();
-//        $this->assignedTogetherMap = $assignedCounter->getAssignedTogetherMap();
+        $assignedMap = $assignedCounter->getAssignedMap();
+        $assignedTogetherMap = $assignedCounter->getAssignedTogetherMap();
         $places = $poule->getPlaces()->toArray();
         $remainingGamePlaces = [];
         $totalNrOfGamesPerPlace = $variantWithPoule->getTotalNrOfGamesPerPlace();
@@ -44,16 +48,23 @@ class Single
             $gamePlaces = array_map(fn(Place $place) => new GamePlace($gameRoundNumber, $place), $places);
             $remainingGamePlaces = $this->assignGameRound(
                 $variantWithPoule,
-                $assignedCounter,
+                $assignedMap,
+                $assignedTogetherMap,
                 array_values($gamePlaces),
                 $remainingGamePlaces,
                 $gameRound
             );
+            foreach( $gameRound->toPlaceCombinations() as $placeCombination ) {
+                $this->assignToTogetherMap($assignedTogetherMap, $placeCombination);
+                foreach( $placeCombination->getPlaces() as $place ) {
+                    $assignedMap = $assignedMap->addPlace($place);
+                }
+            }
 
             $gameRound = $gameRound->createNext();
         }
         if (count($remainingGamePlaces) > 0) {
-            $this->assignGameRound($variantWithPoule, $assignedCounter, $remainingGamePlaces, [], $gameRound, true);
+            $this->assignGameRound($variantWithPoule, $assignedMap, $assignedTogetherMap, $remainingGamePlaces, [], $gameRound, true);
         }
         if (count($gameRound->getLeaf()->getGames()) === 0) {
             $gameRound->getLeaf()->detachFromPrevious();
@@ -64,7 +75,8 @@ class Single
 
     /**
      * @param SingleWithPoule $variantWithPoule
-     * @param AssignedCounter $assignedCounter
+     * @param PlaceCounterMap $assignedMap
+     * @param array<string,array<string,PlaceCounter>> $assignedTogetherMap
      * @param list<GamePlace> $unSortedGamePlaces
      * @param list<GamePlace> $remainingGamePlaces
      * @param TogetherGameRound $gameRound
@@ -73,18 +85,20 @@ class Single
      */
     protected function assignGameRound(
         SingleWithPoule $variantWithPoule,
-        AssignedCounter $assignedCounter,
+        PlaceCounterMap $assignedMap,
+        array $assignedTogetherMap,
         array $unSortedGamePlaces,
         array $remainingGamePlaces,
         TogetherGameRound $gameRound,
         bool $finalGameRound = false
     ): array {
         $newRemainingGamePlaces = [];
-        $choosableGamePlaces = $this->sortGamePlaces($assignedCounter, $unSortedGamePlaces);
-        $remainingGamePlaces = $this->sortGamePlaces($assignedCounter, $remainingGamePlaces);
+
+        $choosableGamePlaces = $this->sortGamePlaces($assignedMap, $assignedTogetherMap, $unSortedGamePlaces);
+        $remainingGamePlaces = $this->sortGamePlaces($assignedMap, $assignedTogetherMap, $remainingGamePlaces);
         $choosableGamePlaces = array_merge($remainingGamePlaces, $choosableGamePlaces);
         while (count($choosableGamePlaces) > 0) {
-            $bestGamePlace = $this->getBestGamePlace($assignedCounter, $newRemainingGamePlaces, $choosableGamePlaces);
+            $bestGamePlace = $this->getBestGamePlace($assignedTogetherMap, $newRemainingGamePlaces, $choosableGamePlaces);
             if ($bestGamePlace === null) {
                 break;
             }
@@ -92,7 +106,7 @@ class Single
             if ($idx !== false) {
                 array_splice($choosableGamePlaces, $idx, 1);
             }
-            array_push($newRemainingGamePlaces, $bestGamePlace);
+            $newRemainingGamePlaces[] = $bestGamePlace;
             if (count($newRemainingGamePlaces) === $variantWithPoule->getSportVariant()->getNrOfGamePlaces()) {
                 new Game($gameRound, $newRemainingGamePlaces);
                 $newRemainingGamePlaces = [];
@@ -105,24 +119,45 @@ class Single
     }
 
     /**
-     * @param AssignedCounter $assignedCounter
+     * @param array<string,array<string,PlaceCounter>> $assignedTogetherMap
+     * @return void
+     */
+    protected function assignToTogetherMap(array &$assignedTogetherMap, PlaceCombination $placeCombination): void
+    {
+        $places = $placeCombination->getPlaces();
+        foreach ($places as $placeIt) {
+            foreach ($places as $coPlace) {
+                if ($coPlace === $placeIt) {
+                    continue;
+                }
+                $assignedTogetherMap[$placeIt->getLocation()][$coPlace->getLocation()]->increment();
+            }
+        }
+    }
+
+    /**
+     * @param PlaceCounterMap $assignedMap
+     * @param array<string,array<string,PlaceCounter>> $assignedTogetherMap
      * @param list<GamePlace> $gamePlaces
      * @return list<GamePlace>
      */
-    protected function sortGamePlaces(AssignedCounter $assignedCounter, array $gamePlaces): array
+    protected function sortGamePlaces(
+        PlaceCounterMap $assignedMap,
+        array $assignedTogetherMap,
+        array $gamePlaces): array
     {
         uasort(
             $gamePlaces,
-            function (GamePlace $gamePlaceA, GamePlace $gamePlaceB) use ($assignedCounter, $gamePlaces): int {
-                $nrOfAssignedGamesA = $assignedCounter->getAssignedPlaceCounter($gamePlaceA->getPlace())?->count() ?? 0;
-                $nrOfAssignedGamesB = $assignedCounter->getAssignedPlaceCounter($gamePlaceB->getPlace())?->count() ?? 0;
+            function (GamePlace $gamePlaceA, GamePlace $gamePlaceB) use ($assignedMap, $assignedTogetherMap, $gamePlaces): int {
+                $nrOfAssignedGamesA = $assignedMap->count($gamePlaceA->getPlace());
+                $nrOfAssignedGamesB = $assignedMap->count($gamePlaceB->getPlace());
                 if ($nrOfAssignedGamesA !== $nrOfAssignedGamesB) {
                     return $nrOfAssignedGamesA - $nrOfAssignedGamesB;
                 }
                 $placesToCompareA = $this->getOtherGamePlaces($gamePlaceA, $gamePlaces);
-                $scoreA = $this->getScore($assignedCounter, $gamePlaceA->getPlace(), $placesToCompareA);
+                $scoreA = $this->getScore($assignedTogetherMap, $gamePlaceA->getPlace(), $placesToCompareA);
                 $placesToCompareB = $this->getOtherGamePlaces($gamePlaceB, $gamePlaces);
-                $scoreB = $this->getScore($assignedCounter, $gamePlaceA->getPlace(), $placesToCompareB);
+                $scoreB = $this->getScore($assignedTogetherMap, $gamePlaceA->getPlace(), $placesToCompareB);
                 return $scoreA - $scoreB;
             }
         );
@@ -130,19 +165,20 @@ class Single
     }
 
     /**
+     * @param array<string,array<string,PlaceCounter>> $assignedTogetherMap
      * @param list<GamePlace> $gamePlaces
      * @param list<GamePlace> $choosableGamePlaces
      * @return GamePlace|null
      */
     protected function getBestGamePlace(
-        AssignedCounter $assignedCounter,
+        array $assignedTogetherMap,
         array $gamePlaces,
         array $choosableGamePlaces
     ): GamePlace|null {
         $bestGamePlace = null;
         $lowestScore = null;
         foreach ($choosableGamePlaces as $choosableGamePlace) {
-            $score = $this->getScore($assignedCounter, $choosableGamePlace->getPlace(), $gamePlaces);
+            $score = $this->getScore($assignedTogetherMap, $choosableGamePlace->getPlace(), $gamePlaces);
             if ($lowestScore === null || $score < $lowestScore) {
                 $lowestScore = $score;
                 $bestGamePlace = $choosableGamePlace;
@@ -181,21 +217,36 @@ class Single
     }
 
     /**
-     * @param AssignedCounter $assignedCounter ,
+     * @param array<string,array<string,PlaceCounter>> $assignedTogetherMap
      * @param Place $place
      * @param list<GamePlace> $gamePlaces
      * @return int
      */
-    protected function getScore(AssignedCounter $assignedCounter, Place $place, array $gamePlaces): int
+    protected function getScore(array $assignedTogetherMap, Place $place, array $gamePlaces): int
     {
         $score = 0;
         foreach ($gamePlaces as $gamePlace) {
             if ($place === $gamePlace->getPlace()) {
                 return 100000;
             }
-            $placeCounter = $assignedCounter->getTogetherPlaceCounter($place, $gamePlace->getPlace());
+            $placeCounter = $this->getTogetherPlaceCounter($assignedTogetherMap, $place, $gamePlace->getPlace());
             $score += $placeCounter !== null ? $placeCounter->count() : 0;
         }
         return $score;
+    }
+
+    /**
+     * @param array<string,array<string,PlaceCounter>> $assignedTogetherMap
+     * @param Place $place
+     * @param Place $coPlace
+     * @return PlaceCounter|null
+     */
+    protected function getTogetherPlaceCounter(array $assignedTogetherMap, Place $place, Place $coPlace): PlaceCounter|null
+    {
+        if (!isset($assignedTogetherMap[$place->getLocation()])
+            || !isset($assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()])) {
+            return null;
+        }
+        return $assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()];
     }
 }

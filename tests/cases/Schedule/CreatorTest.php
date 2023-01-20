@@ -155,6 +155,8 @@ class CreatorTest extends TestCase
         $schedule = reset($schedules);
         self::assertNotFalse($schedule);
 
+        (new ScheduleOutput($this->getLogger()))->output($schedules);
+
         foreach ($schedule->getSportSchedules() as $sportSchedule) {
             if ($sportSchedule->getNumber() === 1) {
                 $this->checkFirstGamePlace($sportSchedule, 1);
@@ -163,7 +165,7 @@ class CreatorTest extends TestCase
                 $this->checkFirstGamePlace($sportSchedule, 5);
             }
         }
-//        (new Output($this->getLogger()))->output($schedules);
+
     }
 
     protected function checkFirstGamePlace(SportSchedule $sportSchedule, int $placeNr): void
@@ -229,7 +231,7 @@ class CreatorTest extends TestCase
                     $assignedCounter->assignHomeAways($homeAways);
                 }
             }
-            self::assertSame(0, $assignedCounter->getAgainstSportAmountDifference() );
+            self::assertSame(0, $assignedCounter->getAgainstAmountDifference() );
         }
     }
 
@@ -259,7 +261,7 @@ class CreatorTest extends TestCase
                     $assignedCounter->assignHomeAways($homeAways);
                 }
             }
-            self::assertSame(2, $assignedCounter->getAgainstSportAmountDifference() );
+            self::assertSame(2, $assignedCounter->getAgainstAmountDifference() );
         }
     }
 
@@ -268,7 +270,7 @@ class CreatorTest extends TestCase
         $assignedCounter = new AssignedCounter($sportSchedule->getSchedule()->getPoule(),[$sportSchedule->createVariant()]);
         $homeAways = $sportSchedule->convertGamesToHomeAways();
         $assignedCounter->assignHomeAways($homeAways);
-        return $assignedCounter->getWithSportAmountDifference();
+        return $assignedCounter->getWithAmountDifference();
     }
 
 

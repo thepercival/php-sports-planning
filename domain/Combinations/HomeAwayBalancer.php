@@ -5,9 +5,6 @@ namespace SportsPlanning\Combinations;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\Side;
 use SportsPlanning\Combinations\PlaceCombinationCounterMap\Ranged as RangedPlaceCombinationCounterMap;
-use SportsPlanning\GameRound\Against as AgainstGameRound;
-use SportsPlanning\Combinations\Output\HomeAway as HomeAwayOutput;
-use SportsPlanning\Combinations\Amount\Range as AmountRange;
 
 class HomeAwayBalancer
 {
@@ -36,7 +33,7 @@ class HomeAwayBalancer
 
 
         $rangedAssignedHomeBaseMap = new RangedPlaceCombinationCounterMap(
-            $assignedHomeMap, $assignedHomeBaseMap->getRange()
+            $assignedHomeMap, $assignedHomeBaseMap->getAllowedRange()
         );
         if( $rangedAssignedHomeBaseMap->withinRange(0) ) {
             return $this->getSwapped($sportHomeAways, $sportHomeAwaysAfterAdding );
@@ -53,13 +50,13 @@ class HomeAwayBalancer
             $homeAwaysToSwap = $this->getHomeAwaysWithAtLeastTwoDifference($assignedHomeMap, $sportHomeAwaysAfterMajorBalancing);
         }
         if( $rangedAssignedHomeBaseMap->withinRange(0)
-            || $rangedAssignedHomeBaseMap->getRange()->getAmountDifference() > 0 ) {
+            || $rangedAssignedHomeBaseMap->getAllowedRange()->getAmountDifference() > 0 ) {
             return $this->getSwapped($sportHomeAways, $sportHomeAwaysAfterAdding );
         }
 
         // $assignedHomeMap->output($this->logger, '', 'before minor');
 
-        $nrOfHomeGames = $rangedAssignedHomeBaseMap->getRange()->getMaxAmount();
+        $nrOfHomeGames = $rangedAssignedHomeBaseMap->getAllowedRange()->getMax()->amount;
         $sportHomeAwaysAfterMinorBalancing = $sportHomeAwaysAfterMajorBalancing;
         $swapRoute = $this->getSwapRoute($nrOfHomeGames, $assignedHomeMap, $assignedAwayMap, $sportHomeAwaysAfterMinorBalancing);
         while ( $swapRoute !== null ) {

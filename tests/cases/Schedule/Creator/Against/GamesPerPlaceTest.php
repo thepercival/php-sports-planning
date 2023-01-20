@@ -414,19 +414,19 @@ class GamesPerPlaceTest extends TestCase
 //    public function test2VS2With18PlacesAnd26GamesPerPlace(): void
 //    {
 //        $sportVariants = [
-//            $this->getAgainstGppSportVariantWithFields(4, 2, 2, 26),
+//            $this->getAgainstGppSportVariantWithFields(4, 2, 2, 25),
 //        ];
 //        $input = $this->createInput([18], $sportVariants);
 //        $planning = new Planning($input, new SportRange(1, 1), 0);
-////        $time_start = microtime(true);
+//
 //        $scheduleCreator = new ScheduleCreator($this->getLogger());
-//        $schedules = $scheduleCreator->createFromInput($input, 1);
+//        $schedules = $scheduleCreator->createFromInput($input, 3);
 //        $gameCreator = new GameCreator($this->getLogger());
 //        $gameCreator->createGames($planning, $schedules);
 ////        (new ScheduleOutput($this->getLogger()))->output($schedules);
 ////        (new ScheduleOutput($this->getLogger()))->outputTotals($schedules);
 //
-//        self::assertCount(117, $planning->getAgainstGames());
+//        self::assertCount(112, $planning->getAgainstGames());
 ////        $validator = new PlanningValidator();
 ////        self::assertEquals(PlanningValidator::VALID, $validator->validate($planning, true));
 ////

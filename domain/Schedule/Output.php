@@ -38,7 +38,7 @@ class Output extends OutputHelper
                 }
                 $this->logger->info( $prefix . '    sportschedule => sportNr: ' . $sportSchedule->getNumber() . ' , variant: "' . $sportSchedule->createVariant() . '"');
                 foreach ($sportSchedule->getGames() as $gameRoundGame) {
-                    $this->logger->info('        ' . $gameRoundGame);
+                    $this->logger->info('            ' . $gameRoundGame);
                 }
             }
         }
@@ -83,16 +83,23 @@ class Output extends OutputHelper
         }
         $prefix = '        ';
         $this->logger->info($prefix . 'unEqualNrOfGames: '.$unequalNrOfGames.'x');
+
+        $this->logger->info('');
+        $amountDifference = $assignedCounter->getAmountDifference();
+        $header = 'Amount Totals (diff:'.$amountDifference.')';
+        $assignedCounter->getAssignedMap()->output($this->logger, $prefix, $header );
+        $this->logger->info('');
+
         if( $hasAgainstSport ) {
             $this->logger->info('');
-            $againstAmountDifference = $assignedCounter->getAgainstSportAmountDifference();
-            $header = 'Against Sport Totals (diff:'.$againstAmountDifference.')';
+            $againstAmountDifference = $assignedCounter->getAgainstAmountDifference();
+            $header = 'Against Totals (diff:'.$againstAmountDifference.')';
             $assignedCounter->getAssignedAgainstMap()->output($this->logger, $prefix, $header);
         }
         if( $hasWithSport ) {
             $this->logger->info('');
-            $withAmountDifference = $assignedCounter->getWithSportAmountDifference();
-            $header = 'With Sport Totals (diff:'.$withAmountDifference.')';
+            $withAmountDifference = $assignedCounter->getWithAmountDifference();
+            $header = 'With Totals (diff:'.$withAmountDifference.')';
             $assignedCounter->getAssignedWithMap()->output($this->logger, $prefix, $header);
         }
         if( $hasAgainstSport ) {
@@ -101,10 +108,6 @@ class Output extends OutputHelper
             $header = 'Home Totals (diff:'.$homeAmountDifference.')';
             $assignedCounter->getAssignedHomeMap()->output($this->logger, $prefix, $header);
         }
-
-        $this->logger->info('');
-        $this->outputAssignedNrOfGames(array_values($assignedCounter->getAssignedMap()), $prefix);
-        $this->logger->info('');
     }
 
 

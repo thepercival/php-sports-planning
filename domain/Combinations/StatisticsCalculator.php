@@ -7,6 +7,7 @@ namespace SportsPlanning\Combinations;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\Side;
+use SportsPlanning\Combinations\Amount\Calculator;
 use SportsPlanning\Combinations\PlaceCombinationCounterMap\Ranged as RangedPlaceCombinationCounterMap;
 
 abstract class StatisticsCalculator
@@ -22,7 +23,6 @@ abstract class StatisticsCalculator
     public function getNrOfHomeAwaysAssigned(): int {
         return $this->nrOfHomeAwaysAssigned;
     }
-
 
     abstract public function addHomeAway(HomeAway $homeAway): self;
 
@@ -98,8 +98,12 @@ abstract class StatisticsCalculator
     public function outputHomeTotals(string $prefix, bool $withDetails): void
     {
         $header = 'HomeTotals : ';
-        $header .= ' allowedRange : ' . $this->assignedHomeMap->getRange();
-        $header .= ', belowMinimum : ' . $this->assignedHomeMap->getNrOfPlaceCombinationsBelowMinimum();
+        $allowedRange = $this->assignedHomeMap->getAllowedRange();
+        $header .= ' allowedRange : ' . $allowedRange;
+        $nrOfPossiblities = count( $this->assignedHomeMap->getMap()->getList() );
+        $header .= ', belowMinimum/max : ' . $this->assignedHomeMap->getNrOfPlaceCombinationsBelowMinimum();
+        $header .= '/' . (new Calculator($nrOfPossiblities, $allowedRange))->maxCountBeneathMinimum();
+        $header .= ', nrOfPossibilities : ' . $nrOfPossiblities;
         $this->logger->info($prefix . $header);
 
         $map = $this->assignedHomeMap->getMap()->getAmountMap();

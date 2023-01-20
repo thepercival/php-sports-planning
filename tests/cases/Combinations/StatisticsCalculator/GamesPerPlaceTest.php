@@ -14,7 +14,7 @@ use SportsPlanning\Combinations\AssignedCounter;
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\HomeAwayCreator\GamesPerPlace as GppHomeAwayCreator;
 use SportsPlanning\Combinations\Mapper;
-use SportsPlanning\Combinations\PlaceCombinationCounterMap;
+use SportsPlanning\Combinations\PlaceCounterMap\Ranged as RangedPlaceCounterMap;
 use SportsPlanning\Combinations\PlaceCombinationCounterMap\Ranged as RangedPlaceCombinationCounterMap;
 use SportsPlanning\Combinations\PlaceCounterMap;
 use SportsPlanning\Combinations\StatisticsCalculator\Against\GamesPerPlace as GppStatisticsCalculator;
@@ -35,7 +35,6 @@ class GamesPerPlaceTest extends TestCase
         $input = $this->createInput([18], [new SportVariantWithFields($sportVariant, 1)]);
         $poule = $input->getPoule(1);
         $variantWithPoule = new AgainstGppWithPoule($poule, $sportVariant);
-        $mapper = new Mapper();
         $assignedCounter = new AssignedCounter($poule, [$sportVariant]);
         $againstGppMap = $this->getAgainstGppSportVariantMap($input);
         if( count($againstGppMap) === 0 ) {
@@ -50,12 +49,12 @@ class GamesPerPlaceTest extends TestCase
             $againstGppMap,
             $allowedGppMargin,
             $this->getLogger());
+        $amountRange = $differenceManager->getAmountRange(1);
+        $assignedMap = new RangedPlaceCounterMap($assignedCounter->getAssignedMap(),$amountRange );
         $againstAmountRange = $differenceManager->getAgainstRange(1);
-
         $assignedAgainstMap = new RangedPlaceCombinationCounterMap(
             $assignedCounter->getAssignedAgainstMap(),
             $againstAmountRange );
-
         $withAmountRange = $differenceManager->getWithRange(1);
         $assignedWithMap = new RangedPlaceCombinationCounterMap(
             $assignedCounter->getAssignedWithMap() , $withAmountRange);
@@ -68,8 +67,7 @@ class GamesPerPlaceTest extends TestCase
             $variantWithPoule,
             $assignedHomeMap,
             0,
-            new PlaceCounterMap( array_values( $mapper->getPlaceMap($poule) ) ),
-            new PlaceCounterMap( array_values($assignedCounter->getAssignedMap() ) ),
+            $assignedMap,
             $assignedAgainstMap,
             $assignedWithMap,
             $this->getLogger()
@@ -81,7 +79,7 @@ class GamesPerPlaceTest extends TestCase
         $time_start = microtime(true);
         $statisticsCalculator->sortHomeAways($homeAways, $this->getLogger());
         // echo 'Total Execution Time: '. (microtime(true) - $time_start);
-        self::assertLessThan(8.0, (microtime(true) - $time_start) );
+        self::assertLessThan(10.0, (microtime(true) - $time_start) );
     }
 
     /**

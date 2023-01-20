@@ -49,6 +49,9 @@ class Creator
         int $allowedGppMargin,
         int|null $nrOfSecondsBeforeTimeout = null): array
     {
+        if( $allowedGppMargin > 2 ) {
+            $allowedGppMargin = 2;
+        }
         /** @var array<int, Schedule> $schedules */
         $schedules = [];
         $sportVariants = array_values($input->createSportVariants()->toArray());

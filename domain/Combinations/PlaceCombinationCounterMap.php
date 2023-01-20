@@ -90,7 +90,7 @@ class PlaceCombinationCounterMap
 
     public function getAmountRange(): SportRange|null {
         $range = $this->getRange();
-        return $range ? new SportRange($range->getMinAmount(), $range->getMaxAmount()) : null;
+        return $range ? new SportRange($range->getMin()->amount, $range->getMax()->amount) : null;
     }
 
     public function getRange(): AmountRange|null {
@@ -107,25 +107,33 @@ class PlaceCombinationCounterMap
         return $this->range;
     }
 
-//    public function getNrOfAssignedTo(int $amount): int {
-//        $amountRange = $this->getAmounts();
-//        if( !array_key_exists($amount, $perAmount) ) {
-//            return 0;
-//        }
-//        return count($perAmount[$amount]);
-//    }
-
-
-//    public function getMinDifference(): int {
-//        return $this->canBeBalanced() ? 0 : 1;
-//    }
 
     public function getAmountDifference(): int {
         return $this->getAmountRange()?->difference() ?? 0;
     }
 
+    public function getMin(): Amount|null {
+        return $this->getRange()?->getMin();
+    }
+
+    public function getMinAmount(): int {
+        return $this->getMin()?->amount ?? 0;
+    }
+
+    public function getCountOfMinAmount(): int {
+        return $this->getMin()?->count ?? 0;
+    }
+
+    public function getMax(): Amount|null {
+        return $this->getRange()?->getMax();
+    }
+
     public function getMaxAmount(): int {
-        return $this->getAmountRange()?->getMax() ?? 0;
+        return $this->getMax()?->amount ?? 0;
+    }
+
+    public function getCountOfMaxAmount(): int {
+        return $this->getMax()?->count ?? 0;
     }
 
 
