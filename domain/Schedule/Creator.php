@@ -67,11 +67,10 @@ class Creator
             $schedule = new Schedule($nrOfPlaces, $poule->getInput());
             $schedules[$nrOfPlaces] = $schedule;
 
-            $assignedCounter = new AssignedCounter($poule, $sportVariants);
-
             $allInOneGameSportVariantMap = $this->getAllInOneGameSportVariantMap($input);
             (new AllInOneGameCreatorHelper())->createSportSchedules($schedule, $poule, $allInOneGameSportVariantMap);
 
+            $assignedCounter = new AssignedCounter($poule, $sportVariants);
             $singleSportVariantMap = $this->getSingleSportVariantMap($input);
             $singleHelper = new SingleCreatorHelper($this->logger);
             $singleHelper->createSportSchedules($schedule, $poule, $singleSportVariantMap, $assignedCounter);

@@ -155,7 +155,7 @@ class CreatorTest extends TestCase
         $schedule = reset($schedules);
         self::assertNotFalse($schedule);
 
-        (new ScheduleOutput($this->getLogger()))->output($schedules);
+//        (new ScheduleOutput($this->getLogger()))->output($schedules);
 
         foreach ($schedule->getSportSchedules() as $sportSchedule) {
             if ($sportSchedule->getNumber() === 1) {

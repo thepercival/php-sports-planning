@@ -261,8 +261,6 @@ class GamesPerPlace extends AgainstCreator
                 )
             );
 
-            $x = $statisticsCalculator->getNrOfGamesToGo();
-            $z = count($gameRound->getHomeAways());
             if ((count($homeAwaysForGameRoundTmp) >= ($this->nrOfGamesPerGameRound - count($gameRound->getHomeAways()))
                 || $statisticsCalculator->getNrOfGamesToGo() === count($gameRound->getHomeAways())
                 )

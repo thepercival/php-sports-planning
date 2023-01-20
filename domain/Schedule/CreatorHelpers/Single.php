@@ -36,23 +36,26 @@ class Single
         array $sportVariants,
         AssignedCounter $assignedCounter): void
     {
+        /** @psalm-suppress ArgumentTypeCoercion */
+        $singleAssignedCounter = new AssignedCounter($poule, $sportVariants);
         foreach ($sportVariants as $sportNr => $sportVariant) {
             $sportSchedule = new SportSchedule($schedule, $sportNr, $sportVariant->toPersistVariant());
-            $gameRound = $this->generateGameRounds($poule, $sportVariant, $assignedCounter);
+            $gameRound = $this->generateGameRounds($poule, $sportVariant, $singleAssignedCounter);
             $this->createGames($sportSchedule, $gameRound);
         }
+        $assignedCounter->setAssignedTogetherMap( $singleAssignedCounter->getAssignedTogetherMap() );
     }
 
     protected function generateGameRounds(
         Poule $poule,
         SingleSportVariant $sportVariant,
-        AssignedCounter $assignedCounter
+        AssignedCounter $singleAssignedCounter
     ): TogetherGameRound {
+
         $gameRoundCreator = new SingleGameRoundCreator($this->logger);
-        $gameRound = $gameRoundCreator->createGameRound($poule, $sportVariant, $assignedCounter);
+        $gameRound = $gameRoundCreator->createGameRound($poule, $sportVariant, $singleAssignedCounter);
 
         // $gameRound = $this->getGameRound($poule, $sportVariant, $assignedCounter, $totalNrOfGamesPerPlace);
-        $assignedCounter->assignTogether($gameRound->toPlaceCombinations());
         return $gameRound;
     }
 

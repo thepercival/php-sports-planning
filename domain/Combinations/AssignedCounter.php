@@ -99,6 +99,14 @@ class AssignedCounter
     }
 
     /**
+     * @param array<string,array<string,PlaceCounter>> $assignedTogetherMap
+     */
+    public function setAssignedTogetherMap(array $assignedTogetherMap): void
+    {
+        $this->assignedTogetherMap = $assignedTogetherMap;
+    }
+
+    /**
      * @param list<HomeAway> $homeAways
      */
     public function assignHomeAways(array $homeAways): void
@@ -151,16 +159,19 @@ class AssignedCounter
 
     /**
      * @param list<PlaceCombination> $placeCombinations
+     * @param bool $withAssigned
      */
-    public function assignTogether(array $placeCombinations): void
+    public function assignTogether(array $placeCombinations, bool $withAssigned): void
     {
         foreach ($placeCombinations as $placeCombination) {
-//            foreach ($placeCombination->getPlaces() as $place) {
-//                $this->assignedMap = $this->assignedMap->addPlace($place);
-//            }
             $this->assignToTogetherMap($placeCombination);
             if( $this->hasAgainstSportWithMultipleSidePlaces ) {
                 $this->assignedWithMap = $this->assignedWithMap->addPlaceCombination($placeCombination);
+            }
+            if( $withAssigned ) {
+                foreach( $placeCombination->getPlaces() as $place ) {
+                    $this->assignedMap = $this->assignedMap->addPlace($place);
+                }
             }
         }
     }
