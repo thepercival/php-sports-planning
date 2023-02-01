@@ -141,8 +141,12 @@ class Calculator
         while ($nrOfPlaces > 0 && $sportVariantWithFields !== null && (!$doRefereeCheck || $nrOfReferees > 0)) {
             $nrOfFields = $sportVariantWithFields->getNrOfFields();
             $sportVariant = $sportVariantWithFields->getSportVariant();
-            $nrOfGamePlaces = $this->getNrOfGamePlaces($sportVariant, $currentPouleNrOfPlaces);
-            $nrOfGamePlaces += ($refereeInfo->selfReferee === SelfReferee::SamePoule ? 1 : 0);
+            if( $sportVariant instanceof AllInOneGame ) {
+                $nrOfGamePlaces = $currentPouleNrOfPlaces;
+            } else {
+                $nrOfGamePlaces = $sportVariant->getNrOfGamePlaces();
+                $nrOfGamePlaces += ($refereeInfo->selfReferee === SelfReferee::SamePoule ? 1 : 0);
+            }
 
             while ($nrOfPlaces >= $nrOfGamePlaces && $nrOfFields-- > 0 && (!$doRefereeCheck || $nrOfReferees-- > 0)) {
                 $nrOfPlaces -= $nrOfGamePlaces;

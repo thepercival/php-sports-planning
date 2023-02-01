@@ -7,7 +7,8 @@ namespace SportsPlanning\Tests\Input;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\VariantWithFields;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsPlanning\Referee\Info as RefereeInfo;
@@ -132,7 +133,22 @@ class CalculatorTest extends TestCase
         $calculator = new InputCalculator();
         $maxNrOfGamesPerBatch = $calculator->getMaxNrOfGamesPerBatch(
             new PouleStructure(3, 2, 2, 2),
-            [new VariantWithFields(new AllInOneGameSportVariant(1), 2)],
+            [new VariantWithFields(new AllInOneGame(1), 2)],
+            new RefereeInfo(SelfReferee::Disabled)
+        );
+
+        self::assertSame(2, $maxNrOfGamesPerBatch);
+    }
+
+    public function testMaxNrOfGamesPerBatchSportsExceedNrOfPlaces(): void
+    {
+        $calculator = new InputCalculator();
+        $maxNrOfGamesPerBatch = $calculator->getMaxNrOfGamesPerBatch(
+            new PouleStructure(5),
+            [
+                new VariantWithFields(new AgainstGpp(1, 1, 1), 2),
+                new VariantWithFields(new AgainstGpp(1, 1, 1), 2),
+            ],
             new RefereeInfo(SelfReferee::Disabled)
         );
 
