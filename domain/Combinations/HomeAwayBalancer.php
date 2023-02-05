@@ -192,16 +192,8 @@ class HomeAwayBalancer
 
         $greaterHomeHomeAways = $this->getHomeAwaysWithSide(Side::Home, $greater, $homeAways);
         $otherHomeAways = $this->getHomeAwaysNotWithSide(Side::Home, $greater, $homeAways);
-        // $maxRouteLength = 1 + count($equal) + 1;
-        $routeLength = 2;
-        //while ( $routeLength <= $maxRouteLength ) {
-            $swapRoute = $this->getSwapRouteHelper($greaterHomeHomeAways, $otherHomeAways, $smaller, [], $routeLength);
-            if( $swapRoute !== null ) {
-                return $swapRoute;
-            }
-           // $routeLength++;
-        //}
-        return null;
+        $maxRouteLength = 10;
+        return $this->getSwapRouteHelper($greaterHomeHomeAways, $otherHomeAways, $smaller, [], $maxRouteLength);
     }
 
     /**

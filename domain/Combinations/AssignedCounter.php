@@ -85,6 +85,9 @@ class AssignedCounter
         foreach( $this->assignedWithMap->getPlaceCombinationCounters() as $withCounter ) {
             $withCombination = $withCounter->getPlaceCombination();
             $nrOfAgainst = $withCounter->count() - $this->assignedHomeMap->count($withCombination);
+            if( $nrOfAgainst < 0) {
+                $nrOfAgainst = 0;
+            }
             $counters[$withCombination->getIndex()] = new PlaceCombinationCounter($withCombination, $nrOfAgainst);
         }
         return new PlaceCombinationCounterMap($counters);

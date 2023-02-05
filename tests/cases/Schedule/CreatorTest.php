@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsPlanning\Combinations\AssignedCounter;
+use SportsPlanning\Planning\Validator as PlanningValidator;
 use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\Output as ScheduleOutput;
 use SportsPlanning\Schedule\Creator as ScheduleCreator;
@@ -262,6 +263,35 @@ class CreatorTest extends TestCase
                 }
             }
             self::assertSame(2, $assignedCounter->getAgainstAmountDifference() );
+        }
+    }
+
+    public function test14PlacesWithMultipleSportsSameNrOfHomeGames(): void
+    {
+        $sportVariantsWithFields = [
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 2),
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 2),
+            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 2)
+        ];
+
+        $input = $this->createInput([14], $sportVariantsWithFields);
+
+        $scheduleCreator = new ScheduleCreator($this->getLogger());
+        $schedules = $scheduleCreator->createFromInput($input, 0);
+//        (new ScheduleOutput($this->getLogger()))->output($schedules);
+//        (new ScheduleOutput($this->getLogger()))->outputTotals($schedules);
+
+        foreach( $schedules as $schedule) {
+            $sportVariants = array_values($schedule->createSportVariants()->toArray());
+            $assignedCounter = new AssignedCounter($schedule->getPoule(), $sportVariants);
+            foreach( $schedule->getSportSchedules() as $sportSchedule) {
+                $sportVariant = $sportSchedule->createVariant();
+                if( $sportVariant instanceof AgainstH2h || $sportVariant instanceof AgainstGpp) {
+                    $homeAways = $sportSchedule->convertGamesToHomeAways();
+                    $assignedCounter->assignHomeAways($homeAways);
+                }
+            }
+            self::assertSame(0, $assignedCounter->getHomeAmountDifference() );
         }
     }
 
