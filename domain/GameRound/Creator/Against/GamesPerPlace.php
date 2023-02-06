@@ -159,14 +159,10 @@ class GamesPerPlace extends AgainstCreator
 //
 //                // alle homeaways die over
 //                $statisticsCalculator->output(false);
-//                $this->gameRoundOutput->output($gameRound, true, 'ASSIGNED HOMEAWAYS');
+
                 $filteredHomeAways = $statisticsCalculator->filterBeforeGameRound($homeAways);
 //                    $filteredHomeAways = $homeAways;
-//                if( $gameRound->getNumber() === 15 and count($filteredHomeAways) > $this->tmpHighest ) {
-//                    $this->tmpHighest = count($filteredHomeAways);
-//                    $this->logger->info('filtering after gr ' . $gameRound->getNumber() . ' completed : ' . $countHA . ' => ' . count($filteredHomeAways));
-//                    $this->gameRoundOutput->outputHomeAways($filteredHomeAways, null, 'CANDIDATES');
-//                }
+
 //
 //
 //            } else {
@@ -179,12 +175,12 @@ class GamesPerPlace extends AgainstCreator
             if ($gameRound->getNumber() > $this->highestGameRoundNumberCompleted) {
                 $this->highestGameRoundNumberCompleted = $gameRound->getNumber();
 //                 $this->logger->info('highestGameRoundNumberCompleted: ' . $gameRound->getNumber());
-
-//                if( $this->highestGameRoundNumberCompleted === 2 ) {
+//
+//                if( $this->highestGameRoundNumberCompleted === 9 ) {
 //                    $statisticsCalculator->output(false);
 //                    $this->logger->info('gr ' . $gameRound->getNumber() . ' completed ( ' . count($homeAways) . ' => ' . count($filteredHomeAways) . ' )');
 //                    $this->gameRoundOutput->output($gameRound, true, 'ASSIGNED HOMEAWAYS');
-//                    $this->gameRoundOutput->outputHomeAways($filteredHomeAways, null, 'HOMEAWAYS TO ASSIGN');
+////                    $this->gameRoundOutput->outputHomeAways($filteredHomeAways, null, 'HOMEAWAYS TO ASSIGN');
 //                }
 
                 $filteredHomeAways = $statisticsCalculator->sortHomeAways($filteredHomeAways, $this->logger);

@@ -17,6 +17,8 @@ use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWit
 
 class GamesPerPlace extends StatisticsCalculator
 {
+    protected bool $checkOnWith;
+
     public function __construct(
         protected AgainstGppWithPoule $againstGppWithPoule,
         RangedPlaceCombinationCounterMap $assignedHomeMap,
@@ -29,6 +31,7 @@ class GamesPerPlace extends StatisticsCalculator
     )
     {
         parent::__construct($assignedHomeMap,$nrOfHomeAwaysAssigned, $logger);
+        $this->checkOnWith = $againstGppWithPoule->getSportVariant()->hasMultipleSidePlaces();
     }
 
     public function getNrOfGamesToGo(): int {
@@ -185,6 +188,9 @@ class GamesPerPlace extends StatisticsCalculator
 
     public function withWithinMarginHelper(int|null $minimalAllowedDifference = null): bool
     {
+        if( !$this->checkOnWith ) {
+            return true;
+        }
         $assignedRange = $this->assignedWithMap->getRange();
         if( $assignedRange === null ) {
             return true;
