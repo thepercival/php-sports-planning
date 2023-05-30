@@ -6,6 +6,7 @@ namespace SportsPlanning\Tests\Resource\Service;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SelfRefereeInfo;
 use SportsHelpers\SportRange;
 use SportsPlanning\Planning\Output as PlanningOutput;
 use SportsPlanning\Referee\Info as RefereeInfo;
@@ -24,7 +25,7 @@ class SimCalculatorTest extends TestCase
             $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9),
             $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9),
         ];
-        $refereeInfo = new RefereeInfo(SelfReferee::Disabled);
+        $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::Disabled));
         $input = $this->createInput([10], $sportVariantsWithFields, $refereeInfo);
         $planning = $this->createPlanning($input, new SportRange(3, 3), 0, true, false, null, 6);
 

@@ -20,7 +20,7 @@ class InputTest extends TestCase
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
-            new RefereeInfo(0)
+            new RefereeInfo()
         );
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 0);
@@ -40,7 +40,7 @@ class InputTest extends TestCase
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
-            new RefereeInfo(0)
+            new RefereeInfo()
         );
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 0);
@@ -60,7 +60,7 @@ class InputTest extends TestCase
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
-            new RefereeInfo(0)
+            new RefereeInfo()
         );
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 0);
@@ -80,7 +80,7 @@ class InputTest extends TestCase
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
-            new RefereeInfo(0)
+            new RefereeInfo()
         );
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 1);

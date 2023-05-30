@@ -6,6 +6,7 @@ namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SelfRefereeInfo;
 use SportsHelpers\SportRange;
 use SportsPlanning\Planning\TimeoutConfig;
 use SportsPlanning\Planning\Validator as PlanningValidator;
@@ -22,7 +23,7 @@ class ProductionErrorsTest extends TestCase
     {
         $nrOfGamesPerBatchRange = new SportRange(1, 3);
         $sportVariantsWithFields = $this->getAgainstH2hSportVariantWithFields(3);
-        $refereeInfo = new RefereeInfo(SelfReferee::OtherPoules);
+        $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules));
         $planning = $this->createPlanning(
             $this->createInput(
                 [10, 2, 2],
@@ -53,7 +54,7 @@ class ProductionErrorsTest extends TestCase
             $this->createInput(
                 [18],
                 [$sportVariantsWithFields],
-                new RefereeInfo(0)
+                new RefereeInfo()
             ),
             $nrOfGamesPerBatchRange
         );
@@ -78,7 +79,7 @@ class ProductionErrorsTest extends TestCase
             $this->createInput(
                 [7,6],
                 $sportVariantsWithFields,
-                new RefereeInfo(SelfReferee::OtherPoules)
+                new RefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules))
             ),
             $nrOfGamesPerBatchRange
         );
@@ -110,7 +111,7 @@ class ProductionErrorsTest extends TestCase
 //            $this->createInput(
 //                [14,14],
 //                $sportVariantsWithFields,
-//                new RefereeInfo(0)
+//                new RefereeInfo()
 //            ),
 //            $nrOfGamesPerBatchRange,
 //            0,
@@ -133,7 +134,7 @@ class ProductionErrorsTest extends TestCase
 //            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9),
 //            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 9)
 //        ];
-//        $refereeInfo = new RefereeInfo(0);
+//        $refereeInfo = new RefereeInfo();
 //        $planning = $this->createPlanning(
 //            $this->createInput([10], $sportVariantsWithFields, $refereeInfo),
 //            $nrOfGamesPerBatchRange,
@@ -155,7 +156,7 @@ class ProductionErrorsTest extends TestCase
         $sportVariantsWithFields = [
             $this->getAgainstH2hSportVariantWithFields(14),
         ];
-        $refereeInfo = new RefereeInfo(0);
+        $refereeInfo = new RefereeInfo();
         $input = $this->createInput(
             [5, 5, 5, 5, 5, 5, 5, 5],
             $sportVariantsWithFields,
@@ -194,7 +195,7 @@ class ProductionErrorsTest extends TestCase
 //            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 7),
 //            $this->getAgainstGppSportVariantWithFields(1, 1, 1, 7)
 //        ];
-//        $refereeInfo = new RefereeInfo(0);
+//        $refereeInfo = new RefereeInfo();
 //        $input = $this->createInput(
 //            [8],
 //            $sportVariantsWithFields,
@@ -228,7 +229,7 @@ class ProductionErrorsTest extends TestCase
         $input = $this->createInput(
             [5, 5, 4, 4],
             $sportVariantsWithFields,
-            new RefereeInfo(0)
+            new RefereeInfo()
         );
         $planning = $this->createPlanning(
             $input,
@@ -259,7 +260,7 @@ class ProductionErrorsTest extends TestCase
         $input = $this->createInput(
             [7, 6],
             $sportVariantsWithFields,
-            new RefereeInfo(0)
+            new RefereeInfo()
         );
         $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange);
 
@@ -282,7 +283,7 @@ class ProductionErrorsTest extends TestCase
         $input = $this->createInput(
             [7, 7, 6, 6],
             $sportVariantsWithFields,
-            new RefereeInfo(0)
+            new RefereeInfo()
         );
         $planning = $this->createPlanning(
             $input,
@@ -312,7 +313,7 @@ class ProductionErrorsTest extends TestCase
         $input = $this->createInput(
             [5],
             $sportVariantsWithFields,
-            new RefereeInfo(0)
+            new RefereeInfo()
         );
         $planning = $this->createPlanning(
             $input,
@@ -350,7 +351,7 @@ class ProductionErrorsTest extends TestCase
 //        $input = $this->createInput(
 //            [11],
 //            $sportVariantsWithFields,
-//            new RefereeInfo(0)
+//            new RefereeInfo()
 //        );
 //        $planning = $this->createPlanning(
 //            $input,
@@ -385,7 +386,7 @@ class ProductionErrorsTest extends TestCase
 //        $input = $this->createInput(
 //            [11],
 //            $sportVariantsWithFields,
-//            new RefereeInfo(0)
+//            new RefereeInfo()
 //        );
 //        $planning = $this->createPlanning(
 //            $input,
@@ -415,7 +416,7 @@ class ProductionErrorsTest extends TestCase
 //        $input = $this->createInput(
 //            [5, 4, 4],
 //            $sportVariantsWithFields,
-//            new RefereeInfo(0)
+//            new RefereeInfo()
 //        );
 //        $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange,
 //                                          0,

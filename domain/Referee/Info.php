@@ -5,20 +5,22 @@ declare(strict_types=1);
 namespace SportsPlanning\Referee;
 
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SelfRefereeInfo;
 
 class Info implements \Stringable
 {
-    public SelfReferee $selfReferee;
+    public SelfRefereeInfo $selfRefereeInfo;
     public int $nrOfReferees = 0;
 
-    public function __construct(SelfReferee|int $selfRefereeOrNrOfReferees)
+    public function __construct(SelfRefereeInfo|int|null $selfRefereeInfoOrNrOfReferees = null)
     {
-        if ($selfRefereeOrNrOfReferees instanceof SelfReferee) {
-            $this->selfReferee = $selfRefereeOrNrOfReferees;
-            $this->nrOfReferees = 0;
+        if ($selfRefereeInfoOrNrOfReferees instanceof SelfRefereeInfo) {
+            $this->selfRefereeInfo = $selfRefereeInfoOrNrOfReferees;
         } else {
-            $this->selfReferee = SelfReferee::Disabled;
-            $this->nrOfReferees = $selfRefereeOrNrOfReferees;
+            if ( $selfRefereeInfoOrNrOfReferees !== null ) {
+                $this->nrOfReferees = $selfRefereeInfoOrNrOfReferees;
+            }
+            $this->selfRefereeInfo = new SelfRefereeInfo(SelfReferee::Disabled, 0);
         }
     }
 
@@ -29,13 +31,17 @@ class Info implements \Stringable
 
     protected function getSelfRefereeAsString(): string
     {
-        if ($this->selfReferee === SelfReferee::Disabled) {
-            return '';
-        } elseif ($this->selfReferee === SelfReferee::OtherPoules) {
-            return 'OP';
-        } elseif ($this->selfReferee === SelfReferee::SamePoule) {
-            return 'SP';
+        $key = '';
+        switch ($this->selfRefereeInfo->selfReferee) {
+            case SelfReferee::OtherPoules:
+                $key = 'OP';
+                break;
+            case SelfReferee::SamePoule:
+                $key = 'SP';
         }
-        return '?';
+        if ( $this->selfRefereeInfo->selfReferee !== SelfReferee::Disabled ) {
+            $key .= '(' . $this->selfRefereeInfo->nrIfSimSelfRefs . ')';
+        }
+        return $key;
     }
 }

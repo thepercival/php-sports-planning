@@ -7,6 +7,7 @@ namespace SportsPlanning\Tests\Input;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SelfRefereeInfo;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\VariantWithFields;
@@ -21,7 +22,7 @@ class CalculatorTest extends TestCase
     public function testMaxNrOfGamesPerBatchSimple(): void
     {
         $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(4);
-        $refereeInfo = new RefereeInfo(0);
+        $refereeInfo = new RefereeInfo();
         $input = $this->createInput([3, 2, 2], [$sportVariantWithFields], $refereeInfo);
         $calculator = new InputCalculator();
         $sportVariantsWithFields = array_values($input->createSportVariantsWithFields()->toArray());
@@ -30,7 +31,7 @@ class CalculatorTest extends TestCase
         $maxNrOfGamesSim = $calculator->getMaxNrOfGamesPerBatch(
             $pouleStructure,
             $sportVariantsWithFields,
-            new RefereeInfo(0),
+            new RefereeInfo(),
         );
         self::assertSame(3, $maxNrOfGamesSim);
     }
@@ -60,7 +61,7 @@ class CalculatorTest extends TestCase
             $this->getAgainstGppSportVariantWithFields(1, 1, 1, 7),
             $this->getAgainstGppSportVariantWithFields(1, 1, 1, 7)
         ];
-        $refereeInfo = new RefereeInfo(0);
+        $refereeInfo = new RefereeInfo();
         $input = $this->createInput(
             [8],
             $sportVariantsWithFields,
@@ -77,7 +78,7 @@ class CalculatorTest extends TestCase
         $sportVariantsWithFields = [
             $this->getAgainstH2hSportVariantWithFields(20, 1, 1, 2)
         ];
-        $refereeInfo = new RefereeInfo(0);
+        $refereeInfo = new RefereeInfo();
         $input = $this->createInput(
             [10, 10, 10, 10],
             $sportVariantsWithFields,
@@ -121,7 +122,7 @@ class CalculatorTest extends TestCase
         $maxNrOfGamesPerBatch = $calculator->getMaxNrOfGamesPerBatch(
             new PouleStructure(2, 2, 2, 2),
             [$sportVariantsWithFields],
-            new RefereeInfo(SelfReferee::SamePoule)
+            new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule))
         );
 
         self::assertSame(1, $maxNrOfGamesPerBatch);
@@ -134,7 +135,7 @@ class CalculatorTest extends TestCase
         $maxNrOfGamesPerBatch = $calculator->getMaxNrOfGamesPerBatch(
             new PouleStructure(3, 2, 2, 2),
             [new VariantWithFields(new AllInOneGame(1), 2)],
-            new RefereeInfo(SelfReferee::Disabled)
+            new RefereeInfo()
         );
 
         self::assertSame(2, $maxNrOfGamesPerBatch);
@@ -149,7 +150,7 @@ class CalculatorTest extends TestCase
                 new VariantWithFields(new AgainstGpp(1, 1, 1), 2),
                 new VariantWithFields(new AgainstGpp(1, 1, 1), 2),
             ],
-            new RefereeInfo(SelfReferee::Disabled)
+            new RefereeInfo()
         );
 
         self::assertSame(2, $maxNrOfGamesPerBatch);

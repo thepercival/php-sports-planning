@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
+use SportsHelpers\SelfRefereeInfo;
 use SportsPlanning\Exception\NoBestPlanning as NoBestPlanningException;
 use SportsHelpers\Identifiable;
 use SportsHelpers\PouleStructure;
@@ -29,9 +30,11 @@ class Input extends Identifiable
     protected DateTimeImmutable $createdAt;
     protected bool|null $hasBalancedStructure = null;
     protected SelfReferee $selfReferee;
+    protected int $nrOfSimSelfRefs;
     protected int $seekingPercentage = -1;
     private const MaxNrOfGamesInARow = 5;
 
+    // protected Collection $categories;
     /**
      * @var Collection<int|string, Poule>
      */
@@ -60,11 +63,12 @@ class Input extends Identifiable
      * @param RefereeInfo $refereeInfo
      */
     public function __construct(
-        PouleStructure $pouleStructure,
+        PouleStructure $pouleStructure,/*array $pouleStructures,*/
         array $sportVariantsWithFields,
         RefereeInfo $refereeInfo,
         protected bool $perPoule
     ) {
+        // $this->categories = new ArrayCollection();
         $this->poules = new ArrayCollection();
         $this->sports = new ArrayCollection();
         $this->referees = new ArrayCollection();
@@ -77,6 +81,17 @@ class Input extends Identifiable
                 new Place($poule);
             }
         }
+        /*
+        foreach( $pouleStructures as $pouleStructure) {
+            $category = new Category($this);
+            foreach ($pouleStructure->toArray() as $nrOfPoulePlaces) {
+                $poule = new Poule($category);
+                for ($placeNr = 1; $placeNr <= $nrOfPoulePlaces; $placeNr++) {
+                    new Place($poule);
+                }
+            }
+        }*/
+
         $hasAgainstH2h = false;
         foreach ($sportVariantsWithFields as $sportVariantWithFields) {
             $sportVariant = $sportVariantWithFields->getSportVariant();
@@ -105,8 +120,9 @@ class Input extends Identifiable
             }
         }
 
-        $this->selfReferee = $refereeInfo->selfReferee;
-        if ($refereeInfo->selfReferee === SelfReferee::Disabled) {
+        $this->selfReferee = $refereeInfo->selfRefereeInfo->selfReferee;
+        $this->nrOfSimSelfRefs = $refereeInfo->selfRefereeInfo->nrIfSimSelfRefs;
+        if ($this->selfReferee === SelfReferee::Disabled) {
             for ($refNr = 1; $refNr <= $refereeInfo->nrOfReferees; $refNr++) {
                 new Referee($this);
             }
@@ -135,6 +151,22 @@ class Input extends Identifiable
     {
         return $this->poules;
     }
+
+    /*public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function getPoulesOrderedBySize(): array
+    {
+        foreach ($this->getPoules() as $poule) {
+            if ($poule->getNumber() === $pouleNr) {
+                return $poule;
+            }
+        }
+        throw new Exception('de poule kan niet gevonden worden', E_ERROR);
+    }
+    */
 
     public function getPoule(int $pouleNr): Poule
     {
@@ -199,6 +231,19 @@ class Input extends Identifiable
         }
         return new PouleStructure(...$poules);
     }
+
+    /*public function createPouleStructures(): array
+    {
+        $pouleStructures = [];
+        foreach( $this->categories as $category) {
+            $poules = [];
+            foreach ($category->getPoules() as $poule) {
+                $poules[] = $poule->getPlaces()->count();
+            }
+            $pouleStructures[] = new PouleStructure(...$poules);
+        }
+        return $pouleStructures;
+    }*/
 
     /**
      * @return Collection<int|string, Sport>
@@ -284,6 +329,12 @@ class Input extends Identifiable
     {
         return $this->selfReferee !== SelfReferee::Disabled;
     }
+
+    public function getNrOfSimSelfRefs(): int
+    {
+        return $this->nrOfSimSelfRefs;
+    }
+
 
     public function getPerPoule(): bool
     {
@@ -428,10 +479,19 @@ class Input extends Identifiable
         return $bestPlanning;
     }
 
+    public function getSelfRefereeInfo(): SelfRefereeInfo
+    {
+        return new SelfRefereeInfo($this->selfReferee, $this->nrOfSimSelfRefs);
+    }
+
     public function getRefereeInfo(): RefereeInfo
     {
-        $param = $this->selfReferee === SelfReferee::Disabled ? count($this->getReferees()) : $this->selfReferee;
-        return new RefereeInfo($param);
+        if( $this->selfReferee === SelfReferee::Disabled ) {
+            $selfRefereeInfoOrNrOfReferees = count($this->getReferees());
+        } else {
+            $selfRefereeInfoOrNrOfReferees = $this->getSelfRefereeInfo();
+        }
+        return new RefereeInfo($selfRefereeInfoOrNrOfReferees);
     }
 
     public function hasBalancedStructure(): bool

@@ -28,7 +28,7 @@ class CreatorTest extends TestCase
 
     public function testGameInstanceAgainst(): void
     {
-        $refereeInfo = new RefereeInfo(0);
+        $refereeInfo = new RefereeInfo();
         $input = $this->createInput([2], null, $refereeInfo);
         $planning = $this->createPlanning($input);
         $scheduleCreator = new ScheduleCreator($this->getLogger());
@@ -45,7 +45,7 @@ class CreatorTest extends TestCase
     public function testGameInstanceTogether(): void
     {
         $singleSportVariantWithFields = $this->getSingleSportVariantWithFields(2);
-        $refereeInfo = new RefereeInfo(0);
+        $refereeInfo = new RefereeInfo();
         $input = $this->createInput([2], [$singleSportVariantWithFields], $refereeInfo);
         $planning = $this->createPlanning($input);
 
@@ -132,7 +132,7 @@ class CreatorTest extends TestCase
         $sportVariants = [
             $this->getAgainstH2hSportVariantWithFields(1, 1, 1, 2),
         ];
-        $refereeInfo = new RefereeInfo(0);
+        $refereeInfo = new RefereeInfo();
         $input = $this->createInput([3], $sportVariants, $refereeInfo);
         $planning = new Planning($input, new SportRange(1, 1), 0);
 

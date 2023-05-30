@@ -6,6 +6,7 @@ namespace SportsPlanning\Input;
 
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SelfRefereeInfo;
 use SportsHelpers\Sport\GamePlaceCalculator;
 use SportsHelpers\Sport\Variant\Creator as VariantCreator;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
@@ -63,9 +64,10 @@ class Calculator
         RefereeInfo $refereeInfo
     ): int {
         $maxNrOfGamesPerBatch = 0;
+        $selfRefereeInfo = $refereeInfo->selfRefereeInfo;
         foreach ($pouleStructure->toArray() as $nrOfPlaces) {
             $variantWithPoule = (new VariantCreator())->createWithPoule($nrOfPlaces, $sportVariantWithFields->getSportVariant());
-            $maxNrOfGamesPerBatch += $variantWithPoule->getMaxNrOfGamesSimultaneously($refereeInfo->selfReferee);
+            $maxNrOfGamesPerBatch += $variantWithPoule->getMaxNrOfGamesSimultaneously($selfRefereeInfo);
         }
 
         $maxNrOfGamesPerBatch = $this->reduceByFields($maxNrOfGamesPerBatch, $sportVariantWithFields->getNrOfFields());
@@ -82,7 +84,7 @@ class Calculator
 
     public function reduceByReferees(int $maxNrOfGamesPerBatch, RefereeInfo $refereeInfo): int
     {
-        if ($refereeInfo->selfReferee === SelfReferee::Disabled
+        if ($refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::Disabled
             && $refereeInfo->nrOfReferees > 0
             && $refereeInfo->nrOfReferees < $maxNrOfGamesPerBatch) {
             return $refereeInfo->nrOfReferees;
@@ -145,7 +147,7 @@ class Calculator
                 $nrOfGamePlaces = $currentPouleNrOfPlaces;
             } else {
                 $nrOfGamePlaces = $sportVariant->getNrOfGamePlaces();
-                $nrOfGamePlaces += ($refereeInfo->selfReferee === SelfReferee::SamePoule ? 1 : 0);
+                $nrOfGamePlaces += ($refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::SamePoule ? 1 : 0);
             }
 
             while ($nrOfPlaces >= $nrOfGamePlaces && $nrOfFields-- > 0 && (!$doRefereeCheck || $nrOfReferees-- > 0)) {
@@ -166,7 +168,7 @@ class Calculator
             return $this->applyBalancedStructureAndSingleSportCheck(
                 $pouleStructure,
                 $singleSportVariantWithFields->getSportVariant(),
-                $refereeInfo->selfReferee,
+                $refereeInfo->selfRefereeInfo->selfReferee,
                 $nrOfBatchGames
             );
         }

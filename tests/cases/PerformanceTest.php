@@ -6,6 +6,7 @@ namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SelfRefereeInfo;
 use SportsHelpers\SportRange;
 use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Planning;
@@ -29,7 +30,7 @@ class PerformanceTest extends TestCase
             $this->createInput(
                 [5, 4, 4, 4, 4, 4],
                 [$sportVariantsWithFields],
-                new RefereeInfo(SelfReferee::SamePoule)
+                new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule))
             ),
             $nrOfGamesPerBatchRange
         );
@@ -55,7 +56,7 @@ class PerformanceTest extends TestCase
             $this->createInput(
                 [7, 7, 7, 7],
                 [$sportVariantsWithFields],
-                new RefereeInfo(SelfReferee::SamePoule)
+                new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule))
             ),
             $nrOfGamesPerBatchRange/*,
             0, false, true*/
@@ -87,7 +88,7 @@ class PerformanceTest extends TestCase
             $this->createInput(
                 [7, 7, 7, 7],
                 [$sportVariantsWithFields],
-                new RefereeInfo(SelfReferee::SamePoule)
+                new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule))
             ),
             $nrOfGamesPerBatchRange,
             4/*, true, true*/
@@ -119,7 +120,7 @@ class PerformanceTest extends TestCase
             [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
             // 16 poules, 8 wedstrijden => 4 velden dus 4 wedstrijden dus 4 batches
             [$sportVariantsWithFields],
-            new RefereeInfo(0)
+            new RefereeInfo()
         );
         $planning = $this->createPlanning($input, $nrOfGamesPerBatchRange/*, 0, true*/);
         self::assertEquals(

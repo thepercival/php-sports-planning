@@ -7,6 +7,7 @@ namespace SportsPlanning\Input;
 use SportsHelpers\PouleStructure\Balanced as BalancedPouleStructure;
 use SportsHelpers\PouleStructure\BalancedIterator as PouleStructureIterator;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SelfRefereeInfo;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
@@ -145,7 +146,7 @@ class Iterator implements \Iterator
         return new PlanningInput(
             $pouleStructure,
             [$sportVariantWithFields],
-            new RefereeInfo($this->selfReferee === SelfReferee::Disabled ? $this->nrOfReferees : $this->selfReferee),
+            new RefereeInfo($this->selfReferee === SelfReferee::Disabled ? $this->nrOfReferees : new SelfRefereeInfo($this->selfReferee)),
             false
         );
     }

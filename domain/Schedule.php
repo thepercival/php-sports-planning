@@ -121,7 +121,7 @@ class Schedule extends Identifiable implements \Stringable
                     function(Single|AgainstH2h|AgainstGpp|AllInOneGame $variant): VariantWithFields {
                     return new VariantWithFields($variant, 1);
                 }, $this->createSportVariants()->toArray() ) ),
-                new Info(0),
+                new Info(),
                 false
             );
             $this->poule = $input->getPoule(1);

@@ -121,7 +121,7 @@ class Creator
         $input = new Input(
             new PouleStructure( $schedule->getNrOfPlaces() ),
             $schedule->createSportVariantWithFields(),
-            new Info(0),
+            new Info(),
             false
         );
         $sportVariants = array_values($input->createSportVariants()->toArray());

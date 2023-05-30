@@ -12,23 +12,28 @@ use SportsHelpers\Identifiable;
 class Poule extends Identifiable
 {
     protected int $number;
-
     /**
      * @var Collection<int|string, Place>
      */
     protected Collection $places;
 
-    public function __construct(protected Input $input)
+    public function __construct(protected Input $input/* Category $category*/)
     {
-        $this->number = $input->getPoules()->count() + 1;
-        $input->getPoules()->add($this);
+        $this->number = /*$category*/$input->getPoules()->count() + 1;
+        /*$category*/$input->getPoules()->add($this);
         $this->places = new ArrayCollection();
     }
 
     public function getInput(): Input
     {
         return $this->input;
+        // return $this->getCategory()->getInput();
     }
+
+    /*public function getCategory(): Category
+    {
+        return $this->category;
+    }*/
 
     public function getNumber(): int
     {

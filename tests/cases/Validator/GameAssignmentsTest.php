@@ -7,6 +7,7 @@ namespace SportsPlanning\Tests\Validator;
 use Exception;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SelfRefereeInfo;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
@@ -55,7 +56,7 @@ class GameAssignmentsTest extends TestCase
 
     public function testGetCountersRefereePlaces(): void
     {
-        $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
+        $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule));
         $planning = $this->createPlanning(
             $this->createInput([5], null, $refereeInfo)
         );
@@ -76,7 +77,7 @@ class GameAssignmentsTest extends TestCase
 
     public function testGetUnequalRefereePlaces(): void
     {
-        $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
+        $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule));
         $planning = $this->createPlanning(
             $this->createInput([5], null, $refereeInfo)
         );
@@ -123,7 +124,7 @@ class GameAssignmentsTest extends TestCase
 
     public function testValidateRefereePlacesTwoPoulesNotEqualySized(): void
     {
-        $refereeInfo = new RefereeInfo(SelfReferee::OtherPoules);
+        $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules, 1));
         $planning = $this->createPlanning(
             $this->createInput([5, 4], null, $refereeInfo)
         );
@@ -135,7 +136,7 @@ class GameAssignmentsTest extends TestCase
         self::assertTrue($firstBatch instanceof SelfRefereeBatchOtherPoule
                          || $firstBatch instanceof SelfRefereeBatchSamePoule);
         $this->replaceRefereePlace(
-            $refereeInfo->selfReferee === SelfReferee::SamePoule,
+            $refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::SamePoule,
             $firstBatch,
             $replacedPlace,
             $replacedByPlace
@@ -194,7 +195,7 @@ class GameAssignmentsTest extends TestCase
 
     public function testValidateUnequalRefereePlaces(): void
     {
-        $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
+        $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule, 1));
         $planning = $this->createPlanning(
             $this->createInput([5], null, $refereeInfo)
         );
@@ -235,7 +236,7 @@ class GameAssignmentsTest extends TestCase
 
     public function testValidate(): void
     {
-        $refereeInfo = new RefereeInfo(SelfReferee::SamePoule);
+        $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule, 1));
         $planning = $this->createPlanning(
             $this->createInput([5], null, $refereeInfo)
         );
