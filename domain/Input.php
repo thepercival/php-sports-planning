@@ -22,11 +22,12 @@ use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Type as PlanningType;
+use SportsPlanning\PouleStructure as PlanningPouleStructure;
 use SportsPlanning\Referee\Info as RefereeInfo;
 
 class Input extends Identifiable
 {
-    protected string $uniqueString;
+    protected string $name;
     protected DateTimeImmutable $createdAt;
     protected bool|null $hasBalancedStructure = null;
     protected SelfReferee $selfReferee;
@@ -128,20 +129,20 @@ class Input extends Identifiable
             }
         }
 
-        $uniqueStrings = [
+        $name = [
             '[' . $pouleStructure . ']',
             '[' . join(' & ', $this->sports->toArray()) . ']',
             'ref=>' . $refereeInfo
         ];
         if( $this->perPoule ) {
-            array_push($uniqueStrings, 'pp');
+            array_push($name, 'pp');
         }
-        $this->uniqueString = join(' - ', $uniqueStrings);
+        $this->name = join(' - ', $name);
     }
 
-    public function getUniqueString(): string
+    public function getName(): string
     {
-        return $this->uniqueString;
+        return $this->name;
     }
 
     /**
@@ -264,23 +265,23 @@ class Input extends Identifiable
     }
 
     /**
-     * @return Collection<int|string, SportVariantWithFields>
+     * @return list<SportVariantWithFields>
      */
-    public function createSportVariantsWithFields(): Collection
+    public function createSportVariantsWithFields(): array
     {
-        return $this->sports->map(function (Sport $sport): SportVariantWithFields {
+        return array_values( array_map(function (Sport $sport): SportVariantWithFields {
             return $sport->createVariantWithFields();
-        });
+        }, $this->sports->toArray()) );
     }
 
     /**
-     * @return Collection<int|string, Single|AgainstH2h|AgainstGpp|AllInOneGame>
+     * @return list<Single|AgainstH2h|AgainstGpp|AllInOneGame>
      */
-    public function createSportVariants(): Collection
+    public function createSportVariants(): array
     {
-        return $this->sports->map(function (Sport $sport): Single|AgainstH2h|AgainstGpp|AllInOneGame {
+        return array_values( array_map( function (Sport $sport): Single|AgainstH2h|AgainstGpp|AllInOneGame {
             return $sport->createVariant();
-        });
+        }, $this->sports->toArray()) );
     }
 
     /**
@@ -343,21 +344,21 @@ class Input extends Identifiable
 
     public function getMaxNrOfBatchGames(): int
     {
-        $inputCalculator = new InputCalculator();
-        $sportVariantsWithFields = array_values($this->createSportVariantsWithFields()->toArray());
-
-        return $inputCalculator->getMaxNrOfGamesPerBatch(
+        return (new PlanningPouleStructure(
             $this->createPouleStructure(),
-            $sportVariantsWithFields,
+            $this->createSportVariantsWithFields(),
             $this->getRefereeInfo()
-        );
+        ))->getMaxNrOfGamesPerBatch();
     }
 
     public function getMaxNrOfGamesInARow(): int
     {
         if ($this->maxNrOfGamesInARow === null) {
-            $calculator = new InputCalculator();
-            $this->maxNrOfGamesInARow = $calculator->getMaxNrOfGamesInARow($this, $this->selfRefereeEnabled());
+            $this->maxNrOfGamesInARow = (new PlanningPouleStructure(
+                $this->createPouleStructure(),
+                $this->createSportVariantsWithFields(),
+                $this->getRefereeInfo()
+            ))->getMaxNrOfGamesInARow();
             if ($this->maxNrOfGamesInARow > self::MaxNrOfGamesInARow) {
                 $this->maxNrOfGamesInARow = self::MaxNrOfGamesInARow;
             }

@@ -1,21 +1,15 @@
 <?php
 
-declare(strict_types=1);
-
-namespace SportsPlanning\Planning\Validator;
+namespace SportsPlanning\Resource;
 
 use SportsHelpers\SelfReferee;
-use SportsPlanning\Exception\NoBestPlanning as UnequalAssignedFieldsException;
-use SportsPlanning\Exception\UnequalAssignedRefereePlaces as UnequalAssignedRefereePlacesException;
-use SportsPlanning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
 use SportsPlanning\Game;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
-use SportsPlanning\Resource\GameCounter\Unequal as UnequalGameCounter;
 
-class GameAssignments
+class ResourceCounter
 {
     /**
      * @var array<string,GameCounter>
@@ -94,32 +88,6 @@ class GameAssignments
         return $counters;
     }
 
-    public function validate(): void
-    {
-        if (!$this->planning->getInput()->hasMultipleSports()) {
-            $unequalFields = $this->getMaxUnequal($this->fieldMap);
-            if ($unequalFields !== null) {
-                throw new UnequalAssignedFieldsException($this->getUnequalDescription($unequalFields, "fields"), E_ERROR);
-            }
-        }
-
-        $unequalReferees = $this->getMaxUnequal($this->refereeMap);
-        if ($unequalReferees !== null) {
-            throw new UnequalAssignedRefereesException(
-                $this->getUnequalDescription($unequalReferees, "referees"),
-                E_ERROR
-            );
-        }
-
-        $unequalRefereePlaces = $this->getRefereePlaceUnequals();
-        if (count($unequalRefereePlaces) > 0) {
-            throw new UnequalAssignedRefereePlacesException(
-                $this->getUnequalDescription(reset($unequalRefereePlaces), "refereePlaces"),
-                E_ERROR
-            );
-        }
-    }
-
     protected function shouldValidatePerPoule(): bool
     {
         $nrOfPoules = $this->planning->getInput()->getPoules()->count();
@@ -137,78 +105,6 @@ class GameAssignments
             return true;
         }
         return false;
-    }
-
-    /**
-     * @return list<UnequalGameCounter>
-     */
-    public function getRefereePlaceUnequals(): array
-    {
-        $unequals = [];
-        if ($this->shouldValidatePerPoule()) {
-            $refereePlacesPerPoule = $this->getRefereePlacesPerPoule();
-            foreach ($refereePlacesPerPoule as $pouleNr => $refereePlaces) {
-                $unequal = $this->getMaxUnequal($refereePlaces);
-                if ($unequal !== null) {
-                    $unequal->setPouleNr($pouleNr);
-                    $unequals[] = $unequal;
-                }
-            }
-        } elseif ($this->planning->getInput()->createPouleStructure()->isAlmostBalanced()) {
-            $unequal = $this->getMaxUnequal($this->refereePlaceMap);
-            if ($unequal !== null) {
-                $unequals[] = $unequal;
-            }
-        }
-        return $unequals;
-    }
-
-    /**
-     * @return array<int,array<string|int,PlaceGameCounter>>
-     */
-    protected function getRefereePlacesPerPoule(): array
-    {
-        $refereePlacesPerPoule = [];
-        /** @var PlaceGameCounter $gameCounter */
-        foreach ($this->refereePlaceMap as $gameCounter) {
-            /** @var Place $place */
-            $place = $gameCounter->getResource();
-            $pouleNr = $place->getPoule()->getNumber();
-            if (!array_key_exists($pouleNr, $refereePlacesPerPoule)) {
-                $refereePlacesPerPoule[$pouleNr] = [];
-            }
-            $refereePlacesPerPoule[$pouleNr][$gameCounter->getIndex()] = $gameCounter;
-        }
-        return $refereePlacesPerPoule;
-    }
-
-    /**
-     * @param array<int|string,GameCounter> $gameCounters
-     * @return UnequalGameCounter|null
-     */
-    protected function getMaxUnequal(array $gameCounters): UnequalGameCounter|null
-    {
-        /**
-         * @var int|null $minNrOfGames
-         * @var int|null $maxNrOfGames
-         * @var array<int|string,GameCounter> $maxGameCounters
-         */
-        list($minNrOfGames, $maxNrOfGames, $maxGameCounters) = $this->setCounters($gameCounters);
-        if ($minNrOfGames === null || $maxNrOfGames === null || $maxNrOfGames - $minNrOfGames <= 1) {
-            return null;
-        }
-        $otherGameCounters = array_filter($gameCounters, function (GameCounter $gameCounterIt) use ($maxNrOfGames): bool {
-            return ($gameCounterIt->getNrOfGames() + 1) < $maxNrOfGames;
-        });
-//        uasort($otherGameCounters, function (GameCounter $a, GameCounter $b): int {
-//            return $a->getNrOfGames() < $b->getNrOfGames() ? -1 : 1;
-//        });
-        return new UnequalGameCounter(
-            $minNrOfGames,
-            $otherGameCounters,
-            $maxNrOfGames,
-            $maxGameCounters
-        );
     }
 
     /**
@@ -234,11 +130,5 @@ class GameAssignments
             }
         }
         return array($minNrOfGames,$maxNrOfGames,$maxGameCounters);
-    }
-
-    protected function getUnequalDescription(UnequalGameCounter $unequal, string $suffix): string
-    {
-        $retVal = "too much difference(" . $unequal->getDifference() . ") in number of games for " . $suffix;
-        return $retVal . '(' . $unequal . ')';
     }
 }

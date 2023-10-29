@@ -15,6 +15,7 @@ abstract class Place extends Identifiable
         $this->place = $place;
     }
 
+
     public function getPlace(): PoulePlace
     {
         return $this->place;

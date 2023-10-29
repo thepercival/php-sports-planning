@@ -107,9 +107,11 @@ class Together extends GameBase
     public function getPoulePlaces(): Collection
     {
         if ($this->poulePlaces === null) {
-            $this->poulePlaces = $this->getPlaces()->map(function (TogetherGamePlace $gamePlace): Place {
-                return $gamePlace->getPlace();
-            });
+            $this->poulePlaces = new ArrayCollection(
+                array_map(function (TogetherGamePlace $gamePlace): Place {
+                    return $gamePlace->getPlace();
+                }, $this->getPlaces()->toArray() )
+            );
         }
         return $this->poulePlaces;
     }

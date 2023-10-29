@@ -2,24 +2,24 @@
 
 namespace SportsPlanning\Combinations\Amount;
 
-use SportsPlanning\Combinations\Amount;
+use SportsPlanning\Combinations\Amount as AmountBase;
 
 class Range implements \Stringable
 {
-    private readonly Amount $minimum;
-    private readonly Amount $maximum;
+    private readonly AmountBase $minimum;
+    private readonly AmountBase $maximum;
 
-    public function __construct(Amount $minimum, Amount $maximum) {
+    public function __construct(AmountBase $minimum, AmountBase $maximum) {
         $this->minimum = $minimum;
         $this->maximum = $maximum;
     }
 
-    public function getMin(): Amount
+    public function getMin(): AmountBase
     {
         return $this->minimum;
     }
 
-    public function getMax(): Amount
+    public function getMax(): AmountBase
     {
         return $this->maximum;
     }

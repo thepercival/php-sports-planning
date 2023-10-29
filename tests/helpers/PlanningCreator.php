@@ -139,44 +139,44 @@ trait PlanningCreator
         return $input;
     }
 
-    protected function createPlanning(
-        Input $input,
-        SportRange $nrOfGamesPerBatchRange = null,
-        int $maxNrOfGamesInARow = 0,
-        bool $disableThrowOnTimeout = false,
-        bool $showHighestCompletedBatchNr = false,
-        TimeoutState|null $timeoutState = null,
-        int|null $allowedGppMargin = null
-    ): Planning {
-        if ($nrOfGamesPerBatchRange === null) {
-            $nrOfGamesPerBatchRange = new SportRange(1, 1);
-        }
-        $planning = new Planning($input, $nrOfGamesPerBatchRange, $maxNrOfGamesInARow);
-        if ($timeoutState !== null) {
-            $planning->setTimeoutState($timeoutState);
-        }
-
-        $scheduleCreator = new ScheduleCreator($this->getLogger());
-        if( $allowedGppMargin === null ) {
-            $allowedGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
-        }
-        $schedules = $scheduleCreator->createFromInput($input, $allowedGppMargin);
-
-        $gameCreator = new GameCreator($this->getLogger());
-        $gameCreator->createGames($planning, $schedules);
-
-        $gameAssigner = new GameAssigner($this->getLogger());
-        if ($disableThrowOnTimeout) {
-            $gameAssigner->disableThrowOnTimeout();
-        }
-        if ($showHighestCompletedBatchNr) {
-            $gameAssigner->showHighestCompletedBatchNr();
-        }
-        $gameAssigner->assignGames($planning);
-
-        if (PlanningState::Succeeded !== $planning->getState()) {
-            throw new Exception("planning could not be created", E_ERROR);
-        }
-        return $planning;
-    }
+//    protected function createPlanning(
+//        Input $input,
+//        SportRange $nrOfGamesPerBatchRange = null,
+//        int $maxNrOfGamesInARow = 0,
+//        bool $disableThrowOnTimeout = false,
+//        bool $showHighestCompletedBatchNr = false,
+//        TimeoutState|null $timeoutState = null,
+//        int|null $allowedGppMargin = null
+//    ): Planning {
+//        if ($nrOfGamesPerBatchRange === null) {
+//            $nrOfGamesPerBatchRange = new SportRange(1, 1);
+//        }
+//        $planning = new Planning($input, $nrOfGamesPerBatchRange, $maxNrOfGamesInARow);
+//        if ($timeoutState !== null) {
+//            $planning->setTimeoutState($timeoutState);
+//        }
+//
+//        $scheduleCreator = new ScheduleCreator($this->getLogger());
+//        if( $allowedGppMargin === null ) {
+//            $allowedGppMargin = $scheduleCreator->getMaxGppMargin($input, $input->getPoule(1));
+//        }
+//        $schedules = $scheduleCreator->createFromInput($input, $allowedGppMargin);
+//
+//        $gameCreator = new GameCreator($this->getLogger());
+//        $gameCreator->createGames($planning, $schedules);
+//
+//        $gameAssigner = new GameAssigner($this->getLogger());
+//        if ($disableThrowOnTimeout) {
+//            $gameAssigner->disableThrowOnTimeout();
+//        }
+//        if ($showHighestCompletedBatchNr) {
+//            $gameAssigner->showHighestCompletedBatchNr();
+//        }
+//        $gameAssigner->assignGames($planning);
+//
+//        if (PlanningState::Succeeded !== $planning->getState()) {
+//            throw new Exception("planning could not be created", E_ERROR);
+//        }
+//        return $planning;
+//    }
 }

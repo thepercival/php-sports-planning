@@ -75,6 +75,11 @@
             "rm -rf ../php-sports/vendor/thepercival/php-sports-planning",
           "mkdir ../php-sports/vendor/thepercival/php-sports-planning",
           "cp . ../php-sports/vendor/thepercival/php-sports-planning -R"
+        ],
+        "copy-sports-scheduler": [
+            "rm -rf ../php-sports/vendor/thepercival/php-sports-scheduler",
+            "mkdir ../php-sports/vendor/thepercival/php-sports-scheduler",
+            "cp . ../php-sports/vendor/thepercival/php-sports-scheduler -R"
         ]
     },
   "extra": {

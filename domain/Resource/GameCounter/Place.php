@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Resource\GameCounter;
 
-use SportsPlanning\Place as PlanningPlace;
+use SportsPlanning\Place as PlaceBase;
 use SportsPlanning\Resource\GameCounter;
 
 class Place extends GameCounter
 {
-    public function __construct(protected PlanningPlace $place, int $nrOfGames = 0)
+    public function __construct(protected PlaceBase $place, int $nrOfGames = 0)
     {
         parent::__construct($place, $nrOfGames);
     }
@@ -19,7 +19,7 @@ class Place extends GameCounter
         return $this->place->getLocation();
     }
 
-    public function getPlace(): PlanningPlace
+    public function getPlace(): PlaceBase
     {
         return $this->place;
     }

@@ -87,9 +87,11 @@ class Against extends Game
 
     public function isParticipating(Place $place, AgainstSide|null $side = null): bool
     {
-        $places = $this->getSidePlaces($side)->map(function ($gamePlace): Place {
-            return $gamePlace->getPlace();
-        });
+        $places = new ArrayCollection(
+            array_map(function (AgainstGamePlace $gamePlace): Place {
+                return $gamePlace->getPlace();
+            }, $this->getSidePlaces($side)->toArray() )
+        );
         return $places->contains($place);
     }
 
@@ -110,9 +112,11 @@ class Against extends Game
     public function getPoulePlaces(): Collection
     {
         if ($this->poulePlaces === null) {
-            $this->poulePlaces = $this->getPlaces()->map(function (AgainstGamePlace $gamePlace): Place {
-                return $gamePlace->getPlace();
-            });
+            $this->poulePlaces = new ArrayCollection(
+                array_map(function (AgainstGamePlace $gamePlace): Place {
+                    return $gamePlace->getPlace();
+                }, $this->getPlaces()->toArray() )
+            );
         }
         return $this->poulePlaces;
     }

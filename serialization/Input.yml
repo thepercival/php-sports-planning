@@ -1,0 +1,6 @@
+SportsPlanning\Input:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    name:
+      type: string

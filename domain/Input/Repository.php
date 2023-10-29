@@ -12,8 +12,8 @@ use SportsPlanning\Input as InputBase;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\Type as PlanningType;
-use SportsPlanning\Planning\Validator;
 use SportsPlanning\Schedule;
+use SportsPlanning\Planning\Validity as PlanningValidity;
 
 /**
  * @template-extends EntityRepository<InputBase>
@@ -25,10 +25,10 @@ class Repository extends EntityRepository
      */
     use BaseRepository;
 
-    public function get(string $uniqueString): ?InputBase
+    public function get(string $name): ?InputBase
     {
-        $query = $this->createQueryBuilder('pi')->where('pi.uniqueString = :uniqueString');
-        $query = $query->setParameter('uniqueString', $uniqueString);
+        $query = $this->createQueryBuilder('pi')->where('pi.name = :name');
+        $query = $query->setParameter('name', $name);
 
         $query->setMaxResults(1);
         /** @var InputBase[] $results */
@@ -55,7 +55,7 @@ class Repository extends EntityRepository
 
     public function getFromInput(InputBase $input): ?InputBase
     {
-        return $this->get($input->getUniqueString());
+        return $this->get($input->getName());
     }
 
     public function removePlannings(InputBase $planningInput): void
@@ -117,7 +117,7 @@ class Repository extends EntityRepository
                         ->from('SportsPlanning\Planning', 'p2')
                         ->where('p2.input = pi')
                         ->andWhere('p2.state = ' . PlanningState::Succeeded->value)
-                        ->andWhere('p2.validity ' . $validOperator . ' ' . Validator::VALID)
+                        ->andWhere('p2.validity ' . $validOperator . ' ' . PlanningValidity::VALID)
                         ->getDQL()
                 )
             )
@@ -165,7 +165,7 @@ class Repository extends EntityRepository
 
         if ($pouleStructure !== null) {
             $query = $query
-                ->andWhere('pi.uniqueString LIKE :pouleStructure')
+                ->andWhere('pi.name LIKE :pouleStructure')
                 ->setParameter('pouleStructure', json_encode($pouleStructure->toArray()) . '%');
         }
 

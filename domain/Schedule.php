@@ -37,7 +37,7 @@ class Schedule extends Identifiable implements \Stringable
 
     public function __construct(protected int $nrOfPlaces, Input $input)
     {
-        $sportVariants = array_values($input->createSportVariants()->toArray());
+        $sportVariants = $input->createSportVariants();
         $this->sportsConfigName = (string)new ScheduleName($sportVariants);
         $this->sportSchedules = new ArrayCollection();
     }

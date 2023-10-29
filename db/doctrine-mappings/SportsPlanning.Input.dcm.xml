@@ -8,7 +8,7 @@
 	  	<field name="recreatedAt" column="recreatedAt" type="datetime_immutable" nullable="true" unique="false"/>
 	  	<field name="minNrOfBatches" column="minNrOfBatches" type="smallint" nullable="true" unique="false"/>
 	  	<field name="seekingPercentage" column="seekingPercentage" type="smallint" nullable="false" unique="false"/>
-	  	<field name="uniqueString" column="uniqueString" type="string" length="512" nullable="false" unique="false"/>
+	  	<field name="name" column="name" type="string" length="512" nullable="false" unique="true"/>
 	  	<one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="input">
 			<cascade>
 				<cascade-remove/>

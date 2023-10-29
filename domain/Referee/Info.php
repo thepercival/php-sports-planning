@@ -4,25 +4,20 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Referee;
 
+use SportsHelpers\RefereeInfo;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SelfRefereeInfo;
 
-class Info implements \Stringable
+class Info extends RefereeInfo implements \Stringable
 {
     public SelfRefereeInfo $selfRefereeInfo;
     public int $nrOfReferees = 0;
 
     public function __construct(SelfRefereeInfo|int|null $selfRefereeInfoOrNrOfReferees = null)
     {
-        if ($selfRefereeInfoOrNrOfReferees instanceof SelfRefereeInfo) {
-            $this->selfRefereeInfo = $selfRefereeInfoOrNrOfReferees;
-        } else {
-            if ( $selfRefereeInfoOrNrOfReferees !== null ) {
-                $this->nrOfReferees = $selfRefereeInfoOrNrOfReferees;
-            }
-            $this->selfRefereeInfo = new SelfRefereeInfo(SelfReferee::Disabled, 0);
-        }
+        parent::__construct($selfRefereeInfoOrNrOfReferees);
     }
+
 
     public function __toString()
     {

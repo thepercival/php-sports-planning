@@ -27,13 +27,13 @@ class Repository extends EntityRepository
      */
     public function findByInput(Input $input): array
     {
-        $sportVariants = array_values($input->createSportVariants()->toArray());
+        $sportVariants = $input->createSportVariants();
         $scheduleName = (string)new ScheduleName($sportVariants);
 
         $pouleNrOfPlaces = array_unique(
-            $input->getPoules()->map(function (Poule $poule): string {
+            array_map( function (Poule $poule): string {
                 return 'grsch.nrOfPlaces = ' . $poule->getPlaces()->count();
-            })->toArray()
+            }, $input->getPoules()->toArray() )
         );
         $orExprNrOfPlaces = join(' OR ', $pouleNrOfPlaces);
 
@@ -47,12 +47,13 @@ class Repository extends EntityRepository
         return $schedules;
     }
 
+
     public function getDistinctNrOfPoulePlaces(Input $input): int
     {
         return count(array_unique(
-            $input->getPoules()->map(function (Poule $poule): int {
+            array_map( function (Poule $poule): int {
                 return $poule->getPlaces()->count();
-            })->toArray()
+            }, $input->getPoules()->toArray() )
         ));
     }
 

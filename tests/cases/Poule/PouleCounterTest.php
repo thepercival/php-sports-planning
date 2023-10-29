@@ -6,18 +6,16 @@ namespace SportsPlanning\Tests\Poule;
 
 use SportsPlanning\Poule\PouleCounter;
 use SportsPlanning\TestHelper\PlanningCreator;
-use SportsPlanning\TestHelper\PlanningReplacer;
 
 class PouleCounterTest extends \PHPUnit\Framework\TestCase
 {
     use PlanningCreator;
-    use PlanningReplacer;
 
     public function testCalculations(): void
     {
-        $planning = $this->createPlanning($this->createInput([3]));
+        $input = $this->createInput([3]);
 
-        $pouleOne = $planning->getInput()->getPoule(1);
+        $pouleOne = $input->getPoule(1);
         $pouleCounter = new PouleCounter($pouleOne);
 
         $nrOfPlacesAssigned = 3;

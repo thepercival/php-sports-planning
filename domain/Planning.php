@@ -320,7 +320,7 @@ class Planning extends Identifiable
 
     public function getMaxNrOfBatches(): int
     {
-        $sportVariants = array_values($this->input->createSportVariants()->toArray());
+        $sportVariants = $this->input->createSportVariants();
         $totalNrOfGames = $this->input->createPouleStructure()->getTotalNrOfGames($sportVariants);
         return (int)ceil($totalNrOfGames / $this->getMinNrOfBatchGames());
     }

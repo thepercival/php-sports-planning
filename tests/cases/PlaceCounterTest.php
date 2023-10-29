@@ -14,16 +14,16 @@ class PlaceCounterTest extends TestCase
 
     public function testSimple(): void
     {
-        $planning = $this->createPlanning($this->createInput([5]));
-        $place = $planning->getInput()->getPoule(1)->getPlace(1);
+        $input = $this->createInput([5]);
+        $place = $input->getPoule(1)->getPlace(1);
         $placeCounter = new PlaceCounter($place);
         self::assertSame(1, $placeCounter->getNumber());
     }
 
     public function testCounter(): void
     {
-        $planning = $this->createPlanning($this->createInput([5]));
-        $place = $planning->getInput()->getPoule(1)->getPlace(1);
+        $input = $this->createInput([5]);
+        $place = $input->getPoule(1)->getPlace(1);
         $placeCounter = new PlaceCounter($place);
         $placeCounter->increment();
         $placeCounter->increment();

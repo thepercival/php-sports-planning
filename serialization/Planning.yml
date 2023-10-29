@@ -1,0 +1,21 @@
+SportsPlanning\Planning:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    minNrOfBatchGames:
+      type: integer
+    maxNrOfBatchGames:
+      type: integer
+    maxNrOfGamesInARow:
+      type: integer
+    createdDateTime:
+      type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
+    nrOfBatches:
+      type: integer
+    state:
+    timeoutState:
+      validity:
+    #againstGames:
+     # type: ArrayCollection<SportsPlanning\Game\Against>
+    #togetherGames:
+#      type: ArrayCollection<SportsPlanning\Game\Together>
