@@ -97,29 +97,4 @@ class ResourceCounter
         }
         throw new \Exception('unknown resourcetype', E_ERROR);
     }
-
-    /**
-     * @param array<int|string,GameCounter> $gameCounters
-     * @return list<int|null|array<int|string,GameCounter>>
-     */
-    protected function setCounters(array $gameCounters): array
-    {
-        $minNrOfGames = null;
-        $maxNrOfGames = null;
-        $maxGameCounters = [];
-        foreach ($gameCounters as $gameCounter) {
-            $nrOfGames = $gameCounter->getNrOfGames();
-            if ($minNrOfGames === null || $nrOfGames < $minNrOfGames) {
-                $minNrOfGames = $nrOfGames;
-            }
-            if ($maxNrOfGames === null || $nrOfGames >= $maxNrOfGames) {
-                if ($nrOfGames > $maxNrOfGames) {
-                    $maxGameCounters = [];
-                }
-                $maxGameCounters[$gameCounter->getIndex()] = $gameCounter;
-                $maxNrOfGames = $nrOfGames;
-            }
-        }
-        return array($minNrOfGames,$maxNrOfGames,$maxGameCounters);
-    }
 }
