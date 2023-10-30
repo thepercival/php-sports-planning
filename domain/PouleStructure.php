@@ -34,6 +34,42 @@ class PouleStructure
         }
     }
 
+    // per sport kijken wat de maxNrOfGamesPerBatch is
+    // van alle sporten pak je de laagste maxNrOfGamesPerBatch
+    // dit krijg je dan terug voor de hele poulestructure.
+    // lijkt mij niet goed.
+    // minimaal 1 lijkt me.
+
+    public function getMinNrOfGamesPerBatch(): int {
+        return 1;
+//        array_map(
+//            function (SportVariantWithFields $sportVariantWithFields): int {
+//                return $this->getMax($sportVariantWithFields);
+//            },
+//            $this->sportVariantsWithFields
+//        );
+    }
+
+    // per poule kijk je wat het maximum is en daar neem je de laagste waarde van
+//    public function getMinNrOfSportGamesPerBatchByPlaces(SportVariantWithFields $sportVariantWithFields): int {
+//        $selfRefereeInfo = $this->refereeInfo->selfRefereeInfo;
+//        $minNrOfGamesPerBatch = array_sum(
+//            array_map( function( int $nrOfPlaces ) use ($sportVariantWithFields, $selfRefereeInfo): int {
+//                $variantWithPoule = (new VariantCreator())->createWithPoule($nrOfPlaces, $sportVariantWithFields->getSportVariant());
+//                return $variantWithPoule->getMaxNrOfGamesSimultaneously($selfRefereeInfo);
+//            }, $this->pouleStructureBase->toArray() )
+//        );
+//        if ($sportVariantWithFields->getNrOfFields() < $minNrOfGamesPerBatch) {
+//            $minNrOfGamesPerBatch = $sportVariantWithFields->getNrOfFields();
+//        }
+//        if ($this->refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::Disabled
+//            && $this->refereeInfo->nrOfReferees > 0
+//            && $this->refereeInfo->nrOfReferees < $minNrOfGamesPerBatch) {
+//            $minNrOfGamesPerBatch = $this->refereeInfo->nrOfReferees;
+//        }
+//        return $minNrOfGamesPerBatch;
+//    }
+
     public function getMaxNrOfGamesPerBatch(): int {
 
         $sortedSportVariantsWithFields = $this->getSortedSportVariantsByNrOfGamePlaces();
