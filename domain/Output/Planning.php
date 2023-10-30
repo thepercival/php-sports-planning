@@ -12,6 +12,7 @@ use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Planning as PlanningBase;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
+use SportsPlanning\Resource\ResourceType;
 
 class Planning extends OutputHelper
 {
@@ -91,13 +92,13 @@ class Planning extends OutputHelper
     {
         foreach ($planningTotals as $totalsType => $gameCounters) {
             $name = '';
-            if ($totalsType === ResourceCounter::FIELDS) {
+            if ($totalsType === ResourceType::Fields->value) {
                 $name = 'fields';
             } else {
-                if ($totalsType === ResourceCounter::REFEREES) {
+                if ($totalsType === ResourceType::Referees->value) {
                     $name = 'referees';
                 } else {
-                    if ($totalsType === ResourceCounter::REFEREEPLACES) {
+                    if ($totalsType === ResourceType::RefereePlaces->value) {
                         $name = 'refereeplaces';
                     }
                 }

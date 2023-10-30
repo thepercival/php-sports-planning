@@ -24,10 +24,6 @@ class ResourceCounter
      */
     protected array $refereePlaceMap;
 
-    public const FIELDS = 1;
-    public const REFEREES = 2;
-    public const REFEREEPLACES = 4;
-
     public function __construct(protected Planning $planning)
     {
         $this->fieldMap = [];
@@ -76,35 +72,30 @@ class ResourceCounter
     public function getCounters(int|null $totalTypes = null): array
     {
         $counters = [];
-        if ($totalTypes === null || ($totalTypes & self::FIELDS) === self::FIELDS) {
-            $counters[self::FIELDS] = $this->fieldMap;
+        if ($totalTypes === null || ($totalTypes & ResourceType::Fields->value) === ResourceType::Fields->value) {
+            $counters[ResourceType::Fields->value] = $this->fieldMap;
         }
-        if ($totalTypes === null || ($totalTypes & self::REFEREES) === self::REFEREES) {
-            $counters[self::REFEREES] = $this->refereeMap;
+        if ($totalTypes === null || ($totalTypes & ResourceType::Referees->value) === ResourceType::Referees->value) {
+            $counters[ResourceType::Referees->value] = $this->refereeMap;
         }
-        if ($totalTypes === null || ($totalTypes & self::REFEREEPLACES) === self::REFEREEPLACES) {
-            $counters[self::REFEREEPLACES] = $this->refereePlaceMap;
+        if ($totalTypes === null || ($totalTypes & ResourceType::RefereePlaces->value) === ResourceType::RefereePlaces->value) {
+            $counters[ResourceType::RefereePlaces->value] = $this->refereePlaceMap;
         }
         return $counters;
     }
 
-    protected function shouldValidatePerPoule(): bool
-    {
-        $nrOfPoules = $this->planning->getInput()->getPoules()->count();
-        if ($this->planning->getInput()->getSelfReferee() === SelfReferee::SamePoule) {
-            return true;
+    /**
+     * @return array<string,GameCounter>
+     */
+    public function getCounter(ResourceType $resourceType): array {
+        if( $resourceType === ResourceType::Fields ) {
+            return $this->fieldMap;
+        } else if( $resourceType === ResourceType::Referees ) {
+            return $this->refereeMap;
+        } else if( $resourceType === ResourceType::RefereePlaces ) {
+            return $this->refereePlaceMap;
         }
-        if (($this->planning->getInput()->getPlaces()->count() % $nrOfPoules) === 0) {
-            return false;
-        }
-        if ($nrOfPoules === 2) {
-            return true;
-        }
-        $input = $this->planning->getInput();
-        if ($nrOfPoules > 2 && $input->selfRefereeEnabled()) {
-            return true;
-        }
-        return false;
+        throw new \Exception('unknown resourcetype', E_ERROR);
     }
 
     /**
