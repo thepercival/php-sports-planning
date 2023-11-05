@@ -22,3 +22,5 @@ jobs:
           php_version: 8.2
           php_extensions: xdebug
           configuration: tests/phpunit.xml
+        env:
+          XDEBUG_MODE: coverage
