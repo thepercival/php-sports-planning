@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" colors="true" bootstrap="../vendor/autoload.php" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">../domain</directory>
+    </include>
+    <exclude>
+      <directory suffix="Repository.php">../domain</directory>
+      <directory suffix="Output.php">../domain</directory>
+      <directory suffix="ProfileTest.php">../test/cases</directory>
+      <file>../vendor/autoload.php</file>
+    </exclude>
+    <report>
+      <html outputDirectory="./codecoverage/html" lowUpperBound="50" highLowerBound="80"/>
+      <xml outputDirectory="./codecoverage/xml"/>
+    </report>
+  </coverage>
+  <testsuites>
+    <testsuite name="php-sports-planning">
+        <directory suffix="Test.php">cases</directory>
+    </testsuite>
+  </testsuites>
+  <logging/>
+</phpunit>
