@@ -215,4 +215,20 @@ class PouleStructureTest extends TestCase
 
 
 
+    public function testMaxNrOfGamesInARow6Places3Fields2Referees(): void
+    {
+        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(3);
+
+        $pouleStructure = new PlanningPouleStructure(
+            new PouleStructureBase(6),
+            [$sportVariantWithFields],
+            new RefereeInfo(2)
+        );
+
+        $maxNrOfGamesPerBatch = $pouleStructure->getMaxNrOfGamesPerBatch();
+        self::assertSame(2, $maxNrOfGamesPerBatch);
+    }
+
+
+
 }
