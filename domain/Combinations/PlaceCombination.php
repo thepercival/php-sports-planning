@@ -37,14 +37,14 @@ class PlaceCombination implements \Stringable
     {
         $number = 0;
         foreach ($this->places as $place) {
-            $number += (int) pow(2, $place->getNumber() - 1);
+            $number += pow(2, $place->getNumber() - 1);
         }
         return $number;
     }
 
     protected function getPlaceNumber(Place $place): int
     {
-        return (int)pow(2, $place->getNumber() - 1);
+        return pow(2, $place->getNumber() - 1);
     }
 
     /**

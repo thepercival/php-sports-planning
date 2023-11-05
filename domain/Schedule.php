@@ -129,7 +129,7 @@ class Schedule extends Identifiable implements \Stringable
         return $this->poule;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         $XYZ = 'XYZ';
         $scheduleName = (string)new ScheduleName(array_values($this->createSportVariants()->toArray()));

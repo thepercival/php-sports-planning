@@ -40,7 +40,7 @@ class Filter implements \Stringable
             && $this->getMaxNrOfGamesInARow() === $planning->getMaxNrOfGamesInARow();
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         return 'batchGamesRange: "' . $this->batchGamesRange->getMin() . ' < x <= ' . $this->batchGamesRange->getMax()
             . '", maxNrOfGamesInARow: ' . $this->maxNrOfGamesInARow;

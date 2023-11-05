@@ -92,9 +92,9 @@ class ResourceCounter
             return $this->fieldMap;
         } else if( $resourceType === ResourceType::Referees ) {
             return $this->refereeMap;
-        } else if( $resourceType === ResourceType::RefereePlaces ) {
+        } // else if( $resourceType === ResourceType::RefereePlaces ) {
             return $this->refereePlaceMap;
-        }
-        throw new \Exception('unknown resourcetype', E_ERROR);
+        // }
+        // throw new \Exception('unknown resourcetype', E_ERROR);
     }
 }

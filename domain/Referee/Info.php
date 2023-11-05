@@ -19,7 +19,7 @@ class Info extends RefereeInfo implements \Stringable
     }
 
 
-    public function __toString()
+    public function __toString(): string
     {
         return $this->nrOfReferees . ':' . $this->getSelfRefereeAsString();
     }

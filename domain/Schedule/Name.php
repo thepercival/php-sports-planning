@@ -20,7 +20,7 @@ class Name implements \Stringable
     {
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->name !== null) {
             return $this->name;
