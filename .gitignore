@@ -4,5 +4,6 @@
 .env
 *.log
 /tests/.phpunit.result.cache
+/tests/.phpunit.cache
 /tests/codecoverage/
 /.php*
