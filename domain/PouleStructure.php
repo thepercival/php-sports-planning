@@ -249,7 +249,7 @@ class PouleStructure
 //        return $maxNrOfGamesPerBatchPerPoule * $this->getNrOfPoules();
 //    }
 
-    private function getMaxNrOfGamesPerPlaceRange(): SportRange
+    public function getMaxNrOfGamesPerPlaceRange(): SportRange
     {
         return new SportRange(
             $this->getMaxNrOfGamesPerPlaceForPoule( $this->pouleStructureBase->getSmallestPoule() ),
