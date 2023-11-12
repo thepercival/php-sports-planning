@@ -14,6 +14,7 @@ use SportsHelpers\Sport\Variant\WithPoule\Against\GamesPerPlace as AgainstGppWit
 use SportsHelpers\Sport\Variant\WithPoule\AllInOneGame as AllInOneGameWithPoule;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\PouleStructure as PouleStructureBase;
+use SportsHelpers\SportRange;
 use SportsPlanning\Referee\Info as RefereeInfo;
 
 class PouleStructure
@@ -248,11 +249,14 @@ class PouleStructure
 //        return $maxNrOfGamesPerBatchPerPoule * $this->getNrOfPoules();
 //    }
 
+    private function getMaxNrOfGamesPerPlaceRange(): SportRange
+    {
+        return new SportRange(
+            $this->getMaxNrOfGamesPerPlaceForPoule( $this->pouleStructureBase->getSmallestPoule() ),
+            $this->getMaxNrOfGamesPerPlaceForPoule( $this->pouleStructureBase->getBiggestPoule() )
+        );
+    }
 
-    /**
-     * @param int $nrOfPlaces
-     * @return int
-     */
     private function getMaxNrOfGamesPerPlaceForPoule(int $nrOfPlaces): int
     {
         $sportVariants = $this->createSportVariants();

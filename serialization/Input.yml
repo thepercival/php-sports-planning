@@ -2,5 +2,9 @@ SportsPlanning\Input:
   exclusion_policy: ALL
   exclude: false
   properties:
-    name:
-      type: string
+    poules:
+      type: array<int>
+    sports:
+      type: array<SportVariantWithFields>
+    refereeInfo:
+      type: RefereeInfo
