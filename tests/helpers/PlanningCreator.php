@@ -9,21 +9,17 @@ use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\PouleStructure;
-
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
-use SportsPlanning\Game\Assigner as GameAssigner;
-use SportsPlanning\Game\Creator as GameCreator;
 use SportsPlanning\Input;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Referee\Info as RefereeInfo;
-use SportsPlanning\Schedule\Creator as ScheduleCreator;
 
 trait PlanningCreator
 {
