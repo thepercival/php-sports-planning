@@ -53,15 +53,6 @@ class Sport extends PersistVariant
     }
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])
 
-    /**
-     * @return list<HomeAway>
-     */
-    public function convertGamesToHomeAways(): array {
-        return array_values( array_map( function(Game $game): HomeAway {
-            return $game->toHomeAway($this->schedule->getPoule());
-        }, $this->getGames()->toArray() ) );
-    }
-
 //    public function allPlacesSameNrOfGamesAssignable(): bool
 //    {
 //        $nrOfPlaces = $this->schedule->getNrOfPlaces();

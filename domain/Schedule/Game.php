@@ -46,27 +46,18 @@ class Game extends Identifiable
     }
 
     /**
-     * @param Poule $poule
      * @param AgainstSide $againstSide
-     * @return list<Place>
-     * @throws \Exception
+     * @return list<int>
      */
-    public function getSidePlaces(Poule $poule, AgainstSide $againstSide): array
+    public function getSidePlaceNrs(AgainstSide $againstSide): array
     {
-        $poulePlaces = [];
+        $poulePlaceNrs = [];
         foreach ($this->getGamePlaces() as $gameRoundGamePlace) {
             if ($gameRoundGamePlace->getAgainstSide() === $againstSide) {
-                $poulePlaces[] = $poule->getPlace($gameRoundGamePlace->getNumber());
+                $poulePlaceNrs[] = $gameRoundGamePlace->getNumber();
             }
         }
-        return $poulePlaces;
-    }
-
-    public function toHomeAway(Poule $poule): HomeAway {
-        $homePlaces = $this->getSidePlaces($poule, AgainstSide::Home);
-        $awayPlaces = $this->getSidePlaces($poule, AgainstSide::Away);
-
-        return new HomeAway( new PlaceCombination( $homePlaces  ), new PlaceCombination( $awayPlaces ) );
+        return $poulePlaceNrs;
     }
 
     public function __toString(): string

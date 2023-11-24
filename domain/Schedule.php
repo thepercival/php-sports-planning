@@ -36,9 +36,9 @@ class Schedule extends Identifiable implements \Stringable
      */
     protected ArrayCollection|PersistentCollection $sportSchedules;
 
-    public function __construct(protected int $nrOfPlaces, Configuration $configuration)
+    public function __construct(protected int $nrOfPlaces, Input $input)
     {
-        $sportVariants = $configuration->createSportVariants();
+        $sportVariants = $input->createSportVariants();
         $this->sportsConfigName = (string)new ScheduleName($sportVariants);
         $this->sportSchedules = new ArrayCollection();
     }
@@ -114,21 +114,21 @@ class Schedule extends Identifiable implements \Stringable
         $this->nrOfTimeoutSecondsTried = $nrOfTimeoutSecondsTried;
     }
 
-    public function getPoule(): Poule {
-        if( $this->poule === null ) {
-            $input = new Input( new Configuration(
-                new PouleStructure( $this->getNrOfPlaces() ),
-                array_values( array_map(
-                    function(Single|AgainstH2h|AgainstGpp|AllInOneGame $variant): VariantWithFields {
-                    return new VariantWithFields($variant, 1);
-                }, $this->createSportVariants()->toArray() ) ),
-                new Info(),
-                false
-            ) );
-            $this->poule = $input->getPoule(1);
-        }
-        return $this->poule;
-    }
+//    public function getPoule(): Poule {
+//        if( $this->poule === null ) {
+//            $input = new Input( new Configuration(
+//                new PouleStructure( $this->getNrOfPlaces() ),
+//                array_values( array_map(
+//                    function(Single|AgainstH2h|AgainstGpp|AllInOneGame $variant): VariantWithFields {
+//                    return new VariantWithFields($variant, 1);
+//                }, $this->createSportVariants()->toArray() ) ),
+//                new Info(),
+//                false
+//            ) );
+//            $this->poule = $input->getPoule(1);
+//        }
+//        return $this->poule;
+//    }
 
     public function __toString(): string
     {
