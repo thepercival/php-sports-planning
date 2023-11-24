@@ -54,22 +54,20 @@ class Schedule extends OutputHelper
     }
 
     /**
-     * @param Input $input,
+     * @param Poule $poule,
      * @param list<ScheduleBase> $schedules
      */
-    public function outputTotals(Input $input, array $schedules): void
+    public function outputTotals(Poule $poule, array $schedules): void
     {
         foreach ($schedules as $schedule) {
-            $this->outputScheduleTotals($input, $schedule);
+            $this->outputScheduleTotals($poule, $schedule);
         }
     }
 
-    public function outputScheduleTotals(Input $input, ScheduleBase $schedule): void
+    public function outputScheduleTotals(Poule $poule, ScheduleBase $schedule): void
     {
         $hasWithSport = false;
         $hasAgainstSport = false;
-
-        $poule = $this->getFirstPouleWithSameNrOfPlaces($input, $schedule->getNrOfPlaces());
 
         $sportVariants = $schedule->createSportVariants();
         $assignedCounter = new AssignedCounter($poule, $sportVariants);
@@ -119,15 +117,6 @@ class Schedule extends OutputHelper
             $header = 'Home Totals (diff:'.$homeAmountDifference.')';
             $assignedCounter->getAssignedHomeMap()->output($this->logger, $prefix, $header);
         }
-    }
-
-    private function getFirstPouleWithSameNrOfPlaces(Input $input, int $nrOfPlaces): Poule {
-        foreach( $input->getPoules() as $poule ) {
-            if( count($poule->getPlaces()) === $nrOfPlaces ) {
-                return $poule;
-            }
-        }
-        throw new \Exception('poule with same number of places not found');
     }
 
     /**
