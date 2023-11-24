@@ -39,7 +39,7 @@ class Schedule extends OutputHelper
     {
         foreach ($schedules as $schedule) {
             $prefix = '    ';
-            $name = new Name(array_values($schedule->createSportVariants()->toArray()));
+            $name = new Name($schedule->createSportVariants());
             $this->logger->info( $prefix . ' schedule => nrOfPlaces: ' . $schedule->getNrOfPlaces() . ' , name: "' . $name . '"');
             foreach ($schedule->getSportSchedules() as $sportSchedule) {
                 if ($sportNumber !== null && $sportNumber !== $sportSchedule->getNumber()) {
@@ -71,7 +71,7 @@ class Schedule extends OutputHelper
 
         $poule = $this->getFirstPouleWithSameNrOfPlaces($input, $schedule->getNrOfPlaces());
 
-        $sportVariants = array_values($schedule->createSportVariants()->toArray());
+        $sportVariants = $schedule->createSportVariants();
         $assignedCounter = new AssignedCounter($poule, $sportVariants);
         $unequalNrOfGames = 0;
         foreach ($schedule->getSportSchedules() as $sportSchedule) {
@@ -141,7 +141,7 @@ class Schedule extends OutputHelper
         }, $scheduleGames );
     }
 
-        public function gameToHomeAway(ScheduleBase\Game $game, Poule $poule): HomeAway {
+    public function gameToHomeAway(ScheduleBase\Game $game, Poule $poule): HomeAway {
         $homePlaceNrs = $game->getSidePlaceNrs(AgainstSide::Home);
         $homePlaces = array_map( function(int $placeNr) use($poule): \SportsPlanning\Place {
                 return $poule->getPlace($placeNr);

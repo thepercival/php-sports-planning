@@ -14,7 +14,7 @@ use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
 use SportsHelpers\Sport\Variant\Single as Single;
 use SportsHelpers\Sport\VariantWithFields;
-use SportsHelpers\Sport\VariantWithPoule;
+// use SportsHelpers\Sport\VariantWithPoule;
 use SportsHelpers\SportRange;
 use SportsPlanning\Input\Configuration;
 use SportsPlanning\Referee\Info;
@@ -36,9 +36,12 @@ class Schedule extends Identifiable implements \Stringable
      */
     protected ArrayCollection|PersistentCollection $sportSchedules;
 
-    public function __construct(protected int $nrOfPlaces, Input $input)
+    /**
+     * @param int $nrOfPlaces
+     * @param list<Single|AgainstH2h|AgainstGpp|AllInOneGame> $sportVariants
+     */
+    public function __construct(protected int $nrOfPlaces, array $sportVariants)
     {
-        $sportVariants = $input->createSportVariants();
         $this->sportsConfigName = (string)new ScheduleName($sportVariants);
         $this->sportSchedules = new ArrayCollection();
     }
@@ -62,14 +65,14 @@ class Schedule extends Identifiable implements \Stringable
     }
 
     /**
-     * @return Collection<int|string, Single|AgainstH2h|AgainstGpp|AllInOneGame>
+     * @return list<Single|AgainstH2h|AgainstGpp|AllInOneGame>
      */
-    public function createSportVariants(): Collection
+    public function createSportVariants(): array
     {
-        return $this->sportSchedules->map(
+        return array_map(
             function (SportSchedule $sportSchedule): Single|AgainstH2h|AgainstGpp|AllInOneGame {
                 return $sportSchedule->createVariant();
-            }
+            }, array_values($this->sportSchedules->toArray())
         );
     }
 
@@ -87,10 +90,9 @@ class Schedule extends Identifiable implements \Stringable
      */
     public function createSportVariantWithFields(): array
     {
-        return array_values(
-            array_map( function(Single|AgainstH2h|AgainstGpp|AllInOneGame $sportVariant): VariantWithFields {
+        return array_map( function(Single|AgainstH2h|AgainstGpp|AllInOneGame $sportVariant): VariantWithFields {
                 return new VariantWithFields($sportVariant, 1);
-            } , $this->createSportVariants()->toArray() )
+            } , $this->createSportVariants()
         );
     }
 
@@ -133,7 +135,7 @@ class Schedule extends Identifiable implements \Stringable
     public function __toString(): string
     {
         $XYZ = 'XYZ';
-        $scheduleName = (string)new ScheduleName(array_values($this->createSportVariants()->toArray()));
+        $scheduleName = (string)new ScheduleName($this->createSportVariants());
         $json = json_encode(["nrOfPlaces" => $this->nrOfPlaces, "sportsConfigName" => $XYZ]);
         if ($json === false) {
             return '';
