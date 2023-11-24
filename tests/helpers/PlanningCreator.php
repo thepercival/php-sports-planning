@@ -16,6 +16,7 @@ use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\SportRange;
 use SportsPlanning\Input;
+use SportsPlanning\Input\Configuration;
 use SportsPlanning\Planning;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
@@ -125,12 +126,16 @@ trait PlanningCreator
         if ($refereeInfo === null) {
             $refereeInfo = new RefereeInfo($this->getDefaultNrOfReferees());
         }
-        $input = new Input(
-            new PouleStructure(...$pouleStructureAsArray),
-            $sportVariantsWithFields,
-            $refereeInfo,
-            $perPoule
+        $configurationValidator = new Input\ConfigurationValidator();
+        $configuration = $configurationValidator->reduce(
+            new Configuration(
+                new PouleStructure(...$pouleStructureAsArray),
+                $sportVariantsWithFields,
+                $refereeInfo,
+                $perPoule
+            )
         );
+        $input = new Input( $configuration );
 
         return $input;
     }

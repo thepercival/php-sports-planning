@@ -16,6 +16,7 @@ use SportsHelpers\Sport\Variant\Single as Single;
 use SportsHelpers\Sport\VariantWithFields;
 use SportsHelpers\Sport\VariantWithPoule;
 use SportsHelpers\SportRange;
+use SportsPlanning\Input\Configuration;
 use SportsPlanning\Referee\Info;
 use SportsPlanning\Schedule as BaseSchedule;
 use SportsPlanning\Schedule\Name as ScheduleName;
@@ -115,7 +116,7 @@ class Schedule extends Identifiable implements \Stringable
 
     public function getPoule(): Poule {
         if( $this->poule === null ) {
-            $input = new Input(
+            $input = new Input( new Configuration(
                 new PouleStructure( $this->getNrOfPlaces() ),
                 array_values( array_map(
                     function(Single|AgainstH2h|AgainstGpp|AllInOneGame $variant): VariantWithFields {
@@ -123,7 +124,7 @@ class Schedule extends Identifiable implements \Stringable
                 }, $this->createSportVariants()->toArray() ) ),
                 new Info(),
                 false
-            );
+            ) );
             $this->poule = $input->getPoule(1);
         }
         return $this->poule;

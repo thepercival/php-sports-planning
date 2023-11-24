@@ -19,6 +19,7 @@ use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsPlanning\Input\Calculator as InputCalculator;
+use SportsPlanning\Input\Configuration;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Type as PlanningType;
@@ -57,18 +58,11 @@ class Input extends Identifiable
     // tmp
     protected int|null $minNrOfBatches = null;
     protected DateTimeImmutable|null $recreatedAt = null;
+    protected bool $perPoule;
 
-    /**
-     * @param PouleStructure $pouleStructure
-     * @param list<SportVariantWithFields> $sportVariantsWithFields
-     * @param RefereeInfo $refereeInfo
-     */
-    public function __construct(
-        PouleStructure $pouleStructure,/*array $pouleStructures,*/
-        array $sportVariantsWithFields,
-        RefereeInfo $refereeInfo,
-        protected bool $perPoule
-    ) {
+    public function __construct(Configuration $configuration) {
+        $this->perPoule = $configuration->perPoule;
+
         // $this->categories = new ArrayCollection();
         $this->poules = new ArrayCollection();
         $this->sports = new ArrayCollection();
@@ -76,6 +70,7 @@ class Input extends Identifiable
         $this->plannings = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
 
+        $pouleStructure = $configuration->pouleStructure;
         foreach ($pouleStructure->toArray() as $nrOfPoulePlaces) {
             $poule = new Poule($this);
             for ($placeNr = 1; $placeNr <= $nrOfPoulePlaces; $placeNr++) {
@@ -94,7 +89,7 @@ class Input extends Identifiable
         }*/
 
         $hasAgainstH2h = false;
-        foreach ($sportVariantsWithFields as $sportVariantWithFields) {
+        foreach ($configuration->sportVariantsWithFields as $sportVariantWithFields) {
             $sportVariant = $sportVariantWithFields->getSportVariant();
             if ($sportVariant instanceof AgainstH2h) {
                 $hasAgainstH2h = true;
@@ -121,6 +116,7 @@ class Input extends Identifiable
             }
         }
 
+        $refereeInfo = $configuration->refereeInfo;
         $this->selfReferee = $refereeInfo->selfRefereeInfo->selfReferee;
         $this->nrOfSimSelfRefs = $refereeInfo->selfRefereeInfo->nrIfSimSelfRefs;
         if ($this->selfReferee === SelfReferee::Disabled) {

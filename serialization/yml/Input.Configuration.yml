@@ -1,0 +1,12 @@
+SportsPlanning\Input\Configuration:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    pouleStructure:
+      type: SportsHelpers\PouleStructure
+    sportVariantsWithFields:
+      type: array<SportsHelpers\Sport\VariantWithFields>
+    refereeInfo:
+      type: SportsHelpers\RefereeInfo
+    perPoule:
+      type: boolean
