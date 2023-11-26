@@ -125,15 +125,7 @@ class Input extends Identifiable
             }
         }
 
-        $name = [
-            '[' . $pouleStructure . ']',
-            '[' . join(' & ', $this->sports->toArray()) . ']',
-            'ref=>' . $refereeInfo
-        ];
-        if( $this->perPoule ) {
-            array_push($name, 'pp');
-        }
-        $this->name = join(' - ', $name);
+        $this->name = $configuration->getName();
     }
 
     public function getName(): string

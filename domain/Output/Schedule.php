@@ -7,6 +7,7 @@ namespace SportsPlanning\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Counter;
 use SportsHelpers\Output as OutputHelper;
+use SportsHelpers\PouleStructure;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Creator as VariantCreator;
@@ -17,6 +18,7 @@ use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
 use SportsPlanning\Input;
 use SportsPlanning\Poule;
+use SportsPlanning\Referee\Info;
 use SportsPlanning\Schedule as ScheduleBase;
 use SportsPlanning\Output\Game as GameOutput;
 use SportsPlanning\Game\Together as TogetherGame;
@@ -26,6 +28,7 @@ use SportsPlanning\Schedule\Name;
 
 class Schedule extends OutputHelper
 {
+
     public function __construct(LoggerInterface $logger = null)
     {
         parent::__construct($logger);
@@ -54,13 +57,17 @@ class Schedule extends OutputHelper
     }
 
     /**
-     * @param Poule $poule,
      * @param list<ScheduleBase> $schedules
      */
-    public function outputTotals(Poule $poule, array $schedules): void
+    public function outputTotals(array $schedules): void
     {
         foreach ($schedules as $schedule) {
-            $this->outputScheduleTotals($poule, $schedule);
+            $tmpInput = new Input(new Input\Configuration(
+                new PouleStructure($schedule->getNrOfPlaces()),
+                $schedule->createSportVariantWithFields(),
+                new Info(), false
+            ));
+            $this->outputScheduleTotals($tmpInput->getFirstPoule(), $schedule);
         }
     }
 

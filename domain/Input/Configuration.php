@@ -13,6 +13,8 @@ use SportsPlanning\Sport;
 
 class Configuration
 {
+    private string $name;
+
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportVariantWithFields> $sportVariantsWithFields
@@ -26,6 +28,36 @@ class Configuration
         public bool $perPoule
     )
     {
+        $this->initName($pouleStructure, $sportVariantsWithFields, $refereeInfo, $perPoule);
+    }
+
+    /**
+     * @param PouleStructure $pouleStructure
+     * @param list<SportVariantWithFields> $sportVariantsWithFields
+     * @param RefereeInfo $refereeInfo
+     * @param bool $perPoule
+     */
+    private function initName(
+        PouleStructure $pouleStructure,
+        array $sportVariantsWithFields,
+        RefereeInfo $refereeInfo,
+        bool $perPoule
+    ): void {
+        $name = [
+            '[' . $pouleStructure . ']',
+            '[' . join(' & ', $sportVariantsWithFields) . ']',
+            'ref=>' . $refereeInfo
+        ];
+        if( $perPoule ) {
+            array_push($name, 'pp');
+        }
+        $this->name = join(' - ', $name);
+    }
+
+
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     /**
