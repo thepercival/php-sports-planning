@@ -49,12 +49,12 @@ class AssignedCounter
         $this->assignedWithMap = new PlaceCombinationCounterMap( $withCounters );
         $this->assignedHomeMap = new PlaceCombinationCounterMap( $withCounters );
         foreach ($poule->getPlaces() as $place) {
-            $this->assignedTogetherMap[$place->getLocation()] = [];
+            $this->assignedTogetherMap[(string)$place] = [];
             foreach ($poule->getPlaces() as $coPlace) {
                 if ($coPlace === $place) {
                     continue;
                 }
-                $this->assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()] = new PlaceCounter($coPlace);
+                $this->assignedTogetherMap[(string)$place][(string)$coPlace] = new PlaceCounter($coPlace);
             }
         }
     }
@@ -153,11 +153,11 @@ class AssignedCounter
 
     public function getTogetherPlaceCounter(Place $place, Place $coPlace): PlaceCounter|null
     {
-        if (!isset($this->assignedTogetherMap[$place->getLocation()])
-            || !isset($this->assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()])) {
+        if (!isset($this->assignedTogetherMap[(string)$place])
+            || !isset($this->assignedTogetherMap[(string)$place][(string)$coPlace])) {
             return null;
         }
-        return $this->assignedTogetherMap[$place->getLocation()][$coPlace->getLocation()];
+        return $this->assignedTogetherMap[(string)$place][(string)$coPlace];
     }
 
     /**
@@ -200,7 +200,7 @@ class AssignedCounter
                 if ($coPlace === $placeIt) {
                     continue;
                 }
-                $this->assignedTogetherMap[$placeIt->getLocation()][$coPlace->getLocation()]->increment();
+                $this->assignedTogetherMap[(string)$placeIt][(string)$coPlace]->increment();
             }
         }
     }

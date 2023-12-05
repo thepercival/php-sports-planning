@@ -126,8 +126,8 @@ class Game extends OutputHelper
         $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
         $refereePlace = $game->getRefereePlace();
         if ($refereePlace !== null) {
-            $refColor = $this->convertNumberToColor($useColors ? $refereePlace->getNumber() : -1);
-            return Color::getColored($refColor, 'ref ' . $refereePlace->getLocation());
+            $refColor = $this->convertNumberToColor($useColors ? $refereePlace->getPlaceNr() : -1);
+            return Color::getColored($refColor, 'ref ' . $refereePlace);
         }
         $referee = $game->getReferee();
         if ($referee === null) {

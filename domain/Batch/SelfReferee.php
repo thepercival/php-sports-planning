@@ -78,7 +78,7 @@ abstract class SelfReferee
 
     public function addReferee(Place $placeReferee): void
     {
-        $this->placesAsRefereeMap[$placeReferee->getLocation()] = $placeReferee;
+        $this->placesAsRefereeMap[(string)$placeReferee] = $placeReferee;
     }
 
     /**
@@ -91,7 +91,7 @@ abstract class SelfReferee
 
     public function removeReferee(Place $place): void
     {
-        unset($this->placesAsRefereeMap[$place->getLocation()]);
+        unset($this->placesAsRefereeMap[(string)$place]);
     }
 
     public function emptyPlacesAsReferees(): void
@@ -101,7 +101,7 @@ abstract class SelfReferee
 
     public function isParticipatingAsReferee(Place $placeReferee): bool
     {
-        return array_key_exists($placeReferee->getLocation(), $this->placesAsRefereeMap);
+        return array_key_exists((string)$placeReferee, $this->placesAsRefereeMap);
     }
 
     /**
@@ -316,7 +316,7 @@ abstract class SelfReferee
         if ($includeRefereePlaces) {
             return array_values(
                 array_filter($unassignedPlaces, function (Place $place): bool {
-                    return !isset($this->placesAsRefereeMap[$place->getLocation()]);
+                    return !isset($this->placesAsRefereeMap[(string)$place]);
                 })
             );
         }

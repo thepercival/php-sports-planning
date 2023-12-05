@@ -38,7 +38,7 @@ class Batch extends ListNode
     {
         $map = [];
         foreach ($this->placeMap as $place) {
-            $map[$place->getLocation()] = 1;
+            $map[(string)$place] = 1;
         }
         return $map;
     }
@@ -81,17 +81,17 @@ class Batch extends ListNode
 
     public function getPreviousGamesInARow(Place $place): int
     {
-        if (!array_key_exists($place->getLocation(), $this->previousGamesInARowMap)) {
+        if (!array_key_exists((string)$place, $this->previousGamesInARowMap)) {
             return 0;
         }
-        return $this->previousGamesInARowMap[$place->getLocation()];
+        return $this->previousGamesInARowMap[(string)$place];
     }
 
     public function add(TogetherGame|AgainstGame $game): void
     {
         $this->games[] = $game;
         foreach ($game->getPlaces() as $gamePlace) {
-            $this->placeMap[$gamePlace->getPlace()->getLocation()] = $gamePlace->getPlace();
+            $this->placeMap[(string)$gamePlace->getPlace()] = $gamePlace->getPlace();
         }
     }
 
@@ -102,7 +102,7 @@ class Batch extends ListNode
             array_splice($this->games, $index, 1);
         }
         foreach ($game->getPlaces() as $gamePlace) {
-            unset($this->placeMap[$gamePlace->getPlace()->getLocation()]);
+            unset($this->placeMap[$gamePlace->getPlaceLocation()]);
         }
     }
 
@@ -131,7 +131,7 @@ class Batch extends ListNode
 
     public function isParticipating(Place $place): bool
     {
-        return array_key_exists($place->getLocation(), $this->placeMap);
+        return array_key_exists((string)$place, $this->placeMap);
     }
 
     /**
@@ -168,7 +168,7 @@ class Batch extends ListNode
         $unassignedPlaces = [];
         foreach ($this->getPoules() as $poule) {
             foreach ($poule->getPlaces() as $place) {
-                if (!isset($this->placeMap[$place->getLocation()])) {
+                if (!isset($this->placeMap[(string)$place])) {
                     $unassignedPlaces[] = $place;
                 }
             }

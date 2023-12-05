@@ -1,0 +1,12 @@
+SportsPlanning\Game:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    batchNr:
+      type: integer
+    refereePlaceLocation:
+      type: string
+    referee:
+      type: SportsPlanning\Referee
+    field:
+      type: SportsPlanning\Field

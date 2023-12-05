@@ -2,7 +2,7 @@
 
 namespace SportsPlanning\Game;
 
-use SportsHelpers\Identifiable;
+use SportsPlanning\Identifiable;
 use SportsPlanning\Game;
 use SportsPlanning\Place as PoulePlace;
 
@@ -19,5 +19,10 @@ abstract class Place extends Identifiable
     public function getPlace(): PoulePlace
     {
         return $this->place;
+    }
+
+    public function getPlaceLocation(): string
+    {
+        return (string)$this->place;
     }
 }

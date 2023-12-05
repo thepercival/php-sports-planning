@@ -1,0 +1,11 @@
+SportsPlanning\Game\Place:
+  exclusion_policy: ALL
+  exclude: false
+  virtual_properties:
+    getPlaceLocation:
+      type: string
+      serialized_name: placeLocation
+
+      # group for serializing and group for deserializing
+        # getPlaceLocation => ser.
+      # $place => deser. ook pouleNr meenemen?

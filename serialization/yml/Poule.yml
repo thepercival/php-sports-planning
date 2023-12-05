@@ -1,0 +1,8 @@
+SportsPlanning\Poule:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    number:
+      type: integer
+    places:
+      type: ArrayCollection<SportsPlanning\Place>

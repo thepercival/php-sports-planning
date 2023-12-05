@@ -2,17 +2,28 @@
 
 namespace SportsPlanning;
 
-use SportsHelpers\Identifiable;
+use SportsHelpers\PlaceLocation;
 
-class Place extends Identifiable implements Resource, \Stringable
+class Place extends PlaceLocation implements Resource, \Stringable
 {
-    protected int $number;
+    protected int|string|null $id = null;
     protected string|null $location = null;
 
     public function __construct(protected Poule $poule)
     {
-        $this->number = $poule->getPlaces()->count() + 1;
+        $this->placeNr = $poule->getPlaces()->count() + 1;
+        parent::__construct( $this->getPouleNr(), $this->placeNr);
         $poule->getPlaces()->add($this);
+    }
+
+    public function getId(): int|string|null
+    {
+        return $this->id;
+    }
+
+    public function setId(int|string|null $id): void
+    {
+        $this->id = $id;
     }
 
     public function getPoule(): Poule
@@ -20,31 +31,21 @@ class Place extends Identifiable implements Resource, \Stringable
         return $this->poule;
     }
 
-    public function getNumber(): int
+    public function getPouleNr(): int
     {
-        return $this->number;
+//        if ($this->pouleNr !== null) {
+//            return $this->pouleNr;
+//        }
+        return $this->getPoule()->getNumber();
     }
 
     public function getUniqueNumber(): int
     {
-        return pow(2, $this->getNumber() - 1);
+        return pow(2, $this->placeNr - 1);
     }
 
     public function getUniqueIndex(): string
     {
-        return $this->getLocation();
-    }
-
-    public function getLocation(): string
-    {
-        if ($this->location === null) {
-            $this->location = $this->poule->getNumber() . '.' . $this->number;
-        }
-        return $this->location;
-    }
-
-    public function __toString(): string
-    {
-        return $this->getLocation();
+        return $this->__toString();
     }
 }

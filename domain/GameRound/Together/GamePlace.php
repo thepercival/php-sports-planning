@@ -24,6 +24,6 @@ class GamePlace implements \Stringable
 
     public function __toString(): string
     {
-        return $this->getPlace()->getNumber() . '(' .$this->getGameRoundNumber() . ')';
+        return $this->getPlace()->getPlaceNr() . '(' .$this->getGameRoundNumber() . ')';
     }
 }

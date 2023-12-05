@@ -1,0 +1,8 @@
+SportsPlanning\Sport:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    number:
+      type: integer
+    fields:
+      type: ArrayCollection<SportsPlanning\Field>

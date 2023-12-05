@@ -21,6 +21,6 @@ trait GameRound
 
     public function isParticipating(Place $place): bool
     {
-        return array_key_exists($place->getLocation(), $this->placeMap);
+        return array_key_exists((string)$place, $this->placeMap);
     }
 }

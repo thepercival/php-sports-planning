@@ -36,7 +36,7 @@ class Against extends ListNode
     {
         $this->homeAways[] = $homeAway;
         foreach ($homeAway->getPlaces() as $place) {
-            $this->placeMap[$place->getLocation()] = $place;
+            $this->placeMap[(string)$place] = $place;
         }
     }
 
@@ -47,7 +47,7 @@ class Against extends ListNode
             array_splice($this->homeAways, $index, 1);
         }
         foreach ($homeAway->getPlaces() as $place) {
-            unset($this->placeMap[$place->getLocation()]);
+            unset($this->placeMap[(string)$place]);
         }
     }
 

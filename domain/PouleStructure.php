@@ -2,9 +2,7 @@
 
 namespace SportsPlanning;
 
-use Doctrine\Common\Collections\Collection;
 use SportsHelpers\SelfReferee;
-use SportsHelpers\Sport\GamePlaceCalculator;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame;

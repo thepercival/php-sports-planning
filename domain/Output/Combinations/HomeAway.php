@@ -140,10 +140,10 @@ class HomeAway extends OutputHelper
         $map = [];
         foreach ($homeAways as $homeAway) {
             foreach ($homeAway->getHome()->getPlaces() as $place) {
-                if (!isset($map[$place->getNumber()])) {
-                    $map[$place->getNumber()] = 0;
+                if (!isset($map[$place->getPlaceNr()])) {
+                    $map[$place->getPlaceNr()] = 0;
                 }
-                $map[$place->getNumber()]++;
+                $map[$place->getPlaceNr()]++;
             }
         }
         $output = 'places nr of home games:';
@@ -191,8 +191,8 @@ class HomeAway extends OutputHelper
     protected function getPlace(Place $place): string
     {
         $useColors = $this->useColors();
-        $colorNumber = $useColors ? $place->getNumber() : -1;
+        $colorNumber = $useColors ? $place->getPlaceNr() : -1;
         $color = $this->convertNumberToColor($colorNumber);
-        return Color::getColored($color, $place->getLocation());
+        return Color::getColored($color, (string)$place);
     }
 }

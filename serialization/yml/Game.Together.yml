@@ -1,0 +1,6 @@
+SportsPlanning\Game\Together:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    places:
+      type: ArrayCollection<SportsPlanning\Game\Place\Together>

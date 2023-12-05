@@ -16,9 +16,9 @@ class PlaceCounter extends Counter
         parent::__construct($place, $count);
     }
 
-    public function getNumber(): int
+    public function getPlaceNr(): int
     {
-        return $this->getPlace()->getNumber();
+        return $this->getPlace()->getPlaceNr();
     }
 
     public function getPlace(): Place
@@ -38,6 +38,6 @@ class PlaceCounter extends Counter
 
     public function __toString(): string
     {
-        return $this->getNumber() . ' ' . $this->count() . 'x';
+        return $this->getPlaceNr() . ' ' . $this->count() . 'x';
     }
 }

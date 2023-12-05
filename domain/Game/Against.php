@@ -43,19 +43,6 @@ class Against extends Game
         return $this->gameRoundNumber;
     }
 
-    public function getBatchNr(): int
-    {
-        return $this->batchNr;
-    }
-
-    /**
-     * @return void
-     */
-    public function setBatchNr(int $batchNr)
-    {
-        $this->batchNr = $batchNr;
-    }
-
     /**
      * @return Collection<int|string, AgainstGamePlace>
      */

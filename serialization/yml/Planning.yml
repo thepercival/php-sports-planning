@@ -2,6 +2,8 @@ SportsPlanning\Planning:
   exclusion_policy: ALL
   exclude: false
   properties:
+#    input:
+#      type: SportsPlanning\Input
     minNrOfBatchGames:
       type: integer
     maxNrOfBatchGames:
@@ -14,8 +16,8 @@ SportsPlanning\Planning:
       type: integer
     state:
     timeoutState:
-      validity:
-    #againstGames:
-     # type: ArrayCollection<SportsPlanning\Game\Against>
-    #togetherGames:
-#      type: ArrayCollection<SportsPlanning\Game\Together>
+    validity:
+    againstGames:
+      type: ArrayCollection<SportsPlanning\Game\Against>
+    togetherGames:
+      type: ArrayCollection<SportsPlanning\Game\Together>

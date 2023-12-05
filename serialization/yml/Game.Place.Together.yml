@@ -1,0 +1,6 @@
+SportsPlanning\Game\Place\Together:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    gameRoundNumber:
+      type: integer

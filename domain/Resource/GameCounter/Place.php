@@ -16,7 +16,7 @@ class Place extends GameCounter
 
     public function getIndex(): string
     {
-        return $this->place->getLocation();
+        return (string)$this->place;
     }
 
     public function getPlace(): PlaceBase

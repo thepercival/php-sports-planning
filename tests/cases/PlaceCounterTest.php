@@ -17,7 +17,7 @@ class PlaceCounterTest extends TestCase
         $input = $this->createInput([5]);
         $place = $input->getPoule(1)->getPlace(1);
         $placeCounter = new PlaceCounter($place);
-        self::assertSame(1, $placeCounter->getNumber());
+        self::assertSame(1, $placeCounter->getPlaceNr());
     }
 
     public function testCounter(): void

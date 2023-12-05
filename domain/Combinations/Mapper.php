@@ -74,7 +74,7 @@ class Mapper
                 continue;
             }
             foreach ($poule->getPlaces() as $placeIt) {
-                if ($place->getNumber() >= $placeIt->getNumber()) {
+                if ($place->getPlaceNr() >= $placeIt->getPlaceNr()) {
                     continue;
                 }
                 if ($nrOfSidePlaces === 2) {
@@ -104,7 +104,7 @@ class Mapper
     {
         $map = [];
         foreach ($poule->getPlaces() as $place) {
-            $map[$place->getNumber()] = new PlaceCounter($place);
+            $map[$place->getPlaceNr()] = new PlaceCounter($place);
         }
         return $map;
     }

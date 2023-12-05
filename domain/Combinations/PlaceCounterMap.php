@@ -45,10 +45,10 @@ class PlaceCounterMap
         if( $place === null ) {
             return count($this->map);
         }
-        if( !array_key_exists($place->getNumber(), $this->map) ) {
+        if( !array_key_exists($place->getPlaceNr(), $this->map) ) {
             return 0;
         }
-        return $this->map[$place->getNumber()]->count();
+        return $this->map[$place->getPlaceNr()]->count();
     }
 
     /**
@@ -61,17 +61,17 @@ class PlaceCounterMap
 
     public function addPlace(Place $place): self {
 
-        $newCounter = $this->map[$place->getNumber()]->increment2();
+        $newCounter = $this->map[$place->getPlaceNr()]->increment2();
         $map = $this->map;
-        $map[$place->getNumber()] = $newCounter;
+        $map[$place->getPlaceNr()] = $newCounter;
         return new self($map);
     }
 
     public function removePlace(Place $place): self {
 
-        $newCounter = $this->map[$place->getNumber()]->decrement();
+        $newCounter = $this->map[$place->getPlaceNr()]->decrement();
         $map = $this->map;
-        $map[$place->getNumber()] = $newCounter;
+        $map[$place->getPlaceNr()] = $newCounter;
 
         return new self($map);
     }

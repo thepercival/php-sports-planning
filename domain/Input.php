@@ -10,7 +10,6 @@ use Doctrine\Common\Collections\Collection;
 use Exception;
 use SportsHelpers\SelfRefereeInfo;
 use SportsPlanning\Exception\NoBestPlanning as NoBestPlanningException;
-use SportsHelpers\Identifiable;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\Variant\AllInOneGame;

@@ -21,8 +21,8 @@ class Place extends OutputHelper
         string|null $suffix,
         bool $useColors
     ): string {
-        $color = $this->convertNumberToColor($useColors ? $place->getNumber() : -1);
+        $color = $this->convertNumberToColor($useColors ? $place->getPlaceNr() : -1);
         // $gamesInARowSuffix = $gamesInARow !== null ? '(' . $gamesInARow . ')' : '';
-        return Color::getColored($color, $place->getLocation() . ($suffix ?? ''));
+        return Color::getColored($color, $place . ($suffix ?? ''));
     }
 }

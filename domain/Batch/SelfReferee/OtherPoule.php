@@ -58,7 +58,7 @@ class OtherPoule extends Batch\SelfReferee
                 continue;
             }
             foreach ($availableRefereePlaces as $availableRefereePlace) {
-                $forcedRefereePlacesMap[$availableRefereePlace->getLocation()] = 1;
+                $forcedRefereePlacesMap[(string)$availableRefereePlace] = 1;
             }
         }
         return $forcedRefereePlacesMap;

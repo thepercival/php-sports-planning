@@ -1,0 +1,8 @@
+SportsPlanning\Referee:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    number:
+      type: integer
+    priority:
+      type: integer

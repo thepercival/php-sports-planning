@@ -1,0 +1,12 @@
+SportsPlanning\Input:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    poules:
+      type: ArrayCollection<SportsPlanning\Poule>
+    sports:
+      type: ArrayCollection<SportsPlanning\Sport>
+    referees:
+      type: ArrayCollection<SportsPlanning\Referee>
+    perPoule:
+      type: boolean

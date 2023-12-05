@@ -20,7 +20,7 @@ class PlaceCombination implements \Stringable
     public function __construct(array $places)
     {
         uasort($places, function(Place $place1, Place $place2): int {
-            return $place1->getNumber() - $place2->getNumber();
+            return $place1->getPlaceNr() - $place2->getPlaceNr();
         });
         $this->places = array_values($places);
     }
@@ -37,14 +37,14 @@ class PlaceCombination implements \Stringable
     {
         $number = 0;
         foreach ($this->places as $place) {
-            $number += pow(2, $place->getNumber() - 1);
+            $number += pow(2, $place->getPlaceNr() - 1);
         }
         return $number;
     }
 
     protected function getPlaceNumber(Place $place): int
     {
-        return pow(2, $place->getNumber() - 1);
+        return pow(2, $place->getPlaceNr() - 1);
     }
 
     /**

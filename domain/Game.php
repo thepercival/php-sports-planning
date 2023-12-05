@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use SportsHelpers\Identifiable;
 
 abstract class Game extends Identifiable
 {

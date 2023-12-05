@@ -49,7 +49,7 @@ class SamePoule extends Batch\SelfReferee
             }
             $forcedRefereePlaces = $this->getPlacesNotParticipating($poule);
             foreach ($forcedRefereePlaces as $forcedRefereePlace) {
-                $forcedRefereePlacesMap[$forcedRefereePlace->getLocation()] = 1;
+                $forcedRefereePlacesMap[(string)$forcedRefereePlace] = 1;
             }
         }
         return $forcedRefereePlacesMap;

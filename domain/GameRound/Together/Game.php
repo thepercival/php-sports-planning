@@ -23,7 +23,7 @@ class Game implements \Stringable
         $number = 0;
         foreach ($this->gamePlaces as $gamePlace) {
             $place = $gamePlace->getPlace();
-            $number += pow(2, $place->getNumber() - 1);
+            $number += pow(2, $place->getPlaceNr() - 1);
         }
         return $number;
     }

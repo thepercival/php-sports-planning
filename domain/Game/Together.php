@@ -30,16 +30,6 @@ class Together extends GameBase
         $this->planning->getTogetherGames()->add($this);
     }
 
-    public function getBatchNr(): int
-    {
-        return $this->batchNr;
-    }
-
-    public function setBatchNr(int $batchNr): void
-    {
-        $this->batchNr = $batchNr;
-    }
-
     /**
      * @return Collection<int|string, TogetherGamePlace>
      */
