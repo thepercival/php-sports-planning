@@ -7,12 +7,11 @@ use SportsHelpers\PlaceLocation;
 class Place extends PlaceLocation implements Resource, \Stringable
 {
     protected int|string|null $id = null;
-    protected string|null $location = null;
 
     public function __construct(protected Poule $poule)
     {
         $this->placeNr = $poule->getPlaces()->count() + 1;
-        parent::__construct( $this->getPouleNr(), $this->placeNr);
+        parent::__construct( $poule->getNumber(), $this->placeNr);
         $poule->getPlaces()->add($this);
     }
 
@@ -29,14 +28,6 @@ class Place extends PlaceLocation implements Resource, \Stringable
     public function getPoule(): Poule
     {
         return $this->poule;
-    }
-
-    public function getPouleNr(): int
-    {
-//        if ($this->pouleNr !== null) {
-//            return $this->pouleNr;
-//        }
-        return $this->getPoule()->getNumber();
     }
 
     public function getUniqueNumber(): int

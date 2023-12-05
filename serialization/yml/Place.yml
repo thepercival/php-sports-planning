@@ -2,8 +2,3 @@ SportsPlanning\Place:
   exclusion_policy: ALL
   exclude: false
   properties:
-    number:
-      type: integer
-    location:
-      type: string
-      groups: [ noReference ]

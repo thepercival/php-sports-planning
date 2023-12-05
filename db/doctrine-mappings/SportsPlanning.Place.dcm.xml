@@ -4,7 +4,6 @@
     <id name="id" type="integer" column="id">
       <generator strategy="AUTO"/>
     </id>
-    <field name="placeNr" column="placeNr" type="smallint" nullable="false" unique="false"/>
     <many-to-one field="poule" target-entity="SportsPlanning\Poule" inversed-by="places">
       <join-columns>
         <join-column name="pouleId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
