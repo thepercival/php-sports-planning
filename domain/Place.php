@@ -2,32 +2,31 @@
 
 namespace SportsPlanning;
 
-use SportsHelpers\PlaceLocation;
+use SportsHelpers\PlaceLocationInterface;
 
-class Place extends PlaceLocation implements Resource, \Stringable
+class Place extends Identifiable implements Resource, PlaceLocationInterface, \Stringable
 {
-    protected int|string|null $id = null;
+    private int $placeNr;
 
     public function __construct(protected Poule $poule)
     {
         $this->placeNr = $poule->getPlaces()->count() + 1;
-        parent::__construct( $poule->getNumber(), $this->placeNr);
         $poule->getPlaces()->add($this);
-    }
-
-    public function getId(): int|string|null
-    {
-        return $this->id;
-    }
-
-    public function setId(int|string|null $id): void
-    {
-        $this->id = $id;
     }
 
     public function getPoule(): Poule
     {
         return $this->poule;
+    }
+
+    public function getPouleNr(): int
+    {
+        return $this->poule->getNumber();
+    }
+
+    public function getPlaceNr(): int
+    {
+        return $this->placeNr;
     }
 
     public function getUniqueNumber(): int
@@ -38,5 +37,10 @@ class Place extends PlaceLocation implements Resource, \Stringable
     public function getUniqueIndex(): string
     {
         return $this->__toString();
+    }
+
+    public function __toString(): string
+    {
+        return $this->getPouleNr() . '.' . $this->getPlaceNr();
     }
 }
