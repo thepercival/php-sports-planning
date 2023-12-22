@@ -28,7 +28,9 @@ class PouleStructure
         private readonly array     $sportVariantsWithFields,
         private RefereeInfo        $refereeInfo )
     {
-        if( !$this->selfRefereeIsValid($refereeInfo->selfRefereeInfo->selfReferee) ) {
+
+        if( !$pouleStructureBase->sportsAndSelfRefereeAreCompatible(
+            $this->createSportVariants(), $refereeInfo->selfRefereeInfo->selfReferee) ) {
             throw new \Exception('selfReferee is not compatible with poulestructure', E_ERROR);
         }
     }
@@ -302,35 +304,4 @@ class PouleStructure
 //        }
 //        return $maxNrOfGamesPerBatch;
 //    }
-
-    /**
-     * @param SelfReferee $selfReferee
-     * @return bool
-     */
-    protected function selfRefereeIsValid(SelfReferee $selfReferee): bool
-    {
-        if ($selfReferee === SelfReferee::SamePoule) {
-            return $this->selfRefereeSamePouleIsValid();
-        } elseif ($selfReferee === SelfReferee::OtherPoules) {
-            return $this->selfRefereeOtherPoulesIsValid();
-        }
-        return true;
-    }
-
-
-    protected function selfRefereeOtherPoulesIsValid(): bool
-    {
-        return $this->pouleStructureBase->getNrOfPoules() > 1;
-    }
-
-    protected function selfRefereeSamePouleIsValid(): bool
-    {
-        foreach ($this->createSportVariants() as $sportVariant) {
-            if( $sportVariant instanceof AllInOneGame) {
-                return false;
-            }
-            return $sportVariant->getNrOfGamePlaces() < $this->pouleStructureBase->getSmallestPoule();
-        }
-        return true;
-    }
 }
