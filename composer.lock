@@ -2119,16 +2119,16 @@
         },
         {
             "name": "thepercival/php-sports-helpers",
-            "version": "v1.2.35",
+            "version": "v1.2.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thepercival/php-sports-helpers.git",
-                "reference": "19c6591f18b5815569f1c276d538d91e9d77b4f5"
+                "reference": "5f00740f2f60f9b980ca964ebbbcf1b5be020bb5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/19c6591f18b5815569f1c276d538d91e9d77b4f5",
-                "reference": "19c6591f18b5815569f1c276d538d91e9d77b4f5",
+                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/5f00740f2f60f9b980ca964ebbbcf1b5be020bb5",
+                "reference": "5f00740f2f60f9b980ca964ebbbcf1b5be020bb5",
                 "shasum": ""
             },
             "require": {
@@ -2179,9 +2179,9 @@
             "support": {
                 "email": "coendunnink@gmail.com",
                 "issues": "https://github.com/thepercival/php-sports-helpers/issues",
-                "source": "https://github.com/thepercival/php-sports-helpers/tree/v1.2.35"
+                "source": "https://github.com/thepercival/php-sports-helpers/tree/v1.2.37"
             },
-            "time": "2023-12-22T13:45:54+00:00"
+            "time": "2023-12-23T11:28:48+00:00"
         }
     ],
     "packages-dev": [
