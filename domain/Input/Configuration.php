@@ -28,6 +28,10 @@ class Configuration
         public bool $perPoule
     )
     {
+        if( !$pouleStructure->sportsAndSelfRefereeAreCompatible(
+            $this->createSportVariants(), $refereeInfo->selfRefereeInfo->selfReferee) ) {
+            throw new \Exception('selfReferee is not compatible with poulestructure', E_ERROR);
+        }
     }
 
     public function getName(): string {
