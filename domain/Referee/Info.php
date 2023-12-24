@@ -10,9 +10,6 @@ use SportsHelpers\SelfRefereeInfo;
 
 class Info extends RefereeInfo implements \Stringable
 {
-    public SelfRefereeInfo $selfRefereeInfo;
-    public int $nrOfReferees = 0;
-
     public function __construct(SelfRefereeInfo|int|null $selfRefereeInfoOrNrOfReferees = null)
     {
         parent::__construct($selfRefereeInfoOrNrOfReferees);
