@@ -368,7 +368,7 @@ class Input extends Identifiable
     public function getPlanningsWithState(PlanningState $stateValue): Collection
     {
         return $this->plannings->filter(function (Planning $planning) use ($stateValue): bool {
-            return ($planning->getState()->value & $stateValue->value) > 0;
+            return $planning->getState()->value === $stateValue->value;
         });
     }
 

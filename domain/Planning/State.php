@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
 
-enum State: int
+enum State: string
 {
-    case ToBeProcessed = 1;
-    case Succeeded = 2;
-    case Failed = 4;
-    case TimedOut = 8;
+    case ToBeProcessed = 'toBeProcessed';
+    case Succeeded = 'succeeded';
+    case Failed = 'failed';
+    case TimedOut = 'timedOut';
 }

@@ -51,7 +51,8 @@ class InputTest extends TestCase
         $planningB->setState(Planning\State::Failed);
         $planningB->setNrOfBatches(5);
 
-        self::assertSame($planningA, $input->getBestPlanning(null));
+        $bestPlanning = $input->getBestPlanning(null);
+        self::assertSame($planningA, $bestPlanning);
     }
 
     public function testBestPlanningOnBatchGamesVersusGamesInARow(): void
