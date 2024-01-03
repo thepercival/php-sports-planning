@@ -439,7 +439,7 @@ class Input extends Identifiable
         return null;
     }
 
-    public function getBestPlanning(PlanningType|null $type): Planning
+    public function getBestPlanning(PlanningType|null $type = null): Planning
     {
         $succeededPlannings = $this->getPlanningsWithState(PlanningState::Succeeded)->toArray();
         $filteredPlannings = array_filter($succeededPlannings, function (Planning $planning) use ($type): bool {
