@@ -39,7 +39,8 @@
     },
     "autoload": {
         "psr-4": {
-            "SportsPlanning\\": "domain/"
+            "SportsPlanning\\": "domain/",
+            "SportsPlanning\\SerializationHandler\\": "serialization/handlers"
         }
     },
     "autoload-dev": {

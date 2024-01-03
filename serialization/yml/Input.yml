@@ -10,3 +10,7 @@ SportsPlanning\Input:
       type: ArrayCollection<SportsPlanning\Referee>
     perPoule:
       type: boolean
+  virtual_properties:
+    getBestPlanning:
+      type: SportsPlanning\Planning
+      serialized_name: bestPlanning
