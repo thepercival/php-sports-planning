@@ -13,7 +13,7 @@ use SportsPlanning\Combinations\PlaceCombinationCounter;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\Place;
 
-class HomeAway extends OutputHelper
+class HomeAwayOutput extends OutputHelper
 {
     public function __construct(LoggerInterface $logger = null)
     {

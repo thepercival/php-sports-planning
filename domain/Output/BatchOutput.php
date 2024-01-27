@@ -11,12 +11,12 @@ use SportsPlanning\Batch as BatchBase;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
 use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Output\Game as GameOutput;
+use SportsPlanning\Output\GameOutput as GameOutput;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Place;
-use SportsPlanning\Output\Place as PlaceOutput;
+use SportsPlanning\Output\PlaceOutput as PlaceOutput;
 
-class Batch extends OutputHelper
+class BatchOutput extends OutputHelper
 {
     private GameOutput $gameOutput;
     private PlaceOutput $placeOutput;

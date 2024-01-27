@@ -9,7 +9,7 @@ use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
 use SportsPlanning\Place as PlaceBase;
 
-class Place extends OutputHelper
+class PlaceOutput extends OutputHelper
 {
     public function __construct(LoggerInterface $logger = null)
     {

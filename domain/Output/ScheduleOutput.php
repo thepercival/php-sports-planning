@@ -20,13 +20,13 @@ use SportsPlanning\Input;
 use SportsPlanning\Poule;
 use SportsPlanning\Referee\Info;
 use SportsPlanning\Schedule as ScheduleBase;
-use SportsPlanning\Output\Game as GameOutput;
+use SportsPlanning\Output\GameOutput as GameOutput;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Schedule\Name;
 
-class Schedule extends OutputHelper
+class ScheduleOutput extends OutputHelper
 {
 
     public function __construct(LoggerInterface $logger = null)

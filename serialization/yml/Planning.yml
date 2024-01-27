@@ -2,8 +2,8 @@ SportsPlanning\Planning:
   exclusion_policy: ALL
   exclude: false
   properties:
-#    input:
-#      type: SportsPlanning\Input
+    input:
+      type: SportsPlanning\Input
     minNrOfBatchGames:
       type: integer
     maxNrOfBatchGames:

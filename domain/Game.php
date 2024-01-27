@@ -33,6 +33,11 @@ abstract class Game extends Identifiable
         return $this->poule;
     }
 
+    public function getPouleNr(): int
+    {
+        return $this->poule->getNumber();
+    }
+
     public function getSport(): Sport
     {
         return $this->field->getSport();

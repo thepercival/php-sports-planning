@@ -356,6 +356,22 @@ class Input extends Identifiable
     /**
      * @return Collection<int|string, Planning>
      */
+    public function getDummyPlannings(): Collection
+    {
+        return new ArrayCollection();
+    }
+
+    /**
+     * @param Collection<int|string, Planning> $plannings
+     */
+    public function setDummyPlannings(Collection $plannings): void
+    {
+        $this->plannings = new ArrayCollection();
+    }
+
+    /**
+     * @return Collection<int|string, Planning>
+     */
     public function getPlannings(): Collection
     {
         return $this->plannings;
@@ -439,7 +455,7 @@ class Input extends Identifiable
         return null;
     }
 
-    public function getBestPlanning(PlanningType|null $type = null): Planning
+    public function getBestPlanning(PlanningType|null $type): Planning
     {
         $succeededPlannings = $this->getPlanningsWithState(PlanningState::Succeeded)->toArray();
         $filteredPlannings = array_filter($succeededPlannings, function (Planning $planning) use ($type): bool {

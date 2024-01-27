@@ -7,14 +7,14 @@ namespace SportsPlanning\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
-use SportsPlanning\Output\Batch as BatchOutput;
+use SportsPlanning\Output\BatchOutput as BatchOutput;
 use SportsPlanning\Input as PlanningInput;
 use SportsPlanning\Planning as PlanningBase;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
 use SportsPlanning\Resource\ResourceType;
 
-class Planning extends OutputHelper
+class PlanningOutput extends OutputHelper
 {
     public function __construct(LoggerInterface $logger = null)
     {

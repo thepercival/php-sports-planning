@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace SportsPlanning\SerializationHandler;
 
-//use JMS\Serializer\Handler\HandlerRegistry;
-//use Sports\SerializationHandler\Round\NumberHandler as RoundNumberHandler;
-//use Sports\SerializationHandler\Qualify\GroupHandler as QualifyGroupHandler;
-//use Sports\SerializationHandler\Planning\ConfigHandler as PlanningConfigHandler;
+use JMS\Serializer\Handler\HandlerRegistry;
+use SportsPlanning\SerializationHandler\PlanningHandler as PlanningHandler;
 
 class Subscriber
 {
@@ -15,8 +13,8 @@ class Subscriber
     {
     }
 
- /*   public function subscribeHandlers(HandlerRegistry $registry): void
+    public function subscribeHandlers(HandlerRegistry $registry): void
     {
         $registry->registerSubscribingHandler(new PlanningHandler());
-    }*/
+    }
 }

@@ -2,6 +2,12 @@ SportsPlanning\Input:
   exclusion_policy: ALL
   exclude: false
   properties:
+    plannings:
+      type: ArrayCollection<SportsPlanning\Planning>
+      access_type: public_method # defaults to property
+      accessor: # access_type must be set to public_method
+        getter: getDummyPlannings
+        setter: setDummyPlannings
     poules:
       type: ArrayCollection<SportsPlanning\Poule>
     sports:
@@ -10,7 +16,3 @@ SportsPlanning\Input:
       type: ArrayCollection<SportsPlanning\Referee>
     perPoule:
       type: boolean
-  virtual_properties:
-    getBestPlanning:
-      type: SportsPlanning\Planning
-      serialized_name: bestPlanning

@@ -17,10 +17,11 @@
         "email": "coendunnink@gmail.com"
     },
     "require": {
-        "php": ">=8.2",
+        "php": ">=8.3",
         "league/period": "^4.9",
         "doctrine/orm": "^2.10",
         "monolog/monolog": "^2.0",
+        "jms/serializer": "^3.16",
         "ext-json": "*",
         "drupol/phpermutations": "^1.4",
         "thepercival/php-sports-helpers": "^1.0"

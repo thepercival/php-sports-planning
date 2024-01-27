@@ -16,9 +16,9 @@ use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
 use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Output\Place as PlaceOutput;
+use SportsPlanning\Output\PlaceOutput as PlaceOutput;
 
-class Game extends OutputHelper
+class GameOutput extends OutputHelper
 {
     private PlaceOutput $placeOutput;
 

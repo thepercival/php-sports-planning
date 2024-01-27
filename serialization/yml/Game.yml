@@ -10,3 +10,7 @@ SportsPlanning\Game:
       type: SportsPlanning\Referee
     field:
       type: SportsPlanning\Field
+  virtual_properties:
+    getPouleNr:
+      type: integer
+      serialized_name: pouleNr
