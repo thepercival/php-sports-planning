@@ -8,9 +8,12 @@ class Place extends Identifiable implements Resource, PlaceLocationInterface, \S
 {
     private int $placeNr;
 
-    public function __construct(protected Poule $poule)
+    public function __construct(protected Poule $poule, int $placeNr = null)
     {
-        $this->placeNr = $poule->getPlaces()->count() + 1;
+        if( $placeNr === null ) {
+            $placeNr = $poule->getPlaces()->count() + 1;
+        }
+        $this->placeNr = $placeNr;
         $poule->getPlaces()->add($this);
     }
 

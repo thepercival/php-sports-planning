@@ -27,13 +27,16 @@ use SportsPlanning\Referee\Info as RefereeInfo;
 
 class Input extends Identifiable
 {
+    private const int MaxNrOfGamesInARow = 5;
+
+
     protected string $name;
     protected DateTimeImmutable $createdAt;
     protected bool|null $hasBalancedStructure = null;
     protected SelfReferee $selfReferee;
     protected int $nrOfSimSelfRefs;
     protected int $seekingPercentage = -1;
-    private const MaxNrOfGamesInARow = 5;
+
 
     // protected Collection $categories;
     /**
@@ -54,12 +57,10 @@ class Input extends Identifiable
     protected Collection $plannings;
     protected int|null $maxNrOfGamesInARow = null;
 
-    // tmp
-    protected int|null $minNrOfBatches = null;
     protected DateTimeImmutable|null $recreatedAt = null;
     protected bool $perPoule;
 
-    public function __construct(Configuration $configuration) {
+    public function __construct(private readonly Configuration $configuration) {
         $this->perPoule = $configuration->perPoule;
 
         // $this->categories = new ArrayCollection();
@@ -125,6 +126,10 @@ class Input extends Identifiable
         }
 
         $this->name = $configuration->getName();
+    }
+
+    public function getConfiguration(): Configuration {
+        return $this->configuration;
     }
 
     public function getName(): string
@@ -351,22 +356,6 @@ class Input extends Identifiable
             }
         }
         return $this->maxNrOfGamesInARow;
-    }
-
-    /**
-     * @return Collection<int|string, Planning>
-     */
-    public function getDummyPlannings(): Collection
-    {
-        return new ArrayCollection();
-    }
-
-    /**
-     * @param Collection<int|string, Planning> $plannings
-     */
-    public function setDummyPlannings(Collection $plannings): void
-    {
-        $this->plannings = new ArrayCollection();
     }
 
     /**

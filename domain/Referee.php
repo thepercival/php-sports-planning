@@ -7,9 +7,12 @@ class Referee extends Identifiable implements Resource
     protected int $number;
     protected int $priority;
 
-    public function __construct(protected Input $input)
+    public function __construct(protected Input $input, int $number = null)
     {
-        $this->number = $input->getReferees()->count() + 1;
+        if( $number === null ) {
+            $number = $input->getReferees()->count() + 1;
+        }
+        $this->number = $number;
         $input->getReferees()->add($this);
         $this->priority = 1;
     }

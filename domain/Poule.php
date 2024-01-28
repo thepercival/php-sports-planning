@@ -16,9 +16,12 @@ class Poule extends Identifiable
      */
     protected Collection $places;
 
-    public function __construct(protected Input $input/* Category $category*/)
+    public function __construct(protected Input $input, int $pouleNr = null /* Category $category*/)
     {
-        $this->number = /*$category*/$input->getPoules()->count() + 1;
+        if( $pouleNr === null ) {
+            $pouleNr = /*$category*/$input->getPoules()->count() + 1;
+        }
+        $this->number = $pouleNr;
         /*$category*/$input->getPoules()->add($this);
         $this->places = new ArrayCollection();
     }

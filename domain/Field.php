@@ -8,10 +8,13 @@ class Field extends Identifiable implements Resource
 {
     protected int $number;
 
-    public function __construct(protected Sport $sport)
+    public function __construct(protected Sport $sport, int $number = null)
     {
+        if( $number === null ) {
+            $number = $sport->getFields()->count() + 1;
+        }
+        $this->number = $number;
         $sport->getFields()->add($this);
-        $this->number = $sport->getFields()->count();
     }
 
     public function getNumber(): int
