@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
 use SportsPlanning\Output\BatchOutput as BatchOutput;
-use SportsPlanning\Input as PlanningInput;
+use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning as PlanningBase;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
@@ -59,7 +59,7 @@ class PlanningOutput extends OutputHelper
             . ', gamesInARow ' . $planning->getMaxNrOfGamesInARow()
             . ', timeoutState "' . $timeoutState . '"';
         if ($withInput) {
-            $output = $this->getInputAsString($planning->getInput()) . ', ' . $output;
+            $output = $this->getInputConfigurationAsString($planning->createInputConfiguration()) . ', ' . $output;
         }
         $color = $this->convertNumberToColor($colorNr);
         $output = Color::getColored($color, ($prefix ?? '') . $output . ($suffix ?? ''));
@@ -74,15 +74,16 @@ class PlanningOutput extends OutputHelper
         }
     }
 
-    public function outputInput(PlanningInput $input, string $prefix = null, string $suffix = null): void
+    public function outputInputConfig(InputConfiguration $inputConfiguration, string $prefix = null, string $suffix = null): void
     {
-        $output = $this->getInputAsString($input, $prefix, $suffix);
+        $output = $this->getInputConfigurationAsString($inputConfiguration, $prefix, $suffix);
         $this->logger->info($output);
     }
 
-    public function getInputAsString(PlanningInput $input, string $prefix = null, string $suffix = null): string
+    public function getInputConfigurationAsString(InputConfiguration $inputConfiguration,
+                                                  string $prefix = null, string $suffix = null): string
     {
-        return ($prefix ?? '') . $input->getName() . ($suffix ?? '');
+        return ($prefix ?? '') . $inputConfiguration->getName() . ($suffix ?? '');
     }
 
     /**

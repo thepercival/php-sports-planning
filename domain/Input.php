@@ -19,6 +19,7 @@ use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsPlanning\Input\Configuration;
+use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Type as PlanningType;
@@ -60,7 +61,7 @@ class Input extends Identifiable
     protected DateTimeImmutable|null $recreatedAt = null;
     protected bool $perPoule;
 
-    public function __construct(private readonly Configuration $configuration) {
+    public function __construct(readonly Configuration $configuration) {
         $this->perPoule = $configuration->perPoule;
 
         // $this->categories = new ArrayCollection();
@@ -128,13 +129,14 @@ class Input extends Identifiable
         $this->name = $configuration->getName();
     }
 
-    public function getConfiguration(): Configuration {
-        return $this->configuration;
-    }
+    public function createConfiguration(): Configuration {
 
-    public function getName(): string
-    {
-        return $this->name;
+        return new InputConfiguration(
+            $this->createPouleStructure(),
+            $this->createSportVariantsWithFields(),
+            $this->getRefereeInfo(),
+            $this->getPerPoule()
+        );
     }
 
     /**
