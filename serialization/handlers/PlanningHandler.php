@@ -55,13 +55,14 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
         if (!isset($fieldValue['input'])) {
             throw new \Exception('malformd json => input', E_ERROR);
         }
-        /** @var Input $input */
-        $input = $this->getProperty(
+        /** @var Input\Configuration $inputConfiguration */
+        $inputConfiguration = $this->getProperty(
             $visitor,
             $fieldValue,
-            'input',
-            Input::class
+            'inputConfiguration',
+            Input\Configuration::class
         );
+        $input = new Input($inputConfiguration);
         $nrOfBatchGamesRange = new SportRange($fieldValue['minNrOfBatchGames'], $fieldValue['maxNrOfBatchGames']);
         $planning = new Planning($input, $nrOfBatchGamesRange, $fieldValue['maxNrOfGamesInARow']);
 

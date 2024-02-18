@@ -13,6 +13,7 @@ use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning\Filter;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
@@ -173,6 +174,11 @@ class Planning extends Identifiable
     public function getInput(): Input
     {
         return $this->input;
+    }
+
+    public function getInputConfiguration(): InputConfiguration
+    {
+        return $this->input->getConfiguration();
     }
 
     public function createFirstBatch(): Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch

@@ -2,22 +2,34 @@ SportsPlanning\Planning:
   exclusion_policy: ALL
   exclude: false
   properties:
-    input:
-      type: SportsPlanning\Input
     minNrOfBatchGames:
       type: integer
+      read_only: true
     maxNrOfBatchGames:
       type: integer
+      read_only: true
     maxNrOfGamesInARow:
       type: integer
+      read_only: true
     createdDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
+      read_only: true
     nrOfBatches:
       type: integer
+      read_only: true
     state:
+      read_only: true
     timeoutState:
+      read_only: true
     validity:
+      read_only: true
     againstGames:
       type: ArrayCollection<SportsPlanning\Game\Against>
+      read_only: true
     togetherGames:
       type: ArrayCollection<SportsPlanning\Game\Together>
+      read_only: true
+  virtual_properties:
+    getInputConfiguration:
+      type: SportsPlanning\Input\Configuration
+      serialized_name: inputConfiguration

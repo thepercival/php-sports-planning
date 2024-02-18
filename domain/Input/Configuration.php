@@ -58,4 +58,18 @@ class Configuration
             return $sportVariantWithField->getSportVariant();
         }, $this->sportVariantsWithFields);
     }
+
+//    public function equals(Configuration $configuration): bool {
+//        if( $this->pouleStructure->equals($configuration->pouleStructure) === false ) {
+//            return false;
+//        }
+//        if( $this->sportVariantsWithFields->equals($configuration->sportVariantsWithFields) === false ) {
+//            return false;
+//        }
+//        if( $this->refereeInfo->equals($configuration->refereeInfo) === false ) {
+//            return false;
+//        }
+//
+//        return $this->perPoule === $configuration->perPoule;
+//    }
 }
