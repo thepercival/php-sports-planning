@@ -98,7 +98,7 @@ class GameOutput extends OutputHelper
      */
     protected function getPlacesHelper(
         Collection $gamePlaces,
-        Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null,
+        Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch,
         bool $useColors
     ): string {
         $placesAsArrayOfStrings = array_map(
