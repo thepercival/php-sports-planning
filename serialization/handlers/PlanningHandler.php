@@ -80,6 +80,7 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
 
         foreach ($fieldValue["againstGames"] as $arrAgainstGame) {
             $fieldValue["againstGame"] = $arrAgainstGame;
+            $fieldValue["againstGame"]["planning"] = $planning;
             $poule = $pouleMap[ $arrAgainstGame['pouleNr'] ];
             $fieldValue["againstGame"]["poule"] = $poule;
             $fieldValue["againstGame"]["placeLocationMap"] = $placeLocationMap;

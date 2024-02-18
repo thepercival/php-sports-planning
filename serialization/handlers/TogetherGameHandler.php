@@ -9,11 +9,10 @@ use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\Context;
-use SportsHelpers\Against\Side;
 use SportsHelpers\SportRange;
 use SportsPlanning\Field;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Place\Against as AgainstGamePlace;
+use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
@@ -21,10 +20,10 @@ use SportsPlanning\Poule;
 use SportsPlanning\Referee;
 
 /**
- * @psalm-type _AgainstGamePlace = array{side: string, placeLocation: string}
- * @psalm-type _AgainstGame = array{planning: Planning, poule: Poule, places: list<_AgainstGamePlace> ,field: Field, gameRoundNumber: int, refereePlaceLocation: string|null, refereePlace: Place|null, batchNr: int, placeLocationMap : array<string, Place>}
+ * @psalm-type _TogetherGamePlace = array{side: string, placeLocation: string, gameRoundNumber: int}
+ * @psalm-type _TogetherGame = array{planning: Planning, poule: Poule, places: list<_TogetherGamePlace> ,field: Field, refereePlaceLocation: string|null, refereePlace: Place|null, batchNr: int, placeLocationMap : array<string, Place>}
  */
-class AgainstGameHandler extends Handler implements SubscribingHandlerInterface
+class TogetherGameHandler extends Handler implements SubscribingHandlerInterface
 {
     public function __construct(/*protected DummyCreator $dummyCreator*/)
     {
@@ -35,30 +34,29 @@ class AgainstGameHandler extends Handler implements SubscribingHandlerInterface
      */
     public static function getSubscribingMethods(): array
     {
-        return static::getDeserializationMethods(AgainstGame::class);
+        return static::getDeserializationMethods(TogetherGame::class);
     }
 
     /**
      * @param JsonDeserializationVisitor $visitor
-     * @param _AgainstGame $fieldValue
+     * @param _TogetherGame $fieldValue
      * @param array<string, array> $type
      * @param Context $context
-     * @return AgainstGame
+     * @return TogetherGame
      */
     public function deserializeFromJson(
         JsonDeserializationVisitor $visitor,
         array $fieldValue,
         array $type,
         Context $context
-    ): AgainstGame {
+    ): TogetherGame {
 
-        $againstGame = new AgainstGame(
+        $togetherGame = new TogetherGame(
             $fieldValue['planning'],
             $fieldValue['poule'],
-            $fieldValue['field'],
-            $fieldValue['gameRoundNumber']);
+            $fieldValue['field']);
 
-        $againstGame->setBatchNr($fieldValue['batchNr']);
+        $togetherGame->setBatchNr($fieldValue['batchNr']);
 
         $placeLocationMap = $fieldValue['placeLocationMap'];
         $refereePlace = null;
@@ -66,7 +64,7 @@ class AgainstGameHandler extends Handler implements SubscribingHandlerInterface
             $refereePlace = $placeLocationMap[ $fieldValue['refereePlaceLocation'] ];
         }
 
-        $againstGame->setRefereePlace($refereePlace);
+        $togetherGame->setRefereePlace($refereePlace);
 
         /** @var Referee|null $referee */
         $referee = $this->getProperty(
@@ -76,15 +74,13 @@ class AgainstGameHandler extends Handler implements SubscribingHandlerInterface
             Referee::class
         );
         if( $referee !== null) {
-            $againstGame->setReferee($referee);
+            $togetherGame->setReferee($referee);
         }
-
         foreach ($fieldValue['places'] as $arrGamePlace) {
-            $side = Side::from($arrGamePlace['side']);
             $place = $placeLocationMap[ $arrGamePlace['placeLocation'] ];
-            new AgainstGamePlace($againstGame, $place, $side);
+            new TogetherGamePlace($togetherGame, $place, $arrGamePlace['gameRoundNumber']);
         }
-        return $againstGame;
+        return $togetherGame;
     }
 
 

@@ -21,5 +21,6 @@ class Subscriber
 
         $registry->registerSubscribingHandler(new PlanningHandler());
         $registry->registerSubscribingHandler(new AgainstGameHandler());
+        $registry->registerSubscribingHandler(new TogetherGameHandler());
     }
 }
