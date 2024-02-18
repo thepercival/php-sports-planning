@@ -30,6 +30,6 @@ SportsPlanning\Planning:
       type: ArrayCollection<SportsPlanning\Game\Together>
       read_only: true
   virtual_properties:
-    getInputConfiguration:
+    createInputConfiguration:
       type: SportsPlanning\Input\Configuration
       serialized_name: inputConfiguration

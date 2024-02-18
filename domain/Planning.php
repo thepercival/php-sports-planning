@@ -176,11 +176,6 @@ class Planning extends Identifiable
         return $this->input;
     }
 
-    public function getInputConfiguration(): InputConfiguration
-    {
-        return $this->input->getConfiguration();
-    }
-
     public function createFirstBatch(): Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch
     {
         $games = $this->getGames(Game::ORDER_BY_BATCH);
@@ -328,5 +323,14 @@ class Planning extends Identifiable
         $sportVariants = $this->input->createSportVariants();
         $totalNrOfGames = $this->input->createPouleStructure()->getTotalNrOfGames($sportVariants);
         return (int)ceil($totalNrOfGames / $this->getMinNrOfBatchGames());
+    }
+
+    public function createInputConfiguration(): InputConfiguration {
+        return new InputConfiguration(
+            $this->input->createPouleStructure(),
+            $this->input->createSportVariantsWithFields(),
+            $this->input->getRefereeInfo(),
+            $this->input->getPerPoule()
+        );
     }
 }
