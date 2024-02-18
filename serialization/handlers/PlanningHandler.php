@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\SerializationHandler;
 
 //use Doctrine\Common\Collections\ArrayCollection;
+use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
@@ -14,6 +15,7 @@ use SportsPlanning\Field;
 use SportsPlanning\Input;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
+use SportsPlanning\Input\Configuration as InputConfiguration;
 
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
@@ -23,7 +25,7 @@ use SportsPlanning\Poule;
  * @psalm-type _Field = array{number: int}
  * @psalm-type _AgainstGame = array{field: _Field, pouleNr: int, refereePlaceLocation: string|null}
  * @psalm-type _TogetherGame = array{field: _Field, pouleNr: int}
- * @psalm-type _FieldValue = array{input: Input, againstGames: list<_AgainstGame>, togetherGames: list<_TogetherGame>, minNrOfBatchGames: int, maxNrOfBatchGames: int, maxNrOfGamesInARow: int, createdDateTime: string, nrOfBatches: int, state: string, validity: int}
+ * @psalm-type _FieldValue = array{inputConfiguration: InputConfiguration, againstGames: list<_AgainstGame>, togetherGames: list<_TogetherGame>, minNrOfBatchGames: int, maxNrOfBatchGames: int, maxNrOfGamesInARow: int, createdDateTime: string, nrOfBatches: int, state: string, validity: int}
  */
 class PlanningHandler extends Handler implements SubscribingHandlerInterface
 {
@@ -52,21 +54,22 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
         array $type,
         Context $context
     ): Planning {
-        if (!isset($fieldValue['input'])) {
-            throw new \Exception('malformd json => input', E_ERROR);
-        }
-        /** @var Input\Configuration $inputConfiguration */
+        /** @var InputConfiguration|null $inputConfiguration */
         $inputConfiguration = $this->getProperty(
             $visitor,
             $fieldValue,
             'inputConfiguration',
-            Input\Configuration::class
+            InputConfiguration::class
         );
+        if ($inputConfiguration === null ) {
+            throw new \Exception('malformd json => no valid inputConfiguration', E_ERROR);
+        }
+
         $input = new Input($inputConfiguration);
         $nrOfBatchGamesRange = new SportRange($fieldValue['minNrOfBatchGames'], $fieldValue['maxNrOfBatchGames']);
         $planning = new Planning($input, $nrOfBatchGamesRange, $fieldValue['maxNrOfGamesInARow']);
 
-        $planning->setCreatedDateTime(new \DateTimeImmutable($fieldValue['createdDateTime']));
+        $planning->setCreatedDateTime(new DateTimeImmutable($fieldValue['createdDateTime']));
         $planning->setNrOfBatches($fieldValue['nrOfBatches']);
         $planning->setState(Planning\State::from($fieldValue['state']));
         $planning->setValidity($fieldValue['validity']);
