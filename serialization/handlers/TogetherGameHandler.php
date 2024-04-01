@@ -66,6 +66,7 @@ class TogetherGameHandler extends Handler implements SubscribingHandlerInterface
 
         $togetherGame->setRefereePlace($refereePlace);
 
+        $fieldValue["referee"]["input"] = $togetherGame->getPlanning()->getInput();
         /** @var Referee|null $referee */
         $referee = $this->getProperty(
             $visitor,

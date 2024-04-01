@@ -68,6 +68,7 @@ class AgainstGameHandler extends Handler implements SubscribingHandlerInterface
 
         $againstGame->setRefereePlace($refereePlace);
 
+        $fieldValue["referee"]["input"] = $againstGame->getPlanning()->getInput();
         /** @var Referee|null $referee */
         $referee = $this->getProperty(
             $visitor,

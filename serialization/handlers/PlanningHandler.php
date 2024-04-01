@@ -99,6 +99,7 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
             $fieldValue["togetherGame"]["planning"] = $planning;
             $poule = $pouleMap[ $arrTogetherGame['pouleNr'] ];
             $fieldValue["togetherGame"]["poule"] = $poule;
+            $fieldValue["togetherGame"]["placeLocationMap"] = $placeLocationMap;
             $field = $fieldMap[ $arrTogetherGame['field']['number'] ];
             $fieldValue["togetherGame"]["field"] = $field;
             $this->getProperty(
