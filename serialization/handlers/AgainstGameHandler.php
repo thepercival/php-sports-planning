@@ -22,7 +22,8 @@ use SportsPlanning\Referee;
 
 /**
  * @psalm-type _AgainstGamePlace = array{side: string, placeLocation: string}
- * @psalm-type _AgainstGame = array{planning: Planning, poule: Poule, places: list<_AgainstGamePlace> ,field: Field, gameRoundNumber: int, refereePlaceLocation: string|null, refereePlace: Place|null, batchNr: int, placeLocationMap : array<string, Place>}
+ * @psalm-type _Referee = array{number: int, priority: int}
+ * @psalm-type _AgainstGame = array{planning: Planning, poule: Poule, places: list<_AgainstGamePlace> ,field: Field, gameRoundNumber: int, refereePlaceLocation: string|null, referee: _Referee|null, batchNr: int, placeLocationMap : array<string, Place>}
  */
 class AgainstGameHandler extends Handler implements SubscribingHandlerInterface
 {
@@ -68,16 +69,18 @@ class AgainstGameHandler extends Handler implements SubscribingHandlerInterface
 
         $againstGame->setRefereePlace($refereePlace);
 
-        $fieldValue["referee"]["input"] = $againstGame->getPlanning()->getInput();
-        /** @var Referee|null $referee */
-        $referee = $this->getProperty(
-            $visitor,
-            $fieldValue,
-            'referee',
-            Referee::class
-        );
-        if( $referee !== null) {
-            $againstGame->setReferee($referee);
+        if( isset($fieldValue['referee'])) {
+            $fieldValue["referee"]["input"] = $againstGame->getPlanning()->getInput();
+            /** @var Referee|null $referee */
+            $referee = $this->getProperty(
+                $visitor,
+                $fieldValue,
+                'referee',
+                Referee::class
+            );
+            if ($referee !== null) {
+                $againstGame->setReferee($referee);
+            }
         }
 
         foreach ($fieldValue['places'] as $arrGamePlace) {
