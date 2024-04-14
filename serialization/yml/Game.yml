@@ -4,8 +4,6 @@ SportsPlanning\Game:
   properties:
     batchNr:
       type: integer
-    refereePlaceLocation:
-      type: string
     referee:
       type: SportsPlanning\Referee
     field:
@@ -14,3 +12,6 @@ SportsPlanning\Game:
     getPouleNr:
       type: integer
       serialized_name: pouleNr
+    getRefereePlaceLocation:
+      type: string
+      serialized_name: refereePlaceLocation

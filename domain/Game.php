@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning;
 
 use Doctrine\Common\Collections\Collection;
+use SportsHelpers\PlaceLocationInterface;
 
 abstract class Game extends Identifiable
 {
@@ -59,6 +60,14 @@ abstract class Game extends Identifiable
     public function getRefereePlace(): ?Place
     {
         return $this->refereePlace;
+    }
+
+    public function getRefereePlaceLocation(): string|null
+    {
+        if( $this->refereePlace instanceof PlaceLocationInterface ) {
+            return $this->refereePlace->getUniqueIndex();
+        }
+        return null;
     }
 
     public function setRefereePlace(Place $refereePlace = null): void
