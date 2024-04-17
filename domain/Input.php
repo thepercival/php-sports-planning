@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use SportsHelpers\SelfRefereeInfo;
-use SportsPlanning\Exception\NoBestPlanning as NoBestPlanningException;
+use SportsPlanning\Exceptions\NoBestPlanningException;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\Variant\AllInOneGame;
@@ -469,7 +469,7 @@ class Input extends Identifiable
 
         $bestPlanning = array_shift($filteredPlannings);
         if ($bestPlanning === null) {
-            throw new NoBestPlanningException('er kan geen planning worden gevonden', E_ERROR);
+            throw new NoBestPlanningException($this, $type);
         }
         return $bestPlanning;
     }

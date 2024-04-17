@@ -13,6 +13,7 @@ use SportsHelpers\Sport\Variant\WithPoule\AllInOneGame as AllInOneGameWithPoule;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsHelpers\PouleStructure as PouleStructureBase;
 use SportsHelpers\SportRange;
+use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
 use SportsPlanning\Referee\Info as RefereeInfo;
 
 class PouleStructure
@@ -31,7 +32,10 @@ class PouleStructure
 
         if( !$pouleStructureBase->sportsAndSelfRefereeAreCompatible(
             $this->createSportVariants(), $refereeInfo->selfRefereeInfo->selfReferee) ) {
-            throw new \Exception('selfReferee is not compatible with poulestructure', E_ERROR);
+            throw new SelfRefereeIncompatibleWithPouleStructureException(
+                $pouleStructureBase, $sportVariantsWithFields,
+                $refereeInfo->selfRefereeInfo->selfReferee
+            );
         }
     }
 

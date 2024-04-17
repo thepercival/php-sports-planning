@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
 
-enum Type: int
+enum Type: string
 {
-    case BatchGames = 1;
-    case GamesInARow = 2;
+    case BatchGames = 'BatchGames';
+    case GamesInARow = 'GamesInARow';
 }
