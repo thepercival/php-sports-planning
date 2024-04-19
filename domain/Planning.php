@@ -14,6 +14,7 @@ use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Input\Configuration as InputConfiguration;
+use SportsPlanning\Planning\BatchGamesType;
 use SportsPlanning\Planning\Filter;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
@@ -89,24 +90,17 @@ class Planning extends Identifiable
         return $this->maxNrOfGamesInARow;
     }
 
-    public function isEqualBatchGames(): bool
+    public function getBatchGamesType(): BatchGamesType
     {
-        return $this->isBatchGames() && $this->getMinNrOfBatchGames() === $this->getMaxNrOfBatchGames();
-    }
-
-    public function isUnequalBatchGames(): bool
-    {
-        return $this->isBatchGames() && $this->getMinNrOfBatchGames() !== $this->getMaxNrOfBatchGames();
-    }
-
-    public function isBatchGames(): bool
-    {
-        return $this->maxNrOfGamesInARow === 0;
+        if( $this->getMinNrOfBatchGames() === $this->getMaxNrOfBatchGames() ) {
+            return BatchGamesType::RangeIsZero;
+        }
+        return BatchGamesType::RangeIsOneOrMore;
     }
 
     public function getType(): PlanningType
     {
-        return $this->isBatchGames() ? PlanningType::BatchGames : PlanningType::GamesInARow;
+        return $this->maxNrOfGamesInARow === 0 ? PlanningType::BatchGames : PlanningType::GamesInARow;
     }
 
     public function getCreatedDateTime(): DateTimeImmutable

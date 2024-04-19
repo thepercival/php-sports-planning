@@ -12,7 +12,7 @@ class Filter implements \Stringable
     public function __construct(
         readonly public Type|null $type,
         readonly public State|null $state,
-        readonly public SportRange|null $batchGamesRange,
+        readonly public SportRange|BatchGamesType|null $batchGamesRange,
         readonly public int|null $maxNrOfGamesInARow)
     {
     }
@@ -21,24 +21,25 @@ class Filter implements \Stringable
     {
         return ($this->type === null ||  $this->type === $planning->getType())
             && ($this->state === null || $this->state === $planning->getState())
-            && ($this->isEqualBatchGames($planning->getNrOfBatchGames() ))
-                && ($this->maxNrOfGamesInARow === null || $this->maxNrOfGamesInARow === $planning->getMaxNrOfGamesInARow());
-    }
-
-    public function isEqualBatchGames(SportRange $nrOfBatchGames): bool
-    {
-        return $this->batchGamesRange === null
-                || $this->batchGamesRange->equals($nrOfBatchGames)
-                || ($this->batchGamesRange->getMin() === 0 && $this->batchGamesRange->getMax() === 0 &&
-                $nrOfBatchGames->getMin() === $nrOfBatchGames->getMax()
-            );
+            && ($this->batchGamesRange === null ||
+                ($this->batchGamesRange instanceof BatchGamesType && $this->batchGamesRange === $planning->getBatchGamesType()) ||
+                ($this->batchGamesRange instanceof SportRange && $this->batchGamesRange->equals($planning->getNrOfBatchGames())))
+            && ($this->maxNrOfGamesInARow === null || $this->maxNrOfGamesInARow === $planning->getMaxNrOfGamesInARow());
     }
 
     public function __toString(): string
     {
+        if( $this->batchGamesRange === null ){
+            $batchGameRangeAsString = 'null';
+        }
+        else if($this->batchGamesRange instanceof BatchGamesType ){
+            $batchGameRangeAsString = $this->batchGamesRange->value;
+        } else {
+            $batchGameRangeAsString = (string) $this->batchGamesRange;
+        }
         return 'state: ' . ( $this->state !== null ? '"'.$this->state->value.'"' : 'null' ) . ','
             . 'type: ' . ( $this->type !== null ? '"'.$this->type->value.'"' : 'null' ) . ','
-            . 'batchGamesRange: ' . ( $this->batchGamesRange !== null ? '"'.$this->batchGamesRange.'"' : 'null' ) . ','
+            . 'batchGamesRange: ' . $batchGameRangeAsString . ','
             . 'maxNrOfGamesInARow: ' . ( $this->maxNrOfGamesInARow !== null ? $this->maxNrOfGamesInARow : 'null' );
     }
 }

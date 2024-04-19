@@ -35,7 +35,7 @@ class InputOutput extends OutputHelper
         $filteredPlannings = $input->getFilteredPlannings( $planningFilter);
         foreach( $filteredPlannings as $filteredPlanning ) {
             $prefix = '    ';
-            $equalBatchGames = $filteredPlanning->isEqualBatchGames() ? '*' : ' ';
+            $equalBatchGames = $filteredPlanning->getBatchGamesType() === PlanningBase\BatchGamesType::RangeIsZero ? '*' : ' ';
             $prefix .= $filteredPlanning->getState()->value . ' ' . $equalBatchGames . ' ';
             $this->planningOutput->output($filteredPlanning, false, $prefix);
 

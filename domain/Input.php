@@ -20,6 +20,7 @@ use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsPlanning\Input\Configuration;
 use SportsPlanning\Input\Configuration as InputConfiguration;
+use SportsPlanning\Planning\BatchGamesType;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Type as PlanningType;
@@ -475,7 +476,9 @@ class Input extends Identifiable
                 return $first->getMaxNrOfGamesInARow() - $second->getMaxNrOfGamesInARow();
             } else {
                 if ($first->getMaxNrOfGamesInARow() === 0 && $second->getMaxNrOfGamesInARow() === 0) {
-                    return $first->isEqualBatchGames() ? -1 : ($second->isEqualBatchGames() ? 1 : 0);
+                    $firstBatchGamesTypeRangeIsZero =  $first->getBatchGamesType() === BatchGamesType::RangeIsZero;
+                    $secondBatchGamesTypeRangeIsZero =  $second->getBatchGamesType() === BatchGamesType::RangeIsZero;
+                    return $firstBatchGamesTypeRangeIsZero ? -1 : ($secondBatchGamesTypeRangeIsZero ? 1 : 0);
                 } else {
                     return $first->getMaxNrOfGamesInARow() === 0 ? 1 : -1;
                 }
