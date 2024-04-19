@@ -291,7 +291,7 @@ class Planning extends Identifiable
 
     public function createFilter(): Filter
     {
-        return new Filter($this->getNrOfBatchGames(), $this->getMaxNrOfGamesInARow());
+        return new Filter(null, null, $this->getNrOfBatchGames(), $this->getMaxNrOfGamesInARow());
     }
 
     // from most efficient to less efficient

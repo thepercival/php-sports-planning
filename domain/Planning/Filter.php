@@ -9,40 +9,36 @@ use SportsPlanning\Planning;
 
 class Filter implements \Stringable
 {
-    public function __construct(protected SportRange $batchGamesRange, protected int $maxNrOfGamesInARow)
+    public function __construct(
+        readonly public Type|null $type,
+        readonly public State|null $state,
+        readonly public SportRange|null $batchGamesRange,
+        readonly public int|null $maxNrOfGamesInARow)
     {
-    }
-
-    public function getBatchGamesRange(): SportRange
-    {
-        return $this->batchGamesRange;
-    }
-
-    public function getMinNrOfBatchGames(): int
-    {
-        return $this->batchGamesRange->getMin();
-    }
-
-    public function getMaxNrOfBatchGames(): int
-    {
-        return $this->batchGamesRange->getMax();
-    }
-
-    public function getMaxNrOfGamesInARow(): int
-    {
-        return $this->maxNrOfGamesInARow;
     }
 
     public function equals(Planning $planning): bool
     {
-        return $this->getMinNrOfBatchGames() === $planning->getMinNrOfBatchGames()
-            && $this->getMaxNrOfBatchGames() === $planning->getMaxNrOfBatchGames()
-            && $this->getMaxNrOfGamesInARow() === $planning->getMaxNrOfGamesInARow();
+        return ($this->type === null ||  $this->type === $planning->getType())
+            && ($this->state === null || $this->state === $planning->getState())
+            && ($this->isEqualBatchGames($planning->getNrOfBatchGames() ))
+                && ($this->maxNrOfGamesInARow === null || $this->maxNrOfGamesInARow === $planning->getMaxNrOfGamesInARow());
+    }
+
+    public function isEqualBatchGames(SportRange $nrOfBatchGames): bool
+    {
+        return $this->batchGamesRange === null
+                || $this->batchGamesRange->equals($nrOfBatchGames)
+                || ($this->batchGamesRange->getMin() === 0 && $this->batchGamesRange->getMax() === 0 &&
+                $nrOfBatchGames->getMin() === $nrOfBatchGames->getMax()
+            );
     }
 
     public function __toString(): string
     {
-        return 'batchGamesRange: "' . $this->batchGamesRange->getMin() . ' < x <= ' . $this->batchGamesRange->getMax()
-            . '", maxNrOfGamesInARow: ' . $this->maxNrOfGamesInARow;
+        return 'state: ' . ( $this->state !== null ? '"'.$this->state->value.'"' : 'null' ) . ','
+            . 'type: ' . ( $this->type !== null ? '"'.$this->type->value.'"' : 'null' ) . ','
+            . 'batchGamesRange: ' . ( $this->batchGamesRange !== null ? '"'.$this->batchGamesRange.'"' : 'null' ) . ','
+            . 'maxNrOfGamesInARow: ' . ( $this->maxNrOfGamesInARow !== null ? $this->maxNrOfGamesInARow : 'null' );
     }
 }

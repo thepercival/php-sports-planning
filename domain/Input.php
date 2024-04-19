@@ -369,90 +369,105 @@ class Input extends Identifiable
     }
 
     /**
-     * @param PlanningState $stateValue
-     * @return Collection<int|string, Planning>
-     */
-    public function getPlanningsWithState(PlanningState $stateValue): Collection
-    {
-        return $this->plannings->filter(function (Planning $planning) use ($stateValue): bool {
-            return $planning->getState()->value === $stateValue->value;
-        });
-    }
-
-    /**
-     * @param PlanningState|null $stateValue
+     * @param PlanningFilter|null $filter
      * @return list<Planning>
      */
-    public function getEqualBatchGamesPlannings(PlanningState|null $stateValue = null): array
+    public function getFilteredPlannings(PlanningFilter|null $filter = null): array
     {
-        if ($stateValue === null) {
-            $batchGamesPlannings = $this->getPlannings();
-        } else {
-            $batchGamesPlannings = $this->getPlanningsWithState($stateValue)->filter(
-                function (Planning $planning): bool {
-                    return $planning->isEqualBatchGames();
-                }
-            );
+        if( $filter === null ) {
+            return array_values( $this->plannings->toArray() );
         }
-        return $this->orderBatchGamesPlannings($batchGamesPlannings);
-    }
-
-    /**
-     * @param PlanningState|null $stateValue
-     * @return list<Planning>
-     */
-    public function getUnequalBatchGamesPlannings(PlanningState|null $stateValue = null): array
-    {
-        if ($stateValue === null) {
-            $batchGamesPlannings = $this->getPlannings();
-        } else {
-            $batchGamesPlannings = $this->getPlanningsWithState($stateValue)->filter(
-                function (Planning $planning) : bool {
-                    return $planning->isUnequalBatchGames();
-                }
-            );
-        }
-        return $this->orderBatchGamesPlannings($batchGamesPlannings);
-    }
-
-
-    /**
-     * ----------  From more efficient to less efficient --------
-     *
-     * @param Collection<int|string,Planning> $batchGamesPlannings
-     * @return list<Planning>
-     */
-    protected function orderBatchGamesPlannings(Collection $batchGamesPlannings): array
-    {
-        $plannings = $batchGamesPlannings->toArray();
-        uasort($plannings, function (Planning $first, Planning $second) {
+        $filtered = $this->plannings->filter( function(Planning $planning) use($filter):  bool {
+            return $filter->equals($planning);
+        })->toArray();
+        uasort($filtered, function (Planning $first, Planning $second) {
             if ($first->getMaxNrOfBatchGames() === $second->getMaxNrOfBatchGames()) {
                 return $second->getMinNrOfBatchGames() - $first->getMinNrOfBatchGames();
             }
             return $second->getMaxNrOfBatchGames() - $first->getMaxNrOfBatchGames();
         });
-        return array_values($plannings);
+
+        return array_values($filtered);
     }
+
+//    /**
+//     * @param PlanningState $state
+//     * @return Collection<int|string, Planning>
+//     */
+//    public function getBatchGamesPlannings(PlanningState|null $state = null): Collection
+//    {
+//        if( $state === null ) {
+//            return $this->plannings;
+//        }
+//        $this->getPlanning()
+//        return $this->plannings->filter(function (Planning $planning) use ($state): bool {
+//            return $planning->getState()->value === $stateValue->value;
+//        });
+//    }
+
+//    /**
+//     * @param PlanningState $stateValue
+//     * @return Collection<int|string, Planning>
+//     */
+//    public function getPlanningsWithState(PlanningState $stateValue): Collection
+//    {
+//        return $this->plannings->filter(function (Planning $planning) use ($stateValue): bool {
+//            return $planning->getState()->value === $stateValue->value;
+//        });
+//    }
+
+//    /**
+//     * @param PlanningState|null $stateValue
+//     * @return list<Planning>
+//     */
+//    public function getEqualBatchGamesPlannings(PlanningState|null $stateValue = null): array
+//    {
+//        $batchGamesPlannings = $this->getPlannings(
+//            $planning->isEqualBatchGames()
+//        );
+//        } else {
+//            $batchGamesPlannings = $this->getPlanningsWithState($stateValue)->filter(
+//                function (Planning $planning): bool {
+//                    return ;
+//                }
+//            );
+//        }
+//        return $this->orderBatchGamesPlannings($batchGamesPlannings);
+//    }
+
+//    /**
+//     * @param PlanningState|null $stateValue
+//     * @return list<Planning>
+//     */
+//    public function getUnequalBatchGamesPlannings(PlanningState|null $stateValue = null): array
+//    {
+//        if ($stateValue === null) {
+//            $batchGamesPlannings = $this->getPlannings();
+//        } else {
+//            $batchGamesPlannings = $this->getPlanningsWithState($stateValue)->filter(
+//                function (Planning $planning) : bool {
+//                    return $planning->isUnequalBatchGames();
+//                }
+//            );
+//        }
+//        return $this->orderBatchGamesPlannings($batchGamesPlannings);
+//    }
+
 
     public function getPlanning(PlanningFilter $filter): Planning|null
     {
-        foreach ($this->getPlannings() as $planning) {
-            if ($planning->getMinNrOfBatchGames() === $filter->getMinNrOfBatchGames()
-                && $planning->getMaxNrOfBatchGames() === $filter->getMaxNrOfBatchGames()
-                && $planning->getMaxNrOfGamesInARow() === $filter->getMaxNrOfGamesInARow()) {
-                return $planning;
-            }
-        }
-        return null;
+        $plannings = $this->getFilteredPlannings($filter);
+        $planning = reset($plannings);
+        return $planning === false ? null : $planning;
     }
 
     public function getBestPlanning(PlanningType|null $type): Planning
     {
-        $succeededPlannings = $this->getPlanningsWithState(PlanningState::Succeeded)->toArray();
-        $filteredPlannings = array_filter($succeededPlannings, function (Planning $planning) use ($type): bool {
-            return $type === null || $type === $planning->getType();
-        });
-        uasort($filteredPlannings, function (Planning $first, Planning $second): int {
+        $filter = new PlanningFilter(
+            $type, PlanningState::Succeeded, null, null
+        );
+        $succeededPlannings = $this->getFilteredPlannings($filter);
+        uasort($succeededPlannings, function (Planning $first, Planning $second): int {
             if ($first->getNrOfBatches() !== $second->getNrOfBatches()) {
                 return $first->getNrOfBatches() - $second->getNrOfBatches();
             }
@@ -467,7 +482,7 @@ class Input extends Identifiable
             }
         });
 
-        $bestPlanning = array_shift($filteredPlannings);
+        $bestPlanning = array_shift($succeededPlannings);
         if ($bestPlanning === null) {
             throw new NoBestPlanningException($this, $type);
         }
