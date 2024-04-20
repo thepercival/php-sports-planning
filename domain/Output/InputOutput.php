@@ -51,6 +51,7 @@ class InputOutput extends OutputHelper
                 $prefix = '    ' . '  ';
                 $color = $this->getColor($gamesInARowPlanning->getState());
                 $extra = PlanningOutputExtra::MaxNrOfGamesInARow->value;
+                $suffix = null;
                 if( $gamesInARowPlanning->getState() === PlanningBase\State::Succeeded ) {
                     $suffix = ', nrOfBatches: ' . $gamesInARowPlanning->getNrOfBatches();
                 }

@@ -58,6 +58,7 @@ class Input extends Identifiable
      */
     protected Collection $plannings;
     protected int|null $maxNrOfGamesInARow = null;
+    protected int|null $previousMinNrOfBatches = null;
 
     protected DateTimeImmutable|null $recreatedAt = null;
     protected bool $perPoule;
@@ -138,6 +139,16 @@ class Input extends Identifiable
             $this->getRefereeInfo(),
             $this->getPerPoule()
         );
+    }
+
+    public function getPreviousMinNrOfBatches(): int|null
+    {
+        return $this->previousMinNrOfBatches;
+    }
+
+    public function setPreviousMinNrOfBatches(int|null $previousMinNrOfBatches): void
+    {
+        $this->previousMinNrOfBatches = $previousMinNrOfBatches;
     }
 
     /**
