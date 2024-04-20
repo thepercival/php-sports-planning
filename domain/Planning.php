@@ -16,6 +16,7 @@ use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning\BatchGamesType;
 use SportsPlanning\Planning\Filter;
+use SportsPlanning\Planning\State;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\TimeoutConfig;
@@ -49,7 +50,7 @@ class Planning extends Identifiable
         $this->togetherGames = new ArrayCollection();
 
         $this->createdDateTime = new DateTimeImmutable();
-        $this->state = PlanningState::ToBeProcessed;
+        $this->state = PlanningState::NotProcessed;
     }
 
     public function minIsMaxNrOfBatchGames(): bool

@@ -31,14 +31,13 @@ class InputOutput extends OutputHelper
         $planningFilter = new PlanningFilter(
             PlanningBase\Type::BatchGames, null, null, null
         );
-        $stateMinLength = 13;
 
         $this->planningOutput->outputInputConfig($input->createConfiguration());
         $filteredPlannings = $input->getFilteredPlannings($planningFilter);
         foreach ($filteredPlannings as $filteredPlanning) {
             $prefix = '    ';
             $equalBatchGames = $filteredPlanning->getBatchGamesType() === PlanningBase\BatchGamesType::RangeIsZero ? '*' : ' ';
-            $prefix .= $this->stringToMinLength($filteredPlanning->getState()->value, $stateMinLength ) . ' ' . $equalBatchGames . ' ';
+            $prefix .= substr($filteredPlanning->getState()->value, 0, 1 ) . ' ' . $equalBatchGames . ' ';
 
             $color = $this->getColor($filteredPlanning->getState());
             $this->planningOutput->output($filteredPlanning, false, $prefix, null, $color);
@@ -46,7 +45,7 @@ class InputOutput extends OutputHelper
             $gamesInARowPlannings = $filteredPlanning->getGamesInARowPlannings();
             foreach ($gamesInARowPlannings as $gamesInARowPlanning) {
                 $prefix = '    ';
-                $prefix .= $this->stringToMinLength($gamesInARowPlanning->getState()->value, $stateMinLength ) . '   ';
+                $prefix .= substr($filteredPlanning->getState()->value, 0, 1 ) . '   ';
                 $color = $this->getColor($gamesInARowPlanning->getState());
                 $this->planningOutput->output($gamesInARowPlanning, false, $prefix, null, $color);
             }

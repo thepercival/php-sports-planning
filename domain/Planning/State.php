@@ -6,7 +6,7 @@ namespace SportsPlanning\Planning;
 
 enum State: string
 {
-    case ToBeProcessed = 'toBeProcessed';
+    case NotProcessed = 'notProcessed';
     case Succeeded = 'succeeded';
     case Failed = 'failed';
     case TimedOut = 'timedOut';

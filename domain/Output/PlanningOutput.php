@@ -53,7 +53,7 @@ class PlanningOutput extends OutputHelper
         string $suffix = null,
         Color|null $color = null
     ): void {
-        $timeoutState = $planning->getTimeoutState()?->value ?? 'no timeout';
+        $timeoutState = $planning->getTimeoutState()?->value ?? 'null';
         $output = 'batchGames ' . $planning->getNrOfBatchGames()->getMin()
             . '->' . $planning->getNrOfBatchGames()->getMax()
             . ', gamesInARow ' . $planning->getMaxNrOfGamesInARow()

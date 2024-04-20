@@ -14,8 +14,8 @@ class StateType extends EnumDbType
 
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
-        if ($value === State::ToBeProcessed->value) {
-            return State::ToBeProcessed;
+        if ($value === State::NotProcessed->value) {
+            return State::NotProcessed;
         }
         if ($value === State::Succeeded->value) {
             return State::Succeeded;
