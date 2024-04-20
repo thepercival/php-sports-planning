@@ -27,9 +27,9 @@ class PlanningOutput extends OutputHelper
         $this->outputHelper($planning, $extra, $prefix, $suffix, $color);
     }
 
-    public function outputState(PlanningBase $planning, int $extra, string $prefix = null, Color|null $color = null): void
+    public function outputState(PlanningBase $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
     {
-        $this->outputHelper($planning, $extra, $prefix, null, $color);
+        $this->outputHelper($planning, $extra, $prefix, $suffix, $color);
     }
 
     protected function outputHelper(
@@ -39,7 +39,6 @@ class PlanningOutput extends OutputHelper
         string $suffix = null,
         Color|null $color = null
     ): void {
-        $timeoutState = $planning->getTimeoutState()?->value ?? 'null';
         $outputs = [];
         if (($extra & Extra::NrOfBatchGamesRange->value) === Extra::NrOfBatchGamesRange->value) {
             $outputs[] = 'batchGames ' . $planning->getNrOfBatchGames()->getMin() . '->' . $planning->getNrOfBatchGames()->getMax();
@@ -47,7 +46,10 @@ class PlanningOutput extends OutputHelper
         if (($extra & Extra::MaxNrOfGamesInARow->value) === Extra::MaxNrOfGamesInARow->value) {
             $outputs[] = 'gamesInARow ' . $planning->getMaxNrOfGamesInARow();
         }
-        $outputs[] = 'timeoutState "' . $timeoutState . '"';
+        $timeoutState = $planning->getTimeoutState();
+        if( $timeoutState !== null ) {
+            $outputs[] = 'timeoutState "' . $timeoutState->value . '"';
+        }
         if (($extra & Extra::Input->value) === Extra::Input->value) {
             $outputs[] = $this->getInputConfigurationAsString($planning->createInputConfiguration());
         }

@@ -36,18 +36,25 @@ class InputOutput extends OutputHelper
         $filteredPlannings = $input->getFilteredPlannings($planningFilter);
         foreach ($filteredPlannings as $filteredPlanning) {
             $equalBatchGames = $filteredPlanning->getBatchGamesType() === PlanningBase\BatchGamesType::RangeIsZero ? '*' : ' ';
-            $prefix = substr($filteredPlanning->getState()->value, 0, 1 ) . ' ' . $equalBatchGames . ' ';
+            $prefix = $equalBatchGames . ' ';
 
             $color = $this->getColor($filteredPlanning->getState());
             $extra = PlanningOutputExtra::NrOfBatchGamesRange->value;
-            $this->planningOutput->outputState($filteredPlanning, $extra, $prefix, $color);
+            $suffix = null;
+            if( $filteredPlanning->getState() === PlanningBase\State::Succeeded ) {
+                $suffix = ', nrOfBatches: ' . $filteredPlanning->getNrOfBatches();
+            }
+            $this->planningOutput->outputState($filteredPlanning, $extra, $prefix, $suffix, $color);
 
             $gamesInARowPlannings = $filteredPlanning->getGamesInARowPlannings();
             foreach ($gamesInARowPlannings as $gamesInARowPlanning) {
-                $prefix = '    ' . substr($gamesInARowPlanning->getState()->value, 0, 1 ) . '   ';
+                $prefix = '    ' . '  ';
                 $color = $this->getColor($gamesInARowPlanning->getState());
                 $extra = PlanningOutputExtra::MaxNrOfGamesInARow->value;
-                $this->planningOutput->outputState($gamesInARowPlanning, $extra, $prefix, $color);
+                if( $gamesInARowPlanning->getState() === PlanningBase\State::Succeeded ) {
+                    $suffix = ', nrOfBatches: ' . $filteredPlanning->getNrOfBatches();
+                }
+                $this->planningOutput->outputState($gamesInARowPlanning, $extra, $prefix, $suffix, $color);
             }
         }
     }
