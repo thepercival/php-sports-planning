@@ -19,36 +19,51 @@ use SportsPlanning\Planning\Filter as PlanningFilter;
 class InputOutput extends OutputHelper
 {
     private PlanningOutput $planningOutput;
+
     public function __construct(LoggerInterface $logger = null)
     {
         parent::__construct($logger);
         $this->planningOutput = new PlanningOutput($logger);
     }
 
-    public function output(Input $input, PlanningFilter|null $planningFilter/*, string $prefix = null, string $suffix = null, int $colorNr = -1*/): void
+    public function output(Input $input/*, string $prefix = null, string $suffix = null, int $colorNr = -1*/): void
     {
-//        new PlanningFilter(
-//            null, PlanningBase\State::Succeeded, new SportRange(0,0), null
-//        )
+        $planningFilter = new PlanningFilter(
+            PlanningBase\Type::BatchGames, null, null, null
+        );
+        $stateMinLength = 13;
 
         $this->planningOutput->outputInputConfig($input->createConfiguration());
-        $filteredPlannings = $input->getFilteredPlannings( $planningFilter);
-        foreach( $filteredPlannings as $filteredPlanning ) {
+        $filteredPlannings = $input->getFilteredPlannings($planningFilter);
+        foreach ($filteredPlannings as $filteredPlanning) {
             $prefix = '    ';
             $equalBatchGames = $filteredPlanning->getBatchGamesType() === PlanningBase\BatchGamesType::RangeIsZero ? '*' : ' ';
-            $prefix .= $filteredPlanning->getState()->value . ' ' . $equalBatchGames . ' ';
-            $this->planningOutput->output($filteredPlanning, false, $prefix);
+            $prefix .= $this->stringToMinLength($filteredPlanning->getState()->value, $stateMinLength ) . ' ' . $equalBatchGames . ' ';
+
+            $color = $this->getColor($filteredPlanning->getState());
+            $this->planningOutput->output($filteredPlanning, false, $prefix, null, $color);
 
             $gamesInARowPlannings = $filteredPlanning->getGamesInARowPlannings();
-            foreach( $gamesInARowPlannings as $gamesInARowPlanning ) {
+            foreach ($gamesInARowPlannings as $gamesInARowPlanning) {
                 $prefix = '    ';
-                $prefix .= $gamesInARowPlanning->getState()->value . '   ';
-                $this->planningOutput->output($gamesInARowPlanning, false, $prefix);
+                $prefix .= $this->stringToMinLength($gamesInARowPlanning->getState()->value, $stateMinLength ) . '   ';
+                $color = $this->getColor($gamesInARowPlanning->getState());
+                $this->planningOutput->output($gamesInARowPlanning, false, $prefix, null, $color);
             }
         }
     }
 
-//
+    public function getColor(PlanningState $state): Color|null {
+        $color = null;
+        if( $state === PlanningState::Succeeded ) {
+            $color = Color::Green;
+        } elseif ($state === PlanningState::Failed) {
+            $color = Color::Red;
+        } else if ($state === PlanningState::TimedOut) {
+            $color = Color::Yellow;
+        }
+        return $color;
+    }
 //
 //    public function outputInputConfig(InputConfiguration $inputConfiguration, string $prefix = null, string $suffix = null): void
 //    {

@@ -21,9 +21,9 @@ class PlanningOutput extends OutputHelper
         parent::__construct($logger);
     }
 
-    public function output(PlanningBase $planning, bool $withInput, string $prefix = null, string $suffix = null, int $colorNr = -1): void
+    public function output(PlanningBase $planning, bool $withInput, string $prefix = null, string $suffix = null, Color|null $color = null): void
     {
-        $this->outputHelper($planning, $withInput, false, false, $prefix, $suffix, $colorNr);
+        $this->outputHelper($planning, $withInput, false, false, $prefix, $suffix, $color);
     }
 
     public function outputWithGames(
@@ -51,7 +51,7 @@ class PlanningOutput extends OutputHelper
         bool $withTotals,
         string $prefix = null,
         string $suffix = null,
-        int $colorNr = -1
+        Color|null $color = null
     ): void {
         $timeoutState = $planning->getTimeoutState()?->value ?? 'no timeout';
         $output = 'batchGames ' . $planning->getNrOfBatchGames()->getMin()
@@ -61,8 +61,10 @@ class PlanningOutput extends OutputHelper
         if ($withInput) {
             $output = $this->getInputConfigurationAsString($planning->createInputConfiguration()) . ', ' . $output;
         }
-        $color = $this->convertNumberToColor($colorNr);
-        $output = Color::getColored($color, ($prefix ?? '') . $output . ($suffix ?? ''));
+        if( $color !== null ){
+            $output = Color::getColored($color, ($prefix ?? '') . $output . ($suffix ?? ''));
+        }
+
         $this->logger->info($output);
         if ($withGames) {
             $batchOutput = new BatchOutput($this->logger);
