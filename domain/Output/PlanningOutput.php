@@ -9,6 +9,7 @@ use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
 use SportsPlanning\Output\BatchOutput as BatchOutput;
 use SportsPlanning\Input\Configuration as InputConfiguration;
+use SportsPlanning\Output\PlanningOutput\Extra;
 use SportsPlanning\Planning as PlanningBase;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
@@ -21,56 +22,46 @@ class PlanningOutput extends OutputHelper
         parent::__construct($logger);
     }
 
-    public function output(PlanningBase $planning, bool $withInput, string $prefix = null, string $suffix = null, Color|null $color = null): void
+    public function output(PlanningBase $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
     {
-        $this->outputHelper($planning, $withInput, false, false, $prefix, $suffix, $color);
+        $this->outputHelper($planning, $extra, $prefix, $suffix, $color);
     }
 
-    public function outputWithGames(
-        PlanningBase $planning,
-        bool $withInput,
-        string $prefix = null,
-        string $suffix = null
-    ): void {
-        $this->outputHelper($planning, $withInput, true, false, $prefix, $suffix);
-    }
-
-    public function outputWithTotals(
-        PlanningBase $planning,
-        bool $withInput,
-        string $prefix = null,
-        string $suffix = null
-    ): void {
-        $this->outputHelper($planning, $withInput, false, true, $prefix, $suffix);
+    public function outputState(PlanningBase $planning, int $extra, string $prefix = null, Color|null $color = null): void
+    {
+        $this->outputHelper($planning, $extra, $prefix, null, $color);
     }
 
     protected function outputHelper(
         PlanningBase $planning,
-        bool $withInput,
-        bool $withGames,
-        bool $withTotals,
+        int $extra,
         string $prefix = null,
         string $suffix = null,
         Color|null $color = null
     ): void {
         $timeoutState = $planning->getTimeoutState()?->value ?? 'null';
-        $output = 'batchGames ' . $planning->getNrOfBatchGames()->getMin()
-            . '->' . $planning->getNrOfBatchGames()->getMax()
-            . ', gamesInARow ' . $planning->getMaxNrOfGamesInARow()
-            . ', timeoutState "' . $timeoutState . '"';
-        if ($withInput) {
-            $output = $this->getInputConfigurationAsString($planning->createInputConfiguration()) . ', ' . $output;
+        $outputs = [];
+        if (($extra & Extra::NrOfBatchGamesRange->value) === Extra::NrOfBatchGamesRange->value) {
+            $outputs[] = 'batchGames ' . $planning->getNrOfBatchGames()->getMin() . '->' . $planning->getNrOfBatchGames()->getMax();
         }
+        if (($extra & Extra::MaxNrOfGamesInARow->value) === Extra::MaxNrOfGamesInARow->value) {
+            $outputs[] = 'gamesInARow ' . $planning->getMaxNrOfGamesInARow();
+        }
+        $outputs[] = 'timeoutState "' . $timeoutState . '"';
+        if (($extra & Extra::Input->value) === Extra::Input->value) {
+            $outputs[] = $this->getInputConfigurationAsString($planning->createInputConfiguration());
+        }
+        $output = join(', ', $outputs);
         if( $color !== null ){
             $output = Color::getColored($color, ($prefix ?? '') . $output . ($suffix ?? ''));
         }
-
         $this->logger->info($output);
-        if ($withGames) {
+
+        if (($extra & Extra::Games->value) === Extra::Games->value) {
             $batchOutput = new BatchOutput($this->logger);
             $batchOutput->output($planning->createFirstBatch());
         }
-        if ($withTotals) {
+        if (($extra & Extra::Totals->value) === Extra::Totals->value) {
             $resourceCounter = new ResourceCounter($planning);
             $this->outputTotals($resourceCounter->getCounters());
         }

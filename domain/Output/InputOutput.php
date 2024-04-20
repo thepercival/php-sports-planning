@@ -12,7 +12,7 @@ use SportsPlanning\Planning as PlanningBase;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
-use SportsPlanning\Resource\ResourceType;
+use SportsPlanning\Output\PlanningOutput\Extra as PlanningOutputExtra;
 use SportsPlanning\Input;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 
@@ -35,19 +35,19 @@ class InputOutput extends OutputHelper
         $this->planningOutput->outputInputConfig($input->createConfiguration());
         $filteredPlannings = $input->getFilteredPlannings($planningFilter);
         foreach ($filteredPlannings as $filteredPlanning) {
-            $prefix = '    ';
             $equalBatchGames = $filteredPlanning->getBatchGamesType() === PlanningBase\BatchGamesType::RangeIsZero ? '*' : ' ';
-            $prefix .= substr($filteredPlanning->getState()->value, 0, 1 ) . ' ' . $equalBatchGames . ' ';
+            $prefix = substr($filteredPlanning->getState()->value, 0, 1 ) . ' ' . $equalBatchGames . ' ';
 
             $color = $this->getColor($filteredPlanning->getState());
-            $this->planningOutput->output($filteredPlanning, false, $prefix, null, $color);
+            $extra = PlanningOutputExtra::NrOfBatchGamesRange->value;
+            $this->planningOutput->outputState($filteredPlanning, $extra, $prefix, $color);
 
             $gamesInARowPlannings = $filteredPlanning->getGamesInARowPlannings();
             foreach ($gamesInARowPlannings as $gamesInARowPlanning) {
-                $prefix = '    ';
-                $prefix .= substr($filteredPlanning->getState()->value, 0, 1 ) . '   ';
+                $prefix = '    ' . substr($gamesInARowPlanning->getState()->value, 0, 1 ) . '   ';
                 $color = $this->getColor($gamesInARowPlanning->getState());
-                $this->planningOutput->output($gamesInARowPlanning, false, $prefix, null, $color);
+                $extra = PlanningOutputExtra::MaxNrOfGamesInARow->value;
+                $this->planningOutput->outputState($gamesInARowPlanning, $extra, $prefix, $color);
             }
         }
     }
