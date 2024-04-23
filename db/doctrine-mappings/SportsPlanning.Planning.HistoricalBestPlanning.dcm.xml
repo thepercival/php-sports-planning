@@ -4,7 +4,7 @@
     <field name="minNrOfBatchGames" column="minNrOfBatchGames" type="smallint" nullable="false" unique="false"/>
     <field name="maxNrOfBatchGames" column="maxNrOfBatchGames" type="smallint" nullable="false" unique="false"/>
     <field name="maxNrOfGamesInARow" column="maxNrOfGamesInARow" type="smallint" nullable="false" unique="false"/>
-    <field name="recalculateReason" column="recalculateReason" type="string" length="15" nullable="false" unique="false"/>
+    <field name="recalculateReason" column="recalculateReason" type="string" length="20" nullable="false" unique="false"/>
     <field name="removalDateTime" column="createdDateTime" type="datetime_immutable" nullable="false" unique="false"/>
     <field name="nrOfBatches" column="nrOfBatches" type="smallint" nullable="false" unique="false"/>
     <many-to-one field="input" target-entity="SportsPlanning\Input" inversed-by="historicalBestPlannings">
