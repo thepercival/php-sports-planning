@@ -26,7 +26,7 @@ class InputOutput extends OutputHelper
         $this->planningOutput = new PlanningOutput($logger);
     }
 
-    public function output(Input $input/*, string $prefix = null, string $suffix = null, int $colorNr = -1*/): void
+    public function output(Input $input, bool $withHistory): void
     {
         $planningFilter = new PlanningFilter(
             PlanningBase\Type::BatchGames, null, null, null
@@ -57,6 +57,33 @@ class InputOutput extends OutputHelper
                 }
                 $this->planningOutput->outputState($gamesInARowPlanning, $extra, $prefix, $suffix, $color);
             }
+        }
+        if( $withHistory === false ) {
+            return;
+        }
+        $historicalBestPlannings = $input->getHistoricalBestPlannings();
+        foreach ($historicalBestPlannings as $historicalBestPlanning) {
+
+            $output = 'removal ' . $historicalBestPlanning->getRemovalDateTime()->format('Y-m-d');
+            $output .= ', batchGames: ' . $historicalBestPlanning->getNrOfBatchGames();
+            $output .= ', maxNrOfGamesInARow: ' . $historicalBestPlanning->getMaxNrOfGamesInARow();
+            $output .= ', nrOfBatches: ' . $historicalBestPlanning->getNrOfBatches();
+            $output = Color::getColored(Color::Blue, $output);
+            $this->logger->info($output);
+
+//            $this->planningOutput->outputState($filteredPlanning, $extra, $prefix, $suffix, $color);
+//
+//            $gamesInARowPlannings = $filteredPlanning->getGamesInARowPlannings();
+//            foreach ($gamesInARowPlannings as $gamesInARowPlanning) {
+//                $prefix = '    ' . '  ';
+//                $color = $this->getColor($gamesInARowPlanning->getState());
+//                $extra = PlanningOutputExtra::MaxNrOfGamesInARow->value;
+//                $suffix = null;
+//                if( $gamesInARowPlanning->getState() === PlanningBase\State::Succeeded ) {
+//                    $suffix = ', nrOfBatches: ' . $gamesInARowPlanning->getNrOfBatches();
+//                }
+//                $this->planningOutput->outputState($gamesInARowPlanning, $extra, $prefix, $suffix, $color);
+//            }
         }
     }
 

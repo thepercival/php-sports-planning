@@ -6,7 +6,6 @@
 	  	<field name="perPoule" column="perPoule" type="boolean" nullable="false" unique="false"/>
 	  	<field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
 	  	<field name="recreatedAt" column="recreatedAt" type="datetime_immutable" nullable="true" unique="false"/>
-		<field name="previousMinNrOfBatches" column="previousMinNrOfBatches" type="smallint" nullable="true" unique="false"/>
 		<field name="seekingPercentage" column="seekingPercentage" type="smallint" nullable="false" unique="false"/>
 	  	<field name="name" column="name" type="string" length="512" nullable="false" unique="true"/>
 	  	<one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="input">
@@ -34,6 +33,14 @@
 				<cascade-persist/>
 				<cascade-remove/>
 	  		</cascade>
+		</one-to-many>
+		<one-to-many field="historicalBestPlannings" target-entity="SportsPlanning\Planning\HistoricalBestPlanning" mapped-by="input">
+			<cascade>
+				<cascade-remove/>
+			</cascade>
+			<order-by>
+				<order-by-field name="removalDateTime" direction="DESC"/>
+			</order-by>
 		</one-to-many>
 		<indexes>
 	  		<index columns="selfReferee"/>

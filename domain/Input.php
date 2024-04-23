@@ -22,6 +22,7 @@ use SportsPlanning\Input\Configuration;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning\BatchGamesType;
 use SportsPlanning\Planning\Filter as PlanningFilter;
+use SportsPlanning\Planning\HistoricalBestPlanning;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Type as PlanningType;
 use SportsPlanning\PouleStructure as PlanningPouleStructure;
@@ -57,8 +58,11 @@ class Input extends Identifiable
      * @var Collection<int|string, Planning>
      */
     protected Collection $plannings;
+    /**
+     * @var Collection<int|string, HistoricalBestPlanning>
+     */
+    protected Collection $historicalBestPlannings;
     protected int|null $maxNrOfGamesInARow = null;
-    protected int|null $previousMinNrOfBatches = null;
 
     protected DateTimeImmutable|null $recreatedAt = null;
     protected bool $perPoule;
@@ -71,6 +75,7 @@ class Input extends Identifiable
         $this->sports = new ArrayCollection();
         $this->referees = new ArrayCollection();
         $this->plannings = new ArrayCollection();
+        $this->historicalBestPlannings = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
 
         $pouleStructure = $configuration->pouleStructure;
@@ -141,15 +146,7 @@ class Input extends Identifiable
         );
     }
 
-    public function getPreviousMinNrOfBatches(): int|null
-    {
-        return $this->previousMinNrOfBatches;
-    }
 
-    public function setPreviousMinNrOfBatches(int|null $previousMinNrOfBatches): void
-    {
-        $this->previousMinNrOfBatches = $previousMinNrOfBatches;
-    }
 
     /**
      * @return Collection<int|string, Poule>
@@ -437,6 +434,14 @@ class Input extends Identifiable
             throw new NoBestPlanningException($this, $type);
         }
         return $bestPlanning;
+    }
+
+    /**
+     * @return Collection<int|string, HistoricalBestPlanning>
+     */
+    public function getHistoricalBestPlannings(): Collection
+    {
+        return $this->historicalBestPlannings;
     }
 
     public function getSelfRefereeInfo(): SelfRefereeInfo

@@ -9,21 +9,6 @@ from planningSchedules s
 where (select count(*) from planningSportSchedules ss where ss.scheduleId = s.id) > 1;
 
 -- POST POST POST doctrine-update ===========================================================
-update planningInputs
-set recreatedAt = null;
-update planningInputs
-set seekingPercentage = -1;
-
-alter table planningSchedules
-    drop gamePlaceStrategy;
-alter table planningInputs
-    drop gamePlaceStrategy;
-
--- update planninginputs set gameMode = 2;
--- update planningInputs set sportConfig = replace(sportConfig, '2}]', concat( '2,"gameAmount": ', nrOfHeadtohead, '}]') );
--- update planningInputs set sportConfig = replace(sportConfig, 'Places":2', 'Places":4') , gameMode = 2 where teamup = true;
-
-
 -- php bin/console.php app:create-default-planning-input --placesRange=2-4 --sendCreatePlanningMessage=true
 
 -- CUSTOM IMPORT =============================

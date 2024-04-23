@@ -28,7 +28,7 @@
       </cascade>
     </one-to-many>
     <unique-constraints>
-      <unique-constraint columns="inputid,minNrOfBatchGames,maxNrOfBatchGames,maxNrOfGamesInARow" name="number_v_idx" />
+      <unique-constraint columns="inputId,minNrOfBatchGames,maxNrOfBatchGames,maxNrOfGamesInARow" name="number_v_idx" />
     </unique-constraints>
   </entity>
 </doctrine-mapping>
