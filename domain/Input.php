@@ -21,6 +21,7 @@ use SportsPlanning\Input\Calculator as InputCalculator;
 use SportsPlanning\Input\Configuration;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning\BatchGamesType;
+use SportsPlanning\Planning\Comparer;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 use SportsPlanning\Planning\HistoricalBestPlanning;
 use SportsPlanning\Planning\State as PlanningState;
@@ -412,23 +413,10 @@ class Input extends Identifiable
             $type, PlanningState::Succeeded, null, null
         );
         $succeededPlannings = $this->getFilteredPlannings($filter);
-        uasort($succeededPlannings, function (Planning $first, Planning $second): int {
-            if ($first->getNrOfBatches() !== $second->getNrOfBatches()) {
-                return $first->getNrOfBatches() - $second->getNrOfBatches();
-            }
-            if ($first->getMaxNrOfGamesInARow() > 0 && $second->getMaxNrOfGamesInARow() > 0) {
-                return $first->getMaxNrOfGamesInARow() - $second->getMaxNrOfGamesInARow();
-            } else {
-                if ($first->getMaxNrOfGamesInARow() === 0 && $second->getMaxNrOfGamesInARow() === 0) {
-                    $firstBatchGamesTypeRangeIsZero =  $first->getBatchGamesType() === BatchGamesType::RangeIsZero;
-                    $secondBatchGamesTypeRangeIsZero =  $second->getBatchGamesType() === BatchGamesType::RangeIsZero;
-                    return $firstBatchGamesTypeRangeIsZero ? -1 : ($secondBatchGamesTypeRangeIsZero ? 1 : 0);
-                } else {
-                    return $first->getMaxNrOfGamesInARow() === 0 ? 1 : -1;
-                }
-            }
-        });
 
+        uasort($succeededPlannings, function (Planning|HistoricalBestPlanning $first, Planning|HistoricalBestPlanning $second): int {
+            return (new Comparer())->compare($first, $second);
+        });
         $bestPlanning = array_shift($succeededPlannings);
         if ($bestPlanning === null) {
             throw new NoBestPlanningException($this, $type);
@@ -442,6 +430,15 @@ class Input extends Identifiable
     public function getHistoricalBestPlannings(): Collection
     {
         return $this->historicalBestPlannings;
+    }
+
+    public function getHistoricalVeryBestPlanning(): HistoricalBestPlanning|null
+    {
+        $historicalBestPlannings = $this->getHistoricalBestPlannings()->toArray();
+        uasort($historicalBestPlannings, function (Planning|HistoricalBestPlanning $first, Planning|HistoricalBestPlanning $second): int {
+            return (new Comparer())->compare($first, $second);
+        });
+        return array_shift($historicalBestPlannings);
     }
 
     public function getSelfRefereeInfo(): SelfRefereeInfo
