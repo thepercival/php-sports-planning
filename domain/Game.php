@@ -99,4 +99,8 @@ abstract class Game extends Identifiable
     {
         $this->field = $field;
     }
+
+    public function getFieldUniqueIndex(): string {
+        return $this->getField()->getUniqueIndex();
+    }
 }

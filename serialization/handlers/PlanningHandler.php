@@ -22,9 +22,8 @@ use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Poule;
 
 /**
- * @psalm-type _Field = array{number: int}
- * @psalm-type _AgainstGame = array{field: _Field, pouleNr: int, refereePlaceLocation: string|null}
- * @psalm-type _TogetherGame = array{field: _Field, pouleNr: int}
+ * @psalm-type _AgainstGame = array{fieldUniqueIndex: string, pouleNr: int, refereePlaceLocation: string|null}
+ * @psalm-type _TogetherGame = array{fieldUniqueIndex: string, pouleNr: int}
  * @psalm-type _FieldValue = array{inputConfiguration: InputConfiguration, againstGames: list<_AgainstGame>, togetherGames: list<_TogetherGame>, minNrOfBatchGames: int, maxNrOfBatchGames: int, maxNrOfGamesInARow: int, createdDateTime: string, nrOfBatches: int, state: string, validity: int}
  */
 class PlanningHandler extends Handler implements SubscribingHandlerInterface
@@ -84,7 +83,7 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
             $poule = $pouleMap[ $arrAgainstGame['pouleNr'] ];
             $fieldValue["againstGame"]["poule"] = $poule;
             $fieldValue["againstGame"]["placeLocationMap"] = $placeLocationMap;
-            $field = $fieldMap[ $arrAgainstGame['field']['number'] ];
+            $field = $fieldMap[ $arrAgainstGame['fieldUniqueIndex'] ];
             $fieldValue["againstGame"]["field"] = $field;
             $this->getProperty(
                 $visitor,
@@ -100,7 +99,7 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
             $poule = $pouleMap[ $arrTogetherGame['pouleNr'] ];
             $fieldValue["togetherGame"]["poule"] = $poule;
             $fieldValue["togetherGame"]["placeLocationMap"] = $placeLocationMap;
-            $field = $fieldMap[ $arrTogetherGame['field']['number'] ];
+            $field = $fieldMap[ $arrTogetherGame['fieldUniqueIndex'] ];
             $fieldValue["togetherGame"]["field"] = $field;
             $this->getProperty(
                 $visitor,
@@ -140,12 +139,12 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
 
     /**
      * @param list<Field> $fields
-     * @return array<int, Field>
+     * @return array<string, Field>
      */
     private function getFieldMap(array $fields): array {
         $fieldMap = [];
         foreach ( $fields as $field ) {
-            $fieldMap[$field->getNumber()] = $field;
+            $fieldMap[$field->getUniqueIndex()] = $field;
         }
         return $fieldMap;
     }

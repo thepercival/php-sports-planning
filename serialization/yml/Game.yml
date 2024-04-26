@@ -6,8 +6,6 @@ SportsPlanning\Game:
       type: integer
     referee:
       type: SportsPlanning\Referee
-    field:
-      type: SportsPlanning\Field
   virtual_properties:
     getPouleNr:
       type: integer
@@ -15,3 +13,6 @@ SportsPlanning\Game:
     getRefereePlaceLocation:
       type: string
       serialized_name: refereePlaceLocation
+    getFieldUniqueIndex:
+      type: string
+      serialized_name: fieldUniqueIndex
