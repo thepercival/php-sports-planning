@@ -53,9 +53,9 @@ class PlanningOutput extends OutputHelper
         if (($extra & Extra::Input->value) === Extra::Input->value) {
             $outputs[] = $this->getInputConfigurationAsString($planning->createInputConfiguration());
         }
-        $output = join(', ', $outputs);
+        $output = ($prefix ?? '') . join(', ', $outputs) . ($suffix ?? '');
         if( $color !== null ){
-            $output = Color::getColored($color, ($prefix ?? '') . $output . ($suffix ?? ''));
+            $output = Color::getColored($color,$output );
         }
         $this->logger->info($output);
 
