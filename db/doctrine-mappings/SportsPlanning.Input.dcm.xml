@@ -5,8 +5,7 @@
 	  	<field name="nrOfSimSelfRefs" column="nrOfSimSelfRefs" type="smallint" nullable="false" unique="false"/>
 	  	<field name="perPoule" column="perPoule" type="boolean" nullable="false" unique="false"/>
 	  	<field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
-	  	<field name="recreatedAt" column="recreatedAt" type="datetime_immutable" nullable="true" unique="false"/>
-		<field name="seekingPercentage" column="seekingPercentage" type="smallint" nullable="false" unique="false"/>
+	  	<field name="seekingPercentage" column="seekingPercentage" type="smallint" nullable="false" unique="false"/>
 	  	<field name="name" column="name" type="string" length="512" nullable="false" unique="true"/>
 	  	<one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="input">
 			<cascade>

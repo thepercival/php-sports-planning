@@ -64,8 +64,6 @@ class Input extends Identifiable
      */
     protected Collection $historicalBestPlannings;
     protected int|null $maxNrOfGamesInARow = null;
-
-    protected DateTimeImmutable|null $recreatedAt = null;
     protected bool $perPoule;
 
     public function __construct(readonly Configuration $configuration) {
@@ -464,16 +462,6 @@ class Input extends Identifiable
             $this->hasBalancedStructure = $highestNrPlaces == $lowestNrPlaces;
         }
         return $this->hasBalancedStructure;
-    }
-
-    public function getRecreatedAt(): DateTimeImmutable|null
-    {
-        return $this->recreatedAt;
-    }
-
-    public function setRecreatedAt(DateTimeImmutable|null $dateTime): void
-    {
-        $this->recreatedAt = $dateTime;
     }
 
     public function getSeekingPercentage(): int|null
