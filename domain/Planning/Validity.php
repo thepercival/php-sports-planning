@@ -11,7 +11,7 @@ class Validity
     public const EMPTY_REFEREE = 8;
     public const EMPTY_REFEREEPLACE = 16;
     public const UNEQUAL_GAME_HOME_AWAY = 32;
-    public const UNEQUAL_GAME_WITH_AGAINST = 64;
+    public const UNEQUAL_GAME_AGAINST = 64;
     public const NOT_EQUALLY_ASSIGNED_PLACES = 128;
     public const TOO_MANY_GAMES_IN_A_ROW = 256;
     public const MULTIPLE_ASSIGNED_FIELDS_IN_BATCH = 512;
@@ -24,6 +24,7 @@ class Validity
     public const UNEQUAL_PLACE_NROFHOMESIDES = 65536;
     public const INVALID_REFEREESELF_AND_REFEREES = 131072;
     public const INVALID_NROFBATCHES = 262144;
+    public const UNEQUAL_GAME_WITH = 524288;
 
-    public const ALL_INVALID = 524287;
+    public const ALL_INVALID = 1048575;
 }
