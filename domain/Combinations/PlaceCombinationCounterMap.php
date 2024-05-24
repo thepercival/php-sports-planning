@@ -15,7 +15,7 @@ class PlaceCombinationCounterMap
      */
     private array $map;
     private bool|null $canBeBalanced = null;
-    private AmountRange|null|false $range = false;
+    private AmountRange|null $range = null;
     /**
      * @var array<int, Amount>|null
      */
@@ -90,11 +90,11 @@ class PlaceCombinationCounterMap
 
     public function getAmountRange(): SportRange|null {
         $range = $this->getRange();
-        return $range ? new SportRange($range->getMin()->amount, $range->getMax()->amount) : null;
+        return $range !== null ? new SportRange($range->getMin()->amount, $range->getMax()->amount) : null;
     }
 
     public function getRange(): AmountRange|null {
-        if( $this->range === false) {
+        if( $this->range === null) {
             $amounts = $this->getAmountMap();
             $min = array_shift($amounts);
             $max = array_pop($amounts);

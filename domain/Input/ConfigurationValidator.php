@@ -21,20 +21,33 @@ class ConfigurationValidator
     {
     }
 
-    public function reduce(InputConfiguration $configuration): InputConfiguration
+    /**
+     * @param PouleStructure $pouleStructure
+     * @param list<SportVariantWithFields> $sportVariantsWithFields
+     * @param RefereeInfo $refereeInfo
+     * @param bool $perPoule
+     */
+    public function createReducedAndValidatedInputConfiguration(
+        PouleStructure $pouleStructure,
+        array $sportVariantsWithFields,
+        RefereeInfo $refereeInfo,
+        bool $perPoule
+        ): InputConfiguration
     {
-        $pouleStructure = $configuration->pouleStructure;
-        $sportVariantsWithFields = $configuration->sportVariantsWithFields;
 
-        $refereeInfo = $this->getValidatedRefereeInfo(
-            $configuration->refereeInfo, $pouleStructure, $configuration->createSportVariants());
+        $sportVariants = array_map( function (SportVariantWithFields $sportVariantWithField): Single|AgainstH2h|AgainstGpp|AllInOneGame {
+            return $sportVariantWithField->getSportVariant();
+        }, $sportVariantsWithFields);
 
-        $efficientSportVariants = $this->reduceFields($pouleStructure, $sportVariantsWithFields, $refereeInfo);
+        $validatedRefereeInfo = $this->getValidatedRefereeInfo(
+            $refereeInfo, $pouleStructure, $sportVariants);
+
+        $efficientSportVariants = $this->reduceFields($pouleStructure, $sportVariantsWithFields, $validatedRefereeInfo);
         return new InputConfiguration(
             $pouleStructure,
             $efficientSportVariants,
-            $refereeInfo,
-            $configuration->perPoule
+            $validatedRefereeInfo,
+            $perPoule
         );
     }
 

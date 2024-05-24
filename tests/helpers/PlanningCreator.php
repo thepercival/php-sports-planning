@@ -127,13 +127,11 @@ trait PlanningCreator
             $refereeInfo = new RefereeInfo($this->getDefaultNrOfReferees());
         }
         $configurationValidator = new Input\ConfigurationValidator();
-        $configuration = $configurationValidator->reduce(
-            new Configuration(
-                new PouleStructure(...$pouleStructureAsArray),
-                $sportVariantsWithFields,
-                $refereeInfo,
-                $perPoule
-            )
+        $configuration = $configurationValidator->createReducedAndValidatedInputConfiguration(
+            new PouleStructure(...$pouleStructureAsArray),
+            $sportVariantsWithFields,
+            $refereeInfo,
+            $perPoule
         );
         $input = new Input( $configuration );
 
