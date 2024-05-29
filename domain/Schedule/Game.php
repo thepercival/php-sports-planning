@@ -8,10 +8,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Identifiable;
-use SportsPlanning\Combinations\HomeAway;
-use SportsPlanning\Combinations\PlaceCombination;
-use SportsPlanning\Place;
-use SportsPlanning\Poule;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 
 class Game extends Identifiable

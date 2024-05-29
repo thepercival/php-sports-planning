@@ -6,30 +6,30 @@ namespace SportsPlanning\Combinations;
 
 use SportsPlanning\Place;
 
-class PlaceCombination implements \Stringable
+readonly class PlaceCombination implements \Stringable
 {
-    private string|null $index = null;
     /**
      * @var list<Place> $places
      */
     private array $places;
+    private string $index;
 
     /**
      * @param list<Place> $places
      */
     public function __construct(array $places)
     {
-        uasort($places, function(Place $place1, Place $place2): int {
+        $uniquePlaces = array_unique($places);
+        uasort($uniquePlaces, function(Place $place1, Place $place2): int {
             return $place1->getPlaceNr() - $place2->getPlaceNr();
         });
-        $this->places = array_values($places);
+        $this->places = array_values($uniquePlaces);
+
+        $this->index = (string)$this;
     }
 
     public function getIndex(): string
     {
-        if( $this->index === null) {
-            $this->index = (string)$this;
-        }
         return $this->index;
     }
 

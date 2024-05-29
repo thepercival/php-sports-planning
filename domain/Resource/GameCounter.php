@@ -8,7 +8,7 @@ use SportsHelpers\Counter;
 /**
  * @template-extends Counter<PlanningResource>
  */
-class GameCounter extends Counter implements \Stringable
+readonly class GameCounter extends Counter implements \Stringable
 {
     public function __construct(PlanningResource $resource, int $nrOfGames = 0)
     {
@@ -18,6 +18,11 @@ class GameCounter extends Counter implements \Stringable
     public function getResource(): PlanningResource
     {
         return $this->countedObject;
+    }
+
+    public function increment(): GameCounter
+    {
+        return new GameCounter($this->countedObject, $this->count + 1 );
     }
 
     public function getIndex(): string

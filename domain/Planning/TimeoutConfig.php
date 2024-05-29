@@ -10,8 +10,8 @@ use SportsPlanning\Planning;
 
 class TimeoutConfig
 {
-    public const MINIMUM_TIMEOUTSECONDS = 5;
-    public const MAXIMUM_TIMEOUTSECONDS = 15;
+    public const int MINIMUM_TIMEOUTSECONDS = 5;
+    public const int MAXIMUM_TIMEOUTSECONDS = 15;
 
     public function getTimeoutSeconds(Input $input, TimeoutState|null $timeoutState): int
     {

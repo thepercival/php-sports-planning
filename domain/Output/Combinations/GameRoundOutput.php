@@ -7,8 +7,8 @@ namespace SportsPlanning\Output\Combinations;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Combinations\HomeAway as HomeAwayBase;
-use SportsPlanning\Output\Combinations\HomeAwayOutput as HomeAwayOutput;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
+use SportsPlanning\Output\Combinations\HomeAwayOutput as HomeAwayOutput;
 
 class GameRoundOutput extends OutputHelper
 {

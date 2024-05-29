@@ -6,7 +6,6 @@ namespace SportsPlanning\GameRound;
 
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\GameRound;
-use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\Planning\ListNode;
 
 /**

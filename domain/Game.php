@@ -17,7 +17,7 @@ abstract class Game extends Identifiable
      */
     protected Collection|null $poulePlaces = null;
 
-    public const ORDER_BY_BATCH = 1;
+    public const int ORDER_BY_BATCH = 1;
     // public const ORDER_BY_GAMENUMBER = 2;
 
     public function __construct(protected Planning $planning, protected Poule $poule, protected Field $field)

@@ -20,7 +20,7 @@ class GameCounterTest extends TestCase
         self::assertSame("1", $gameCounter->getIndex());
         self::assertSame(0, $gameCounter->getNrOfGames());
 
-        $gameCounter->increment();
+        $gameCounter = $gameCounter->increment();
         self::assertSame(1, $gameCounter->getNrOfGames());
 
         self::assertSame($referee, $gameCounter->getResource());

@@ -2,18 +2,19 @@
 
 namespace SportsPlanning\Combinations;
 
-use SportsPlanning\PlaceCounter;
-use SportsPlanning\Poule;
-use SportsPlanning\Place;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsPlanning\Counters\CounterForPlace;
+use SportsPlanning\Counters\CounterForPlaceCombination;
+use SportsPlanning\Place;
+use SportsPlanning\Poule;
 
 class Mapper
 {
     /**
      * @param Poule $poule
-     * @param list<AgainstH2h|AgainstGpp> $againstVariants
-     * @return array<string, PlaceCombinationCounter>
+     * @param list<AgainstGpp|AgainstH2h> $againstVariants
+     * @return array<string, CounterForPlaceCombination>
      */
     public function getWithMap(Poule $poule, array $againstVariants): array
     {
@@ -26,7 +27,7 @@ class Mapper
 
     /**
      * @param Poule $poule
-     * @return array<string, PlaceCombinationCounter>
+     * @return array<string, CounterForPlaceCombination>
      */
     public function getAgainstMap(Poule $poule): array
     {
@@ -37,7 +38,7 @@ class Mapper
 
 
     /**
-     * @param list<AgainstH2h|AgainstGpp> $againstVariants
+     * @param list<AgainstGpp|AgainstH2h> $againstVariants
      * @return list<int>
      */
     protected function getNrOfSidePlaces(array $againstVariants): array {
@@ -52,7 +53,7 @@ class Mapper
     /**
      * @param Poule $poule
      * @param int $nrOfSidePlaces
-     * @return array<string, PlaceCombinationCounter>
+     * @return array<string, CounterForPlaceCombination>
      */
     public function getPlaceCombinationMap(Poule $poule, int $nrOfSidePlaces): array
     {
@@ -62,7 +63,7 @@ class Mapper
     }
 
     /**
-     * @param array<string, PlaceCombinationCounter> $map
+     * @param array<string, CounterForPlaceCombination> $map
      * @param Poule $poule
      * @param int $nrOfSidePlaces
      */
@@ -86,25 +87,25 @@ class Mapper
 
 
     /**
-     * @param array<string, PlaceCombinationCounter> $map
+     * @param array<string, CounterForPlaceCombination> $map
      * @param list<Place> $places
      */
     protected function addPlacesToPlaceCombinationMap(array &$map, array $places): void
     {
         $placeCombination = new PlaceCombination($places);
-        $map[$placeCombination->getIndex()] = new PlaceCombinationCounter($placeCombination);
+        $map[$placeCombination->getIndex()] = new CounterForPlaceCombination($placeCombination);
     }
 
 
     /**
      * @param Poule $poule
-     * @return array<int, PlaceCounter>
+     * @return array<int, CounterForPlace>
      */
-    public function getPlaceMap(Poule $poule): array
+    public function getPlaceCounterMap(Poule $poule): array
     {
         $map = [];
         foreach ($poule->getPlaces() as $place) {
-            $map[$place->getPlaceNr()] = new PlaceCounter($place);
+            $map[$place->getPlaceNr()] = new CounterForPlace($place);
         }
         return $map;
     }

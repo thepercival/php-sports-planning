@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Output;
 
 use Psr\Log\LoggerInterface;
+use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Counter;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\PouleStructure;
@@ -12,18 +13,14 @@ use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Creator as VariantCreator;
 use SportsHelpers\Sport\Variant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
-use SportsPlanning\Combinations\AssignedCounter;
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\PlaceCombination;
-use SportsPlanning\Combinations\PlaceCombinationCounter;
+use SportsPlanning\Counters\AssignedCounter;
+use SportsPlanning\Counters\CounterForPlaceCombination;
 use SportsPlanning\Input;
 use SportsPlanning\Poule;
 use SportsPlanning\Referee\Info;
 use SportsPlanning\Schedule as ScheduleBase;
-use SportsPlanning\Output\GameOutput as GameOutput;
-use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Schedule\Name;
 
 class ScheduleOutput extends OutputHelper
@@ -190,7 +187,7 @@ class ScheduleOutput extends OutputHelper
     }
 
     /**
-     * @param list<PlaceCombinationCounter> $assignedAgainstMap
+     * @param list<CounterForPlaceCombination> $assignedAgainstMap
      * @param string $prefix
      * @return void
      */

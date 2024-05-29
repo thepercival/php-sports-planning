@@ -10,6 +10,7 @@ use SportsHelpers\Output\Color;
 use SportsPlanning\Combinations\HomeAway as HomeAwayBase;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
+use SportsPlanning\Counters\CounterForPlaceCombination;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\Place;
 
@@ -65,14 +66,14 @@ class HomeAwayOutput extends OutputHelper
 
     /**
      * @param list<HomeAwayBase> $homeAways
-     * @return array<string, PlaceCombinationCounter> $map
+     * @return array<string, CounterForPlaceCombination> $map
      */
     protected function convertToAgainstPlaceCombinationMap(array $homeAways): array {
         $map = [];
         foreach ($homeAways as $homeAway) {
             foreach( $homeAway->getAgainstPlaceCombinations() as $withPlaceCombincation ) {
                 if( !array_key_exists($withPlaceCombincation->getIndex(), $map)) {
-                    $map[$withPlaceCombincation->getIndex()] = new PlaceCombinationCounter($withPlaceCombincation);
+                    $map[$withPlaceCombincation->getIndex()] = new CounterForPlaceCombination($withPlaceCombincation);
                 }
                 $map[$withPlaceCombincation->getIndex()]->increment();
             }
@@ -97,14 +98,14 @@ class HomeAwayOutput extends OutputHelper
 
     /**
      * @param list<HomeAwayBase> $homeAways
-     * @return array<string, PlaceCombinationCounter> $map
+     * @return array<string, CounterForPlaceCombination> $map
      */
     protected function convertToWithPlaceCombinationMap(array $homeAways): array {
         $map = [];
         foreach ($homeAways as $homeAway) {
             foreach( $homeAway->getWithPlaceCombinations() as $withPlaceCombincation ) {
                 if( !array_key_exists($withPlaceCombincation->getIndex(), $map)) {
-                    $map[$withPlaceCombincation->getIndex()] = new PlaceCombinationCounter($withPlaceCombincation);
+                    $map[$withPlaceCombincation->getIndex()] = new CounterForPlaceCombination($withPlaceCombincation);
                 }
                 $map[$withPlaceCombincation->getIndex()]->increment();
             }
@@ -113,7 +114,7 @@ class HomeAwayOutput extends OutputHelper
     }
 
     /**
-     * @param array<string, PlaceCombinationCounter> $map
+     * @param array<string, CounterForPlaceCombination> $map
      * @return void
      */
     public function outputTotalsHelpers(array $map): void {

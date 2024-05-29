@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Poule;
 
-use SportsPlanning\Poule\PouleCounter;
+use SportsPlanning\Counters\GamePlacesCounterForPoule;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class PouleCounterTest extends \PHPUnit\Framework\TestCase
@@ -16,18 +16,18 @@ class PouleCounterTest extends \PHPUnit\Framework\TestCase
         $input = $this->createInput([3]);
 
         $pouleOne = $input->getPoule(1);
-        $pouleCounter = new PouleCounter($pouleOne);
+        $gamePlacesCounter = new GamePlacesCounterForPoule($pouleOne);
 
         $nrOfPlacesAssigned = 3;
-        $pouleCounter->add($nrOfPlacesAssigned);
+        $gamePlacesCounter = $gamePlacesCounter->add($nrOfPlacesAssigned);
 
-        self::assertSame($nrOfPlacesAssigned, $pouleCounter->getNrOfPlacesAssigned());
-        self::assertSame(1, $pouleCounter->getNrOfGames());
+        self::assertSame($nrOfPlacesAssigned, $gamePlacesCounter->getNrOfPlacesAssigned());
+        self::assertSame(1, $gamePlacesCounter->getNrOfGames());
 
-        $pouleCounter->reset();
-        self::assertSame(0, $pouleCounter->getNrOfPlacesAssigned());
-        self::assertSame(0, $pouleCounter->getNrOfGames());
+        $gamePlacesCounter = $gamePlacesCounter->reset();
+        self::assertSame(0, $gamePlacesCounter->getNrOfPlacesAssigned());
+        self::assertSame(0, $gamePlacesCounter->getNrOfGames());
 
-        self::assertSame($pouleOne, $pouleCounter->getPoule());
+        self::assertSame($pouleOne, $gamePlacesCounter->getPoule());
     }
 }

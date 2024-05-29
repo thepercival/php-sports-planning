@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Combinations;
+namespace SportsPlanning\Counters;
 
 use SportsHelpers\Counter;
+use SportsPlanning\Combinations\PlaceCombination;
 
 /**
  * @template-extends Counter<PlaceCombination>
  */
-class PlaceCombinationCounter extends Counter implements \Stringable
+readonly class CounterForPlaceCombination extends Counter implements \Stringable
 {
     public function __construct(PlaceCombination $placeCombination, int $count = 0)
     {
@@ -23,10 +24,10 @@ class PlaceCombinationCounter extends Counter implements \Stringable
 
     public function decrement(): self
     {
-        return new self($this->getPlaceCombination(), $this->count - 1 );
+        return new self($this->getPlaceCombination(), $this->count() - 1 );
     }
 
-    public function increment2(): self
+    public function increment(): self
     {
         return new self($this->getPlaceCombination(), $this->count() + 1 );
     }

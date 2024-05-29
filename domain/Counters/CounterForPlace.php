@@ -2,14 +2,15 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning;
+namespace SportsPlanning\Counters;
 
 use SportsHelpers\Counter;
+use SportsPlanning\Place;
 
 /**
  * @template-extends Counter<Place>
  */
-class PlaceCounter extends Counter
+readonly class CounterForPlace extends Counter
 {
     public function __construct(Place $place, int $count = 0)
     {
@@ -26,14 +27,14 @@ class PlaceCounter extends Counter
         return $this->countedObject;
     }
 
-    public function decrement(): self
+    public function increment(): CounterForPlace
     {
-        return new self($this->getPlace(), $this->count - 1 );
+        return new CounterForPlace($this->countedObject, $this->count + 1 );
     }
 
-    public function increment2(): self
+    public function decrement(): CounterForPlace
     {
-        return new self($this->getPlace(), $this->count() + 1 );
+        return new CounterForPlace($this->countedObject, $this->count - 1 );
     }
 
     public function __toString(): string

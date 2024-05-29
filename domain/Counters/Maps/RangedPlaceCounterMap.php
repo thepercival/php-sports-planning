@@ -1,25 +1,24 @@
 <?php
 
-namespace SportsPlanning\Combinations\PlaceCounterMap;
+namespace SportsPlanning\Counters\Maps;
 
-use SportsPlanning\Place;
-use SportsPlanning\Combinations\Amount\Range as AmountRange;
-use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\Amount\Calculator as AmountCalculator;
-use SportsPlanning\Combinations\PlaceCounterMap as PlaceCounterMapBase;
+use SportsPlanning\Combinations\Amount\Range as AmountRange;
+use SportsPlanning\Counters\Maps\PlaceCounterMap as PlaceCounterMapBase;
+use SportsPlanning\Counters\Reports\RangedPlaceCountersReport;
+use SportsPlanning\Place;
 
-class Ranged
+readonly class RangedPlaceCounterMap
 {
-    // private int|null $shortage = null;
-    // private bool|null $overAssigned = null;
-    private readonly PlaceCounterMapBase $map;
-    private int|null $nrOfPlacesBelowMinimum = null;
-    private int|null $nrOfPlacesAboveMaximum = null;
-    private readonly AmountRange $allowedRange;
+    private RangedPlaceCountersReport $report;
+    private PlaceCounterMapBase $map;
+
+    private AmountRange $allowedRange;
 
     public function __construct(PlaceCounterMapBase $map, AmountRange $allowedRange) {
         $this->map = $map;
         $this->allowedRange = $allowedRange;
+        $this->report = new RangedPlaceCountersReport($map, $allowedRange);
     }
 
     public function getAllowedRange(): AmountRange {
@@ -42,63 +41,55 @@ class Ranged
 
     public function getNrOfPlacesBelowMinimum(): int
     {
-        if( $this->nrOfPlacesBelowMinimum === null) {
-            $calculator = new AmountCalculator($this->getMap()->count(), $this->allowedRange);
-            $this->nrOfPlacesBelowMinimum = $calculator->countBeneathMinimum( $this->map->getAmountMap() );
-        }
-        return $this->nrOfPlacesBelowMinimum;
+        return $this->report->getNrOfPlacesBelowMinimum();
     }
 
     public function getNrOfPlacesAboveMaximum(): int
     {
-        if( $this->nrOfPlacesAboveMaximum === null) {
-            $calculator = new AmountCalculator($this->getMap()->count(), $this->allowedRange);
-            $this->nrOfPlacesAboveMaximum = $calculator->countAboveMaximum( $this->map->getAmountMap() );
-        }
-        return $this->nrOfPlacesAboveMaximum;
+        return $this->report->getNrOfPlacesAboveMaximum();
     }
 
 
 
-    public function count(Place $place): int
-    {
-        return $this->map->count($place);
-    }
+//    public function count(Place $place): int
+//    {
+//        return $this->map->count($place);
+//    }
 
     public function countAmount(int $amount): int {
-        $amountMap = $this->map->getAmountMap();
+        $amountMap = $this->map->getReport()->getAmountMap();
         return array_key_exists($amount, $amountMap) ? $amountMap[$amount]->count : 0;
     }
 
     public function getAmountDifference(): int
     {
-        return $this->map->getAmountDifference();
+        return $this->report->getAmountDifference();
     }
 
     public function getRange(): AmountRange|null
     {
-        return $this->map->getRange();
+        return $this->report->getRange();
     }
 
     public function getMinAmount(): int
     {
-        return $this->map->getMinAmount();
+        return $this->report->getMinAmount();
     }
 
 
     public function getCountOfMinAmount(): int
     {
-        return $this->map->getCountOfMinAmount();
+        return $this->report->getCountOfMinAmount();
     }
 
     public function getMaxAmount(): int
     {
-        return $this->map->getMaxAmount();
+        return $this->report->getMaxAmount();
     }
 
     public function getCountOfMaxAmount(): int
     {
-        return $this->map->getCountOfMaxAmount();
+        return $this->report->getCountOfMaxAmount();
     }
 
     public function withinRange(int $nrOfCombinationsToGo): bool
