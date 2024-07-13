@@ -7,6 +7,8 @@ namespace SportsPlanning\GameRound;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\GameRound;
 use SportsPlanning\GameRound\Together\Game;
+use SportsPlanning\GameRound\Together\GamePlace;
+use SportsPlanning\Place;
 use SportsPlanning\Planning\ListNode;
 
 /**
@@ -62,5 +64,17 @@ class Together extends ListNode
     public function toPlaceCombinations(): array
     {
         return array_map(fn(Game $game) => $game->toPlaceCombination(), $this->games);
+    }
+
+    /**
+     * @return list<Place>
+     */
+    public function toPlaces(): array
+    {
+        $places = [];
+        foreach( $this->games as $game ) {
+            $places = array_merge($places, $game->toPlaces() );
+        }
+        return $places;
     }
 }

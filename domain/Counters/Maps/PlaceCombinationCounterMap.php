@@ -9,7 +9,7 @@ use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Counters\CounterForPlaceCombination;
 use SportsPlanning\Counters\Reports\PlaceCombinationCountersReport;
 
-readonly final class PlaceCombinationCounterMap
+readonly class PlaceCombinationCounterMap
 {
     /**
      * @var array<string, CounterForPlaceCombination>

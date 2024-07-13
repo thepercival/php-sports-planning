@@ -2376,16 +2376,16 @@
         },
         {
             "name": "thepercival/php-sports-helpers",
-            "version": "v1.2.55",
+            "version": "v1.2.56",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thepercival/php-sports-helpers.git",
-                "reference": "702ddd0f51052e2c420cef5bb0c135456bfa38b0"
+                "reference": "5acdf012cc3af6f4aa11dcbd91ce7fbad755a2ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/702ddd0f51052e2c420cef5bb0c135456bfa38b0",
-                "reference": "702ddd0f51052e2c420cef5bb0c135456bfa38b0",
+                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/5acdf012cc3af6f4aa11dcbd91ce7fbad755a2ca",
+                "reference": "5acdf012cc3af6f4aa11dcbd91ce7fbad755a2ca",
                 "shasum": ""
             },
             "require": {
@@ -2436,9 +2436,9 @@
             "support": {
                 "email": "coendunnink@gmail.com",
                 "issues": "https://github.com/thepercival/php-sports-helpers/issues",
-                "source": "https://github.com/thepercival/php-sports-helpers/tree/v1.2.55"
+                "source": "https://github.com/thepercival/php-sports-helpers/tree/v1.2.56"
             },
-            "time": "2024-05-26T19:25:39+00:00"
+            "time": "2024-07-13T19:22:01+00:00"
         }
     ],
     "packages-dev": [
@@ -3870,16 +3870,16 @@
         },
         {
             "name": "phpstan/phpstan-doctrine",
-            "version": "1.4.6",
+            "version": "1.4.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan-doctrine.git",
-                "reference": "6339dffef7c3168ebf705b7737e0022d0038d78f"
+                "reference": "3f2cb3d364851e54080277499a9a7c150364538d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan-doctrine/zipball/6339dffef7c3168ebf705b7737e0022d0038d78f",
-                "reference": "6339dffef7c3168ebf705b7737e0022d0038d78f",
+                "url": "https://api.github.com/repos/phpstan/phpstan-doctrine/zipball/3f2cb3d364851e54080277499a9a7c150364538d",
+                "reference": "3f2cb3d364851e54080277499a9a7c150364538d",
                 "shasum": ""
             },
             "require": {
@@ -3936,9 +3936,9 @@
             "description": "Doctrine extensions for PHPStan",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan-doctrine/issues",
-                "source": "https://github.com/phpstan/phpstan-doctrine/tree/1.4.6"
+                "source": "https://github.com/phpstan/phpstan-doctrine/tree/1.4.7"
             },
-            "time": "2024-07-12T11:02:43+00:00"
+            "time": "2024-07-12T20:28:45+00:00"
         },
         {
             "name": "phpstan/phpstan-phpunit",

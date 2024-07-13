@@ -62,6 +62,14 @@ class Game implements \Stringable
         return new PlaceCombination($places);
     }
 
+    /**
+     * @return list<Place>
+     */
+    public function toPlaces(): array
+    {
+        return array_map(fn(GamePlace $gamePlace) => $gamePlace->getPlace(), $this->gamePlaces);
+    }
+
     public function __toString(): string
     {
         return join(' & ', $this->gamePlaces);
