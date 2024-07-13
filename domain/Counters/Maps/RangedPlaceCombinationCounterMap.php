@@ -8,11 +8,11 @@ use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Counters\Reports\PlaceCombinationCountersReport;
 use SportsPlanning\Counters\Reports\RangedPlaceCombinationCountersReport;
 
-readonly class RangedPlaceCombinationCounterMap
+class RangedPlaceCombinationCounterMap
 {
     // private int|null $shortage = null;
     // private bool|null $overAssigned = null;
-    private RangedPlaceCombinationCountersReport $report;
+    private readonly RangedPlaceCombinationCountersReport $report;
     private PlaceCombinationCounterMap $map;
 //    private readonly int $nrOfPlaceCombinationsBelowMinimum;
 //    private readonly int $nrOfPlaceCombinationsAboveMaximum;
@@ -32,16 +32,13 @@ readonly class RangedPlaceCombinationCounterMap
 //        return $this->map;
 //    }
 
-    public function addPlaceCombination(PlaceCombination $placeCombination): self {
-
-        return new self($this->map->addPlaceCombination($placeCombination), $this->allowedRange );
+    public function addPlaceCombination(PlaceCombination $placeCombination): void {
+        $this->map->addPlaceCombination($placeCombination);
     }
 
-    public function removePlaceCombination(PlaceCombination $placeCombination): self {
-
-        return new self($this->map->removePlaceCombination($placeCombination), $this->allowedRange);
+    public function removePlaceCombination(PlaceCombination $placeCombination): void {
+        $this->map->removePlaceCombination($placeCombination);
     }
-
 
     public function count(PlaceCombination $placeCombination): int
     {
@@ -49,40 +46,40 @@ readonly class RangedPlaceCombinationCounterMap
     }
 
     public function countAmount(int $amount): int {
-        $amountMap = $this->map->getReport()->getAmountMap();
+        $amountMap = $this->map->calculateReport()->getAmountMap();
         return array_key_exists($amount, $amountMap) ? $amountMap[$amount]->count : 0;
     }
 
-    public function getAmountDifference(): int
-    {
-        return $this->map->getReport()->getAmountDifference();
-    }
-
-    public function getRange(): AmountRange|null
-    {
-        return $this->map->getReport()->getRange();
-    }
-
-    public function getMinAmount(): int
-    {
-        return $this->map->getReport()->getMinAmount();
-    }
-
-
-    public function getCountOfMinAmount(): int
-    {
-        return $this->map->getReport()->getCountOfMinAmount();
-    }
-
-    public function getMaxAmount(): int
-    {
-        return $this->map->getReport()->getMaxAmount();
-    }
-
-    public function getCountOfMaxAmount(): int
-    {
-        return $this->map->getReport()->getCountOfMaxAmount();
-    }
+//    public function getAmountDifference(): int
+//    {
+//        return $this->map->calculateReport()->getAmountDifference();
+//    }
+//
+//    public function getRange(): AmountRange|null
+//    {
+//        return $this->map->calculateReport()->getRange();
+//    }
+//
+//    public function getMinAmount(): int
+//    {
+//        return $this->map->calculateReport()->getMinAmount();
+//    }
+//
+//
+//    public function getCountOfMinAmount(): int
+//    {
+//        return $this->map->calculateReport()->getCountOfMinAmount();
+//    }
+//
+//    public function getMaxAmount(): int
+//    {
+//        return $this->map->calculateReport()->getMaxAmount();
+//    }
+//
+//    public function getCountOfMaxAmount(): int
+//    {
+//        return $this->map->calculateReport()->getCountOfMaxAmount();
+//    }
 
     public function withinRange(int $nrOfCombinationsToGo): bool
     {

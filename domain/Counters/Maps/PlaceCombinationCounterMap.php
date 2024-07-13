@@ -9,13 +9,12 @@ use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Counters\CounterForPlaceCombination;
 use SportsPlanning\Counters\Reports\PlaceCombinationCountersReport;
 
-readonly class PlaceCombinationCounterMap
+class PlaceCombinationCounterMap
 {
     /**
      * @var array<string, CounterForPlaceCombination>
      */
     private array $map;
-    private PlaceCombinationCountersReport $report;
 
     /**
      * @param array<string, CounterForPlaceCombination> $placeCombinationCounters
@@ -23,12 +22,11 @@ readonly class PlaceCombinationCounterMap
     public function __construct(array $placeCombinationCounters)
     {
         $this->map = $placeCombinationCounters;
-        $this->report = new PlaceCombinationCountersReport($placeCombinationCounters);
     }
 
-    public function getReport(): PlaceCombinationCountersReport
+    public function calculateReport(): PlaceCombinationCountersReport
     {
-        return $this->report;
+        return new PlaceCombinationCountersReport($this->map);
     }
 
     public function getPlaceCombination(string $index): PlaceCombination
@@ -56,22 +54,46 @@ readonly class PlaceCombinationCounterMap
         return array_values($this->map);
     }
 
-    public function addPlaceCombination(PlaceCombination $placeCombination): self {
+//        /**
+//     * @param HomeAway $homeAway
+//     */
+//    public function addHomeAway(HomeAway $homeAway): void
+//    {
+//        foreach ($homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination) {
+//            $this->assignedAgainstMap->addPlaceCombination($againstPlaceCombination);
+//        }
+//
+//        foreach ($homeAway->getWithPlaceCombinations() as $withPlaceCombination) {
+//            $this->assignedWithMap->addPlaceCombination($withPlaceCombination);
+//        }
+//
+//        $this->assignedHomeMap->addPlaceCombination($homeAway->getHome());
+//
+////        $this->assignToTogetherMap($homeAway->getHome());
+////        $this->assignToTogetherMap($homeAway->getAway());
+//    }
 
-        $newCounter = $this->map[$placeCombination->getIndex()]->increment();
-        $map = $this->map;
-        $map[$placeCombination->getIndex()] = $newCounter;
+    /**
+     * @param list<PlaceCombination> $placeCombinations
+     * @return void
+     */
+    public function addPlaceCombinations(array $placeCombinations): void {
 
-        return new self($map);
+        foreach( $placeCombinations as $placeCombination ) {
+            $this->addPlaceCombination($placeCombination);
+        }
     }
 
-    public function removePlaceCombination(PlaceCombination $placeCombination): self {
+    public function addPlaceCombination(PlaceCombination $placeCombination): void {
+
+        $newCounter = $this->map[$placeCombination->getIndex()]->increment();
+        $this->map[$placeCombination->getIndex()] = $newCounter;
+    }
+
+    public function removePlaceCombination(PlaceCombination $placeCombination): void {
 
         $newCounter = $this->map[$placeCombination->getIndex()]->decrement();
-        $map = $this->map;
-        $map[$placeCombination->getIndex()] = $newCounter;
-
-        return new PlaceCombinationCounterMap($map);
+        $this->map[$placeCombination->getIndex()] = $newCounter;
     }
 
     /**

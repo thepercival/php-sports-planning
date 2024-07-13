@@ -15,7 +15,7 @@ use SportsHelpers\Sport\Variant\Creator as VariantCreator;
 use SportsHelpers\Sport\Variant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\PlaceCombination;
-use SportsPlanning\Counters\AssignedCounter;
+use SportsPlanning\Counters\ScheduleReport;
 use SportsPlanning\Counters\CounterForPlaceCombination;
 use SportsPlanning\Input;
 use SportsPlanning\Poule;
@@ -74,7 +74,7 @@ class ScheduleOutput extends OutputHelper
         $hasAgainstSport = false;
 
         $sportVariants = $schedule->createSportVariants();
-        $assignedCounter = new AssignedCounter($poule, $sportVariants);
+        $scheduleReport = new ScheduleReport($poule, $sportVariants);
         $unequalNrOfGames = 0;
         foreach ($schedule->getSportSchedules() as $sportSchedule) {
             $sportVariant = $sportSchedule->createVariant();
@@ -92,34 +92,34 @@ class ScheduleOutput extends OutputHelper
                 $unequalNrOfGames++;
             }
             $homeAways = $this->convertGamesToHomeAways($poule, array_values( $sportSchedule->getGames()->toArray()));
-            $assignedCounter->assignHomeAways($homeAways);
+            $scheduleReport->addHomeAways($homeAways);
         }
         $prefix = '        ';
         $this->logger->info($prefix . 'unEqualNrOfGames: '.$unequalNrOfGames.'x');
 
         $this->logger->info('');
-        $amountDifference = $assignedCounter->getAmountDifference();
+        $amountDifference = $scheduleReport->getAmountCounterMap()->calculateReport()->getAmountDifference();
         $header = 'Amount Totals (diff:'.$amountDifference.')';
-        $assignedCounter->getAssignedMap()->output($this->logger, $prefix, $header );
+        $scheduleReport->getAmountCounterMap()->output($this->logger, $prefix, $header );
         $this->logger->info('');
 
         if( $hasAgainstSport ) {
             $this->logger->info('');
-            $againstAmountDifference = $assignedCounter->getAgainstAmountDifference();
+            $againstAmountDifference = $scheduleReport->getAgainstCounterMap()->calculateReport()->getAmountDifference();
             $header = 'Against Totals (diff:'.$againstAmountDifference.')';
-            $assignedCounter->getAssignedAgainstMap()->output($this->logger, $prefix, $header);
+            $scheduleReport->getAmountCounterMap()->output($this->logger, $prefix, $header);
         }
         if( $hasWithSport ) {
             $this->logger->info('');
-            $withAmountDifference = $assignedCounter->getWithAmountDifference();
+            $withAmountDifference = $scheduleReport->getWithCounterMap()->calculateReport()->getAmountDifference();
             $header = 'With Totals (diff:'.$withAmountDifference.')';
-            $assignedCounter->getAssignedWithMap()->output($this->logger, $prefix, $header);
+            $scheduleReport->getWithCounterMap()->output($this->logger, $prefix, $header);
         }
         if( $hasAgainstSport ) {
             $this->logger->info('');
-            $homeAmountDifference = $assignedCounter->getHomeAmountDifference();
+            $homeAmountDifference = $scheduleReport->getHomeCounterMap()->calculateReport()->getAmountDifference();
             $header = 'Home Totals (diff:'.$homeAmountDifference.')';
-            $assignedCounter->getAssignedHomeMap()->output($this->logger, $prefix, $header);
+            $scheduleReport->getHomeCounterMap()->output($this->logger, $prefix, $header);
         }
     }
 

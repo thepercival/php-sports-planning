@@ -8,12 +8,12 @@ use SportsPlanning\Counters\Maps\PlaceCounterMap as PlaceCounterMapBase;
 use SportsPlanning\Counters\Reports\RangedPlaceCountersReport;
 use SportsPlanning\Place;
 
-readonly class RangedPlaceCounterMap
+ class RangedPlaceCounterMap
 {
-    private RangedPlaceCountersReport $report;
+    private readonly RangedPlaceCountersReport $report;
     private PlaceCounterMapBase $map;
 
-    private AmountRange $allowedRange;
+    private readonly AmountRange $allowedRange;
 
     public function __construct(PlaceCounterMapBase $map, AmountRange $allowedRange) {
         $this->map = $map;
@@ -29,14 +29,14 @@ readonly class RangedPlaceCounterMap
         return $this->map;
     }
 
-    public function addPlace(Place $place): self {
+    public function addPlace(Place $place): void {
 
-        return new self($this->map->addPlace($place), $this->allowedRange );
+        $this->map->addPlace($place);
     }
 
-    public function removePlace(Place $place): self {
+    public function removePlace(Place $place): void {
 
-        return new self($this->map->removePlace($place), $this->allowedRange);
+        $this->map->removePlace($place);
     }
 
     public function getNrOfPlacesBelowMinimum(): int
@@ -57,7 +57,7 @@ readonly class RangedPlaceCounterMap
 //    }
 
     public function countAmount(int $amount): int {
-        $amountMap = $this->map->getReport()->getAmountMap();
+        $amountMap = $this->map->calculateReport()->getAmountMap();
         return array_key_exists($amount, $amountMap) ? $amountMap[$amount]->count : 0;
     }
 

@@ -18,7 +18,7 @@ class RangedPlaceCountersReport
     private readonly AmountRange $allowedRange;
 
     public function __construct(PlaceCounterMap $map, AmountRange $allowedRange) {
-        $this->report = $map->getReport();
+        $this->report = $map->calculateReport();
         $this->allowedRange = $allowedRange;
 
         $calculator = new AmountCalculator($map->count(), $this->allowedRange);

@@ -86,7 +86,7 @@ class HomeAway implements \Stringable
         foreach([AgainstSide::Home, AgainstSide::Away] as $side) {
             $placeCombination = $this->get($side);
             if(count($placeCombination->getPlaces()) > 1) {
-                array_push($withPlaceCombinations, $placeCombination);
+                $withPlaceCombinations[] = $placeCombination;
             }
         }
         return $withPlaceCombinations;

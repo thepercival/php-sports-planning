@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace SportsPlanning\Counters\Maps;
 
 use Psr\Log\LoggerInterface;
+use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Counters\CounterForPlace;
+use SportsPlanning\Counters\Reports\PlaceCombinationCountersReport;
 use SportsPlanning\Counters\Reports\PlaceCountersReport;
 use SportsPlanning\Place;
 
-readonly class PlaceCounterMap
+class PlaceCounterMap
 {
     /**
      * @var array<int, CounterForPlace>
      */
     private array $map;
-    private PlaceCountersReport $report;
 
     /**
      * @param array<int, CounterForPlace> $placeCounters
@@ -23,7 +24,6 @@ readonly class PlaceCounterMap
     public function __construct(array $placeCounters)
     {
         $this->map = $placeCounters;
-        $this->report = new PlaceCountersReport($placeCounters);
     }
 
     public function getPlace(int $number): Place
@@ -31,9 +31,9 @@ readonly class PlaceCounterMap
         return $this->map[$number]->getPlace();
     }
 
-    public function getReport(): PlaceCountersReport
+    public function calculateReport(): PlaceCountersReport
     {
-        return $this->report;
+        return new PlaceCountersReport($this->map);
     }
 
     public function count(Place|null $place = null): int
@@ -55,21 +55,25 @@ readonly class PlaceCounterMap
         return array_values($this->map);
     }
 
-    public function addPlace(Place $place): self {
-
-        $newCounter = $this->map[$place->getPlaceNr()]->increment();
-        $map = $this->map;
-        $map[$place->getPlaceNr()] = $newCounter;
-        return new PlaceCounterMap($map);
+    /**
+     * @param HomeAway $homeAway
+     */
+    public function addHomeAway(HomeAway $homeAway): void
+    {
+        foreach ($homeAway->getPlaces() as $place) {
+            $this->addPlace($place);
+        }
     }
 
-    public function removePlace(Place $place): self {
+    public function addPlace(Place $place): void {
 
+        $newCounter = $this->map[$place->getPlaceNr()]->increment();
+        $this->map[$place->getPlaceNr()] = $newCounter;
+    }
+
+    public function removePlace(Place $place): void {
         $newCounter = $this->map[$place->getPlaceNr()]->decrement();
-        $map = $this->map;
-        $map[$place->getPlaceNr()] = $newCounter;
-
-        return new PlaceCounterMap($map);
+        $this->map[$place->getPlaceNr()] = $newCounter;
     }
 
     public function output(LoggerInterface $logger, string $prefix, string $header): void {
