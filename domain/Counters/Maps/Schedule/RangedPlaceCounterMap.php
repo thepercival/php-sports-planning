@@ -13,7 +13,6 @@ class RangedPlaceCounterMap
     private readonly AmountRange $allowedRange;
 
     public function __construct(private AmountCounterMap|HomeCounterMap $map, AmountRange $allowedRange) {
-        $this->map = $map;
         $this->allowedRange = $allowedRange;
     }
 
@@ -101,4 +100,8 @@ class RangedPlaceCounterMap
         return true;
     }
 
+    function __clone()
+    {
+        $this->map = clone $this->map;
+    }
 }

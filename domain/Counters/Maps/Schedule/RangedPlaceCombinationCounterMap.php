@@ -66,5 +66,8 @@ class RangedPlaceCombinationCounterMap
         return $report->minimumCanBeReached($nrOfCombinationsToGo);
     }
 
-
+    function __clone()
+    {
+        $this->map = clone $this->map;
+    }
 }
