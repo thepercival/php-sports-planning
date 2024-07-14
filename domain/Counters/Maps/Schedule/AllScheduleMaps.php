@@ -2,22 +2,16 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Counters;
+namespace SportsPlanning\Counters\Maps\Schedule;
 
-use Countable;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame;
 use SportsHelpers\Sport\Variant\Single;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsPlanning\Combinations\HomeAway;
-use SportsPlanning\Counters\Maps\Schedule\AgainstCounterMap;
-use SportsPlanning\Counters\Maps\Schedule\AmountCounterMap;
-use SportsPlanning\Counters\Maps\Schedule\HomeCounterMap;
-use SportsPlanning\Counters\Maps\Schedule\TogetherCounterMap;
-use SportsPlanning\Counters\Maps\Schedule\WithCounterMap;
 use SportsPlanning\Poule;
 
-class ScheduleReport
+class AllScheduleMaps
 {
     protected AmountCounterMap $amountCounterMap;
 
@@ -113,34 +107,17 @@ class ScheduleReport
         return $this->homeCounterMap;
     }
 
+    public function setHomeCounterMap(HomeCounterMap $homeCounterMap): void {
+        $this->homeCounterMap = $homeCounterMap;
+    }
+
     public function getTogetherCounterMap(): TogetherCounterMap {
         return $this->togetherCounterMap;
     }
 
-//
-////    public function getTogetherPlaceCounter(Place $place, Place $coPlace): CounterForPlace|null
-////    {
-////        if (!isset($this->assignedTogetherMap[(string)$place])
-////            || !isset($this->assignedTogetherMap[(string)$place][(string)$coPlace])) {
-////            return null;
-////        }
-////        return $this->assignedTogetherMap[(string)$place][(string)$coPlace];
-////    }
-////    public function assignTogether(array $placeCombinations, bool $withAssigned): void
-////    {
-////        foreach ($placeCombinations as $placeCombination) {
-////            $this->assignToTogetherMap($placeCombination);
-////            if( $this->hasAgainstSportWithMultipleSidePlaces ) {
-////                $this->assignedWithMap = $this->assignedWithMap->addPlaceCombination($placeCombination);
-////            }
-////            if( $withAssigned ) {
-////                foreach( $placeCombination->getPlaces() as $place ) {
-////                    $this->assignedMap = $this->assignedMap->addPlace($place);
-////                }
-////            }
-////        }
-////    }
-
+    public function setTogetherCounterMap(TogetherCounterMap $togetherCounterMap): void {
+        $this->togetherCounterMap = $togetherCounterMap;
+    }
 
 //    protected function getMapDifference(array $counters): int {
 //        $counts = array_map( function(Countable $counter): int {
