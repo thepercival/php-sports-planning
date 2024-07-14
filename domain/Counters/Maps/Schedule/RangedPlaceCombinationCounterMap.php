@@ -3,6 +3,7 @@
 namespace SportsPlanning\Counters\Maps\Schedule;
 
 use SportsPlanning\Combinations\Amount\Range as AmountRange;
+use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Counters\Reports\RangedPlaceCombinationCountersReport;
 
@@ -23,6 +24,14 @@ class RangedPlaceCombinationCounterMap
 
     public function getAllowedRange(): AmountRange {
         return $this->allowedRange;
+    }
+
+    /**
+     * @param HomeAway $homeAway
+     */
+    public function addHomeAway(HomeAway $homeAway): void
+    {
+        $this->map->addHomeAway($homeAway);
     }
 
     public function addPlaceCombination(PlaceCombination $placeCombination): void {
