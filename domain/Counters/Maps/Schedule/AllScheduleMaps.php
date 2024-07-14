@@ -9,6 +9,8 @@ use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame;
 use SportsHelpers\Sport\Variant\Single;
 use SportsPlanning\Combinations\HomeAway;
+use SportsPlanning\Counters\CounterForPlace;
+use SportsPlanning\Counters\Maps\PlaceCounterMap;
 use SportsPlanning\Poule;
 
 class AllScheduleMaps
@@ -117,6 +119,31 @@ class AllScheduleMaps
 
     public function setTogetherCounterMap(TogetherCounterMap $togetherCounterMap): void {
         $this->togetherCounterMap = $togetherCounterMap;
+    }
+
+    public function createAwayCounterMap(): PlaceCounterMap
+    {
+        $counters = [];
+        foreach( $this->withCounterMap->getPlaceCombinationCounters() as $withCounter ) {
+            $withPlaceCombination = $withCounter->getPlaceCombination();
+            foreach( $withPlaceCombination->getPlaces() as $withPlace) {
+                $nrOfAgainst = $withCounter->count() - $this->homeCounterMap->count($withPlace);
+                if( $nrOfAgainst < 0) {
+                    $nrOfAgainst = 0;
+                }
+                $counters[$withPlace->getPlaceNr()] = new CounterForPlace($withPlace, $nrOfAgainst);
+            }
+        }
+        return new PlaceCounterMap($counters);
+    }
+
+    function __clone()
+    {
+        $this->amountCounterMap = clone $this->amountCounterMap;
+        $this->withCounterMap = clone $this->withCounterMap;
+        $this->againstCounterMap = clone $this->againstCounterMap;
+        $this->homeCounterMap = clone $this->homeCounterMap;
+        $this->togetherCounterMap = clone $this->togetherCounterMap;
     }
 
 //    protected function getMapDifference(array $counters): int {

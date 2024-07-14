@@ -7,7 +7,6 @@ namespace SportsPlanning\Counters\Maps;
 use Psr\Log\LoggerInterface;
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Counters\CounterForPlace;
-use SportsPlanning\Counters\Reports\PlaceCombinationCountersReport;
 use SportsPlanning\Counters\Reports\PlaceCountersReport;
 use SportsPlanning\Place;
 
