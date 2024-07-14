@@ -26,9 +26,6 @@ class RangedPlaceCombinationCounterMap
         return $this->allowedRange;
     }
 
-    /**
-     * @param HomeAway $homeAway
-     */
     public function addHomeAway(HomeAway $homeAway): void
     {
         $this->map->addHomeAway($homeAway);
