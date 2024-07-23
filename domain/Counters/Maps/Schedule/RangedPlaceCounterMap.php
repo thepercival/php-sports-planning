@@ -38,6 +38,34 @@ class RangedPlaceCounterMap
     }
 
     /**
+     * @return list<Place>
+     */
+    public function getPlacesAboveMaximum(): array {
+        $places = [];
+        $max = $this->allowedRange->getMax()->amount;
+        foreach( $this->map->copyPlaceCounterMap() as $placeCounter) {
+            if( $placeCounter->count() > $max) {
+                $places[] = $placeCounter->getPlace();
+            }
+        }
+        return $places;
+    }
+
+    /**
+     * @return list<Place>
+     */
+    public function getPlacesBelowMinimum(): array {
+        $places = [];
+        $min = $this->allowedRange->getMin()->amount;
+        foreach( $this->map->copyPlaceCounterMap() as $placeCounter) {
+            if( $placeCounter->count() < $min) {
+                $places[] = $placeCounter->getPlace();
+            }
+        }
+        return $places;
+    }
+
+    /**
      * @return array<int, CounterForPlace>
      */
     public function copyPlaceCounterMap(): array
@@ -73,7 +101,7 @@ class RangedPlaceCounterMap
     public function minimumCanBeReached(int $nrOfCombinationsToGo): bool
     {
         $report = $this->calculateReport();
-        if( $report->getNrOfPlacesBelowMinimum() <= $nrOfCombinationsToGo ) {
+        if( $report->getTotalBelowMinimum() <= $nrOfCombinationsToGo ) {
             return true;
         };
 
@@ -91,7 +119,7 @@ class RangedPlaceCounterMap
     public function aboveMaximum(int $nrOfCombinationsToGo): bool
     {
         $report = $this->calculateReport();
-        if( $report->getNrOfPlacesAboveMaximum() === 0 ) {
+        if( $report->getTotalAboveMaximum() === 0 ) {
             return false;
         }
 

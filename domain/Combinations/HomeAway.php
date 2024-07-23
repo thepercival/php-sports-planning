@@ -66,7 +66,20 @@ class HomeAway implements \Stringable
             return array_merge($this->home->getPlaces(), $this->away->getPlaces());
         }
         return $this->get($side)->getPlaces();
+    }
 
+    public function getOtherSidePlace(Place $place): Place
+    {
+        foreach([AgainstSide::Home, AgainstSide::Away] as $side) {
+            if( $this->get($side)->has($place)) {
+                foreach( $this->get($side)->getPlaces() as $placeIt) {
+                    if( $placeIt !== $place) {
+                        return $placeIt;
+                    }
+                }
+            }
+        }
+        throw new \Exception('place should be found');
     }
 
     /**
@@ -77,7 +90,7 @@ class HomeAway implements \Stringable
         $againstPlaceCombinations = [];
         foreach($this->getPlaces(AgainstSide::Home) as $homePlace) {
             foreach($this->getPlaces(AgainstSide::Away) as $awayPlace) {
-                array_push($againstPlaceCombinations, new PlaceCombination([$homePlace, $awayPlace]));
+                $againstPlaceCombinations[] = new PlaceCombination([$homePlace, $awayPlace]);
             }
         }
         return $againstPlaceCombinations;

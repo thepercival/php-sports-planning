@@ -11,23 +11,23 @@ class Calculator
     {
     }
 
-    public function maxCountBeneathMinimum(): int {
-        return $this->countBeneathMinimum( [ 0 => new Amount(0, $this->maxCount ) ] );
+    public function maxCountBelowMinimum(): int {
+        return $this->calculateTotalBelowMinimum( [ 0 => new Amount(0, $this->maxCount ) ] );
     }
 
     /**
      * @param array<int, Amount> $amountMap
      * @return int
      */
-    public function countBeneathMinimum(array $amountMap): int
+    public function calculateTotalBelowMinimum(array $amountMap): int
     {
-        $countBeneathMinimum = 0;
+        $countBelowMinimum = 0;
         $totalCountLessThanCount = 0;
         $hasSmallerAmount = false;
         $minAmount = $this->range->getMin()->amount;
         while ( $amount = array_shift($amountMap) ) {
             if( $amount->amount < $minAmount ) {
-                $countBeneathMinimum += (int)($amount->count * ($minAmount - $amount->amount ) );
+                $countBelowMinimum += (int)($amount->count * ($minAmount - $amount->amount ) );
                 $hasSmallerAmount = true;
             }
             if( $amount->amount <= $minAmount ) {
@@ -35,30 +35,32 @@ class Calculator
             }
         }
         if( $hasSmallerAmount && $totalCountLessThanCount < $this->range->getMin()->count) {
-            $countBeneathMinimum += ($this->range->getMin()->count - $totalCountLessThanCount);
+            $countBelowMinimum += ($this->range->getMin()->count - $totalCountLessThanCount);
         }
-        return $countBeneathMinimum;
+        return $countBelowMinimum;
     }
 
     /**
      * @param array<int, Amount> $amountMap
      * @return int
      */
-    public function countAboveMaximum(array $amountMap): int
+    public function calculateTotalAboveMaximum(array $amountMap): int
     {
         $countAboveMaximum = 0;
         $totalCountGreaterThanOrEqualToCount = 0;
+        $hasGreaterAmount = false;
         $maxAmount = $this->range->getMax()->amount;
         while ( $amount = array_shift($amountMap) ) {
             if( $amount->amount > $maxAmount ) {
-                $countAboveMaximum += (int)($this->maxCount * ($amount->amount - $maxAmount ) );
+                $countAboveMaximum += (int)($amount->count * ($amount->amount - $maxAmount ) );
+                $hasGreaterAmount = true;
             }
             if( $amount->amount >= $maxAmount ) {
                 $totalCountGreaterThanOrEqualToCount += $amount->count;
             }
         }
-        if( $totalCountGreaterThanOrEqualToCount > $this->maxCount) {
-            $countAboveMaximum += $totalCountGreaterThanOrEqualToCount - $this->maxCount;
+        if( $hasGreaterAmount && $totalCountGreaterThanOrEqualToCount > $maxAmount) {
+            $countAboveMaximum += $totalCountGreaterThanOrEqualToCount - $maxAmount;
         }
         return $countAboveMaximum;
     }

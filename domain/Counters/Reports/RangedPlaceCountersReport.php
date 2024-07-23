@@ -14,8 +14,8 @@ class RangedPlaceCountersReport
     // private bool|null $overAssigned = null;
     private readonly PlaceCountersReport $report;
     private readonly int $nrOfPossibleCombinations;
-    private readonly int $nrOfPlacesBelowMinimum;
-    private readonly int $nrOfPlacesAboveMaximum;
+    private readonly int $totalBelowMinimum;
+    private readonly int $totalAboveMaximum;
     private readonly AmountRange $allowedRange;
 
     public function __construct(PlaceCounterMap $map, AmountRange $allowedRange) {
@@ -23,8 +23,8 @@ class RangedPlaceCountersReport
         $this->allowedRange = $allowedRange;
 
         $calculator = new AmountCalculator($map->count(), $this->allowedRange);
-        $this->nrOfPlacesBelowMinimum = $calculator->countBeneathMinimum( $this->report->getAmountMap() );
-        $this->nrOfPlacesAboveMaximum = $calculator->countAboveMaximum( $this->report->getAmountMap() );
+        $this->totalBelowMinimum = $calculator->calculateTotalBelowMinimum( $this->report->getAmountMap() );
+        $this->totalAboveMaximum = $calculator->calculateTotalAboveMaximum( $this->report->getAmountMap() );
 
         $this->nrOfPossibleCombinations = $map->count();
     }
@@ -37,14 +37,14 @@ class RangedPlaceCountersReport
         return $this->allowedRange;
     }
 
-    public function getNrOfPlacesBelowMinimum(): int
+    public function getTotalBelowMinimum(): int
     {
-        return $this->nrOfPlacesBelowMinimum;
+        return $this->totalBelowMinimum;
     }
 
-    public function getNrOfPlacesAboveMaximum(): int
+    public function getTotalAboveMaximum(): int
     {
-        return $this->nrOfPlacesAboveMaximum;
+        return $this->totalAboveMaximum;
     }
 
 //    public function count(Place $place): int
@@ -102,7 +102,7 @@ class RangedPlaceCountersReport
 
     public function minimumCanBeReached(int $nrOfCombinationsToGo): bool
     {
-        if( $this->getNrOfPlacesBelowMinimum() <= $nrOfCombinationsToGo ) {
+        if( $this->getTotalBelowMinimum() <= $nrOfCombinationsToGo ) {
             return true;
         };
 
@@ -118,7 +118,7 @@ class RangedPlaceCountersReport
 
     public function aboveMaximum(int $nrOfCombinationsToGo): bool
     {
-        if( $this->getNrOfPlacesAboveMaximum() === 0 ) {
+        if( $this->getTotalAboveMaximum() === 0 ) {
             return false;
         }
 
