@@ -56,10 +56,26 @@ class Game implements \Stringable
         return ($this->getNumber() === $game->getNumber());
     }
 
-    public function toPlaceCombination(): PlaceCombination
+    /**
+     * @return list<PlaceCombination>
+     */
+    public function toPlaceCombinationsOfTwo(): array
     {
-        $places = array_map(fn(GamePlace $gamePlace) => $gamePlace->getPlace(), $this->gamePlaces);
-        return new PlaceCombination($places);
+        $placeCombinationsOfTwo = [];
+        {
+            $gamePlaces = $this->gamePlaces;
+            foreach ($this->gamePlaces as $gamePlaceOne) {
+                $placeOne = $gamePlaceOne->getPlace();
+                foreach ($gamePlaces as $gamePlaceTwo) {
+                    $placeTwo = $gamePlaceTwo->getPlace();
+                    if ($placeOne->getPlaceNr() >= $placeTwo->getPlaceNr()) {
+                        continue;
+                    }
+                    $placeCombinationsOfTwo[] = new PlaceCombination([$placeOne,$placeTwo]);
+                }
+            }
+        }
+        return $placeCombinationsOfTwo;
     }
 
     /**

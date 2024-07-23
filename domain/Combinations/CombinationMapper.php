@@ -2,21 +2,24 @@
 
 namespace SportsPlanning\Combinations;
 
+use SportsHelpers\Against\Side;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsPlanning\Counters\CounterForPlace;
 use SportsPlanning\Counters\CounterForPlaceCombination;
+use SportsPlanning\Counters\Maps\Schedule\SideCounterMap;
+use SportsPlanning\GameRound\Together\Game;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
-class Mapper
+class CombinationMapper
 {
     /**
      * @param Poule $poule
      * @param list<AgainstGpp|AgainstH2h> $againstVariants
      * @return array<string, CounterForPlaceCombination>
      */
-    public function getWithMap(Poule $poule, array $againstVariants): array
+    public function initWithCounterMap(Poule $poule, array $againstVariants): array
     {
         $map = [];
         foreach( $this->getNrOfSidePlaces($againstVariants) as $nrOfSidePlacesIt) {
@@ -29,13 +32,12 @@ class Mapper
      * @param Poule $poule
      * @return array<string, CounterForPlaceCombination>
      */
-    public function getAgainstMap(Poule $poule): array
+    public function initAgainstCounterMap(Poule $poule): array
     {
         $map = [];
         $this->addToPlaceCombinationMap($map, $poule, 2);
         return $map;
     }
-
 
     /**
      * @param list<AgainstGpp|AgainstH2h> $againstVariants
@@ -55,7 +57,7 @@ class Mapper
      * @param int $nrOfSidePlaces
      * @return array<string, CounterForPlaceCombination>
      */
-    public function getPlaceCombinationMap(Poule $poule, int $nrOfSidePlaces): array
+    public function initPlaceCombinationMap(Poule $poule, int $nrOfSidePlaces): array
     {
         $map = [];
         $this->addToPlaceCombinationMap($map, $poule, $nrOfSidePlaces);
@@ -101,12 +103,43 @@ class Mapper
      * @param Poule $poule
      * @return array<int, CounterForPlace>
      */
-    public function getPlaceCounterMap(Poule $poule): array
+    public function initPlaceCounterMap(Poule $poule): array
     {
         $map = [];
         foreach ($poule->getPlaces() as $place) {
             $map[$place->getPlaceNr()] = new CounterForPlace($place);
         }
         return $map;
+    }
+
+    /**
+     * @param list<HomeAway> $homeAways
+     * @return array<int, CounterForPlace>
+     */
+    public function initPlaceCounterMapForHomeAways(array $homeAways): array
+    {
+        $map = [];
+        foreach ($homeAways as $homeAway) {
+            foreach ($homeAway->getPlaces() as $place) {
+                if( !array_key_exists($place->getPlaceNr(), $map)) {
+                    $map[$place->getPlaceNr()] = new CounterForPlace($place);
+                }
+            }
+        }
+        return $map;
+    }
+
+    /**
+     * @param Side $side
+     * @param list<HomeAway> $homeAways
+     * @return SideCounterMap
+     */
+    public function initAndFillSideCounterMap(Side $side, array $homeAways): SideCounterMap {
+        $placeCounterMap = (new CombinationMapper())->initPlaceCounterMapForHomeAways( $homeAways );
+        $sideCounterMap = new SideCounterMap($side, $placeCounterMap);
+        foreach( $homeAways as $homeAway) {
+            $sideCounterMap->addHomeAway($homeAway);
+        }
+        return $sideCounterMap;
     }
 }

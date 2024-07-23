@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Combinations;
 
+use SportsHelpers\Against\Side;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Place;
 
@@ -40,9 +41,14 @@ class HomeAway implements \Stringable
         return $this->away;
     }
 
-    public function hasPlace(Place $place): bool
+    public function hasPlace(Place $place, Side $side = null): bool
     {
-        return $this->home->has($place) || $this->away->has($place);
+        $inHome = $this->home->has($place);
+        if( ($side === Side::Home || $side === null) && $inHome ) {
+            return true;
+        }
+        $inAway = $this->away->has($place);
+        return ($side === Side::Away || $side === null) && $inAway;
     }
 
     public function playAgainst(Place $place, Place $againstPlace): bool {

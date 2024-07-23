@@ -47,11 +47,15 @@ class PlaceCounterMap
     }
 
     /**
-     * @return list<CounterForPlace>
+     * @return array<int, CounterForPlace>
      */
-    protected function getPlaceCounters(): array
+    public function copyPlaceCounterMap(): array
     {
-        return array_values($this->map);
+        $counters = [];
+        foreach( $this->map as $counter ) {
+            $counters[$counter->getPlace()->getPlaceNr()] = new CounterForPlace($counter->getPlace(), $counter->count());
+        }
+        return $counters;
     }
 
     /**
@@ -80,7 +84,7 @@ class PlaceCounterMap
         $prefix = $prefix . '    ';
 
         $amountPerLine = 4; $counter = 0; $line = '';
-        foreach( $this->getPlaceCounters() as $counterIt ) {
+        foreach( $this->map as $counterIt ) {
             $line .= $counterIt->getPlace() . ' ' . $counterIt->count() . 'x, ';
             if( ++$counter === $amountPerLine ) {
                 $logger->info($prefix . $line);
@@ -101,17 +105,4 @@ class PlaceCounterMap
         }
         $this->map = $map;
     }
-
-//    /**
-//     * @param array<string, PlaceCombinationCounter> $map
-//     * @return array<string, PlaceCombinationCounter>
-//     */
-//    protected function copyPlaceCombinationCounterMap(array $map): array {
-//        $newMap = [];
-//        foreach( $map as $idx => $counter ) {
-//            $newMap[$idx] = new PlaceCombinationCounter($counter->getPlaceCombination(), $counter->count());
-//        }
-//        return $newMap;
-//    }
-
 }

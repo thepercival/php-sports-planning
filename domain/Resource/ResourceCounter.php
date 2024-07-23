@@ -50,16 +50,19 @@ class ResourceCounter
 
         $games = $this->planning->getGames(Game::ORDER_BY_BATCH);
         foreach ($games as $game) {
-            $this->fieldMap[$game->getField()->getUniqueIndex()]->increment();
+            $fieldGameCounter = $this->fieldMap[$game->getField()->getUniqueIndex()];
+            $this->fieldMap[$game->getField()->getUniqueIndex()] = $fieldGameCounter->increment();
             if ($this->planning->getInput()->selfRefereeEnabled()) {
                 $refereePlace = $game->getRefereePlace();
                 if ($refereePlace !== null) {
-                    $this->refereePlaceMap[$refereePlace->getUniqueIndex()]->increment();
+                    $refereePlaceGameCounter = $this->refereePlaceMap[$refereePlace->getUniqueIndex()];
+                    $this->refereePlaceMap[$refereePlace->getUniqueIndex()] = $refereePlaceGameCounter->increment();
                 }
             } else {
                 $referee = $game->getReferee();
                 if ($referee !== null) {
-                    $this->refereeMap[$referee->getUniqueIndex()]->increment();
+                    $refereeGameCounter = $this->refereeMap[$referee->getUniqueIndex()];
+                    $this->refereeMap[$referee->getUniqueIndex()] = $refereeGameCounter->increment();
                 }
             }
         }

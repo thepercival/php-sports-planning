@@ -2,9 +2,12 @@
 
 namespace SportsPlanning\Counters\Maps\Schedule;
 
+use ArrayIterator;
+use IteratorAggregate;
 use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\PlaceCombination;
+use SportsPlanning\Counters\CounterForPlaceCombination;
 use SportsPlanning\Counters\Reports\RangedPlaceCombinationCountersReport;
 
 class RangedPlaceCombinationCounterMap
@@ -37,6 +40,14 @@ class RangedPlaceCombinationCounterMap
 
     public function removePlaceCombination(PlaceCombination $placeCombination): void {
         $this->map->removePlaceCombination($placeCombination);
+    }
+
+    /**
+     * @return list<CounterForPlaceCombination>
+     */
+    public function copyPlaceCombinationCounters(): array
+    {
+        return $this->map->copyPlaceCombinationCounters();
     }
 
     public function count(PlaceCombination $placeCombination): int

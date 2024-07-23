@@ -49,29 +49,14 @@ class PlaceCombinationCounterMap
     /**
      * @return list<CounterForPlaceCombination>
      */
-    public function getPlaceCombinationCounters(): array
+    public function copyPlaceCombinationCounters(): array
     {
-        return array_values($this->map);
+        $counters = [];
+        foreach( $this->map as $counter ) {
+            $counters[] = new CounterForPlaceCombination($counter->getPlaceCombination(), $counter->count());
+        }
+        return $counters;
     }
-
-//        /**
-//     * @param HomeAway $homeAway
-//     */
-//    public function addHomeAway(HomeAway $homeAway): void
-//    {
-//        foreach ($homeAway->getAgainstPlaceCombinations() as $againstPlaceCombination) {
-//            $this->assignedAgainstMap->addPlaceCombination($againstPlaceCombination);
-//        }
-//
-//        foreach ($homeAway->getWithPlaceCombinations() as $withPlaceCombination) {
-//            $this->assignedWithMap->addPlaceCombination($withPlaceCombination);
-//        }
-//
-//        $this->assignedHomeMap->addPlaceCombination($homeAway->getHome());
-//
-////        $this->assignToTogetherMap($homeAway->getHome());
-////        $this->assignToTogetherMap($homeAway->getAway());
-//    }
 
     /**
      * @param list<PlaceCombination> $placeCombinations
@@ -96,19 +81,11 @@ class PlaceCombinationCounterMap
         $this->map[$placeCombination->getIndex()] = $newCounter;
     }
 
-    /**
-     * @return list<CounterForPlaceCombination>
-     */
-    public function getList(): array
-    {
-        return array_values($this->map);
-    }
-
     public function output(LoggerInterface $logger, string $prefix, string $header): void {
         $logger->info($prefix . $header);
         $prefix = $prefix . '    ';
         $amountPerLine = 4; $counter = 0; $line = '';
-        foreach( $this->getPlaceCombinationCounters() as $counterIt ) {
+        foreach( $this->map as $counterIt ) {
             $line .= $counterIt->getPlaceCombination() . ' ' . $counterIt->count() . 'x, ';
             if( ++$counter === $amountPerLine ) {
                 $logger->info($prefix . $line);

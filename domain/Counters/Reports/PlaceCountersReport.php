@@ -8,6 +8,7 @@ use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\Amount;
 use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Counters\CounterForPlace;
+use SportsPlanning\Place;
 
 readonly final class PlaceCountersReport
 {
@@ -114,6 +115,21 @@ readonly final class PlaceCountersReport
 
     public function getCountOfMaxAmount(): int {
         return $this->getMax()?->count ?? 0;
+    }
+
+
+    /**
+     * @param int $amount
+     * @return list<Place>
+     */
+    public function getPlacesWithSameAmount(int $amount): array {
+        $amountMap = $this->getPerAmount();
+        if( !array_key_exists($amount, $amountMap) ) {
+            return [];
+        }
+        return array_map( function(CounterForPlace $counter): Place {
+            return $counter->getPlace();
+        }, $amountMap[$amount]);
     }
 
     public function getAmountRange(): SportRange|null {

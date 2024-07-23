@@ -2,6 +2,7 @@
 
 namespace SportsPlanning\Counters\Reports;
 
+use SportsPlanning\Combinations\Amount;
 use SportsPlanning\Combinations\Amount\Calculator as AmountCalculator;
 use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Combinations\PlaceCombination;
@@ -32,9 +33,9 @@ class RangedPlaceCombinationCountersReport
         return $this->allowedRange;
     }
 
-//    public function getMap(): PlaceCombinationCounterMap {
-//        return $this->map;
-//    }
+    public function getNrOfPossibleCombinations(): int {
+        return $this->nrOfPossibleCombinations;
+    }
 
     public function getNrOfPlaceCombinationsBelowMinimum(): int
     {
@@ -44,6 +45,13 @@ class RangedPlaceCombinationCountersReport
     public function getNrOfPlaceCombinationsAboveMaximum(): int
     {
         return $this->nrOfPlaceCombinationsAboveMaximum;
+    }
+
+    /**
+     * @return array<int, Amount>
+     */
+    public function getAmountMap(): array {
+        return $this->report->getAmountMap();
     }
 
     public function countAmount(int $amount): int {

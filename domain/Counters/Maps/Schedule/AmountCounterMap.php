@@ -6,16 +6,14 @@ namespace SportsPlanning\Counters\Maps\Schedule;
 
 use SportsPlanning\Counters\CounterForPlace;
 use SportsPlanning\Counters\Maps\PlaceCounterMap;
-use SportsPlanning\Poule;
 
 final class AmountCounterMap extends PlaceCounterMap
 {
-    public function __construct(Poule $poule)
+    /**
+     * @param array<int, CounterForPlace> $placeCounterMap
+     */
+    public function __construct(array $placeCounterMap)
     {
-        $placeCounters = [];
-        foreach ($poule->getPlaces() as $place) {
-            $placeCounters[] = new CounterForPlace($place);
-        }
-        parent::__construct($placeCounters);
+        parent::__construct($placeCounterMap);
     }
 }

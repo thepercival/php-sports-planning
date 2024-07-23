@@ -4,6 +4,8 @@ namespace SportsPlanning\Counters\Maps\Schedule;
 
 use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Combinations\HomeAway;
+use SportsPlanning\Counters\CounterForPlace;
+use SportsPlanning\Counters\Maps\PlaceCounterMap;
 use SportsPlanning\Counters\Maps\PlaceCounterMap as PlaceCounterMapBase;
 use SportsPlanning\Counters\Reports\RangedPlaceCountersReport;
 use SportsPlanning\Place;
@@ -12,16 +14,12 @@ class RangedPlaceCounterMap
 {
     private readonly AmountRange $allowedRange;
 
-    public function __construct(private AmountCounterMap|HomeCounterMap $map, AmountRange $allowedRange) {
+    public function __construct(private AmountCounterMap|SideCounterMap|PlaceCounterMap $map, AmountRange $allowedRange) {
         $this->allowedRange = $allowedRange;
     }
 
     public function getAllowedRange(): AmountRange {
         return $this->allowedRange;
-    }
-
-    public function getMap(): PlaceCounterMapBase {
-        return $this->map;
     }
 
     public function addHomeAway(HomeAway $homeAway): void
@@ -39,17 +37,28 @@ class RangedPlaceCounterMap
         $this->map->removePlace($place);
     }
 
+    /**
+     * @return array<int, CounterForPlace>
+     */
+    public function copyPlaceCounterMap(): array
+    {
+        return $this->map->copyPlaceCounterMap();
+    }
+
+    public function cloneMap(): PlaceCounterMap
+    {
+        return clone $this->map;
+    }
+
     public function calculateReport(): RangedPlaceCountersReport
     {
         return new RangedPlaceCountersReport($this->map, $this->allowedRange);
     }
 
-
-
-//    public function count(Place $place): int
-//    {
-//        return $this->map->count($place);
-//    }
+    public function count(Place|null $place = null): int
+    {
+        return $this->map->count($place);
+    }
 
     public function countAmount(int $amount): int {
         $amountMap = $this->map->calculateReport()->getAmountMap();
@@ -69,7 +78,7 @@ class RangedPlaceCounterMap
         };
 
         $allowedMin = $this->allowedRange->getMin();
-        $nrOfPossibleCombinations = $this->getMap()->count();
+        $nrOfPossibleCombinations = $report->getNOfPossibleCombinations();
 
         if ( $report->getMinAmount() === $allowedMin->amount
             && $report->getCountOfMinAmount() + $nrOfCombinationsToGo <= $nrOfPossibleCombinations
@@ -87,7 +96,7 @@ class RangedPlaceCounterMap
         }
 
         $allowedMax = $this->allowedRange->getMax();
-        $nrOfPossibleCombinations = $this->getMap()->count();
+        $nrOfPossibleCombinations = $report->getNOfPossibleCombinations();
 
         if ( $report->getMaxAmount() === $allowedMax->amount
             &&

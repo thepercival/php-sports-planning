@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Counters\Maps\Schedule;
 
+use SportsHelpers\Against\Side;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame;
 use SportsHelpers\Sport\Variant\Single;
+use SportsPlanning\Combinations\CombinationMapper;
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Counters\CounterForPlace;
 use SportsPlanning\Counters\Maps\PlaceCounterMap;
@@ -19,7 +21,8 @@ class AllScheduleMaps
 
     protected WithCounterMap $withCounterMap;
     protected AgainstCounterMap $againstCounterMap;
-    protected HomeCounterMap $homeCounterMap;
+    protected SideCounterMap $homeCounterMap;
+    protected SideCounterMap $awayCounterMap;
     protected TogetherCounterMap $togetherCounterMap;
 
 //    /**
@@ -34,43 +37,15 @@ class AllScheduleMaps
      */
     public function __construct(Poule $poule, array $sportVariants)
     {
-        $this->amountCounterMap = new AmountCounterMap($poule);
+        $combinationMapper = new CombinationMapper();
+        $this->amountCounterMap = new AmountCounterMap($combinationMapper->initPlaceCounterMap($poule));
         $this->withCounterMap = new WithCounterMap($poule, $sportVariants);
         $this->againstCounterMap = new AgainstCounterMap($poule);
-        $this->homeCounterMap = new HomeCounterMap($poule);
+        $this->homeCounterMap = new SideCounterMap(Side::Home, $combinationMapper->initPlaceCounterMap($poule));
+        $this->awayCounterMap = new SideCounterMap(Side::Away, $combinationMapper->initPlaceCounterMap($poule));
         $this->togetherCounterMap = new TogetherCounterMap($poule);
     }
-//
-//    public function getAssignedAwayMap(): PlaceCombinationCounterMap
-//    {
-//        $counters = [];
-//        foreach( $this->assignedWithMap->getPlaceCombinationCounters() as $withCounter ) {
-//            $withCombination = $withCounter->getPlaceCombination();
-//            $nrOfAgainst = $withCounter->count() - $this->assignedHomeMap->count($withCombination);
-//            if( $nrOfAgainst < 0) {
-//                $nrOfAgainst = 0;
-//            }
-//            $counters[$withCombination->getIndex()] = new CounterForPlaceCombination($withCombination, $nrOfAgainst);
-//        }
-//        return new PlaceCombinationCounterMap($counters);
-//    }
-//
-//    /**
-//     * @return array<string,array<string,CounterForPlace>>
-//     */
-////    public function getAssignedTogetherMap(): array
-////    {
-////        return $this->assignedTogetherMap;
-////    }
-//
-//    /**
-//     * @param array<string,array<string,CounterForPlace>> $assignedTogetherMap
-//     */
-////    public function setAssignedTogetherMap(array $assignedTogetherMap): void
-////    {
-////        $this->assignedTogetherMap = $assignedTogetherMap;
-////    }
-//
+
     /**
      * @param list<HomeAway> $homeAways
      */
@@ -90,6 +65,7 @@ class AllScheduleMaps
         $this->withCounterMap->addHomeAway($homeAway);
         $this->againstCounterMap->addHomeAway($homeAway);
         $this->homeCounterMap->addHomeAway($homeAway);
+        $this->awayCounterMap->addHomeAway($homeAway);
         $this->togetherCounterMap->addHomeAway($homeAway);
     }
 
@@ -105,12 +81,20 @@ class AllScheduleMaps
         return $this->againstCounterMap;
     }
 
-    public function getHomeCounterMap(): HomeCounterMap {
+    public function getHomeCounterMap(): SideCounterMap {
         return $this->homeCounterMap;
     }
 
-    public function setHomeCounterMap(HomeCounterMap $homeCounterMap): void {
+    public function setHomeCounterMap(SideCounterMap $homeCounterMap): void {
         $this->homeCounterMap = $homeCounterMap;
+    }
+
+    public function getAwayCounterMap(): SideCounterMap {
+        return $this->awayCounterMap;
+    }
+
+    public function setAwayCounterMap(SideCounterMap $awayCounterMap): void {
+        $this->awayCounterMap = $awayCounterMap;
     }
 
     public function getTogetherCounterMap(): TogetherCounterMap {
@@ -121,28 +105,13 @@ class AllScheduleMaps
         $this->togetherCounterMap = $togetherCounterMap;
     }
 
-    public function createAwayCounterMap(): PlaceCounterMap
-    {
-        $counters = [];
-        foreach( $this->withCounterMap->getPlaceCombinationCounters() as $withCounter ) {
-            $withPlaceCombination = $withCounter->getPlaceCombination();
-            foreach( $withPlaceCombination->getPlaces() as $withPlace) {
-                $nrOfAgainst = $withCounter->count() - $this->homeCounterMap->count($withPlace);
-                if( $nrOfAgainst < 0) {
-                    $nrOfAgainst = 0;
-                }
-                $counters[$withPlace->getPlaceNr()] = new CounterForPlace($withPlace, $nrOfAgainst);
-            }
-        }
-        return new PlaceCounterMap($counters);
-    }
-
     function __clone()
     {
         $this->amountCounterMap = clone $this->amountCounterMap;
         $this->withCounterMap = clone $this->withCounterMap;
         $this->againstCounterMap = clone $this->againstCounterMap;
         $this->homeCounterMap = clone $this->homeCounterMap;
+        $this->awayCounterMap = clone $this->awayCounterMap;
         $this->togetherCounterMap = clone $this->togetherCounterMap;
     }
 

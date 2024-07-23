@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Counters\Maps\Schedule;
 
 use SportsPlanning\Combinations\HomeAway;
-use SportsPlanning\Combinations\Mapper as CombinationMapper;
+use SportsPlanning\Combinations\CombinationMapper as CombinationMapper;
 use SportsPlanning\Counters\Maps\PlaceCombinationCounterMap;
 use SportsPlanning\Poule;
 
@@ -14,7 +14,7 @@ final class AgainstCounterMap extends PlaceCombinationCounterMap
     public function __construct(Poule $poule)
     {
         $combinationMapper = new CombinationMapper();
-        parent::__construct($combinationMapper->getAgainstMap($poule));
+        parent::__construct($combinationMapper->initAgainstCounterMap($poule));
     }
 
     /**

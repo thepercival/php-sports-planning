@@ -9,7 +9,7 @@ use SportsHelpers\Sport\Variant\Single;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsPlanning\Combinations\HomeAway;
-use SportsPlanning\Combinations\Mapper as CombinationMapper;
+use SportsPlanning\Combinations\CombinationMapper as CombinationMapper;
 use SportsPlanning\Counters\Maps\PlaceCombinationCounterMap;
 use SportsPlanning\Poule;
 
@@ -26,8 +26,8 @@ final class WithCounterMap extends PlaceCombinationCounterMap
             function(Single|AllInOneGame|AgainstGpp|AgainstH2h $sportVariant): bool {
                 return (($sportVariant instanceof AgainstGpp) || ($sportVariant instanceof AgainstH2h));
             }));
-        $withCounters = $combinationMapper->getWithMap($poule, $againstVariants);
-        parent::__construct($withCounters);
+        $withCounterMap = $combinationMapper->initWithCounterMap($poule, $againstVariants);
+        parent::__construct($withCounterMap);
     }
 
     /**

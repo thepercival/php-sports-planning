@@ -61,9 +61,18 @@ class Together extends ListNode
     /**
      * @return list<PlaceCombination>
      */
-    public function toPlaceCombinations(): array
+    public function toPlaceCombinationsOfTwo(): array
     {
-        return array_map(fn(Game $game) => $game->toPlaceCombination(), $this->games);
+        $allPlaceCombinationsOfTwo = array_map(function(Game $game): array {
+            return $game->toPlaceCombinationsOfTwo();
+        }, $this->games);
+        $uniquePlaceCombinationsOfTwo = [];
+        foreach( $allPlaceCombinationsOfTwo as $placeCombinationsOfTwo) {
+            foreach( $placeCombinationsOfTwo as $placeCombination) {
+                $uniquePlaceCombinationsOfTwo[$placeCombination->getIndex()] = $placeCombination;
+            }
+        }
+        return array_values($uniquePlaceCombinationsOfTwo);
     }
 
     /**

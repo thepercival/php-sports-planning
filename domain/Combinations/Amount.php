@@ -2,10 +2,10 @@
 
 namespace SportsPlanning\Combinations;
 
-class Amount implements \Stringable
+readonly class Amount implements \Stringable
 {
-    public readonly int $amount;
-    public readonly int $count;
+    public int $amount;
+    public int $count;
     public function __construct(int $amount, int $count) {
         if( $amount < 0 ) {
             throw new \Exception('amount should be at least 0');

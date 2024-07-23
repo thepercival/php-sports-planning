@@ -103,17 +103,17 @@ class ScheduleOutput extends OutputHelper
         $allScheduleMaps->getAmountCounterMap()->output($this->logger, $prefix, $header );
         $this->logger->info('');
 
-        if( $hasAgainstSport ) {
-            $this->logger->info('');
-            $againstAmountDifference = $allScheduleMaps->getAgainstCounterMap()->calculateReport()->getAmountDifference();
-            $header = 'Against Totals (diff:'.$againstAmountDifference.')';
-            $allScheduleMaps->getAmountCounterMap()->output($this->logger, $prefix, $header);
-        }
         if( $hasWithSport ) {
             $this->logger->info('');
             $withAmountDifference = $allScheduleMaps->getWithCounterMap()->calculateReport()->getAmountDifference();
             $header = 'With Totals (diff:'.$withAmountDifference.')';
             $allScheduleMaps->getWithCounterMap()->output($this->logger, $prefix, $header);
+        }
+        if( $hasAgainstSport ) {
+            $this->logger->info('');
+            $againstAmountDifference = $allScheduleMaps->getAgainstCounterMap()->calculateReport()->getAmountDifference();
+            $header = 'Against Totals (diff:'.$againstAmountDifference.')';
+            $allScheduleMaps->getAgainstCounterMap()->output($this->logger, $prefix, $header);
         }
         if( $hasAgainstSport ) {
             $this->logger->info('');

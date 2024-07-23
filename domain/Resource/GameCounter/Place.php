@@ -23,4 +23,9 @@ readonly class Place extends GameCounter
     {
         return $this->place;
     }
+
+    public function increment(): self
+    {
+        return new self($this->place, $this->count + 1 );
+    }
 }
