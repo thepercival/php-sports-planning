@@ -12,7 +12,7 @@ use SportsHelpers\PouleStructure;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Creator as VariantCreator;
-use SportsHelpers\Sport\Variant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
+use SportsHelpers\Sport\Variant\WithNrOfPlaces\Against\GamesPerPlace as AgainstGppWithNrOfPlaces;
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Counters\CounterForPlaceCombination;
@@ -86,9 +86,9 @@ class ScheduleOutput extends OutputHelper
                 $hasWithSport = true;
             }
 
-            $variantWithPoule = (new VariantCreator())->createWithPoule($schedule->getNrOfPlaces(), $sportVariant);
+            $variantWithNrOfPlaces = (new VariantCreator())->createWithNrOfPlaces($schedule->getNrOfPlaces(), $sportVariant);
 
-            if( $variantWithPoule instanceof AgainstGppWithPoule && !$variantWithPoule->allPlacesSameNrOfGamesAssignable() ){
+            if( $variantWithNrOfPlaces instanceof AgainstGppWithNrOfPlaces && !$variantWithNrOfPlaces->allPlacesSameNrOfGamesAssignable() ){
                 $unequalNrOfGames++;
             }
             $homeAways = $this->convertGamesToHomeAways($poule, array_values( $sportSchedule->getGames()->toArray()));

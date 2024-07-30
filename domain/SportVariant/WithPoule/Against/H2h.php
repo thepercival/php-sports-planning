@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace SportsPlanning\SportVariant\WithPoule\Against;
 
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsHelpers\Sport\Variant\WithPoule\Against\H2h as AgainstH2hWithPoule;
+use SportsHelpers\Sport\Variant\WithNrOfPlaces\Against\H2h as AgainstH2hWithNrOfPlaces;
 use SportsPlanning\Poule;
 use SportsPlanning\SportVariant\WithPoule as VariantWithPoule;
 
-class H2h extends AgainstH2hWithPoule
+class H2h extends AgainstH2hWithNrOfPlaces
 {
     use VariantWithPoule;
 

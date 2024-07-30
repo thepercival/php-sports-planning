@@ -14,14 +14,8 @@ use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
 use SportsHelpers\Sport\Variant\Single as Single;
 use SportsHelpers\Sport\VariantWithFields;
-// use SportsHelpers\Sport\VariantWithPoule;
-use SportsHelpers\SportRange;
-use SportsPlanning\Input\Configuration;
-use SportsPlanning\Referee\Info;
-use SportsPlanning\Schedule as BaseSchedule;
 use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Schedule\Sport as SportSchedule;
-use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
 
 class Schedule extends Identifiable implements \Stringable
 {
