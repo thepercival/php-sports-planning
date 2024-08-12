@@ -13,10 +13,13 @@ use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Creator as VariantCreator;
 use SportsHelpers\Sport\Variant\WithNrOfPlaces\Against\GamesPerPlace as AgainstGppWithNrOfPlaces;
-use SportsPlanning\Combinations\HomeAway;
-use SportsPlanning\Combinations\PlaceCombination;
-use SportsPlanning\Counters\CounterForPlaceCombination;
+use SportsPlanning\Combinations\DuoPlaceNr;
+use SportsPlanning\Counters\CounterForDuoPlaceNr;
 use SportsPlanning\Counters\Maps\Schedule\AllScheduleMaps;
+use SportsPlanning\HomeAways\HomeAwayAbstract;
+use SportsPlanning\HomeAways\OneVsOneHomeAway;
+use SportsPlanning\HomeAways\OneVsTwoHomeAway;
+use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Input;
 use SportsPlanning\Poule;
 use SportsPlanning\Referee\Info;
@@ -59,22 +62,16 @@ class ScheduleOutput extends OutputHelper
     public function outputTotals(array $schedules): void
     {
         foreach ($schedules as $schedule) {
-            $tmpInput = new Input(new Input\Configuration(
-                new PouleStructure($schedule->getNrOfPlaces()),
-                $schedule->createSportVariantWithFields(),
-                new Info(), false
-            ));
-            $this->outputScheduleTotals($tmpInput->getFirstPoule(), $schedule);
+            $this->outputScheduleTotals($schedule->getNrOfPlaces(), $schedule);
         }
     }
 
-    public function outputScheduleTotals(Poule $poule, ScheduleBase $schedule): void
+    public function outputScheduleTotals(int $nrOfPlaces, ScheduleBase $schedule): void
     {
         $hasWithSport = false;
         $hasAgainstSport = false;
 
-        $sportVariants = $schedule->createSportVariants();
-        $allScheduleMaps = new AllScheduleMaps($poule, $sportVariants);
+        $allScheduleMaps = new AllScheduleMaps($nrOfPlaces);
         $unequalNrOfGames = 0;
         foreach ($schedule->getSportSchedules() as $sportSchedule) {
             $sportVariant = $sportSchedule->createVariant();
@@ -91,7 +88,7 @@ class ScheduleOutput extends OutputHelper
             if( $variantWithNrOfPlaces instanceof AgainstGppWithNrOfPlaces && !$variantWithNrOfPlaces->allPlacesSameNrOfGamesAssignable() ){
                 $unequalNrOfGames++;
             }
-            $homeAways = $this->convertGamesToHomeAways($poule, array_values( $sportSchedule->getGames()->toArray()));
+            $homeAways = $this->convertGamesToHomeAways(array_values( $sportSchedule->getGames()->toArray()));
             $allScheduleMaps->addHomeAways($homeAways);
         }
         $prefix = '        ';
@@ -124,27 +121,13 @@ class ScheduleOutput extends OutputHelper
     }
 
     /**
-     * @param Poule $poule
      * @param list<ScheduleBase\Game> $scheduleGames
-     * @return list<HomeAway>
+     * @return list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway>
      */
-    public function convertGamesToHomeAways(Poule $poule, array $scheduleGames): array {
-        return array_map( function(ScheduleBase\Game $game) use($poule): HomeAway {
-            return $this->gameToHomeAway( $game, $poule );
+    public function convertGamesToHomeAways(array $scheduleGames): array {
+        return array_map( function(ScheduleBase\Game $game): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
+            return $game->convertToHomeAway();
         }, $scheduleGames );
-    }
-
-    public function gameToHomeAway(ScheduleBase\Game $game, Poule $poule): HomeAway {
-        $homePlaceNrs = $game->getSidePlaceNrs(AgainstSide::Home);
-        $homePlaces = array_map( function(int $placeNr) use($poule): \SportsPlanning\Place {
-                return $poule->getPlace($placeNr);
-        }, $homePlaceNrs );
-        $awayPlaceNrs = $game->getSidePlaceNrs(AgainstSide::Away);
-        $awayPlaces = array_map( function(int $placeNr) use($poule): \SportsPlanning\Place {
-            return $poule->getPlace($placeNr);
-        }, $awayPlaceNrs );
-
-        return new HomeAway( new PlaceCombination( $homePlaces ), new PlaceCombination( $awayPlaces ) );
     }
 
 //    /**
@@ -187,15 +170,15 @@ class ScheduleOutput extends OutputHelper
     }
 
     /**
-     * @param list<CounterForPlaceCombination> $assignedAgainstMap
+     * @param list<CounterForDuoPlaceNr> $assignedAgainstMap
      * @param string $prefix
      * @return void
      */
     public function outputPlaceCombinations(array $assignedAgainstMap, string $prefix): void
     {
         $amountPerLine = 8; $counter = 0; $line = '';
-        foreach( $assignedAgainstMap as $placeCombinationCounter ) {
-            $line .= $placeCombinationCounter->getPlaceCombination() . ' ' . $placeCombinationCounter->count() . 'x, ';
+        foreach( $assignedAgainstMap as $duoPlaceCounter ) {
+            $line .= $duoPlaceCounter . 'x, ';
             if( ++$counter === $amountPerLine ) {
                 $this->logger->info($prefix . $line);
                 $counter = 0;

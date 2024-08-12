@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\Resource\GameCounter;
 
 use PHPUnit\Framework\TestCase;
-use SportsPlanning\Counters\CounterForPlace;
+use SportsPlanning\Counters\CounterForPlaceNr;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class PlaceTest extends TestCase
@@ -14,11 +14,8 @@ class PlaceTest extends TestCase
 
     public function testCalculations(): void
     {
-        $input = $this->createInput([3]);
+        $gameCounter = new CounterForPlaceNr(1);
 
-        $placeOne = $input->getPoule(1)->getPlace(1);
-        $gameCounter = new CounterForPlace($placeOne);
-
-        self::assertSame($placeOne, $gameCounter->getPlace());
+        self::assertSame(1, $gameCounter->getPlaceNr());
     }
 }

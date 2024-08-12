@@ -7,7 +7,13 @@ namespace SportsPlanning\Schedule;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Against\Side as AgainstSide;
+use SportsPlanning\Combinations\DuoPlaceNr;
+use SportsPlanning\HomeAways\HomeAwayAbstract;
+use SportsPlanning\HomeAways\OneVsOneHomeAway;
+use SportsPlanning\HomeAways\OneVsTwoHomeAway;
+use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Identifiable;
+use SportsPlanning\Poule;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 
 class Game extends Identifiable
@@ -54,6 +60,27 @@ class Game extends Identifiable
             }
         }
         return $poulePlaceNrs;
+    }
+
+    public function convertToHomeAway(): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
+        $homePlaceNrs = $this->getSidePlaceNrs(AgainstSide::Home);
+        $awayPlaceNrs = $this->getSidePlaceNrs(AgainstSide::Away);
+        if( count($homePlaceNrs) === 1 && count($awayPlaceNrs) === 1) {
+            return new OneVsOneHomeAway($homePlaceNrs[0], $awayPlaceNrs[0]);
+        }
+        if( count($homePlaceNrs) === 1 && count($awayPlaceNrs) === 2) {
+            return new OneVsTwoHomeAway(
+                $homePlaceNrs[0],
+                new DuoPlaceNr($awayPlaceNrs[0], $awayPlaceNrs[1])
+            );
+        }
+        if( count($homePlaceNrs) === 2 && count($awayPlaceNrs) === 2) {
+            return new TwoVsTwoHomeAway(
+                new DuoPlaceNr($homePlaceNrs[0], $homePlaceNrs[1]),
+                new DuoPlaceNr($awayPlaceNrs[0], $awayPlaceNrs[1])
+            );
+        }
+        throw new \Exception('unknown number of sidePlaceNrs');
     }
 
     public function __toString(): string

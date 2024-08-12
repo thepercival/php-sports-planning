@@ -5,25 +5,19 @@ declare(strict_types=1);
 namespace SportsPlanning\Counters\Maps\Schedule;
 
 use SportsHelpers\Against\Side;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsHelpers\Sport\Variant\AllInOneGame;
-use SportsHelpers\Sport\Variant\Single;
-use SportsPlanning\Combinations\CombinationMapper;
-use SportsPlanning\Combinations\HomeAway;
-use SportsPlanning\Counters\CounterForPlace;
-use SportsPlanning\Counters\Maps\PlaceCounterMap;
-use SportsPlanning\Poule;
+use SportsPlanning\HomeAways\OneVsOneHomeAway;
+use SportsPlanning\HomeAways\OneVsTwoHomeAway;
+use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
 class AllScheduleMaps
 {
-    protected AmountCounterMap $amountCounterMap;
+    protected AmountNrCounterMap $amountCounterMap;
 
-    protected WithCounterMap $withCounterMap;
-    protected AgainstCounterMap $againstCounterMap;
-    protected SideCounterMap $homeCounterMap;
-    protected SideCounterMap $awayCounterMap;
-    protected TogetherCounterMap $togetherCounterMap;
+    protected WithNrCounterMap $withCounterMap;
+    protected AgainstNrCounterMap $againstCounterMap;
+    protected SideNrCounterMap $homeCounterMap;
+    protected SideNrCounterMap $awayCounterMap;
+    protected TogetherNrCounterMap $togetherCounterMap;
 
 //    /**
 //     * @var array<string,array<string,CounterForPlace>>
@@ -31,23 +25,18 @@ class AllScheduleMaps
 //    // protected array $assignedTogetherMap = [];
 //    // protected bool $hasAgainstSportWithMultipleSidePlaces;
 
-    /**
-     * @param Poule $poule
-     * @param list<Single|AllInOneGame|AgainstGpp|AgainstH2h> $sportVariants
-     */
-    public function __construct(Poule $poule, array $sportVariants)
+    public function __construct(int $nrOfPlaces)
     {
-        $combinationMapper = new CombinationMapper();
-        $this->amountCounterMap = new AmountCounterMap($combinationMapper->initPlaceCounterMap($poule));
-        $this->withCounterMap = new WithCounterMap($poule, $sportVariants);
-        $this->againstCounterMap = new AgainstCounterMap($poule);
-        $this->homeCounterMap = new SideCounterMap(Side::Home, $combinationMapper->initPlaceCounterMap($poule));
-        $this->awayCounterMap = new SideCounterMap(Side::Away, $combinationMapper->initPlaceCounterMap($poule));
-        $this->togetherCounterMap = new TogetherCounterMap($poule);
+        $this->amountCounterMap = new AmountNrCounterMap($nrOfPlaces);
+        $this->withCounterMap = new WithNrCounterMap($nrOfPlaces);
+        $this->againstCounterMap = new AgainstNrCounterMap($nrOfPlaces);
+        $this->homeCounterMap = new SideNrCounterMap(Side::Home, $nrOfPlaces);
+        $this->awayCounterMap = new SideNrCounterMap(Side::Away, $nrOfPlaces);
+        $this->togetherCounterMap = new TogetherNrCounterMap($nrOfPlaces);
     }
 
     /**
-     * @param list<HomeAway> $homeAways
+     * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
      */
     public function addHomeAways(array $homeAways): void
     {
@@ -56,52 +45,51 @@ class AllScheduleMaps
         }
     }
 
-    /**
-     * @param HomeAway $homeAway
-     */
-    public function addHomeAway(HomeAway $homeAway): void
+    public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         $this->amountCounterMap->addHomeAway($homeAway);
-        $this->withCounterMap->addHomeAway($homeAway);
+        if( !($homeAway instanceof OneVsOneHomeAway) ) {
+            $this->withCounterMap->addHomeAway($homeAway);
+        }
         $this->againstCounterMap->addHomeAway($homeAway);
         $this->homeCounterMap->addHomeAway($homeAway);
         $this->awayCounterMap->addHomeAway($homeAway);
         $this->togetherCounterMap->addHomeAway($homeAway);
     }
 
-    public function getAmountCounterMap(): AmountCounterMap {
+    public function getAmountCounterMap(): AmountNrCounterMap {
         return $this->amountCounterMap;
     }
 
-    public function getWithCounterMap(): WithCounterMap {
+    public function getWithCounterMap(): WithNrCounterMap {
         return $this->withCounterMap;
     }
 
-    public function getAgainstCounterMap(): AgainstCounterMap {
+    public function getAgainstCounterMap(): AgainstNrCounterMap {
         return $this->againstCounterMap;
     }
 
-    public function getHomeCounterMap(): SideCounterMap {
+    public function getHomeCounterMap(): SideNrCounterMap {
         return $this->homeCounterMap;
     }
 
-    public function setHomeCounterMap(SideCounterMap $homeCounterMap): void {
+    public function setHomeCounterMap(SideNrCounterMap $homeCounterMap): void {
         $this->homeCounterMap = $homeCounterMap;
     }
 
-    public function getAwayCounterMap(): SideCounterMap {
+    public function getAwayCounterMap(): SideNrCounterMap {
         return $this->awayCounterMap;
     }
 
-    public function setAwayCounterMap(SideCounterMap $awayCounterMap): void {
+    public function setAwayCounterMap(SideNrCounterMap $awayCounterMap): void {
         $this->awayCounterMap = $awayCounterMap;
     }
 
-    public function getTogetherCounterMap(): TogetherCounterMap {
+    public function getTogetherCounterMap(): TogetherNrCounterMap {
         return $this->togetherCounterMap;
     }
 
-    public function setTogetherCounterMap(TogetherCounterMap $togetherCounterMap): void {
+    public function setTogetherCounterMap(TogetherNrCounterMap $togetherCounterMap): void {
         $this->togetherCounterMap = $togetherCounterMap;
     }
 

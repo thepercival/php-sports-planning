@@ -13,6 +13,9 @@ class Place extends Identifiable implements Resource, PlaceLocationInterface, \S
         if( $placeNr === null ) {
             $placeNr = $poule->getPlaces()->count() + 1;
         }
+        if( $placeNr < 1 ) {
+            throw new \Exception('placeNr should be at least 1');
+        }
         $this->placeNr = $placeNr;
         $poule->getPlaces()->add($this);
     }

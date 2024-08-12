@@ -16,7 +16,7 @@ use SportsHelpers\SportRange;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
 use SportsPlanning\Referee\Info as RefereeInfo;
 
-class PouleStructure
+readonly class PouleStructure
 {
     /**
      * @param PouleStructureBase $pouleStructureBase
@@ -25,9 +25,9 @@ class PouleStructure
      * @throws \Exception
      */
     public function __construct(
-        private PouleStructureBase $pouleStructureBase,
-        private readonly array     $sportVariantsWithFields,
-        private RefereeInfo        $refereeInfo )
+        private PouleStructureBase   $pouleStructureBase,
+        private array       $sportVariantsWithFields,
+        private RefereeInfo $refereeInfo )
     {
 
         if( !$pouleStructureBase->sportsAndSelfRefereeAreCompatible(

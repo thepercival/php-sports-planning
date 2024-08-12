@@ -110,22 +110,6 @@ class Schedule extends Identifiable implements \Stringable
         $this->nrOfTimeoutSecondsTried = $nrOfTimeoutSecondsTried;
     }
 
-//    public function getPoule(): Poule {
-//        if( $this->poule === null ) {
-//            $input = new Input( new Configuration(
-//                new PouleStructure( $this->getNrOfPlaces() ),
-//                array_values( array_map(
-//                    function(Single|AgainstH2h|AgainstGpp|AllInOneGame $variant): VariantWithFields {
-//                    return new VariantWithFields($variant, 1);
-//                }, $this->createSportVariants()->toArray() ) ),
-//                new Info(),
-//                false
-//            ) );
-//            $this->poule = $input->getPoule(1);
-//        }
-//        return $this->poule;
-//    }
-
     public function __toString(): string
     {
         $XYZ = 'XYZ';
