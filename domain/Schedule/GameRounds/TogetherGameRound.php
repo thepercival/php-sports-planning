@@ -55,7 +55,7 @@ class TogetherGameRound extends ListNode
     /**
      * @return list<DuoPlaceNr>
      */
-    public function convertToDuoPlaces(): array
+    public function convertToDuoPlaceNrs(): array
     {
         $allDuoPlaceNrs = array_map(function(GameRoundTogetherGame $game): array {
             return $game->convertToDuoPlaceNrs();

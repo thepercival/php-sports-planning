@@ -68,7 +68,7 @@ class RangedPlaceNrCounterMap
     /**
      * @return list<CounterForPlaceNr>
      */
-    public function copyPlaceCounters(): array
+    public function copyPlaceNrCounters(): array
     {
         return $this->map->copyPlaceNrCounters();
     }
