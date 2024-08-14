@@ -7,18 +7,22 @@ namespace SportsPlanning\Game;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
+use SportsHelpers\Against\Side;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2hSportVariant;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGppSportVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Field;
 use SportsPlanning\Game;
 use SportsPlanning\Game\Place\Against as AgainstGamePlace;
+use SportsPlanning\HomeAways\OneVsOneHomeAway;
+use SportsPlanning\HomeAways\OneVsTwoHomeAway;
+use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
+use SportsPlanning\Game\Place as GamePlace;
 
 class Against extends Game
 {
@@ -115,5 +119,22 @@ class Against extends Game
             throw new \Exception('the wrong sport is linked to the game', E_ERROR);
         }
         return $sportVariant;
+    }
+
+    public function createHomeAway(): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
+        $againstVariant = $this->createVariant();
+        $homePlaces = $this->getSidePlaces(Side::Home)->toArray();
+        $homePlaceNrs = array_map(fn(GamePlace $homeGamePlace) => $homeGamePlace->getPlace()->getPlaceNr(), $homePlaces);
+        $awayPlaces = $this->getSidePlaces(Side::Away)->toArray();
+        $awayPlaceNrs = array_map(fn(GamePlace $awayPlace) => $awayPlace->getPlace()->getPlaceNr(), $awayPlaces);
+        if( $againstVariant->getNrOfHomePlaces() === 1 && $againstVariant->getNrOfAwayPlaces() === 1 ) {
+            return new OneVsOneHomeAway($homePlaceNrs[0], $awayPlaceNrs[0]);
+        } else if( $againstVariant->getNrOfHomePlaces() === 1 && $againstVariant->getNrOfAwayPlaces() === 2 ) {
+            return new OneVsTwoHomeAway($homePlaceNrs[0], new DuoPlaceNr($awayPlaceNrs[0], $awayPlaceNrs[1]));
+        } else { // TwoVsTwoHomeAway
+            return new TwoVsTwoHomeAway(
+                new DuoPlaceNr($homePlaceNrs[0], $homePlaceNrs[1]),
+                new DuoPlaceNr($awayPlaceNrs[0], $awayPlaceNrs[1]));
+        }
     }
 }

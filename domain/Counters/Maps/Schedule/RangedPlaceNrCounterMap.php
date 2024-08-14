@@ -2,6 +2,7 @@
 
 namespace SportsPlanning\Counters\Maps\Schedule;
 
+use SportsHelpers\Against\Side;
 use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Counters\CounterForPlaceNr;
 use SportsPlanning\Counters\Maps\PlaceNrCounterMap;
@@ -14,7 +15,7 @@ class RangedPlaceNrCounterMap
 {
     private readonly AmountRange $allowedRange;
 
-    public function __construct(private AmountNrCounterMap|SideNrCounterMap|PlaceNrCounterMap $map, AmountRange $allowedRange) {
+    public function __construct(private AmountNrCounterMap|SideNrCounterMap $map, AmountRange $allowedRange) {
         $this->allowedRange = $allowedRange;
     }
 
@@ -41,42 +42,40 @@ class RangedPlaceNrCounterMap
      * @return list<int>
      */
     public function getPlaceNrsAboveMaximum(): array {
-        $placeNrs = [];
         $max = $this->allowedRange->getMax()->amount;
-        foreach( $this->map->copyPlaceNrCounters() as $placeNrCounter) {
-            if( $placeNrCounter->count() > $max) {
-                $placeNrs[] = $placeNrCounter->getPlaceNr();
-            }
-        }
-        return $placeNrs;
+        return $this->map->getPlaceNrsAbove($max);
     }
 
     /**
      * @return list<int>
      */
     public function getPlaceNrsBelowMinimum(): array {
-        $placeNrs = [];
         $min = $this->allowedRange->getMin()->amount;
-        foreach( $this->map->copyPlaceNrCounters() as $placeNrCounter) {
-            if( $placeNrCounter->count() < $min) {
-                $placeNrs[] = $placeNrCounter->getPlaceNr();
-            }
-        }
-        return $placeNrs;
+        return $this->map->getPlaceNrsBelow($min);
     }
 
-    /**
-     * @return list<CounterForPlaceNr>
-     */
-    public function copyPlaceNrCounters(): array
-    {
-        return $this->map->copyPlaceNrCounters();
-    }
+//    /**
+//     * @return list<CounterForPlaceNr>
+//     */
+//    public function copyPlaceNrCounters(): array
+//    {
+//        return $this->map->copyPlaceNrCounters();
+//    }
 
-    public function cloneMap(): PlaceNrCounterMap
-    {
-        return clone $this->map;
-    }
+//    public function cloneAmountNrMap(): AmountNrCounterMap
+//    {
+//        return $this->map->createAmountNrMap();
+//    }
+//
+//    public function cloneSideNrMap(Side $side): SideNrCounterMap
+//    {
+//        return clone $this->map;
+//    }
+//
+//    public function clonePlaceNrMap(): PlaceNrCounterMap
+//    {
+//        return clone $this->map;
+//    }
 
     public function calculateReport(): RangedPlaceNrCountersReport
     {
