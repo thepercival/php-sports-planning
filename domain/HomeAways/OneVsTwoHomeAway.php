@@ -6,6 +6,7 @@ namespace SportsPlanning\HomeAways;
 
 use SportsHelpers\Against\Side;
 use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Place;
 
@@ -46,18 +47,6 @@ readonly class OneVsTwoHomeAway extends HomeAwayAbstract implements HomeAwayInte
         return ($this->hasPlaceNr($placeNr,AgainstSide::Home) && $this->hasPlaceNr($againstPlaceNr,AgainstSide::Away))
             || ($this->hasPlaceNr($againstPlaceNr,AgainstSide::Home) && $this->hasPlaceNr($placeNr,AgainstSide::Away));
     }
-
-//    /**
-//     * @param AgainstSide|null $side
-//     * @return list<Place>
-//     */
-//    public function getPlaces(AgainstSide|null $side = null): array
-//    {
-//        if( $side === null ) {
-//            return array_merge($this->home->getPlaces(), $this->away->getPlaces());
-//        }
-//        return $this->get($side)->getPlaces();
-//    }
 
 //    public function getOtherSidePlace(Place $place): Place
 //    {
@@ -121,10 +110,17 @@ readonly class OneVsTwoHomeAway extends HomeAwayAbstract implements HomeAwayInte
             || $this->hasPlaceNr($homeAway->getHome(), AgainstSide::Away);
     }
 
+
     /**
+     * @param AgainstSide|null $side
      * @return list<int>
      */
-    public function convertToPlaceNrs(): array {
+    public function convertToPlaceNrs(AgainstSide|null $side = null): array {
+        if( $side === AgainstSide::Home ) {
+            return [$this->home];
+        } else if( $side === AgainstSide::Away ) {
+            return $this->away->getPlaceNrs();
+        }
         return array_merge([$this->home], $this->away->getPlaceNrs());
     }
 }

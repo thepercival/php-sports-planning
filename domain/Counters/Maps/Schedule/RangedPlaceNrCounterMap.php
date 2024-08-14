@@ -40,7 +40,7 @@ class RangedPlaceNrCounterMap
     /**
      * @return list<int>
      */
-    public function getPlacesAboveMaximum(): array {
+    public function getPlaceNrsAboveMaximum(): array {
         $placeNrs = [];
         $max = $this->allowedRange->getMax()->amount;
         foreach( $this->map->copyPlaceNrCounters() as $placeNrCounter) {

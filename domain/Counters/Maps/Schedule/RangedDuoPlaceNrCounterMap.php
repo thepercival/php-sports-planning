@@ -6,7 +6,6 @@ use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
 use SportsPlanning\Counters\Reports\RangedDuoPlaceNrCountersReport;
-use SportsPlanning\HomeAways\HomeAwayAbstract;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;

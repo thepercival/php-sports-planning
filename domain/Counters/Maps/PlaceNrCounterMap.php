@@ -60,6 +60,19 @@ class PlaceNrCounterMap
         return $counters;
     }
 
+    /**
+     * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
+     * @return void
+     */
+    public function addHomeAways(array $homeAways): void
+    {
+        foreach ($homeAways as $homeAway) {
+            foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
+                $this->incrementPlaceNr($placeNr);
+            }
+        }
+    }
+
     public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         foreach ($homeAway->convertToPlaceNrs() as $placeNr) {

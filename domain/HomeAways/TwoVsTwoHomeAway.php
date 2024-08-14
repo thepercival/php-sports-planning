@@ -46,18 +46,6 @@ readonly class TwoVsTwoHomeAway extends HomeAwayAbstract implements HomeAwayInte
             || ($this->hasPlaceNr($againstPlaceNr,AgainstSide::Home) && $this->hasPlaceNr($placeNr,AgainstSide::Away));
     }
 
-//    /**
-//     * @param AgainstSide|null $side
-//     * @return list<Place>
-//     */
-//    public function getPlaces(AgainstSide|null $side = null): array
-//    {
-//        if( $side === null ) {
-//            return array_merge($this->home->getPlaces(), $this->away->getPlaces());
-//        }
-//        return $this->get($side)->getPlaces();
-//    }
-
 //    public function getOtherSidePlace(Place $place): Place
 //    {
 //        foreach([AgainstSide::Home, AgainstSide::Away] as $side) {
@@ -129,10 +117,17 @@ readonly class TwoVsTwoHomeAway extends HomeAwayAbstract implements HomeAwayInte
         return new TwoVsTwoHomeAway($this->getAway(), $this->getHome());
     }
 
+
     /**
+     * @param AgainstSide|null $side
      * @return list<int>
      */
-    public function convertToPlaceNrs(): array {
+    public function convertToPlaceNrs(AgainstSide|null $side = null): array {
+        if( $side === AgainstSide::Home ) {
+            return $this->home->getPlaceNrs();
+        } else if( $side === AgainstSide::Away ) {
+            return $this->away->getPlaceNrs();
+        }
         return array_merge($this->home->getPlaceNrs(), $this->away->getPlaceNrs());
     }
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\HomeAways;
 
+use SportsHelpers\Against\Side;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Place;
@@ -49,17 +50,6 @@ readonly class OneVsOneHomeAway extends HomeAwayAbstract implements HomeAwayInte
     public function createDuoPlaceNr(): DuoPlaceNr {
         return new DuoPlaceNr($this->home, $this->away);
     }
-//    /**
-//     * @param AgainstSide|null $side
-//     * @return list<Place>
-//     */
-//    public function getPlaces(AgainstSide|null $side = null): array
-//    {
-//        if( $side === null ) {
-//            return array_merge($this->home->getPlaces(), $this->away->getPlaces());
-//        }
-//        return $this->get($side)->getPlaces();
-//    }
 
 //    public function getOtherSidePlace(Place $place): Place
 //    {
@@ -104,9 +94,15 @@ readonly class OneVsOneHomeAway extends HomeAwayAbstract implements HomeAwayInte
     }
 
     /**
+     * @param AgainstSide|null $side
      * @return list<int>
      */
-    public function convertToPlaceNrs(): array {
+    public function convertToPlaceNrs(AgainstSide|null $side = null): array {
+        if( $side === AgainstSide::Home ) {
+            return [$this->home];
+        } else if( $side === AgainstSide::Away ) {
+            return [$this->away];
+        }
         return [$this->home, $this->away];
     }
 }
