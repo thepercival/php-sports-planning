@@ -27,7 +27,7 @@ final class AmountNrCounterMap extends PlaceNrCounterMap
     public function addHomeAway(HomeAwayInterface $homeAway): void
     {
         foreach( $homeAway->convertToPlaceNrs() as $placeNr ) {
-            $this->addPlaceNr($placeNr);
+            $this->incrementPlaceNr($placeNr);
         }
     }
 }

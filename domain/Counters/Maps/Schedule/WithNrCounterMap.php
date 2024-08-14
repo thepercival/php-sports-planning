@@ -44,9 +44,9 @@ final class WithNrCounterMap extends DuoPlaceNrCounterMap
         }
 
         if( $homeAway instanceof OneVsTwoHomeAway ) {
-            $this->addDuoPlaceNr($homeAway->getWithDuoPlaceNr());
+            $this->incrementDuoPlaceNr($homeAway->getWithDuoPlaceNr());
             return;
         }
-        $this->addDuoPlaceNrs($homeAway->createWithDuoPlaceNrs());
+        $this->incrementDuoPlaceNrs($homeAway->createWithDuoPlaceNrs());
     }
 }

@@ -62,20 +62,20 @@ class DuoPlaceNrCounterMap
      * @param list<DuoPlaceNr> $duoPlaceNrs
      * @return void
      */
-    public function addDuoPlaceNrs(array $duoPlaceNrs): void {
+    public function incrementDuoPlaceNrs(array $duoPlaceNrs): void {
 
         foreach( $duoPlaceNrs as $duoPlaceNr ) {
-            $this->addDuoPlaceNr($duoPlaceNr);
+            $this->incrementDuoPlaceNr($duoPlaceNr);
         }
     }
 
-    public function addDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
+    public function incrementDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
 
         $newCounter = $this->map[$duoPlaceNr->getIndex()]->increment();
         $this->map[$duoPlaceNr->getIndex()] = $newCounter;
     }
 
-    public function removeDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
+    public function decrementDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
 
         $newCounter = $this->map[$duoPlaceNr->getIndex()]->decrement();
         $this->map[$duoPlaceNr->getIndex()] = $newCounter;

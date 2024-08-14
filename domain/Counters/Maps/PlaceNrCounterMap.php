@@ -63,11 +63,11 @@ class PlaceNrCounterMap
     public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
-            $this->addPlaceNr($placeNr);
+            $this->incrementPlaceNr($placeNr);
         }
     }
 
-    public function addPlaceNr(int $placeNr): void {
+    public function incrementPlaceNr(int $placeNr): void {
         if( !array_key_exists($placeNr, $this->map)) {
             $this->map[$placeNr] = new CounterForPlaceNr($placeNr);
         }
@@ -78,11 +78,11 @@ class PlaceNrCounterMap
     public function removeHomeAway(HomeAwayInterface $homeAway): void
     {
         foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
-            $this->removePlaceNr($placeNr);
+            $this->decrementPlaceNr($placeNr);
         }
     }
 
-    public function removePlaceNr(int $placeNr): void {
+    public function decrementPlaceNr(int $placeNr): void {
         if( !array_key_exists($placeNr, $this->map)) {
             return;
         }

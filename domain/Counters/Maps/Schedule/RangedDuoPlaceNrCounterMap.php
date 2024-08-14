@@ -38,12 +38,12 @@ class RangedDuoPlaceNrCounterMap
         $this->map->addHomeAway($homeAway);
     }
 
-    public function addDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
-        $this->map->addDuoPlaceNr($duoPlaceNr);
+    public function incrementDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
+        $this->map->decrementDuoPlaceNr($duoPlaceNr);
     }
 
-    public function removeDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
-        $this->map->removeDuoPlaceNr($duoPlaceNr);
+    public function decrementDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
+        $this->map->decrementDuoPlaceNr($duoPlaceNr);
     }
 
     /**

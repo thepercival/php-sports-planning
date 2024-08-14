@@ -38,21 +38,21 @@ final class SideNrCounterMap extends PlaceNrCounterMap
     public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         if( $homeAway instanceof OneVsOneHomeAway ) {
-            $this->addPlaceNr($homeAway->get($this->side));
+            $this->incrementPlaceNr($homeAway->get($this->side));
             return;
         }
         if( $homeAway instanceof OneVsTwoHomeAway ) {
             if( $this->side === Side::Home) {
-                $this->addPlaceNr($homeAway->getHome());
+                $this->incrementPlaceNr($homeAway->getHome());
             } else {
                 foreach( $homeAway->getAway()->getPlaceNrs() as $awayPlaceNr) {
-                    $this->addPlaceNr($awayPlaceNr);
+                    $this->incrementPlaceNr($awayPlaceNr);
                 }
             }
             return;
         }
         foreach( $homeAway->get($this->side)->getPlaceNrs() as $sidePlaceNr) {
-            $this->addPlaceNr($sidePlaceNr);
+            $this->incrementPlaceNr($sidePlaceNr);
         }
     }
 }

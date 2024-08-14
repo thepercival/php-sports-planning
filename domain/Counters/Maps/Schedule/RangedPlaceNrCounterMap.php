@@ -27,14 +27,14 @@ class RangedPlaceNrCounterMap
         $this->map->addHomeAway($homeAway);
     }
 
-    public function addPlaceNr(int $placeNr): void {
+    public function incrementPlaceNr(int $placeNr): void {
 
-        $this->map->addPlaceNr($placeNr);
+        $this->map->incrementPlaceNr($placeNr);
     }
 
-    public function removePlaceNr(int $placeNr): void {
+    public function decrementPlaceNr(int $placeNr): void {
 
-        $this->map->removePlaceNr($placeNr);
+        $this->map->decrementPlaceNr($placeNr);
     }
 
     /**

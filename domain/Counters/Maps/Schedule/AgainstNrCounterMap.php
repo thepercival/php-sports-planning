@@ -37,9 +37,9 @@ final class AgainstNrCounterMap extends DuoPlaceNrCounterMap
     public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         if( $homeAway instanceof OneVsOneHomeAway ) {
-            $this->addDuoPlaceNr($homeAway->createDuoPlaceNr());
+            $this->incrementDuoPlaceNr($homeAway->createDuoPlaceNr());
             return;
         }
-        $this->addDuoPlaceNrs($homeAway->createAgainstDuoPlaceNrs());
+        $this->incrementDuoPlaceNrs($homeAway->createAgainstDuoPlaceNrs());
     }
 }
