@@ -53,9 +53,9 @@ class PlaceNrCounterMap
      */
     public function getPlaceNrsAbove(int $minCount): array {
         $placeNrs = [];
-        foreach( $this->copyPlaceNrCounters() as $placeNrCounter) {
-            if( $placeNrCounter->count() > $minCount) {
-                $placeNrs[] = $placeNrCounter->getPlaceNr();
+        foreach( $this->map as $counter ) {
+            if( $counter->count() > $minCount) {
+                $placeNrs[] = $counter->getPlaceNr();
             }
         }
         return $placeNrs;
@@ -66,24 +66,12 @@ class PlaceNrCounterMap
      */
     public function getPlaceNrsBelow(int $maxCount): array {
         $placeNrs = [];
-        foreach( $this->copyPlaceNrCounters() as $placeNrCounter) {
-            if( $placeNrCounter->count() < $maxCount) {
-                $placeNrs[] = $placeNrCounter->getPlaceNr();
+        foreach( $this->map as $counter ) {
+            if( $counter->count() < $maxCount) {
+                $placeNrs[] = $counter->getPlaceNr();
             }
         }
         return $placeNrs;
-    }
-
-    /**
-     * @return list<CounterForPlaceNr>
-     */
-    private function copyPlaceNrCounters(): array
-    {
-        $counters = [];
-        foreach( $this->map as $counter ) {
-            $counters[] = new CounterForPlaceNr($counter->getPlaceNr(), $counter->count());
-        }
-        return $counters;
     }
 
     /**

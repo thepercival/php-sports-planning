@@ -2,9 +2,7 @@
 
 namespace SportsPlanning\Counters\Maps\Schedule;
 
-use SportsHelpers\Against\Side;
 use SportsPlanning\Combinations\Amount\Range as AmountRange;
-use SportsPlanning\Counters\CounterForPlaceNr;
 use SportsPlanning\Counters\Maps\PlaceNrCounterMap;
 use SportsPlanning\Counters\Reports\RangedPlaceNrCountersReport;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
@@ -13,10 +11,8 @@ use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
 class RangedPlaceNrCounterMap
 {
-    private readonly AmountRange $allowedRange;
-
-    public function __construct(private AmountNrCounterMap|SideNrCounterMap $map, AmountRange $allowedRange) {
-        $this->allowedRange = $allowedRange;
+    public function __construct(
+        protected AmountNrCounterMap|SideNrCounterMap|PlaceNrCounterMap $map, protected readonly AmountRange $allowedRange) {
     }
 
     public function getAllowedRange(): AmountRange {
@@ -53,29 +49,6 @@ class RangedPlaceNrCounterMap
         $min = $this->allowedRange->getMin()->amount;
         return $this->map->getPlaceNrsBelow($min);
     }
-
-//    /**
-//     * @return list<CounterForPlaceNr>
-//     */
-//    public function copyPlaceNrCounters(): array
-//    {
-//        return $this->map->copyPlaceNrCounters();
-//    }
-
-//    public function cloneAmountNrMap(): AmountNrCounterMap
-//    {
-//        return $this->map->createAmountNrMap();
-//    }
-//
-//    public function cloneSideNrMap(Side $side): SideNrCounterMap
-//    {
-//        return clone $this->map;
-//    }
-//
-//    public function clonePlaceNrMap(): PlaceNrCounterMap
-//    {
-//        return clone $this->map;
-//    }
 
     public function calculateReport(): RangedPlaceNrCountersReport
     {
@@ -136,8 +109,10 @@ class RangedPlaceNrCounterMap
         return true;
     }
 
-    function __clone()
-    {
-        $this->map = clone $this->map;
+    public function cloneAsSideNrCounterMap(): SideNrCounterMap {
+        if( $this->map instanceof SideNrCounterMap) {
+            return clone $this->map;
+        }
+        throw new \Exception('map must be a SideNrCounterMap');
     }
 }
