@@ -13,8 +13,8 @@ class PlaceNrCounterMapCreator
     public function initPlaceNrCounterMap(int $nrOfPlaces): array
     {
         $map = [];
-        for ( $placeNrOne = 1 ; $placeNrOne <= $nrOfPlaces ; $placeNrOne++ ) {
-            $map[$nrOfPlaces] = new CounterForPlaceNr( $nrOfPlaces );
+        for ( $placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++ ) {
+            $map[$placeNr] = new CounterForPlaceNr( $placeNr );
         }
         return $map;
     }

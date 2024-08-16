@@ -2,7 +2,7 @@
 
 namespace SportsPlanning\Counters\Maps\Schedule;
 
-use SportsPlanning\Combinations\Amount\Range as AmountRange;
+use SportsPlanning\Combinations\AmountRange as AmountRange;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
 use SportsPlanning\Counters\Reports\RangedDuoPlaceNrCountersReport;
@@ -45,14 +45,6 @@ class RangedDuoPlaceNrCounterMap
         $this->map->decrementDuoPlaceNr($duoPlaceNr);
     }
 
-    /**
-     * @return list<CounterForDuoPlaceNr>
-     */
-    public function copyDuoPlaceNrCounters(): array
-    {
-        return $this->map->copyDuoPlaceNrCounters();
-    }
-
     public function count(DuoPlaceNr $placeCombination): int
     {
         return $this->map->count($placeCombination);
@@ -60,7 +52,7 @@ class RangedDuoPlaceNrCounterMap
 
     public function countAmount(int $amount): int {
         $amountMap = $this->map->calculateReport()->getAmountMap();
-        return array_key_exists($amount, $amountMap) ? $amountMap[$amount]->count : 0;
+        return array_key_exists($amount, $amountMap) ? $amountMap[$amount]->nrOfEntitiesWithSameAmount : 0;
     }
 
     public function calculateReport(): RangedDuoPlaceNrCountersReport

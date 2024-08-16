@@ -20,11 +20,11 @@ class PlaceNrCounterMap
     private array $map;
 
     /**
-     * @param array<int, CounterForPlaceNr> $placeCounters
+     * @param array<int, CounterForPlaceNr> $placeNrCounters
      */
-    public function __construct(array $placeCounters)
+    public function __construct(array $placeNrCounters)
     {
-        $this->map = $placeCounters;
+        $this->map = $placeNrCounters;
     }
 
 //    public function getPlace(int $number): Place
@@ -51,7 +51,7 @@ class PlaceNrCounterMap
     /**
      * @return list<int>
      */
-    public function getPlaceNrsAbove(int $minCount): array {
+    public function getPlaceNrsGreaterThan(int $minCount): array {
         $placeNrs = [];
         foreach( $this->map as $counter ) {
             if( $counter->count() > $minCount) {
@@ -64,7 +64,7 @@ class PlaceNrCounterMap
     /**
      * @return list<int>
      */
-    public function getPlaceNrsBelow(int $maxCount): array {
+    public function getPlaceNrsSmallerThan(int $maxCount): array {
         $placeNrs = [];
         foreach( $this->map as $counter ) {
             if( $counter->count() < $maxCount) {
@@ -81,9 +81,7 @@ class PlaceNrCounterMap
     public function addHomeAways(array $homeAways): void
     {
         foreach ($homeAways as $homeAway) {
-            foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
-                $this->incrementPlaceNr($placeNr);
-            }
+            $this->addHomeAway($homeAway);
         }
     }
 
@@ -102,7 +100,7 @@ class PlaceNrCounterMap
         $this->map[$placeNr] = $newCounter;
     }
 
-    public function removeHomeAway(HomeAwayInterface $homeAway): void
+    public function removeHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
             $this->decrementPlaceNr($placeNr);

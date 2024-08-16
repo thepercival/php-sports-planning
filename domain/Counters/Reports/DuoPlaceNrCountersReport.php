@@ -6,7 +6,7 @@ namespace SportsPlanning\Counters\Reports;
 
 use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\Amount;
-use SportsPlanning\Combinations\Amount\Range as AmountRange;
+use SportsPlanning\Combinations\AmountRange as AmountRange;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
 
 readonly final class DuoPlaceNrCountersReport
@@ -91,7 +91,7 @@ readonly final class DuoPlaceNrCountersReport
 
     public function getAmountRange(): SportRange|null {
         $range = $this->getRange();
-        return $range !== null ? new SportRange($range->getMin()->amount, $range->getMax()->amount) : null;
+        return $range !== null ? new SportRange($range->min->amount, $range->max->amount) : null;
     }
 
     public function getRange(): AmountRange|null {
@@ -104,27 +104,27 @@ readonly final class DuoPlaceNrCountersReport
     }
 
     public function getMin(): Amount|null {
-        return $this->getRange()?->getMin();
+        return $this->getRange()?->min;
     }
 
     public function getMinAmount(): int {
         return $this->getMin()?->amount ?? 0;
     }
 
-    public function getCountOfMinAmount(): int {
-        return $this->getMin()?->count ?? 0;
+    public function getNrOfEntitiesWithMinAmount(): int {
+        return $this->getMin()?->nrOfEntitiesWithSameAmount ?? 0;
     }
 
     public function getMax(): Amount|null {
-        return $this->getRange()?->getMax();
+        return $this->getRange()?->max;
     }
 
     public function getMaxAmount(): int {
         return $this->getMax()?->amount ?? 0;
     }
 
-    public function getCountOfMaxAmount(): int {
-        return $this->getMax()?->count ?? 0;
+    public function getNrOfEntitiesWithMaxAmount(): int {
+        return $this->getMax()?->nrOfEntitiesWithSameAmount ?? 0;
     }
 
     /**

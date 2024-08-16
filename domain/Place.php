@@ -2,6 +2,7 @@
 
 namespace SportsPlanning;
 
+use SportsHelpers\Identifiable;
 use SportsHelpers\PlaceLocationInterface;
 
 class Place extends Identifiable implements Resource, PlaceLocationInterface, \Stringable

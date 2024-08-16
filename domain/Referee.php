@@ -2,6 +2,8 @@
 
 namespace SportsPlanning;
 
+use SportsHelpers\Identifiable;
+
 class Referee extends Identifiable implements Resource
 {
     protected int $number;

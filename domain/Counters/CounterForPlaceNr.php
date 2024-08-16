@@ -13,6 +13,9 @@ readonly class CounterForPlaceNr extends Counter
 {
     public function __construct(int $placeNr, int $count = 0)
     {
+        if( $placeNr < 1 || $count < 0 ) {
+            throw new \Exception('placeNr must be greater than 0 and count must be at least 0');
+        }
         parent::__construct($placeNr, $count);
     }
 

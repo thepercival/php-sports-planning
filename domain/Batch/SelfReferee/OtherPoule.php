@@ -103,8 +103,8 @@ class OtherPoule extends Batch\SelfReferee
         return $availableRefereePlaces;
     }
 
-    public function getNrOfPlacesParticipating(Poule $poule): int
+    public function getNrOfPlacesParticipating(Poule $poule, int $nrOfRefereePlacePerGame): int
     {
-        return $this->getNrOfPlacesParticipatingHelper($poule, false);
+        return $this->getNrOfPlacesParticipatingHelper($poule, $nrOfRefereePlacePerGame);
     }
 }

@@ -46,20 +46,6 @@ readonly class TwoVsTwoHomeAway extends HomeAwayAbstract implements HomeAwayInte
             || ($this->hasPlaceNr($againstPlaceNr,AgainstSide::Home) && $this->hasPlaceNr($placeNr,AgainstSide::Away));
     }
 
-//    public function getOtherSidePlace(Place $place): Place
-//    {
-//        foreach([AgainstSide::Home, AgainstSide::Away] as $side) {
-//            if( $this->get($side)->has($place)) {
-//                foreach( $this->get($side)->getPlaces() as $placeIt) {
-//                    if( $placeIt !== $place) {
-//                        return $placeIt;
-//                    }
-//                }
-//            }
-//        }
-//        throw new \Exception('place should be found');
-//    }
-
     /**
      * @return list<DuoPlaceNr>
      */

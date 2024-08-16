@@ -2,8 +2,7 @@
 
 namespace SportsPlanning\Game;
 
-use SportsPlanning\Identifiable;
-use SportsPlanning\Game;
+use SportsHelpers\Identifiable;
 use SportsPlanning\Place as PoulePlace;
 
 abstract class Place extends Identifiable

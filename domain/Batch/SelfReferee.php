@@ -6,7 +6,6 @@ use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePoule;
 use SportsPlanning\Counters\GamePlacesCounterForPoule;
-use SportsPlanning\Counters\PouleCounter;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Place;
@@ -253,12 +252,12 @@ abstract class SelfReferee
         return $this->pouleCounterMap;
     }
 
-    protected function getNrOfPlacesParticipatingHelper(Poule $poule, bool $addRefereePlace): int
+    protected function getNrOfPlacesParticipatingHelper(Poule $poule, int $nrOfRefereePlacePerGame): int
     {
         if (!isset($this->pouleCounterMap[$poule->getNumber()])) {
             return 0;
         }
-        return $this->pouleCounterMap[$poule->getNumber()]->getNrOfPlacesAssigned($addRefereePlace);
+        return $this->pouleCounterMap[$poule->getNumber()]->getNrOfPlacesAssigned($nrOfRefereePlacePerGame);
     }
 
     public function add(TogetherGame|AgainstGame $game): void

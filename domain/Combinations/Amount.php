@@ -4,22 +4,18 @@ namespace SportsPlanning\Combinations;
 
 readonly class Amount implements \Stringable
 {
-    public int $amount;
-    public int $count;
-    public function __construct(int $amount, int $count) {
+    public function __construct(public int $amount, public int $nrOfEntitiesWithSameAmount = 0) {
         if( $amount < 0 ) {
             throw new \Exception('amount should be at least 0');
         }
-        $this->amount = $amount;
-//        if( $amount > 0 && $count < 1 ) {
-//            throw new \Exception('count should be at least one');
-//        }
-        $this->count = $count;
+        if( $nrOfEntitiesWithSameAmount < 0 ) {
+            throw new \Exception('nrOfEntitiesWithSameAmount should be at least 0');
+        }
     }
 
     public function __toString(): string
     {
-        return $this->amount . '.' . $this->count;
+        return $this->amount . '.' . $this->nrOfEntitiesWithSameAmount;
     }
 //    public function islessThan(self $greaterAmount): bool {
 //        return $greaterAmount->amount > $this->amount

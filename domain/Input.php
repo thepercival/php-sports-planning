@@ -8,6 +8,7 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
+use SportsHelpers\Identifiable;
 use SportsHelpers\SelfRefereeInfo;
 use SportsPlanning\Exceptions\NoBestPlanningException;
 use SportsHelpers\PouleStructure;

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace SportsPlanning;
 
+use SportsHelpers\Identifiable;
+
 class Field extends Identifiable implements Resource
 {
     protected int $number;

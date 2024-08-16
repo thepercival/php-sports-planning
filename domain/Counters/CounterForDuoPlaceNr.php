@@ -14,6 +14,9 @@ readonly class CounterForDuoPlaceNr extends Counter implements \Stringable
 {
     public function __construct(DuoPlaceNr $duoPlace, int $count = 0)
     {
+        if( $count < 0 ) {
+            throw new \Exception('count must be at least 0');
+        }
         parent::__construct($duoPlace, $count);
     }
 

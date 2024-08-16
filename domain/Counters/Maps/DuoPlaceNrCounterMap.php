@@ -29,10 +29,10 @@ class DuoPlaceNrCounterMap
         return new DuoPlaceNrCountersReport($this->map);
     }
 
-    public function getDuoPlaceNr(string $index): DuoPlaceNr
-    {
-        return $this->map[$index]->getDuoPlaceNr();
-    }
+//    public function getDuoPlaceNr(string $index): DuoPlaceNr
+//    {
+//        return $this->map[$index]->getDuoPlaceNr();
+//    }
 
     public function count(DuoPlaceNr|null $duoPlace = null): int
     {
@@ -44,18 +44,6 @@ class DuoPlaceNrCounterMap
             return 0;
         }
         return $this->map[$duoPlace->getIndex()]->count();
-    }
-
-    /**
-     * @return list<CounterForDuoPlaceNr>
-     */
-    public function copyDuoPlaceNrCounters(): array
-    {
-        $counters = [];
-        foreach( $this->map as $counter ) {
-            $counters[] = new CounterForDuoPlaceNr($counter->getDuoPlaceNr(), $counter->count());
-        }
-        return $counters;
     }
 
     /**

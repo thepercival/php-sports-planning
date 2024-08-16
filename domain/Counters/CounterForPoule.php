@@ -14,6 +14,9 @@ readonly class CounterForPoule extends Counter
 {
     public function __construct(Poule $poule, int $count = 0)
     {
+        if( $count < 0 ) {
+            throw new \Exception('count must be at least 0');
+        }
         parent::__construct($poule, $count);
     }
 

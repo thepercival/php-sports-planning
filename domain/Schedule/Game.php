@@ -7,13 +7,11 @@ namespace SportsPlanning\Schedule;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Identifiable;
 use SportsPlanning\Combinations\DuoPlaceNr;
-use SportsPlanning\HomeAways\HomeAwayAbstract;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
-use SportsPlanning\Identifiable;
-use SportsPlanning\Poule;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 
 class Game extends Identifiable

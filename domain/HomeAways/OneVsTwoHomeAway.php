@@ -4,11 +4,8 @@ declare(strict_types=1);
 
 namespace SportsPlanning\HomeAways;
 
-use SportsHelpers\Against\Side;
-use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
-use SportsPlanning\Place;
 
 readonly class OneVsTwoHomeAway extends HomeAwayAbstract implements HomeAwayInterface
 {

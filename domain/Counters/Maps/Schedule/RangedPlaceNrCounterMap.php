@@ -2,7 +2,8 @@
 
 namespace SportsPlanning\Counters\Maps\Schedule;
 
-use SportsPlanning\Combinations\Amount\Range as AmountRange;
+use Psr\Log\LoggerInterface;
+use SportsPlanning\Combinations\AmountRange as AmountRange;
 use SportsPlanning\Counters\Maps\PlaceNrCounterMap;
 use SportsPlanning\Counters\Reports\RangedPlaceNrCountersReport;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
@@ -37,17 +38,17 @@ class RangedPlaceNrCounterMap
     /**
      * @return list<int>
      */
-    public function getPlaceNrsAboveMaximum(): array {
-        $max = $this->allowedRange->getMax()->amount;
-        return $this->map->getPlaceNrsAbove($max);
+    public function getPlaceNrsGreaterThanMaximum(): array {
+        $maxAmount = $this->allowedRange->max->amount;
+        return $this->map->getPlaceNrsGreaterThan($maxAmount);
     }
 
     /**
      * @return list<int>
      */
-    public function getPlaceNrsBelowMinimum(): array {
-        $min = $this->allowedRange->getMin()->amount;
-        return $this->map->getPlaceNrsBelow($min);
+    public function getPlaceNrsSmallerThanMinimum(): array {
+        $minAmount = $this->allowedRange->min->amount;
+        return $this->map->getPlaceNrsSmallerThan($minAmount);
     }
 
     public function calculateReport(): RangedPlaceNrCountersReport
@@ -62,7 +63,7 @@ class RangedPlaceNrCounterMap
 
     public function countAmount(int $amount): int {
         $amountMap = $this->map->calculateReport()->getAmountMap();
-        return array_key_exists($amount, $amountMap) ? $amountMap[$amount]->count : 0;
+        return array_key_exists($amount, $amountMap) ? $amountMap[$amount]->nrOfEntitiesWithSameAmount : 0;
     }
 
     public function withinRange(int $nrOfCombinationsToGo): bool
@@ -77,11 +78,10 @@ class RangedPlaceNrCounterMap
             return true;
         };
 
-        $allowedMin = $this->allowedRange->getMin();
         $nrOfPossibleCombinations = $report->getNOfPossibleCombinations();
 
-        if ( $report->getMinAmount() === $allowedMin->amount
-            && $report->getCountOfMinAmount() + $nrOfCombinationsToGo <= $nrOfPossibleCombinations
+        if ( $report->getMinAmount() === $this->allowedRange->min->amount
+            && $report->getNrOfEntitiesWithMinAmount() + $nrOfCombinationsToGo <= $nrOfPossibleCombinations
         ) {
             return true;
         }
@@ -95,13 +95,12 @@ class RangedPlaceNrCounterMap
             return false;
         }
 
-        $allowedMax = $this->allowedRange->getMax();
         $nrOfPossibleCombinations = $report->getNOfPossibleCombinations();
 
-        if ( $report->getMaxAmount() === $allowedMax->amount
+        if ( $report->getMaxAmount() === $this->allowedRange->max->amount
             &&
             (
-                $report->getCountOfMaxAmount() + $nrOfCombinationsToGo <= $nrOfPossibleCombinations
+                $report->getNrOfEntitiesWithMaxAmount() + $nrOfCombinationsToGo <= $nrOfPossibleCombinations
             )
         ) {
             return false;
@@ -114,5 +113,11 @@ class RangedPlaceNrCounterMap
             return clone $this->map;
         }
         throw new \Exception('map must be a SideNrCounterMap');
+    }
+
+    public function output(LoggerInterface $logger, string $prefix, string $header): void {
+
+
+        $this->map->output($logger, $prefix, $header);
     }
 }

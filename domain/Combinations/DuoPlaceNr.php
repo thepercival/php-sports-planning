@@ -4,14 +4,18 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Combinations;
 
-use SportsPlanning\Place;
-
 readonly class DuoPlaceNr implements \Stringable
 {
     private string $index;
 
     public function __construct(public int $placeNrOne, public int $placeNrTwo)
     {
+        if($placeNrOne < 1 || $placeNrTwo < 1 ) {
+            throw new \Exception('placeNr should be at least 1');
+        }
+        if($placeNrOne === $placeNrTwo ) {
+            throw new \Exception('placeNr should be at least 1');
+        }
         $this->index = (string)$this;
     }
 
@@ -49,7 +53,7 @@ readonly class DuoPlaceNr implements \Stringable
         return ($this->createUniqueNumber() & $duoPlaceNr->createUniqueNumber()) > 0;
     }
 
-    public function equals(self $duoPlace): bool
+    public function equalsUniqueNumberOf(self $duoPlace): bool
     {
         return ($this->createUniqueNumber() === $duoPlace->createUniqueNumber());
     }

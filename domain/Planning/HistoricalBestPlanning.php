@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace SportsPlanning\Planning;
 
 use DateTimeImmutable;
+use SportsHelpers\Identifiable;
 use SportsHelpers\SportRange;
-use SportsPlanning\Identifiable;
 use SportsPlanning\Input;
-use SportsPlanning\Planning\Type as PlanningType;use SportsPlanning\Poule;
+use SportsPlanning\Planning\Type as PlanningType;
 
 class HistoricalBestPlanning extends Identifiable
 {
