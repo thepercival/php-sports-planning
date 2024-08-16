@@ -4,17 +4,19 @@ declare(strict_types=1);
 
 namespace SportsPlanning\HomeAways;
 
-use SportsHelpers\Against\Side;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
-use SportsPlanning\Place;
 
 readonly class OneVsOneHomeAway extends HomeAwayAbstract implements HomeAwayInterface
 {
+    private int $home;
+    private int $away;
 
-    public function __construct(private int $home, private int $away)
+    public function __construct(DuoPlaceNr $duoPlaceNr)
     {
-        parent::__construct( $home . ' vs ' . $away);
+        $this->home = $duoPlaceNr->placeNrOne;
+        $this->away = $duoPlaceNr->placeNrTwo;
+        parent::__construct( $this->home . ' vs ' . $this->away);
     }
 
     public function get(AgainstSide $side): int
@@ -90,7 +92,7 @@ readonly class OneVsOneHomeAway extends HomeAwayAbstract implements HomeAwayInte
 
     public function swap(): self
     {
-        return new OneVsOneHomeAway($this->getAway(), $this->getHome());
+        return new OneVsOneHomeAway(new DuoPlaceNr($this->getAway(), $this->getHome()));
     }
 
     /**

@@ -23,7 +23,6 @@
         "monolog/monolog": "^2.0",
         "jms/serializer": "^3.16",
         "ext-json": "*",
-        "drupol/phpermutations": "^1.4",
         "thepercival/php-sports-helpers": "^1.0"
     },
     "require-dev": {

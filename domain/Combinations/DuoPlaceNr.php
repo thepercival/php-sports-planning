@@ -10,7 +10,7 @@ readonly class DuoPlaceNr implements \Stringable
 {
     private string $index;
 
-    public function __construct(private int $placeNrOne, private int $placeNrTwo)
+    public function __construct(public int $placeNrOne, public int $placeNrTwo)
     {
         $this->index = (string)$this;
     }

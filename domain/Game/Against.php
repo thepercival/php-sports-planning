@@ -128,7 +128,7 @@ class Against extends Game
         $awayPlaces = $this->getSidePlaces(Side::Away)->toArray();
         $awayPlaceNrs = array_map(fn(GamePlace $awayPlace) => $awayPlace->getPlace()->getPlaceNr(), $awayPlaces);
         if( $againstVariant->getNrOfHomePlaces() === 1 && $againstVariant->getNrOfAwayPlaces() === 1 ) {
-            return new OneVsOneHomeAway($homePlaceNrs[0], $awayPlaceNrs[0]);
+            return new OneVsOneHomeAway(new DuoPlaceNr($homePlaceNrs[0], $awayPlaceNrs[0]));
         } else if( $againstVariant->getNrOfHomePlaces() === 1 && $againstVariant->getNrOfAwayPlaces() === 2 ) {
             return new OneVsTwoHomeAway($homePlaceNrs[0], new DuoPlaceNr($awayPlaceNrs[0], $awayPlaceNrs[1]));
         } else { // TwoVsTwoHomeAway
