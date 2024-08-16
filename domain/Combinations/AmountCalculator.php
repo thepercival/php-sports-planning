@@ -9,10 +9,6 @@ readonly class AmountCalculator
     {
     }
 
-//    public function maxCountBelowMinimum(int $maxAmount): int {
-//        return $this->calculateTotalBelowMinimum( [ 0 => new Amount(0, $maxAmount ) ] );
-//    }
-
     /**
      * @param array<int, Amount> $amountMap
      * @return int

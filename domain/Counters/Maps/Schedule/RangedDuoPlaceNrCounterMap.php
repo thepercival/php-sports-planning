@@ -50,7 +50,7 @@ class RangedDuoPlaceNrCounterMap
         return $this->map->count($placeCombination);
     }
 
-    public function countAmount(int $amount): int {
+    public function getNrOfEntitiesForAmount(int $amount): int {
         $amountMap = $this->map->calculateReport()->getAmountMap();
         return array_key_exists($amount, $amountMap) ? $amountMap[$amount]->nrOfEntitiesWithSameAmount : 0;
     }
