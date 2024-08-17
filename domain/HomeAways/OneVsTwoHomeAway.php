@@ -12,7 +12,7 @@ readonly class OneVsTwoHomeAway extends HomeAwayAbstract implements HomeAwayInte
 
     public function __construct(private int $home, private DuoPlaceNr $away)
     {
-        parent::__construct( $home . ' vs ' . $away);
+        parent::__construct($home . ' vs ' . $away);
     }
 
     public function get(AgainstSide $side): int|DuoPlaceNr
