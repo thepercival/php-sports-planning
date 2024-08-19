@@ -38,7 +38,7 @@ readonly class DuoPlaceNr implements \Stringable
         }, $this->getPlaceNrs() ));
     }
 
-    private function createPoweredPlaceNumber(int $placeNr): int
+    private function createPoweredPlaceNumber(int $placeNr): int|float
     {
         return pow(2, $placeNr - 1);
     }

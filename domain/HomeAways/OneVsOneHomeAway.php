@@ -7,7 +7,7 @@ namespace SportsPlanning\HomeAways;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 
-readonly class OneVsOneHomeAway extends HomeAwayAbstract implements HomeAwayInterface
+readonly class OneVsOneHomeAway extends HomeAwayAbstract
 {
     private int $home;
     private int $away;

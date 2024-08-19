@@ -4,27 +4,23 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Counters\Maps\Schedule;
 
-use SportsPlanning\Counters\Maps\PlaceNrCounterMap;
+use SportsPlanning\Counters\Maps\PlaceNrCounterMapAbstract;
 use SportsPlanning\Counters\Maps\PlaceNrCounterMapCreator;
-use SportsPlanning\HomeAways\HomeAwayInterface;
+use SportsPlanning\HomeAways\OneVsOneHomeAway;
+use SportsPlanning\HomeAways\OneVsTwoHomeAway;
+use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-final class AmountNrCounterMap extends PlaceNrCounterMap
+final class AmountNrCounterMap extends PlaceNrCounterMapAbstract
 {
     /**
-     * @param int|null $nrOfPlaces
+     * @param int $nrOfPlaces
      */
-    public function __construct(int|null $nrOfPlaces = null)
+    public function __construct(int $nrOfPlaces)
     {
-        if( $nrOfPlaces === null ) {
-            $placeNrCounterMap = [];
-        } else {
-            $placeNrCounterMapCreator = new PlaceNrCounterMapCreator();
-            $placeNrCounterMap = $placeNrCounterMapCreator->initPlaceNrCounterMap($nrOfPlaces);
-        }
-        parent::__construct($placeNrCounterMap);
+        parent::__construct($nrOfPlaces);
     }
 
-    public function addHomeAway(HomeAwayInterface $homeAway): void
+    public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         foreach( $homeAway->convertToPlaceNrs() as $placeNr ) {
             $this->incrementPlaceNr($placeNr);

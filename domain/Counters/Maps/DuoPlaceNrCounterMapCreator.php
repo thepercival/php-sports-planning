@@ -9,7 +9,7 @@ class DuoPlaceNrCounterMapCreator
 {
     /**
      * @param int $nrOfPlaces
-     * @return array<string, CounterForDuoPlaceNr>
+     * @return non-empty-array<string, CounterForDuoPlaceNr>
      */
     public function initDuoPlaceNrCounterMap(int $nrOfPlaces): array
     {
@@ -21,6 +21,9 @@ class DuoPlaceNrCounterMapCreator
                     $map[$duoPlace->getIndex()] = new CounterForDuoPlaceNr( $duoPlace );
                 }
             }
+        }
+        if( count($map) < 1) {
+            throw new \Exception('nrOfPlaces must be at least 1');
         }
         return $map;
     }

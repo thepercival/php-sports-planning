@@ -7,26 +7,23 @@ namespace SportsPlanning\Counters\Maps;
 use Psr\Log\LoggerInterface;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
-use SportsPlanning\Counters\Reports\DuoPlaceNrCountersReport;
+use SportsPlanning\Counters\CounterForPlaceNr;
+use SportsPlanning\Counters\Reports\DuoPlaceNrCountersPerAmountReport;
+use SportsPlanning\HomeAways\OneVsOneHomeAway;
+use SportsPlanning\HomeAways\OneVsTwoHomeAway;
+use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-class DuoPlaceNrCounterMap
+abstract class DuoPlaceNrCounterMapAbstract
 {
     /**
-     * @var array<string, CounterForDuoPlaceNr>
+     * @var non-empty-array<string, CounterForDuoPlaceNr>
      */
     private array $map;
 
-    /**
-     * @param array<string, CounterForDuoPlaceNr> $duoPlaceNrCounterMap
-     */
-    public function __construct(array $duoPlaceNrCounterMap)
+    public function __construct(public int $nrOfPlaces)
     {
-        $this->map = $duoPlaceNrCounterMap;
-    }
-
-    public function calculateReport(): DuoPlaceNrCountersReport
-    {
-        return new DuoPlaceNrCountersReport($this->map);
+        $duoPlaceNrCounterMapCreator = new DuoPlaceNrCounterMapCreator();
+        $this->map = $duoPlaceNrCounterMapCreator->initDuoPlaceNrCounterMap($nrOfPlaces);
     }
 
 //    public function getDuoPlaceNr(string $index): DuoPlaceNr
@@ -69,6 +66,22 @@ class DuoPlaceNrCounterMap
         $this->map[$duoPlaceNr->getIndex()] = $newCounter;
     }
 
+    /**
+     * @return non-empty-array<int, list<CounterForDuoPlaceNr>>
+     */
+    public function createCountersPerAmountMap(): array {
+        $perAmount = [];
+        foreach ($this->map as $duoPlaceNrCounter) {
+            $count = $duoPlaceNrCounter->count();
+            if (!array_key_exists($count, $perAmount)) {
+                $perAmount[$count] = [];
+            }
+            $perAmount[$count][] = $duoPlaceNrCounter;
+        }
+        ksort($perAmount);
+        return $perAmount;
+    }
+
     public function output(LoggerInterface $logger, string $prefix, string $header): void {
         $logger->info($prefix . $header);
         $prefix = $prefix . '    ';
@@ -94,4 +107,6 @@ class DuoPlaceNrCounterMap
         }
         $this->map = $map;
     }
+
+    abstract public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void;
 }

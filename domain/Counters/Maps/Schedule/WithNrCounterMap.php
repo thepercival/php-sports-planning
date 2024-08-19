@@ -4,26 +4,16 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Counters\Maps\Schedule;
 
-use SportsPlanning\Counters\Maps\DuoPlaceNrCounterMap;
-use SportsPlanning\Counters\Maps\DuoPlaceNrCounterMapCreator;
+use SportsPlanning\Counters\Maps\DuoPlaceNrCounterMapAbstract;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-final class WithNrCounterMap extends DuoPlaceNrCounterMap
+final class WithNrCounterMap extends DuoPlaceNrCounterMapAbstract
 {
-    /**
-     * @param int|null $nrOfPlaces
-     */
-    public function __construct(int|null $nrOfPlaces = null)
+    public function __construct(int $nrOfPlaces)
     {
-        if( $nrOfPlaces === null ) {
-            $duoPlaceNrCounterMap = [];
-        } else {
-            $duoPlaceNrCounterMapCreator = new DuoPlaceNrCounterMapCreator();
-            $duoPlaceNrCounterMap = $duoPlaceNrCounterMapCreator->initDuoPlaceNrCounterMap($nrOfPlaces);
-        }
-        parent::__construct($duoPlaceNrCounterMap);
+        parent::__construct($nrOfPlaces);
     }
 
     /**

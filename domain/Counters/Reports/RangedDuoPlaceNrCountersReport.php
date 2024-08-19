@@ -2,39 +2,36 @@
 
 namespace SportsPlanning\Counters\Reports;
 
-use SportsPlanning\Combinations\Amount;
 use SportsPlanning\Combinations\AmountCalculator as AmountCalculator;
 use SportsPlanning\Combinations\AmountRange as AmountRange;
-use SportsPlanning\Counters\Maps\DuoPlaceNrCounterMap;
+use SportsPlanning\Counters\CounterForAmount;
+use SportsPlanning\Counters\Maps\Schedule\AgainstNrCounterMap;
+use SportsPlanning\Counters\Maps\Schedule\TogetherNrCounterMap;
+use SportsPlanning\Counters\Maps\Schedule\WithNrCounterMap;
 
-class RangedDuoPlaceNrCountersReport
+readonly class RangedDuoPlaceNrCountersReport
 {
     // private int|null $shortage = null;
     // private bool|null $overAssigned = null;
-    private readonly DuoPlaceNrCountersReport $report;
-    private readonly int $totalBelowMinimum;
-    private readonly int $totalAboveMaximum;
-    private readonly int $nrOfPossibleCombinations;
-    private readonly AmountRange $allowedRange;
+    public DuoPlaceNrCountersPerAmountReport $report;
+    private int $totalBelowMinimum;
+    private int $totalAboveMaximum;
+    private int $nrOfPlaces;
 
-    public function __construct(DuoPlaceNrCounterMap $map, AmountRange $allowedRange) {
-        $this->report = $map->calculateReport();
-        $this->allowedRange = $allowedRange;
-
-        $calculator = new AmountCalculator($this->allowedRange);
-        $this->totalBelowMinimum = $calculator->calculateCumulativeSmallerThanMinAmount( $this->report->getAmountMap() );
-        $this->totalAboveMaximum = $calculator->calculateCumulativeGreaterThanMaxAmount( $this->report->getAmountMap() );
-
-        $this->nrOfPossibleCombinations = $map->count();
+    public function __construct(AgainstNrCounterMap|WithNrCounterMap|TogetherNrCounterMap $map, public AmountRange $allowedRange) {
+        $this->report = new DuoPlaceNrCountersPerAmountReport($map);
+        $this->totalBelowMinimum = $this->report->calculateSmallerThan($this->allowedRange->min);
+        $this->totalAboveMaximum = $this->report->calculateGreaterThan($this->allowedRange->max);
+        $this->nrOfPlaces = $map->count();
     }
 
     public function getAllowedRange(): AmountRange {
         return $this->allowedRange;
     }
 
-    public function getNrOfPossibleCombinations(): int {
-        return $this->nrOfPossibleCombinations;
-    }
+//    public function getNrOfPossibleCombinations(): int {
+//        return $this->nrOfPossibleCombinations;
+//    }
 
     public function getTotalBelowMinimum(): int
     {
@@ -46,48 +43,29 @@ class RangedDuoPlaceNrCountersReport
         return $this->totalAboveMaximum;
     }
 
-    /**
-     * @return array<int, Amount>
-     */
-    public function getAmountMap(): array {
-        return $this->report->getAmountMap();
-    }
+//    /**
+//     * @return array<int, CounterForAmount>
+//     */
+//    public function getAmountMap(): array {
+//        return $this->report->getAmountMap();
+//    }
 
-    public function getNrOfEntitiesWithAmount(int $amount): int {
-        $amountMap = $this->report->getAmountMap();
-        return array_key_exists($amount, $amountMap) ? $amountMap[$amount]->nrOfEntitiesWithSameAmount : 0;
-    }
-
-    public function getAmountDifference(): int
-    {
-        return $this->report->getAmountDifference();
-    }
-
-    public function getRange(): AmountRange|null
-    {
-        return $this->report->getRange();
-    }
-
-    public function getMinAmount(): int
-    {
-        return $this->report->getMinAmount();
-    }
+//    public function getNrOfEntitiesWithAmount(int $amount): int {
+//        $amountMap = $this->report->getAmountMap();
+//        return array_key_exists($amount, $amountMap) ? $amountMap[$amount]->nrOfEntitiesWithSameAmount : 0;
+//    }
+//
+//    public function getAmountDifference(): int
+//    {
+//        return $this->report->getAmountDifference();
+//    }
+//
+//    public function getRange(): AmountRange|null
+//    {
+//        return $this->report->getRange();
+//    }
 
 
-    public function getNrOfEntitiesWithMinAmount(): int
-    {
-        return $this->report->getNrOfEntitiesWithMinAmount();
-    }
-
-    public function getMaxAmount(): int
-    {
-        return $this->report->getMaxAmount();
-    }
-
-    public function getNrOfEntitiesWithMaxAmount(): int
-    {
-        return $this->report->getNrOfEntitiesWithMaxAmount();
-    }
 
     public function withinRange(int $nrOfCombinationsToGo): bool
     {
@@ -100,8 +78,8 @@ class RangedDuoPlaceNrCountersReport
             return true;
         };
 
-        if ( $this->getMinAmount() === $this->allowedRange->min->amount
-            && $this->getNrOfEntitiesWithMinAmount() + $nrOfCombinationsToGo <= $this->nrOfPossibleCombinations
+        if ( $this->report->range->min->getAmount() === $this->allowedRange->min->getAmount()
+            && $this->report->range->min->getAmount() + $nrOfCombinationsToGo <= $this->nrOfPlaces
         ) {
             return true;
         }
@@ -114,15 +92,16 @@ class RangedDuoPlaceNrCountersReport
             return false;
         }
 
-        if ( $this->getMaxAmount() === $this->allowedRange->max->amount
+        if ( $this->report->range->max->getAmount() === $this->allowedRange->max->getAmount()
             &&
             (
-            $this->getNrOfEntitiesWithMaxAmount() + $nrOfCombinationsToGo <= $this->nrOfPossibleCombinations
+                $this->report->range->max->count() + $nrOfCombinationsToGo <= $this->nrOfPlaces
             )
         ) {
             return false;
         }
         return true;
     }
+
 
 }

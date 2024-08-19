@@ -14,16 +14,9 @@ class AmountNrCounterMapTest extends TestCase
 
     public function testWithNrOfPlaces(): void
     {
-        $amountNrCounterMap = new AmountNrCounterMap(5);
+        $amountNrCounterMap = new AmountNrCounterMap(2);
         $amountNrCounterMap->addHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(1, 2)));
         self::assertSame(1, $amountNrCounterMap->count(1));
         self::assertSame(1, $amountNrCounterMap->count(2));
-    }
-
-    public function testWithoutNrOfPlaces(): void
-    {
-        $amountNrCounterMap = new AmountNrCounterMap();
-        $amountNrCounterMap->addHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(1, 2)));
-        self::assertSame(2, $amountNrCounterMap->count());
     }
 }

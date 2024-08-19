@@ -13,10 +13,15 @@ readonly abstract class HomeAwayAbstract implements \Stringable
 
     protected function validate(): void {
         $placeNrs = $this->convertToPlaceNrs();
-        foreach ($placeNrs as $placeNr){
-            $otherPlaceNrs = array_diff($placeNrs, [$placeNr]);
-            if (in_array($placeNr, $otherPlaceNrs, true)) {
-                throw new \Exception('same placeNr cannot play in same game');
+        foreach ($placeNrs as $placeNrOne){
+            $count = 0;
+            foreach ($this->convertToPlaceNrs() as $placeNrTwo){
+                if ($placeNrOne === $placeNrTwo) {
+                    $count++;
+                }
+                if( $count === 2) {
+                    throw new \Exception('same placeNr cannot play in same game twice');
+                }
             }
         }
     }

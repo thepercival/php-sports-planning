@@ -8,7 +8,7 @@ use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Place;
 
-readonly class TwoVsTwoHomeAway extends HomeAwayAbstract implements HomeAwayInterface
+readonly class TwoVsTwoHomeAway extends HomeAwayAbstract
 {
 
     public function __construct(private DuoPlaceNr $home, private DuoPlaceNr $away)
@@ -84,10 +84,10 @@ readonly class TwoVsTwoHomeAway extends HomeAwayAbstract implements HomeAwayInte
         if( !($homeAway instanceof TwoVsTwoHomeAway)) {
             return false;
         }
-        return ($homeAway->getAway()->getIndex() === $this->getHome()->getIndex()
-                || $homeAway->getHome()->getIndex() === $this->getHome()->getIndex())
-            && ($homeAway->getAway()->getIndex() === $this->getAway()->getIndex()
-                || $homeAway->getHome()->getIndex() === $this->getAway()->getIndex());
+        return ($homeAway->getAway()->createUniqueNumber() === $this->getHome()->createUniqueNumber()
+                || $homeAway->getHome()->createUniqueNumber() === $this->getHome()->createUniqueNumber())
+            && ($homeAway->getAway()->createUniqueNumber() === $this->getAway()->createUniqueNumber()
+                || $homeAway->getHome()->createUniqueNumber() === $this->getAway()->createUniqueNumber());
     }
 
     public function hasOverlap(TwoVsTwoHomeAway $game): bool

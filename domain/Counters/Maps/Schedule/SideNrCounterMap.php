@@ -5,23 +5,17 @@ declare(strict_types=1);
 namespace SportsPlanning\Counters\Maps\Schedule;
 
 use SportsHelpers\Against\Side;
-use SportsPlanning\Counters\Maps\PlaceNrCounterMap;
+use SportsPlanning\Counters\Maps\PlaceNrCounterMapAbstract;
 use SportsPlanning\Counters\Maps\PlaceNrCounterMapCreator;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-final class SideNrCounterMap extends PlaceNrCounterMap
+final class SideNrCounterMap extends PlaceNrCounterMapAbstract
 {
-    public function __construct(private readonly Side $side, int|null $nrOfPlaces = null)
+    public function __construct(private readonly Side $side, int $nrOfPlaces)
     {
-        if( $nrOfPlaces === null ) {
-            $placeNrCounterMap = [];
-        } else {
-            $placeNrCounterMapCreator = new PlaceNrCounterMapCreator();
-            $placeNrCounterMap = $placeNrCounterMapCreator->initPlaceNrCounterMap($nrOfPlaces);
-        }
-        parent::__construct($placeNrCounterMap);
+        parent::__construct($nrOfPlaces);
     }
 
     /**

@@ -6,46 +6,33 @@ namespace SportsPlanning\Counters\Maps;
 
 use Psr\Log\LoggerInterface;
 use SportsPlanning\Counters\CounterForPlaceNr;
-use SportsPlanning\Counters\Reports\PlaceNrCountersReport;
-use SportsPlanning\HomeAways\HomeAwayInterface;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-class PlaceNrCounterMap
+abstract class PlaceNrCounterMapAbstract
 {
     /**
-     * @var array<int, CounterForPlaceNr>
+     * @var non-empty-array<int, CounterForPlaceNr>
      */
     private array $map;
 
-    /**
-     * @param array<int, CounterForPlaceNr> $placeNrCounters
-     */
-    public function __construct(array $placeNrCounters)
+    public function __construct(public int $nrOfPlaces)
     {
-        $this->map = $placeNrCounters;
+        $placeNrCounterMapCreator = new PlaceNrCounterMapCreator();
+        $this->map = $placeNrCounterMapCreator->initPlaceNrCounterMap($nrOfPlaces);
     }
 
-//    public function getPlace(int $number): Place
-//    {
-//        return $this->map[$number]->getPlace();
-//    }
-
-    public function calculateReport(): PlaceNrCountersReport
+    public function count(int $placeNr): int
     {
-        return new PlaceNrCountersReport($this->map);
+        return $this->getCounter($placeNr)->count();
     }
 
-    public function count(int|null $placeNr = null): int
-    {
-        if( $placeNr === null ) {
-            return count($this->map);
-        }
+    protected function getCounter(int $placeNr): CounterForPlaceNr {
         if( !array_key_exists($placeNr, $this->map) ) {
-            return 0;
+            throw new \Exception('placeNr not in map');
         }
-        return $this->map[$placeNr]->count();
+        return $this->map[$placeNr];
     }
 
     /**
@@ -85,19 +72,9 @@ class PlaceNrCounterMap
         }
     }
 
-    public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
-    {
-        foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
-            $this->incrementPlaceNr($placeNr);
-        }
-    }
-
     public function incrementPlaceNr(int $placeNr): void {
-        if( !array_key_exists($placeNr, $this->map)) {
-            $this->map[$placeNr] = new CounterForPlaceNr($placeNr);
-        }
-        $newCounter = $this->map[$placeNr]->increment();
-        $this->map[$placeNr] = $newCounter;
+
+        $this->map[$placeNr] = $this->getCounter($placeNr)->increment();
     }
 
     public function removeHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
@@ -108,11 +85,23 @@ class PlaceNrCounterMap
     }
 
     public function decrementPlaceNr(int $placeNr): void {
-        if( !array_key_exists($placeNr, $this->map)) {
-            return;
+        $this->map[$placeNr] = $this->getCounter($placeNr)->decrement();
+    }
+
+    /**
+     * @return non-empty-array<int, list<CounterForPlaceNr>>
+     */
+    public function createCountersPerAmountMap(): array {
+        $perAmount = [];
+        foreach ($this->map as $placeNrCounter) {
+            $count = $placeNrCounter->count();
+            if (!array_key_exists($count, $perAmount)) {
+                $perAmount[$count] = [];
+            }
+            $perAmount[$count][] = $placeNrCounter;
         }
-        $newCounter = $this->map[$placeNr]->decrement();
-        $this->map[$placeNr] = $newCounter;
+        ksort($perAmount);
+        return $perAmount;
     }
 
     public function output(LoggerInterface $logger, string $prefix, string $header): void {
@@ -141,4 +130,6 @@ class PlaceNrCounterMap
         }
         $this->map = $map;
     }
+
+    abstract public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void;
 }

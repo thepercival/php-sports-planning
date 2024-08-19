@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedule\GameRounds;
 
-use SportsPlanning\Counters\Maps\PlaceNrCounterMap;
+use SportsPlanning\Counters\Maps\PlaceNrCounterMapAbstract;
 use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
@@ -23,9 +23,9 @@ class AgainstGameRound extends ListNode
      */
     protected array $homeAways = [];
 
-    public function __construct(AgainstGameRound|null $previous = null)
+    public function __construct(private int $nrOfPlaces, AgainstGameRound|null $previous = null)
     {
-        $this->placeNrCounterMap = new AmountNrCounterMap();
+        $this->placeNrCounterMap = new AmountNrCounterMap($nrOfPlaces);
         parent::__construct($previous);
     }
 
@@ -36,7 +36,7 @@ class AgainstGameRound extends ListNode
 
     public function createNext(): AgainstGameRound
     {
-        $this->next = new AgainstGameRound($this);
+        $this->next = new AgainstGameRound($this->nrOfPlaces);
         return $this->next;
     }
 

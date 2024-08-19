@@ -2,19 +2,19 @@
 
 namespace SportsPlanning\Combinations;
 
-use SportsPlanning\Combinations\Amount;
+use SportsPlanning\Counters\CounterForAmount;
 
 readonly class AmountRange implements \Stringable
 {
-    public function __construct(public Amount $min, public Amount $max) {
-        if( $min->amount > $max->amount ) {
+    public function __construct(public CounterForAmount $min, public CounterForAmount $max) {
+        if( $min->getAmount() > $max->getAmount() ) {
             throw new \Exception('max-amount should be at least min-amount');
         }
     }
 
     public function getAmountDifference(): int
     {
-        return $this->max->amount - $this->min->amount;
+        return $this->max->getAmount() - $this->min->getAmount();
     }
 
     public function __toString(): string

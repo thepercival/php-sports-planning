@@ -26,11 +26,11 @@ class SideNrCounterMapTest extends TestCase
 
     public function testWithoutNrOfPlacesAndAddHomeAways(): void
     {
-        $awayNrCounterMap = new SideNrCounterMap(Side::Away);
+        $awayNrCounterMap = new SideNrCounterMap(Side::Away, 2);
         $awayNrCounterMap->addHomeAways(
             [new OneVsOneHomeAway(new DuoPlaceNr(1, 2))]
         );
-        self::assertSame(1, $awayNrCounterMap->count());
+        self::assertSame(1, $awayNrCounterMap->count(2));
     }
 
     public function testAddOneVsTwoHomeAwayHome(): void

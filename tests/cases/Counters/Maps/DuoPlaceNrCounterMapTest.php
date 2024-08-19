@@ -12,9 +12,9 @@ use SportsPlanning\Combinations\DuoDuoPlaceNr;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Counters\CounterForDuoDuoPlaceNr;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
-use SportsPlanning\Counters\Maps\DuoPlaceNrCounterMap;
+use SportsPlanning\Counters\Maps\DuoPlaceNrCounterMapAbstract;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
-use SportsPlanning\Counters\Reports\DuoPlaceNrCountersReport;
+use SportsPlanning\Counters\Reports\DuoPlaceNrCountersPerAmountReport;
 class DuoPlaceNrCounterMapTest extends TestCase
 {
 
@@ -22,7 +22,7 @@ class DuoPlaceNrCounterMapTest extends TestCase
     {
         $duoPlaceNrOne = new DuoPlaceNr(1, 2);
         $counterForDuoPlaceNrOne = new CounterForDuoPlaceNr($duoPlaceNrOne);
-        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMap(
+        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMapAbstract(
             [ $counterForDuoPlaceNrOne->getIndex() => $counterForDuoPlaceNrOne ]
         );
         $duoPlaceNrCounterMap->incrementDuoPlaceNr($duoPlaceNrOne);
@@ -33,7 +33,7 @@ class DuoPlaceNrCounterMapTest extends TestCase
     {
         $duoPlaceNrOne = new DuoPlaceNr(1, 2);
         $duoPlaceNrTwo = new DuoPlaceNr(3, 4);
-        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMap(
+        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMapAbstract(
             [
                 $duoPlaceNrOne->getIndex() => new CounterForDuoPlaceNr($duoPlaceNrOne),
                 $duoPlaceNrTwo->getIndex() => new CounterForDuoPlaceNr($duoPlaceNrTwo)
@@ -51,7 +51,7 @@ class DuoPlaceNrCounterMapTest extends TestCase
     {
         $duoPlaceNrOne = new DuoPlaceNr(1, 2);
         $duoPlaceNrTwo = new DuoPlaceNr(3, 4);
-        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMap(
+        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMapAbstract(
             [
                 $duoPlaceNrOne->getIndex() => new CounterForDuoPlaceNr($duoPlaceNrOne),
                 $duoPlaceNrTwo->getIndex() => new CounterForDuoPlaceNr($duoPlaceNrTwo)
@@ -66,7 +66,7 @@ class DuoPlaceNrCounterMapTest extends TestCase
     public function testDecrementDuoPlaceNr(): void
     {
         $duoPlaceNrOne = new DuoPlaceNr(1, 2);
-        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMap(
+        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMapAbstract(
             [
                 $duoPlaceNrOne->getIndex() => new CounterForDuoPlaceNr($duoPlaceNrOne, 2)
             ]
@@ -80,7 +80,7 @@ class DuoPlaceNrCounterMapTest extends TestCase
     {
         $duoPlaceNrOne = new DuoPlaceNr(1, 2);
         $duoPlaceNrTwo = new DuoPlaceNr(3, 4);
-        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMap(
+        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMapAbstract(
             [
                 $duoPlaceNrOne->getIndex() => new CounterForDuoPlaceNr($duoPlaceNrOne),
                 $duoPlaceNrTwo->getIndex() => new CounterForDuoPlaceNr($duoPlaceNrTwo)
@@ -100,7 +100,7 @@ class DuoPlaceNrCounterMapTest extends TestCase
         $counterForDuoPlaceNrFour = new CounterForDuoPlaceNr(new DuoPlaceNr(2,4), 2);
         $counterForDuoPlaceNrFive = new CounterForDuoPlaceNr(new DuoPlaceNr(1,4), 2);
         $counterForDuoPlaceNrSix = new CounterForDuoPlaceNr(new DuoPlaceNr(2,3), 2);
-        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMap(
+        $duoPlaceNrCounterMap = new DuoPlaceNrCounterMapAbstract(
             [
                 $counterForDuoPlaceNrOne->getIndex() => $counterForDuoPlaceNrOne,
                 $counterForDuoPlaceNrTwo->getIndex() => $counterForDuoPlaceNrTwo,
@@ -118,7 +118,7 @@ class DuoPlaceNrCounterMapTest extends TestCase
         );
 
         $duoPlaceNrCountersReport = $duoPlaceNrCounterMap->calculateReport();
-        self::assertInstanceOf(DuoPlaceNrCountersReport::class, $duoPlaceNrCountersReport);
+        self::assertInstanceOf(DuoPlaceNrCountersPerAmountReport::class, $duoPlaceNrCountersReport);
 
     }
 

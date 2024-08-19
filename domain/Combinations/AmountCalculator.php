@@ -2,58 +2,58 @@
 
 namespace SportsPlanning\Combinations;
 
+use SportsPlanning\Counters\CounterForAmount;
+
 readonly class AmountCalculator
 {
 
-    public function __construct(private AmountRange $range)
-    {
-    }
-
     /**
-     * @param array<int, Amount> $amountMap
+     * @param CounterForAmount $minimumAmountCounter
+     * @param list<CounterForAmount> $amountCounters
      * @return int
      */
-    public function calculateCumulativeSmallerThanMinAmount(array $amountMap): int
+    public function calculateSmallerThan(CounterForAmount $minimumAmountCounter, array $amountCounters): int
     {
         $countBelowMinimum = 0;
         $totalCountLessThanCount = 0;
         $hasSmallerAmount = false;
-        $minAmount = $this->range->min->amount;
-        while ( $amount = array_shift($amountMap) ) {
-            if( $amount->amount < $minAmount ) {
-                $countBelowMinimum += (int)($amount->nrOfEntitiesWithSameAmount * ($minAmount - $amount->amount ) );
+        $minAmount = $minimumAmountCounter->getAmount();
+        while ( $amountCounter = array_shift($amountCounters) ) {
+            if( $amountCounter->getAmount() < $minAmount ) {
+                $countBelowMinimum += (int)($amountCounter->count() * ($minAmount - $amountCounter->getAmount() ) );
                 $hasSmallerAmount = true;
             }
-            if( $amount->amount <= $minAmount ) {
-                $totalCountLessThanCount += $amount->nrOfEntitiesWithSameAmount;
+            if( $amountCounter->getAmount() <= $minAmount ) {
+                $totalCountLessThanCount += $amountCounter->count();
             }
         }
-        $deficitNrOfEntitiesSmallerThanMinAmount = $this->range->min->nrOfEntitiesWithSameAmount - $totalCountLessThanCount;
+        $deficitNrOfEntitiesSmallerThanMinAmount = $minimumAmountCounter->count() - $totalCountLessThanCount;
         if( $hasSmallerAmount && $deficitNrOfEntitiesSmallerThanMinAmount > 0 ) {
-            $countBelowMinimum += $deficitNrOfEntitiesSmallerThanMinAmount * $this->range->min->amount;
+            $countBelowMinimum += $deficitNrOfEntitiesSmallerThanMinAmount * $minimumAmountCounter->getAmount();
         }
         return $countBelowMinimum;
     }
 
     /**
-     * @param array<int, Amount> $amountMap
+     * @param CounterForAmount $maximumAmountCounter
+     * @param list<CounterForAmount> $amountCounters
      * @return int
      */
-    public function calculateCumulativeGreaterThanMaxAmount(array $amountMap): int
+    public function calculateGreaterThan(CounterForAmount $maximumAmountCounter, array $amountCounters): int
     {
         $countAboveMaximum = 0;
         $totalCountGreaterThanOrEqualToMax = 0;
-        $maxAmount = $this->range->max->amount;
-        while ( $amount = array_shift($amountMap) ) {
-            if( $amount->amount > $maxAmount ) {
-                $countAboveMaximum += (int)($amount->nrOfEntitiesWithSameAmount * ($amount->amount - $maxAmount ) );
+        $maxAmount = $maximumAmountCounter->getAmount();
+        while ( $amountCounter = array_shift($amountCounters) ) {
+            if( $amountCounter->getAmount() > $maxAmount ) {
+                $countAboveMaximum += (int)($amountCounter->count() * ($amountCounter->getAmount() - $maxAmount ) );
             }
-            if( $amount->amount >= $maxAmount ) {
-                $totalCountGreaterThanOrEqualToMax += $amount->nrOfEntitiesWithSameAmount;
+            if( $amountCounter->getAmount() >= $maxAmount ) {
+                $totalCountGreaterThanOrEqualToMax += $amountCounter->count();
             }
         }
-        if( $totalCountGreaterThanOrEqualToMax > $this->range->max->nrOfEntitiesWithSameAmount ) {
-            $countAboveMaximum += $totalCountGreaterThanOrEqualToMax - $this->range->max->nrOfEntitiesWithSameAmount;
+        if( $totalCountGreaterThanOrEqualToMax > $maximumAmountCounter->count() ) {
+            $countAboveMaximum += $totalCountGreaterThanOrEqualToMax - $maximumAmountCounter->count();
         }
         return $countAboveMaximum;
     }
