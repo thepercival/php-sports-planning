@@ -35,31 +35,31 @@ abstract class PlaceNrCounterMapAbstract
         return $this->map[$placeNr];
     }
 
-    /**
-     * @return list<int>
-     */
-    public function getPlaceNrsGreaterThan(int $minCount): array {
-        $placeNrs = [];
-        foreach( $this->map as $counter ) {
-            if( $counter->count() > $minCount) {
-                $placeNrs[] = $counter->getPlaceNr();
-            }
-        }
-        return $placeNrs;
-    }
-
-    /**
-     * @return list<int>
-     */
-    public function getPlaceNrsSmallerThan(int $maxCount): array {
-        $placeNrs = [];
-        foreach( $this->map as $counter ) {
-            if( $counter->count() < $maxCount) {
-                $placeNrs[] = $counter->getPlaceNr();
-            }
-        }
-        return $placeNrs;
-    }
+//    /**
+//     * @return list<int>
+//     */
+//    public function getPlaceNrsGreaterThan(int $minCount): array {
+//        $placeNrs = [];
+//        foreach( $this->map as $counter ) {
+//            if( $counter->count() > $minCount) {
+//                $placeNrs[] = $counter->getPlaceNr();
+//            }
+//        }
+//        return $placeNrs;
+//    }
+//
+//    /**
+//     * @return list<int>
+//     */
+//    public function getPlaceNrsSmallerThan(int $maxCount): array {
+//        $placeNrs = [];
+//        foreach( $this->map as $counter ) {
+//            if( $counter->count() < $maxCount) {
+//                $placeNrs[] = $counter->getPlaceNr();
+//            }
+//        }
+//        return $placeNrs;
+//    }
 
     /**
      * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways

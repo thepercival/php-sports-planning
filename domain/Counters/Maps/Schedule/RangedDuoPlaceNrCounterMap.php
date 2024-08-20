@@ -6,7 +6,6 @@ use SportsPlanning\Combinations\AmountRange as AmountRange;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
 use SportsPlanning\Counters\Reports\DuoPlaceNrCountersPerAmountReport;
-use SportsPlanning\Counters\Reports\RangedDuoPlaceNrCountersReport;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
@@ -51,22 +50,58 @@ class RangedDuoPlaceNrCounterMap
         return $this->map->count($placeCombination);
     }
 
-    public function calculateReport(): RangedDuoPlaceNrCountersReport
+    public function createPerAmountReport(): DuoPlaceNrCountersPerAmountReport
     {
-        return new RangedDuoPlaceNrCountersReport($this->map, $this->allowedRange);
+        return new DuoPlaceNrCountersPerAmountReport($this->map);
     }
 
     public function withinRange(int $nrOfCombinationsToGo): bool
     {
-        $report = $this->calculateReport();
-        return $this->minimumCanBeReached($nrOfCombinationsToGo) && !$report->aboveMaximum($nrOfCombinationsToGo);
+        $perAmountReport = $this->createPerAmountReport();
+        return $this->minimumCanBeReached($nrOfCombinationsToGo)
+            && !$this->aboveMaximum($nrOfCombinationsToGo);
     }
 
     public function minimumCanBeReached(int $nrOfCombinationsToGo): bool
     {
-        $report = $this->calculateReport();
-        return $report->minimumCanBeReached($nrOfCombinationsToGo);
+        $perAmountReport = $this->createPerAmountReport();
+
+        $totalBelowMinimum = $perAmountReport->calculateSmallerThan($this->allowedRange->min);
+        if( $totalBelowMinimum <= $nrOfCombinationsToGo ) {
+            return true;
+        };
+
+        if ( $perAmountReport->range->min->getAmount() === $this->allowedRange->min->getAmount()
+            && $perAmountReport->range->min->getAmount() + $nrOfCombinationsToGo <= $perAmountReport->nrOfPlaces
+        ) {
+            return true;
+        }
+        return false;
     }
+     public function aboveMaximum(int $nrOfCombinationsToGo): bool
+        {
+        $perAmountReport = $this->createPerAmountReport();
+
+        $totalAboveMaximum = $perAmountReport->calculateGreaterThan($this->allowedRange->max);
+
+        if( $totalAboveMaximum === 0 ) {
+            return false;
+        }
+
+        if ( $perAmountReport->range->max->getAmount() === $this->allowedRange->max->getAmount()
+            &&
+            (
+                $perAmountReport->range->max->count() + $nrOfCombinationsToGo <= $perAmountReport->nrOfPlaces
+            )
+        ) {
+            return false;
+        }
+        return true;
+    }
+
+
+
+
 
     function __clone()
     {

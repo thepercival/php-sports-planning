@@ -36,6 +36,6 @@ readonly class CounterForAmount extends Counter
 
     public function __toString(): string
     {
-        return $this->countedObject . 'x ' . $this->count() . 'x';
+        return $this->countedObject . '.' . $this->count();
     }
 }

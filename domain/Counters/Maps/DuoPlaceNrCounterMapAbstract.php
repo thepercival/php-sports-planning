@@ -66,6 +66,8 @@ abstract class DuoPlaceNrCounterMapAbstract
         $this->map[$duoPlaceNr->getIndex()] = $newCounter;
     }
 
+
+
     /**
      * @return non-empty-array<int, list<CounterForDuoPlaceNr>>
      */

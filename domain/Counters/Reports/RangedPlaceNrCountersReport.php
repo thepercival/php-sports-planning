@@ -12,27 +12,23 @@ readonly class RangedPlaceNrCountersReport
 {
     // private int|null $shortage = null;
     // private bool|null $overAssigned = null;
-    public PlaceNrCountersPerAmountReport $report;
-    private int $totalBelowMinimum;
-    private int $totalAboveMaximum;
+//    public PlaceNrCountersPerAmountReport $report;
+//
+//    private int $totalAboveMaximum;
 
     public function __construct(AmountNrCounterMap|SideNrCounterMap $map, public AmountRange $allowedRange)
     {
-        $this->report = new PlaceNrCountersPerAmountReport($map);
-
-        $this->totalBelowMinimum = $this->report->calculateSmallerThan($this->allowedRange->min);
-        $this->totalAboveMaximum = $this->report->calculateGreaterThan($this->allowedRange->max);
+//        $this->report = new PlaceNrCountersPerAmountReport($map);
+//
+//
+//        $this->totalAboveMaximum = $this->report->calculateGreaterThan($this->allowedRange->max);
     }
 
-    public function getTotalBelowMinimum(): int
-    {
-        return $this->totalBelowMinimum;
-    }
 
-    public function getTotalAboveMaximum(): int
-    {
-        return $this->totalAboveMaximum;
-    }
+//    public function getTotalAboveMaximum(): int
+//    {
+//        return $this->totalAboveMaximum;
+//    }
 
 //    public function count(Place $place): int
 //    {

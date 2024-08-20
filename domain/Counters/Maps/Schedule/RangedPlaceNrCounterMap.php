@@ -5,7 +5,6 @@ namespace SportsPlanning\Counters\Maps\Schedule;
 use Psr\Log\LoggerInterface;
 use SportsPlanning\Combinations\AmountRange as AmountRange;
 use SportsPlanning\Counters\Reports\PlaceNrCountersPerAmountReport;
-use SportsPlanning\Counters\Reports\RangedPlaceNrCountersReport;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
@@ -35,25 +34,25 @@ class RangedPlaceNrCounterMap
         $this->map->decrementPlaceNr($placeNr);
     }
 
-    /**
-     * @return list<int>
-     */
-    public function getPlaceNrsGreaterThanMaximum(): array {
-        $maxAmount = $this->allowedRange->max->getAmount();
-        return $this->map->getPlaceNrsGreaterThan($maxAmount);
-    }
+//    /**
+//     * @return list<int>
+//     */
+//    public function getPlaceNrsGreaterThanMaximum(): array {
+//        $maxAmount = $this->allowedRange->max->getAmount();
+//        return $this->map->getPlaceNrsGreaterThan($maxAmount);
+//    }
 
-    /**
-     * @return list<int>
-     */
-    public function getPlaceNrsSmallerThanMinimum(): array {
-        $minAmount = $this->allowedRange->min->getAmount();
-        return $this->map->getPlaceNrsSmallerThan($minAmount);
-    }
+//    /**
+//     * @return list<int>
+//     */
+//    public function getPlaceNrsSmallerThanMinimum(): array {
+//        $minAmount = $this->allowedRange->min->getAmount();
+//        return $this->map->getPlaceNrsSmallerThan($minAmount);
+//    }
 
-    public function calculateReport(): RangedPlaceNrCountersReport
+    public function createPerAmountReport(): PlaceNrCountersPerAmountReport
     {
-        return new RangedPlaceNrCountersReport($this->map, $this->allowedRange);
+        return new PlaceNrCountersPerAmountReport($this->map);
     }
 
     public function count(int $placeNr): int
@@ -61,9 +60,9 @@ class RangedPlaceNrCounterMap
         return $this->map->count($placeNr);
     }
 
-    public function getNrOfEntitiesForAmount(int $amount): int {
-        return count((new PlaceNrCountersPerAmountReport($this->map))->getPlaceNrsWithSameAmount($amount));
-    }
+//    public function getNrOfEntitiesForAmount(int $amount): int {
+//        return count((new PlaceNrCountersPerAmountReport($this->map))->getPlaceNrsWithSameAmount($amount));
+//    }
 
     public function withinRange(int $nrOfCombinationsToGo): bool
     {
@@ -72,34 +71,31 @@ class RangedPlaceNrCounterMap
 
     public function minimumCanBeReached(int $nrOfPlacesToGo): bool
     {
-        $report = $this->calculateReport();
-        if( $report->getTotalBelowMinimum() <= $nrOfPlacesToGo ) {
+        $perAmountReport = $this->createPerAmountReport();
+        $nrSmallerThan = $perAmountReport->calculateSmallerThan($this->allowedRange->min);
+        if( $nrOfPlacesToGo >= $nrSmallerThan ) {
             return true;
         };
 
-        $nrOfPlaces = $report->nrOfPlaces;
-
-        if ( $report->getMinAmount() === $this->allowedRange->min->getAmount()
-            && $report->getNrOfEntitiesWithMinAmount() + $nrOfPlacesToGo <= $nrOfPlaces
-        ) {
-            return true;
-        }
+//        if ( $perAmountReport->range->min->getAmount() === $this->allowedRange->min->getAmount()
+//            && $perAmountReport->range->min->count() + $nrOfPlacesToGo <= $this->allowedRange->min->count()
+//        ) {
+//            return true;
+//        }
         return false;
     }
 
-    public function aboveMaximum(int $nrOfCombinationsToGo): bool
+    public function aboveMaximum(int $nrOfPlacesToGo): bool
     {
-        $report = $this->calculateReport();
-        if( $report->getTotalAboveMaximum() === 0 ) {
+        $perAmountReport = $this->createPerAmountReport();
+        if( $perAmountReport->calculateGreaterThan($this->allowedRange->max) === 0 ) {
             return false;
         }
 
-        $nrOfPossibleCombinations = $report->getNOfPlaces();
-
-        if ( $report->getMaxAmount() === $this->allowedRange->max->getAmount()
+        if ( $perAmountReport->range->max->getAmount() === $this->allowedRange->max->getAmount()
             &&
             (
-                $report->getNrOfEntitiesWithMaxAmount() + $nrOfCombinationsToGo <= $nrOfPossibleCombinations
+                $perAmountReport->range->max->count() + $nrOfPlacesToGo <= $perAmountReport->nrOfPlaces
             )
         ) {
             return false;

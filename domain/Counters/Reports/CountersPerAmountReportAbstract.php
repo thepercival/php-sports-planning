@@ -7,13 +7,9 @@ namespace SportsPlanning\Counters\Reports;
 use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\AmountCalculator as AmountCalculator;
 use SportsPlanning\Counters\CounterForAmount;
-use SportsPlanning\Combinations\AmountRange as AmountRange;
-use SportsPlanning\Counters\CounterForDuoPlaceNr;
-use SportsPlanning\Counters\CounterForPlaceNr;
+use SportsPlanning\Combinations\AmountRange;
 use SportsPlanning\Counters\Maps\DuoPlaceNrCounterMapAbstract;
 use SportsPlanning\Counters\Maps\PlaceNrCounterMapAbstract;
-use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
-use SportsPlanning\Counters\Maps\Schedule\SideNrCounterMap;
 
 readonly abstract class CountersPerAmountReportAbstract
 {
@@ -24,23 +20,23 @@ readonly abstract class CountersPerAmountReportAbstract
 //     */
 //    private array $countersPerAmountMap;
     /**
-     * @var non-empty-array<int, int>
+     * @var non-empty-array<int, CounterForAmount>
      */
-    private array $amountMap;
+    private array $amountCounterMap;
 
     public function __construct(PlaceNrCounterMapAbstract|DuoPlaceNrCounterMapAbstract $nrCounterMap)
     {
         $this->nrOfPlaces = $nrCounterMap->nrOfPlaces;
         $countersPerAmountMap = $nrCounterMap->createCountersPerAmountMap();
 
-        $amountMap = [];
+        $amountCounterMap = [];
         foreach ($countersPerAmountMap as $amount => $counterForPlaceNr) {
-            $amountMap[$amount] = count($counterForPlaceNr);
+            $amountCounterMap[$amount] = new CounterForAmount($amount, count($counterForPlaceNr) );
         }
-        $this->amountMap = $amountMap;
+        $this->amountCounterMap = $amountCounterMap;
 
-        $min = array_shift($countersPerAmountMap);
-        $max = array_pop($countersPerAmountMap);
+        $min = array_shift($amountCounterMap);
+        $max = array_pop($amountCounterMap);
         if( $max === null) {
             $max = $min;
         }
@@ -91,24 +87,20 @@ readonly abstract class CountersPerAmountReportAbstract
 
     public function calculateSmallerThan(CounterForAmount $minimum): int {
         $calculator = new AmountCalculator();
-        return $calculator->calculateSmallerThan($minimum, $this->convertAmountMapToCounterList());
+        return $calculator->calculateSmallerThan($minimum, array_values($this->amountCounterMap));
     }
 
     public function calculateGreaterThan(CounterForAmount $maximum): int {
         $calculator = new AmountCalculator();
-        return $calculator->calculateGreaterThan($maximum, $this->convertAmountMapToCounterList());
+        return $calculator->calculateGreaterThan($maximum, array_values($this->amountCounterMap));
     }
 
-    /**
-     * @return list<CounterForAmount>
-     */
-    private function convertAmountMapToCounterList(): array {
-        $amountCounters = [];
-        foreach( $this->amountMap as $amount => $count ) {
-            $amountCounters[] = new CounterForAmount($amount, $count);
-        }
-        return $amountCounters;
-    }
+//    /**
+//     * @return list<CounterForAmount>
+//     */
+//    private function convertAmountMapToCounterList(): array {
+//        return $this->amountCounterMap;
+//    }
 
 //    /**
 //     * @return array<int, list<CounterForPlaceNr>>

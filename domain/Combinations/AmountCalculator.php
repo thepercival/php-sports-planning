@@ -35,15 +35,15 @@ readonly class AmountCalculator
     }
 
     /**
-     * @param CounterForAmount $maximumAmountCounter
+     * @param CounterForAmount $maxAmountCounter
      * @param list<CounterForAmount> $amountCounters
      * @return int
      */
-    public function calculateGreaterThan(CounterForAmount $maximumAmountCounter, array $amountCounters): int
+    public function calculateGreaterThan(CounterForAmount $maxAmountCounter, array $amountCounters): int
     {
         $countAboveMaximum = 0;
         $totalCountGreaterThanOrEqualToMax = 0;
-        $maxAmount = $maximumAmountCounter->getAmount();
+        $maxAmount = $maxAmountCounter->getAmount();
         while ( $amountCounter = array_shift($amountCounters) ) {
             if( $amountCounter->getAmount() > $maxAmount ) {
                 $countAboveMaximum += (int)($amountCounter->count() * ($amountCounter->getAmount() - $maxAmount ) );
@@ -52,8 +52,8 @@ readonly class AmountCalculator
                 $totalCountGreaterThanOrEqualToMax += $amountCounter->count();
             }
         }
-        if( $totalCountGreaterThanOrEqualToMax > $maximumAmountCounter->count() ) {
-            $countAboveMaximum += $totalCountGreaterThanOrEqualToMax - $maximumAmountCounter->count();
+        if( $totalCountGreaterThanOrEqualToMax > $maxAmountCounter->count() ) {
+            $countAboveMaximum += $totalCountGreaterThanOrEqualToMax - $maxAmountCounter->count();
         }
         return $countAboveMaximum;
     }
