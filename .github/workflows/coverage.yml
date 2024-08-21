@@ -17,14 +17,12 @@ jobs:
           tools: phpunit
           coverage: xdebug
 
-      - name: Validate composer.json and composer.lock
-        run: composer validate --strict
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+      - uses: php-actions/composer@v6
+        with:
+          php_version: "8.3"
 
       - name: PHPUnit Coverage
-        uses: php-actions/phpunit@v3
+        uses: php-actions/phpunit@v4
         with:
           php_version: 8.3
           php_extensions: xdebug

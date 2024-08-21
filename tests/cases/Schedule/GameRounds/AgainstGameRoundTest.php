@@ -5,7 +5,11 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\Schedule\GameRounds;
 
 use PHPUnit\Framework\TestCase;
+use SportsHelpers\SportRange;
+use SportsPlanning\Planning;
+use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Schedule\GameRounds\AgainstGameRound;
+use SportsPlanning\TestHelper\PlanningCreator;
 
 class AgainstGameRoundTest extends TestCase
 {
