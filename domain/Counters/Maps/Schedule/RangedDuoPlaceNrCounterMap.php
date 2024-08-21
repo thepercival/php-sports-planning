@@ -57,10 +57,11 @@ class RangedDuoPlaceNrCounterMap
 
     public function withinRange(int $nrOfCombinationsToGo): bool
     {
-        return $this->minimumCanBeReached($nrOfCombinationsToGo) && !$this->aboveMaximum($nrOfCombinationsToGo);
+        return $this->allDuoPlaceNrCountersCanBeEqualOrGreaterThanMinimum($nrOfCombinationsToGo)
+            && $this->allDuoPlaceNrCountersCanBeSmallerOrEqualToMaximum($nrOfCombinationsToGo);
     }
 
-    public function minimumCanBeReached(int $nrOfCombinationsToGo): bool
+    public function allDuoPlaceNrCountersCanBeEqualOrGreaterThanMinimum(int $nrOfCombinationsToGo): bool
     {
         $perAmountReport = $this->createPerAmountReport();
 
@@ -76,7 +77,7 @@ class RangedDuoPlaceNrCounterMap
 //        }
         return false;
     }
-     public function aboveMaximum(int $nrOfCombinationsToGo): bool
+     public function allDuoPlaceNrCountersCanBeSmallerOrEqualToMaximum(int $nrOfCombinationsToGo): bool
      {
         $perAmountReport = $this->createPerAmountReport();
 
