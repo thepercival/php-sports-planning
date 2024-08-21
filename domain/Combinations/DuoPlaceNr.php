@@ -7,8 +7,10 @@ namespace SportsPlanning\Combinations;
 readonly class DuoPlaceNr implements \Stringable
 {
     private string $index;
+    public int $placeNrOne;
+    public int $placeNrTwo;
 
-    public function __construct(public int $placeNrOne, public int $placeNrTwo)
+    public function __construct(int $placeNrOne, int $placeNrTwo)
     {
         if($placeNrOne < 1 || $placeNrTwo < 1 ) {
             throw new \Exception('placeNr should be at least 1');
@@ -16,6 +18,8 @@ readonly class DuoPlaceNr implements \Stringable
         if($placeNrOne === $placeNrTwo ) {
             throw new \Exception('placeNr should be at least 1');
         }
+        $this->placeNrOne = min($placeNrOne, $placeNrTwo);
+        $this->placeNrTwo = max($placeNrOne, $placeNrTwo);
         $this->index = (string)$this;
     }
 

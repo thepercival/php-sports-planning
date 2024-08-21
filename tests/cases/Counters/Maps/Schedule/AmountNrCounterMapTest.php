@@ -7,9 +7,6 @@ namespace SportsPlanning\Tests\Counters\Maps\Schedule;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use SportsPlanning\Combinations\DuoPlaceNr;
-use SportsPlanning\Counters\CounterForAmount;
-use SportsPlanning\Counters\CounterForPlaceNr;
 use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 
@@ -19,7 +16,7 @@ class AmountNrCounterMapTest extends TestCase
     public function testWithNrOfPlaces(): void
     {
         $amountNrCounterMap = new AmountNrCounterMap(2);
-        $amountNrCounterMap->addHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(1, 2)));
+        $amountNrCounterMap->addHomeAway(new OneVsOneHomeAway(1, 2));
         self::assertSame(1, $amountNrCounterMap->count(1));
         self::assertSame(1, $amountNrCounterMap->count(2));
     }
@@ -29,6 +26,12 @@ class AmountNrCounterMapTest extends TestCase
         $amountNrCounterMap = new AmountNrCounterMap(5);
         $amountNrCounterMap->incrementPlaceNr(1);
         self::assertSame(1, $amountNrCounterMap->count(1));
+    }
+
+    public function testZeroPlacesException(): void
+    {
+        self::expectException(\Exception::class);
+        new AmountNrCounterMap(0);
     }
 
     public function testCountException(): void
@@ -44,7 +47,7 @@ class AmountNrCounterMapTest extends TestCase
         $amountNrCounterMap->incrementPlaceNr(1);
         $amountNrCounterMap->addHomeAways(
             [
-                new OneVsOneHomeAway(new DuoPlaceNr(1,2))
+                new OneVsOneHomeAway(1,2)
             ]
         );
         self::assertSame(2, $amountNrCounterMap->count(1));
@@ -56,12 +59,12 @@ class AmountNrCounterMapTest extends TestCase
         $amountNrCounterMap = new AmountNrCounterMap(3);
         $amountNrCounterMap->addHomeAways(
             [
-                new OneVsOneHomeAway(new DuoPlaceNr(1,2))
+                new OneVsOneHomeAway(1,2)
             ]
         );
 
         $amountNrCounterMap->addHomeAway(
-            new OneVsOneHomeAway(new DuoPlaceNr(1,3))
+            new OneVsOneHomeAway(1,3)
         );
         self::assertSame(2, $amountNrCounterMap->count(1));
         self::assertSame(1, $amountNrCounterMap->count(2));
@@ -73,11 +76,11 @@ class AmountNrCounterMapTest extends TestCase
         $amountNrCounterMap->incrementPlaceNr(2);
         $amountNrCounterMap->addHomeAways(
             [
-                new OneVsOneHomeAway(new DuoPlaceNr(1,2))
+                new OneVsOneHomeAway(1,2)
             ]
         );
 
-        $amountNrCounterMap->removeHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(1,2)));
+        $amountNrCounterMap->removeHomeAway(new OneVsOneHomeAway(1,2));
         self::assertSame(0, $amountNrCounterMap->count(1));
         self::assertSame(1, $amountNrCounterMap->count(2));
     }
@@ -89,7 +92,7 @@ class AmountNrCounterMapTest extends TestCase
         $amountNrCounterMap->incrementPlaceNr(2);
         $amountNrCounterMap->incrementPlaceNr(3);
 
-        $amountNrCounterMap->removeHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(1,3)));
+        $amountNrCounterMap->removeHomeAway(new OneVsOneHomeAway(1,3));
         self::assertSame(0, $amountNrCounterMap->count(1));
         self::assertSame(1, $amountNrCounterMap->count(2));
         self::assertSame(0, $amountNrCounterMap->count(3));
@@ -110,10 +113,10 @@ class AmountNrCounterMapTest extends TestCase
     {
 
         $placeNrCounterMap = new AmountNrCounterMap(3);
-        $placeNrCounterMap->addHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(1,2)));
-        $placeNrCounterMap->addHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(2,3)));
+        $placeNrCounterMap->addHomeAway(new OneVsOneHomeAway(1,2));
+        $placeNrCounterMap->addHomeAway(new OneVsOneHomeAway(2,3));
         $placeNrCounterMapClone = clone $placeNrCounterMap;
-        $placeNrCounterMap->removeHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(1,2)));
+        $placeNrCounterMap->removeHomeAway(new OneVsOneHomeAway(1,2));
 
         self::assertSame(1, $placeNrCounterMapClone->count(1));
         self::assertSame(2, $placeNrCounterMapClone->count(2));

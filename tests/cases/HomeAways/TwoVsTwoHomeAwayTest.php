@@ -131,7 +131,7 @@ class TwoVsTwoHomeAwayTest extends TestCase
     public function testEqualsItThree(): void
     {
         $homeAwayOne = new TwoVsTwoHomeAway(new DuoPlaceNr(1, 2), new DuoPlaceNr(3, 4));
-        $homeAwayTwo = new OneVsOneHomeAway(new DuoPlaceNr(1, 2));
+        $homeAwayTwo = new OneVsOneHomeAway(1, 2);
         self::assertFalse($homeAwayOne->equals($homeAwayTwo));
     }
 

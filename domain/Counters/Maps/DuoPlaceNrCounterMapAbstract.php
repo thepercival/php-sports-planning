@@ -31,16 +31,16 @@ abstract class DuoPlaceNrCounterMapAbstract
 //        return $this->map[$index]->getDuoPlaceNr();
 //    }
 
-    public function count(DuoPlaceNr|null $duoPlace = null): int
+    public function count(DuoPlaceNr $duoPlaceNr): int
     {
-        if( $duoPlace === null ) {
-            return count($this->map);
-        }
+        return $this->getCounter($duoPlaceNr)->count();
+    }
 
-        if( !array_key_exists($duoPlace->getIndex(), $this->map) ) {
-            return 0;
+    protected function getCounter(DuoPlaceNr $duoPlaceNr): CounterForDuoPlaceNr {
+        if( !array_key_exists($duoPlaceNr->getIndex(), $this->map) ) {
+            throw new \Exception('duoPlaceNr not in map');
         }
-        return $this->map[$duoPlace->getIndex()]->count();
+        return $this->map[$duoPlaceNr->getIndex()];
     }
 
     /**
@@ -55,18 +55,12 @@ abstract class DuoPlaceNrCounterMapAbstract
     }
 
     public function incrementDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
-
-        $newCounter = $this->map[$duoPlaceNr->getIndex()]->increment();
-        $this->map[$duoPlaceNr->getIndex()] = $newCounter;
+        $this->map[$duoPlaceNr->getIndex()] = $this->getCounter($duoPlaceNr)->increment();
     }
 
     public function decrementDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
-
-        $newCounter = $this->map[$duoPlaceNr->getIndex()]->decrement();
-        $this->map[$duoPlaceNr->getIndex()] = $newCounter;
+        $this->map[$duoPlaceNr->getIndex()] = $this->getCounter($duoPlaceNr)->decrement();
     }
-
-
 
     /**
      * @return non-empty-array<int, list<CounterForDuoPlaceNr>>
@@ -108,6 +102,17 @@ abstract class DuoPlaceNrCounterMapAbstract
             $map[$index] = clone $duoPlaceCounter;
         }
         $this->map = $map;
+    }
+
+    /**
+     * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
+     * @return void
+     */
+    public function addHomeAways(array $homeAways): void
+    {
+        foreach( $homeAways as $homeAway ) {
+            $this->addHomeAway($homeAway);
+        }
     }
 
     abstract public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void;

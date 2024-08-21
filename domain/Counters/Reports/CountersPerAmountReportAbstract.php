@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Counters\Reports;
 
 use SportsHelpers\SportRange;
-use SportsPlanning\Combinations\AmountCalculator as AmountCalculator;
+use SportsPlanning\Combinations\AmountCalculator;
 use SportsPlanning\Counters\CounterForAmount;
 use SportsPlanning\Combinations\AmountRange;
 use SportsPlanning\Counters\Maps\DuoPlaceNrCounterMapAbstract;

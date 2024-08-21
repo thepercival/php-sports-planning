@@ -23,7 +23,7 @@ class DuoPlaceNrCounterMapCreator
             }
         }
         if( count($map) < 1) {
-            throw new \Exception('nrOfPlaces must be at least 1');
+            throw new \Exception('nrOfPlaces must be at least 2');
         }
         return $map;
     }

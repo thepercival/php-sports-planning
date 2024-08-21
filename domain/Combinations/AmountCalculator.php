@@ -6,6 +6,9 @@ use SportsPlanning\Counters\CounterForAmount;
 
 readonly class AmountCalculator
 {
+    public function __construct() {
+
+    }
 
     /**
      * @param CounterForAmount $minimumAmountCounter

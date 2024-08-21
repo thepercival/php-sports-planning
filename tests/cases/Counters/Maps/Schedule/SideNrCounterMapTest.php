@@ -19,7 +19,7 @@ class SideNrCounterMapTest extends TestCase
     public function testWithNrOfPlaces(): void
     {
         $homeNrCounterMap = new SideNrCounterMap(Side::Home, 5);
-        $homeNrCounterMap->addHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(1, 2)));
+        $homeNrCounterMap->addHomeAway(new OneVsOneHomeAway(1, 2));
         self::assertSame(1, $homeNrCounterMap->count(1));
         self::assertSame(0, $homeNrCounterMap->count(2));
     }
@@ -28,7 +28,7 @@ class SideNrCounterMapTest extends TestCase
     {
         $awayNrCounterMap = new SideNrCounterMap(Side::Away, 2);
         $awayNrCounterMap->addHomeAways(
-            [new OneVsOneHomeAway(new DuoPlaceNr(1, 2))]
+            [new OneVsOneHomeAway(1, 2)]
         );
         self::assertSame(1, $awayNrCounterMap->count(2));
     }

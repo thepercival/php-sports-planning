@@ -37,17 +37,17 @@ class RangedDuoPlaceNrCounterMap
         $this->map->addHomeAway($homeAway);
     }
 
-    public function incrementDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
-        $this->map->decrementDuoPlaceNr($duoPlaceNr);
-    }
+//    public function incrementDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
+//        $this->map->incrementDuoPlaceNr($duoPlaceNr);
+//    }
+//
+//    public function decrementDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
+//        $this->map->decrementDuoPlaceNr($duoPlaceNr);
+//    }
 
-    public function decrementDuoPlaceNr(DuoPlaceNr $duoPlaceNr): void {
-        $this->map->decrementDuoPlaceNr($duoPlaceNr);
-    }
-
-    public function count(DuoPlaceNr $placeCombination): int
+    public function count(DuoPlaceNr $duoPlaceNr): int
     {
-        return $this->map->count($placeCombination);
+        return $this->map->count($duoPlaceNr);
     }
 
     public function createPerAmountReport(): DuoPlaceNrCountersPerAmountReport
@@ -57,9 +57,7 @@ class RangedDuoPlaceNrCounterMap
 
     public function withinRange(int $nrOfCombinationsToGo): bool
     {
-        $perAmountReport = $this->createPerAmountReport();
-        return $this->minimumCanBeReached($nrOfCombinationsToGo)
-            && !$this->aboveMaximum($nrOfCombinationsToGo);
+        return $this->minimumCanBeReached($nrOfCombinationsToGo) && !$this->aboveMaximum($nrOfCombinationsToGo);
     }
 
     public function minimumCanBeReached(int $nrOfCombinationsToGo): bool
@@ -71,32 +69,31 @@ class RangedDuoPlaceNrCounterMap
             return true;
         };
 
-        if ( $perAmountReport->range->min->getAmount() === $this->allowedRange->min->getAmount()
-            && $perAmountReport->range->min->getAmount() + $nrOfCombinationsToGo <= $perAmountReport->nrOfPlaces
-        ) {
-            return true;
-        }
+//        if ( $perAmountReport->range->min->getAmount() === $this->allowedRange->min->getAmount()
+//            && $perAmountReport->range->min->getAmount() + $nrOfCombinationsToGo <= $perAmountReport->nrOfPlaces
+//        ) {
+//            return true;
+//        }
         return false;
     }
      public function aboveMaximum(int $nrOfCombinationsToGo): bool
-        {
+     {
         $perAmountReport = $this->createPerAmountReport();
 
-        $totalAboveMaximum = $perAmountReport->calculateGreaterThan($this->allowedRange->max);
+        $totalSmallerMaximum = $perAmountReport->calculateSmallerThan($this->allowedRange->max);
+        $totalGreaterMaximum = $perAmountReport->calculateGreaterThan($this->allowedRange->max);
 
-        if( $totalAboveMaximum === 0 ) {
-            return false;
-        }
+        return $totalGreaterMaximum > 0 || ($totalSmallerMaximum + $nrOfCombinationsToGo) > 0;
 
-        if ( $perAmountReport->range->max->getAmount() === $this->allowedRange->max->getAmount()
-            &&
-            (
-                $perAmountReport->range->max->count() + $nrOfCombinationsToGo <= $perAmountReport->nrOfPlaces
-            )
-        ) {
-            return false;
-        }
-        return true;
+//        if ( $perAmountReport->range->max->getAmount() === $this->allowedRange->max->getAmount()
+//            &&
+//            (
+//                $perAmountReport->range->max->count() + $nrOfCombinationsToGo <= $perAmountReport->nrOfPlaces
+//            )
+//        ) {
+//            return false;
+//        }
+//        return true;
     }
 
 

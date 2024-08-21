@@ -9,14 +9,9 @@ use SportsPlanning\Combinations\DuoPlaceNr;
 
 readonly class OneVsOneHomeAway extends HomeAwayAbstract
 {
-    private int $home;
-    private int $away;
-
-    public function __construct(DuoPlaceNr $duoPlaceNr)
+    public function __construct(private int $home, private int $away)
     {
-        $this->home = $duoPlaceNr->placeNrOne;
-        $this->away = $duoPlaceNr->placeNrTwo;
-        parent::__construct( $this->home . ' vs ' . $this->away);
+         parent::__construct( $this->home . ' vs ' . $this->away);
     }
 
     public function get(AgainstSide $side): int
@@ -74,7 +69,7 @@ readonly class OneVsOneHomeAway extends HomeAwayAbstract
 
     public function swap(): self
     {
-        return new OneVsOneHomeAway(new DuoPlaceNr($this->getAway(), $this->getHome()));
+        return new OneVsOneHomeAway($this->getAway(), $this->getHome());
     }
 
     /**

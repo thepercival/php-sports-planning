@@ -64,7 +64,7 @@ class Game extends Identifiable
         $homePlaceNrs = $this->getSidePlaceNrs(AgainstSide::Home);
         $awayPlaceNrs = $this->getSidePlaceNrs(AgainstSide::Away);
         if( count($homePlaceNrs) === 1 && count($awayPlaceNrs) === 1) {
-            return new OneVsOneHomeAway(new DuoPlaceNr($homePlaceNrs[0], $awayPlaceNrs[0]));
+            return new OneVsOneHomeAway($homePlaceNrs[0], $awayPlaceNrs[0]);
         }
         if( count($homePlaceNrs) === 1 && count($awayPlaceNrs) === 2) {
             return new OneVsTwoHomeAway(

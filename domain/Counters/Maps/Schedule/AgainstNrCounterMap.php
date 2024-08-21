@@ -20,16 +20,7 @@ final class AgainstNrCounterMap extends DuoPlaceNrCounterMapAbstract
         parent::__construct($nrOfPlaces);
     }
 
-    /**
-     * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
-     * @return void
-     */
-    public function addHomeAways(array $homeAways): void
-    {
-        foreach( $homeAways as $homeAway ) {
-            $this->addHomeAway($homeAway);
-        }
-    }
+
 
     public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
