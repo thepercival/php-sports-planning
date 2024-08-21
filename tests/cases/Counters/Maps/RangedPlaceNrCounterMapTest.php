@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Tests\Counters\Maps\Schedule;
+namespace SportsPlanning\Tests\Counters\Maps;
 
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\Side;
+use SportsPlanning\Combinations\AmountBoundary;
 use SportsPlanning\Combinations\AmountRange;
-use SportsPlanning\Counters\CounterForAmount;
+use SportsPlanning\Counters\Maps\RangedPlaceNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
-use SportsPlanning\Counters\Maps\Schedule\RangedPlaceNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\SideNrCounterMap;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 
@@ -20,16 +20,16 @@ class RangedPlaceNrCounterMapTest extends TestCase
     public function testGetAllowedRange(): void
     {
         $amountNrCounterMap = new AmountNrCounterMap(1);
-        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+        $allowedRange = new AmountRange(new AmountBoundary(2,3),new AmountBoundary(4,3));
         $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 
-        self::assertSame($allowedRange, $rangedAmountNrCounterMap->getAllowedRange());
+        self::assertSame($allowedRange, $rangedAmountNrCounterMap->allowedRange);
     }
 
     public function testAddHomeAway(): void
     {
         $amountNrCounterMap = new AmountNrCounterMap(2);
-        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+        $allowedRange = new AmountRange(new AmountBoundary(2,3),new AmountBoundary(4,3));
         $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 
         $rangedAmountNrCounterMap->addHomeAway(new OneVsOneHomeAway(1,2));
@@ -40,7 +40,7 @@ class RangedPlaceNrCounterMapTest extends TestCase
     public function testIncrementPlaceNr(): void
     {
         $amountNrCounterMap = new AmountNrCounterMap(1);
-        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+        $allowedRange = new AmountRange(new AmountBoundary(2,3),new AmountBoundary(4,3));
         $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 
         $rangedAmountNrCounterMap->incrementPlaceNr(1);
@@ -50,7 +50,7 @@ class RangedPlaceNrCounterMapTest extends TestCase
     public function testDecrementPlaceNr(): void
     {
         $amountNrCounterMap = new AmountNrCounterMap(1);
-        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+        $allowedRange = new AmountRange(new AmountBoundary(2,3),new AmountBoundary(4,3));
         $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 
         $rangedAmountNrCounterMap->incrementPlaceNr(1);
@@ -80,7 +80,7 @@ class RangedPlaceNrCounterMapTest extends TestCase
 ////            ]
 ////        );
 //
-//        $allowedRange = new AmountRange(new CounterForAmount(0,0), new CounterForAmount(1,0));
+//        $allowedRange = new AmountRange(0,0,1,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($placeNrCounterMap, $allowedRange);
 //
 //        self::assertCount(1, $rangedAmountNrCounterMap->getPlaceNrsGreaterThanMaximum());
@@ -108,7 +108,7 @@ class RangedPlaceNrCounterMapTest extends TestCase
 ////            ]
 ////        );
 //
-//        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
+//        $allowedRange = new AmountRange(1,0,2,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($placeNrCounterMap, $allowedRange);
 //
 //        self::assertCount(1, $rangedAmountNrCounterMap->getPlaceNrsSmallerThanMinimum());
@@ -135,20 +135,20 @@ class RangedPlaceNrCounterMapTest extends TestCase
 ////                new CounterForPlaceNr(5, 2)
 ////            ]
 ////        );
-//        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
+//        $allowedRange = new AmountRange(1,0,2,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($placeNrCounterMap, $allowedRange);
 //
 //        self::assertSame(2, $rangedAmountNrCounterMap->getNrOfEntitiesForAmount(1));
 //    }
 
-    public function testMinimumCanBeReachedItOne(): void
+    public function testAllDuoPlaceNrCountersCanBeEqualOrGreaterThanMinimumItOne(): void
     {
         $amountNrCounterMap = new AmountNrCounterMap(2);
 
-        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
+        $allowedRange = new AmountRange(new AmountBoundary(1,1),new AmountBoundary(2,1));
         $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 
-        self::assertTrue($rangedAmountNrCounterMap->minimumCanBeReached(3));
+        self::assertTrue($rangedAmountNrCounterMap->allDuoPlaceNrCountersCanBeEqualOrGreaterThanMinimum(3));
     }
 
 
@@ -161,14 +161,14 @@ class RangedPlaceNrCounterMapTest extends TestCase
 //        $amountNrCounterMap->incrementPlaceNr(3);
 //        $amountNrCounterMap->incrementPlaceNr(4);
 //        $amountNrCounterMap->incrementPlaceNr(5);
-//        $allowedRange = new AmountRange(new CounterForAmount(1,6), new CounterForAmount(3,0));
+//        $allowedRange = new AmountRange(1,6,3,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 //
 //        self::assertTrue($rangedAmountNrCounterMap->minimumCanBeReached(0));
 //    }
 
 
-    public function testMinimumCanBeReachedItTwo(): void
+    public function testAllDuoPlaceNrCountersCanBeEqualOrGreaterThanMinimumItTwo(): void
     {
         $amountNrCounterMap = new AmountNrCounterMap(5);
         $amountNrCounterMap->incrementPlaceNr(1);
@@ -176,56 +176,56 @@ class RangedPlaceNrCounterMapTest extends TestCase
         $amountNrCounterMap->incrementPlaceNr(3);
         $amountNrCounterMap->incrementPlaceNr(4);
         $amountNrCounterMap->incrementPlaceNr(5);
-        $allowedRange = new AmountRange(new CounterForAmount(2,4), new CounterForAmount(3,0));
+        $allowedRange = new AmountRange(new AmountBoundary(2,4),new AmountBoundary(3,1));
         $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 
-        self::assertFalse($rangedAmountNrCounterMap->minimumCanBeReached(3));
+        self::assertFalse($rangedAmountNrCounterMap->allDuoPlaceNrCountersCanBeEqualOrGreaterThanMinimum(3));
     }
 
-    public function testAboveMaxmimumItOne(): void
-    {
-        $amountNrCounterMap = new AmountNrCounterMap(2);
-        $amountNrCounterMap->incrementPlaceNr(1);
-        $amountNrCounterMap->incrementPlaceNr(1);
-        $amountNrCounterMap->incrementPlaceNr(2);
-        $amountNrCounterMap->incrementPlaceNr(2);
+//    public function testAboveMaxmimumItOne(): void
+//    {
+//        $amountNrCounterMap = new AmountNrCounterMap(2);
+//        $amountNrCounterMap->incrementPlaceNr(1);
+//        $amountNrCounterMap->incrementPlaceNr(1);
+//        $amountNrCounterMap->incrementPlaceNr(2);
+//        $amountNrCounterMap->incrementPlaceNr(2);
+//
+//        $allowedRange = new AmountRange(new AmountBoundary(1,0),new AmountBoundary(2,0));
+//        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
+//
+//        self::assertTrue($rangedAmountNrCounterMap->aboveMaximum(1));
+//    }
+//
+//    public function testAboveMaxmimumItTwo(): void
+//    {
+//        $amountNrCounterMap = new AmountNrCounterMap(2);
+//        $amountNrCounterMap->incrementPlaceNr(1);
+//        $amountNrCounterMap->incrementPlaceNr(2);
+//
+//        $allowedRange = new AmountRange(new AmountBoundary(1,0),new AmountBoundary(2,0));
+//        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
+//
+//        self::assertFalse($rangedAmountNrCounterMap->aboveMaximum(1));
+//    }
 
-        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
-        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
-
-        self::assertTrue($rangedAmountNrCounterMap->aboveMaximum(1));
-    }
-
-    public function testAboveMaxmimumItTwo(): void
-    {
-        $amountNrCounterMap = new AmountNrCounterMap(2);
-        $amountNrCounterMap->incrementPlaceNr(1);
-        $amountNrCounterMap->incrementPlaceNr(2);
-
-        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
-        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
-
-        self::assertFalse($rangedAmountNrCounterMap->aboveMaximum(1));
-    }
-
-    public function testAboveMaxmimumItThree(): void
-    {
-        $amountNrCounterMap = new AmountNrCounterMap(2);
-        $amountNrCounterMap->incrementPlaceNr(1);
-        $amountNrCounterMap->incrementPlaceNr(2);
-        $amountNrCounterMap->incrementPlaceNr(2);
-
-        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
-        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
-
-        self::assertFalse($rangedAmountNrCounterMap->aboveMaximum(1));
-    }
+//    public function testAboveMaxmimumItThree(): void
+//    {
+//        $amountNrCounterMap = new AmountNrCounterMap(2);
+//        $amountNrCounterMap->incrementPlaceNr(1);
+//        $amountNrCounterMap->incrementPlaceNr(2);
+//        $amountNrCounterMap->incrementPlaceNr(2);
+//
+//        $allowedRange = new AmountRange(new AmountBoundary(1,0),new AmountBoundary(2,0));
+//        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
+//
+//        self::assertFalse($rangedAmountNrCounterMap->aboveMaximum(1));
+//    }
 
     public function testwithinRange(): void
     {
         $amountNrCounterMap = new AmountNrCounterMap(2);
 
-        $allowedRange = new AmountRange(new CounterForAmount(1,2), new CounterForAmount(2,0));
+        $allowedRange = new AmountRange(new AmountBoundary(1,2),new AmountBoundary(2,1));
         $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 
         self::assertTrue($rangedAmountNrCounterMap->withinRange(2));
@@ -303,7 +303,7 @@ class RangedPlaceNrCounterMapTest extends TestCase
     public function testCloneAsSideNrCounterMap(): void
     {
         $amountNrCounterMap = new AmountNrCounterMap(1);
-        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+        $allowedRange = new AmountRange(new AmountBoundary(2,3),new AmountBoundary(4,3));
         $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 
         self::expectException(\Exception::class);
@@ -313,7 +313,7 @@ class RangedPlaceNrCounterMapTest extends TestCase
     public function testCloneAsSideNrCounterMapException(): void
     {
         $sideNrCounterMap = new SideNrCounterMap(Side::Home, 4);
-        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+        $allowedRange = new AmountRange(new AmountBoundary(2,3),new AmountBoundary(4,3));
         $rangedSideNrCounterMap = new RangedPlaceNrCounterMap($sideNrCounterMap, $allowedRange);
 
         $cloned = $rangedSideNrCounterMap->cloneAsSideNrCounterMap();
@@ -324,7 +324,7 @@ class RangedPlaceNrCounterMapTest extends TestCase
     {
         $placeNrCounterMap = new AmountNrCounterMap(5);
 
-        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+        $allowedRange = new AmountRange(new AmountBoundary(2,3),new AmountBoundary( 4,3));
         $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($placeNrCounterMap, $allowedRange);
 
         $logger = $this->createLogger();

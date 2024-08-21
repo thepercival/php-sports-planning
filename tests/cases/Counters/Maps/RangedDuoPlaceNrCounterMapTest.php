@@ -2,20 +2,17 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Tests\Counters\Maps\Schedule;
+namespace SportsPlanning\Tests\Counters\Maps;
 
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Against\Side;
+use SportsPlanning\Combinations\AmountBoundary;
 use SportsPlanning\Combinations\AmountRange;
 use SportsPlanning\Combinations\DuoPlaceNr;
-use SportsPlanning\Counters\CounterForAmount;
+use SportsPlanning\Counters\Maps\RangedDuoPlaceNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\AgainstNrCounterMap;
-use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
-use SportsPlanning\Counters\Maps\Schedule\RangedDuoPlaceNrCounterMap;
-use SportsPlanning\Counters\Maps\Schedule\RangedPlaceNrCounterMap;
-use SportsPlanning\Counters\Maps\Schedule\SideNrCounterMap;
+use SportsPlanning\Counters\Maps\Schedule\WithNrCounterMap;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 
 class RangedDuoPlaceNrCounterMapTest extends TestCase
@@ -23,16 +20,16 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
     public function testGetAllowedRange(): void
     {
         $againstNrCounterMap = new AgainstNrCounterMap(2);
-        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+        $allowedRange = new AmountRange(new AmountBoundary(2,3),new AmountBoundary(4,3));
         $rangedAgainstNrCounterMap = new RangedDuoPlaceNrCounterMap($againstNrCounterMap, $allowedRange);
 
-        self::assertSame($allowedRange, $rangedAgainstNrCounterMap->getAllowedRange());
+        self::assertSame($allowedRange, $rangedAgainstNrCounterMap->allowedRange);
     }
 
     public function testAddHomeAway(): void
     {
         $againstNrCounterMap = new AgainstNrCounterMap(2);
-        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+        $allowedRange = new AmountRange(new AmountBoundary(2,3),new AmountBoundary(4,3));
         $rangedAgainstNrCounterMap = new RangedDuoPlaceNrCounterMap($againstNrCounterMap, $allowedRange);
 
         $rangedAgainstNrCounterMap->addHomeAway(new OneVsOneHomeAway(1,2));
@@ -61,7 +58,7 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
 ////            ]
 ////        );
 //
-//        $allowedRange = new AmountRange(new CounterForAmount(0,0), new CounterForAmount(1,0));
+//        $allowedRange = new AmountRange(0,0,1,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($placeNrCounterMap, $allowedRange);
 //
 //        self::assertCount(1, $rangedAmountNrCounterMap->getPlaceNrsGreaterThanMaximum());
@@ -89,7 +86,7 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
 ////            ]
 ////        );
 //
-//        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
+//        $allowedRange = new AmountRange(1,0,2,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($placeNrCounterMap, $allowedRange);
 //
 //        self::assertCount(1, $rangedAmountNrCounterMap->getPlaceNrsSmallerThanMinimum());
@@ -116,20 +113,20 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
 ////                new CounterForPlaceNr(5, 2)
 ////            ]
 ////        );
-//        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
+//        $allowedRange = new AmountRange(1,0,2,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($placeNrCounterMap, $allowedRange);
 //
 //        self::assertSame(2, $rangedAmountNrCounterMap->getNrOfEntitiesForAmount(1));
 //    }
 
-    public function testMinimumCanBeReachedItOne(): void
+    public function testDuoPlaceNrCountersCanBeEqualOrGreaterThanMinimum_ItOne(): void
     {
         $againstNrCounterMap = new AgainstNrCounterMap(2);
 
-        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
+        $allowedRange = new AmountRange(new AmountBoundary(1,1),new AmountBoundary(2,2));
         $rangedAgainstNrCounterMap = new RangedDuoPlaceNrCounterMap($againstNrCounterMap, $allowedRange);
 
-        self::assertTrue($rangedAgainstNrCounterMap->minimumCanBeReached(3));
+        self::assertTrue($rangedAgainstNrCounterMap->allDuoPlaceNrCountersCanBeEqualOrGreaterThanMinimum(3));
     }
 
 
@@ -142,7 +139,7 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
 //        $amountNrCounterMap->incrementPlaceNr(3);
 //        $amountNrCounterMap->incrementPlaceNr(4);
 //        $amountNrCounterMap->incrementPlaceNr(5);
-//        $allowedRange = new AmountRange(new CounterForAmount(1,6), new CounterForAmount(3,0));
+//        $allowedRange = new AmountRange(1,6,3,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 //
 //        self::assertTrue($rangedAmountNrCounterMap->minimumCanBeReached(0));
@@ -161,13 +158,13 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
                 new OneVsOneHomeAway(4,5),
             ]
         );
-        $allowedRange = new AmountRange(new CounterForAmount(2,4), new CounterForAmount(3,0));
+        $allowedRange = new AmountRange(new AmountBoundary(2,4),new AmountBoundary(3,5));
         $rangedAgainstNrCounterMap = new RangedDuoPlaceNrCounterMap($againstNrCounterMap, $allowedRange);
 
-        self::assertFalse($rangedAgainstNrCounterMap->minimumCanBeReached(3));
+        self::assertFalse($rangedAgainstNrCounterMap->allDuoPlaceNrCountersCanBeEqualOrGreaterThanMinimum(3));
     }
 
-    public function testAboveMaxmimumItOne(): void
+    public function testAllDuoPlaceNrCountersCanBeSmallerOrEqualToMaximumItOne(): void
     {
         $againstNrCounterMap = new AgainstNrCounterMap(5);
         $againstNrCounterMap->addHomeAways(
@@ -182,14 +179,13 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
             ]
         );
 
-        $allowedRange = new AmountRange(new CounterForAmount(0,0), new CounterForAmount(1,0));
+        $allowedRange = new AmountRange(new AmountBoundary(0,1), new AmountBoundary(1,3));
         $rangedAgainstNrCounterMap = new RangedDuoPlaceNrCounterMap($againstNrCounterMap, $allowedRange);
+        self::assertFalse($rangedAgainstNrCounterMap->allDuoPlaceNrCountersCanBeSmallerOrEqualToMaximum(1));
 
-        self::assertTrue($rangedAgainstNrCounterMap->aboveMaximum(1));
-
-        $allowedRange = new AmountRange(new CounterForAmount(0,0), new CounterForAmount(1,5));
+        $allowedRange = new AmountRange(new AmountBoundary(0,1),new AmountBoundary(1,7));
         $rangedAgainstNrCounterMap = new RangedDuoPlaceNrCounterMap($againstNrCounterMap, $allowedRange);
-        self::assertFalse($rangedAgainstNrCounterMap->aboveMaximum(0));
+        self::assertTrue($rangedAgainstNrCounterMap->allDuoPlaceNrCountersCanBeSmallerOrEqualToMaximum(0));
     }
 
 //    public function testAboveMaxmimumItTwo(): void
@@ -198,7 +194,7 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
 //        $amountNrCounterMap->incrementPlaceNr(1);
 //        $amountNrCounterMap->incrementPlaceNr(2);
 //
-//        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
+//        $allowedRange = new AmountRange(1,0,2,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 //
 //        self::assertFalse($rangedAmountNrCounterMap->aboveMaximum(1));
@@ -211,7 +207,7 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
 //        $amountNrCounterMap->incrementPlaceNr(2);
 //        $amountNrCounterMap->incrementPlaceNr(2);
 //
-//        $allowedRange = new AmountRange(new CounterForAmount(1,0), new CounterForAmount(2,0));
+//        $allowedRange = new AmountRange(1,0,2,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 //
 //        self::assertFalse($rangedAmountNrCounterMap->aboveMaximum(1));
@@ -221,95 +217,47 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
 //    {
 //        $amountNrCounterMap = new AmountNrCounterMap(2);
 //
-//        $allowedRange = new AmountRange(new CounterForAmount(1,2), new CounterForAmount(2,0));
+//        $allowedRange = new AmountRange(1,2,2,0));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
 //
 //        self::assertTrue($rangedAmountNrCounterMap->withinRange(2));
 //    }
 
 //
-//    public function testAddHomeAways(): void
-//    {
-//        $counterForPlaceNrOne = new CounterForPlaceNr(1,1);
-//        $counterForPlaceNrTwo = new CounterForPlaceNr(2, 2);
-//        $placeNrCounterMap = new PlaceNrCounterMap(
-//            [
-//                $counterForPlaceNrOne->getPlaceNr() => $counterForPlaceNrOne,
-//                $counterForPlaceNrTwo->getPlaceNr() => $counterForPlaceNrTwo
-//            ]
-//        );
-//        $placeNrCounterMap->addHomeAways(
-//            [
-//                new OneVsOneHomeAway(new DuoPlaceNr(1,2))
-//            ]
-//        );
-//        self::assertSame(2, $placeNrCounterMap->count(1));
-//        self::assertSame(3, $placeNrCounterMap->count(2));
-//    }
-//
-//    public function testAddHomeAwayWithNonExistingPlace(): void
-//    {
-//        $counterForPlaceNrOne = new CounterForPlaceNr(1,1);
-//        $counterForPlaceNrTwo = new CounterForPlaceNr(2, 2);
-//        $placeNrCounterMap = new PlaceNrCounterMap(
-//            [
-//                $counterForPlaceNrOne->getPlaceNr() => $counterForPlaceNrOne,
-//                $counterForPlaceNrTwo->getPlaceNr() => $counterForPlaceNrTwo
-//            ]
-//        );
-//        $placeNrCounterMap->addHomeAway(
-//            new OneVsOneHomeAway(new DuoPlaceNr(1,3))
-//        );
-//        self::assertSame(2, $placeNrCounterMap->count(1));
-//        self::assertSame(2, $placeNrCounterMap->count(2));
-//    }
-//
-//    public function testRemoveHomeAway(): void
-//    {
-//        $counterForPlaceNrOne = new CounterForPlaceNr(1,1);
-//        $counterForPlaceNrTwo = new CounterForPlaceNr(2, 2);
-//        $placeNrCounterMap = new PlaceNrCounterMap(
-//            [
-//                $counterForPlaceNrOne->getPlaceNr() => $counterForPlaceNrOne,
-//                $counterForPlaceNrTwo->getPlaceNr() => $counterForPlaceNrTwo
-//            ]
-//        );
-//        $placeNrCounterMap->removeHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(1,2)));
-//        self::assertSame(0, $placeNrCounterMap->count(1));
-//        self::assertSame(1, $placeNrCounterMap->count(2));
-//    }
-//
-//    public function testRemoveHomeAwayNonExistingPlace(): void
-//    {
-//        $counterForPlaceNrOne = new CounterForPlaceNr(1,1);
-//        $counterForPlaceNrTwo = new CounterForPlaceNr(2, 2);
-//        $placeNrCounterMap = new PlaceNrCounterMap(
-//            [
-//                $counterForPlaceNrOne->getPlaceNr() => $counterForPlaceNrOne,
-//                $counterForPlaceNrTwo->getPlaceNr() => $counterForPlaceNrTwo
-//            ]
-//        );
-//        $placeNrCounterMap->removeHomeAway(new OneVsOneHomeAway(new DuoPlaceNr(1,3)));
-//        self::assertSame(0, $placeNrCounterMap->count(1));
-//        self::assertSame(2, $placeNrCounterMap->count(2));
-//    }
-//
+    public function testAddHomeAwayItTwo(): void
+    {
+        $withNrCounterMap = new WithNrCounterMap(5);
+        $withNrCounterMap->addHomeAways(
+            [
+                new OneVsOneHomeAway(1,2)
+            ]
+        );
+        self::assertSame(0, $withNrCounterMap->count(new DuoPlaceNr(1,2)));
+    }
 
+    public function testAddHomeAwayItThree(): void
+    {
+        $withNrCounterMap = new WithNrCounterMap(5);
+        $allowedRange = new AmountRange(new AmountBoundary(2,3), new AmountBoundary(4,3));
+        $rangedWithNrCounterMap = new RangedDuoPlaceNrCounterMap($withNrCounterMap, $allowedRange);
+        $rangedWithNrCounterMap->addHomeAway(new OneVsOneHomeAway(1,2));
+        self::assertSame(0, $rangedWithNrCounterMap->count(new DuoPlaceNr(1,2)));
+    }
 
-//    public function testCloneAsSideNrCounterMap(): void
-//    {
-//        $amountNrCounterMap = new AmountNrCounterMap(1);
-//        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
-//        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($amountNrCounterMap, $allowedRange);
-//
-//        self::expectException(\Exception::class);
-//        $rangedAmountNrCounterMap->cloneAsSideNrCounterMap();
-//    }
+    public function testCloneAsSideNrCounterMap(): void
+    {
+        $withNrCounterMap = new WithNrCounterMap(4);
+        $allowedRange = new AmountRange(new AmountBoundary(2,3), new AmountBoundary(4,3));
+        $rangedWithNrCounterMap = new RangedDuoPlaceNrCounterMap($withNrCounterMap, $allowedRange);
+
+        $rangedWithNrCounterMapCloned = clone $rangedWithNrCounterMap;
+        self::assertInstanceOf(RangedDuoPlaceNrCounterMap::class, $rangedWithNrCounterMapCloned);
+    }
 //
 //    public function testCloneAsSideNrCounterMapException(): void
 //    {
 //        $sideNrCounterMap = new SideNrCounterMap(Side::Home, 4);
-//        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+//        $allowedRange = new AmountRange(2,3,4,3));
 //        $rangedSideNrCounterMap = new RangedPlaceNrCounterMap($sideNrCounterMap, $allowedRange);
 //
 //        $cloned = $rangedSideNrCounterMap->cloneAsSideNrCounterMap();
@@ -320,7 +268,7 @@ class RangedDuoPlaceNrCounterMapTest extends TestCase
 //    {
 //        $placeNrCounterMap = new AmountNrCounterMap(5);
 //
-//        $allowedRange = new AmountRange(new CounterForAmount(2,3), new CounterForAmount(4,3));
+//        $allowedRange = new AmountRange(2,3,4,3));
 //        $rangedAmountNrCounterMap = new RangedPlaceNrCounterMap($placeNrCounterMap, $allowedRange);
 //
 //        $logger = $this->createLogger();

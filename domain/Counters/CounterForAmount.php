@@ -14,7 +14,7 @@ readonly class CounterForAmount extends Counter
     public function __construct(int $amount, int $count = 0)
     {
         if( $amount < 0 || $count < 0 ) {
-            throw new \Exception('$amount must be at least 0 and count must be at least 0');
+            throw new \Exception('amount must be at least 0 and count must be at least 0');
         }
         parent::__construct($amount, $count);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Counters\Reports;
 
 use SportsHelpers\SportRange;
+use SportsPlanning\Combinations\AmountBoundary;
 use SportsPlanning\Combinations\AmountCalculator;
 use SportsPlanning\Counters\CounterForAmount;
 use SportsPlanning\Combinations\AmountRange;
@@ -40,7 +41,10 @@ readonly abstract class CountersPerAmountReportAbstract
         if( $max === null) {
             $max = $min;
         }
-        $this->range = new AmountRange($min, $max);
+        $this->range = new AmountRange(
+            new AmountBoundary($min->getAmount(), $min->count()),
+            new AmountBoundary($max->getAmount(), $max->count())
+        );
 
 //        $this->canBeBalanced = $placeNrCounterMap->ca
     }
@@ -81,19 +85,26 @@ readonly abstract class CountersPerAmountReportAbstract
 //        return $this->range->max->count();
 //    }
 
-   private function createAmountRange(): SportRange {
-        return new SportRange($this->range->min->getAmount(), $this->range->max->getAmount());
-    }
+//   private function createAmountRange(): SportRange {
+//        return new SportRange($this->range->min->getAmount(), $this->range->max->getAmount());
+//    }
 
     public function calculateSmallerThan(CounterForAmount $minimum): int {
         $calculator = new AmountCalculator();
         return $calculator->calculateSmallerThan($minimum, array_values($this->amountCounterMap));
     }
 
-    public function calculateGreaterThan(CounterForAmount $maximum): int {
-        $calculator = new AmountCalculator();
-        return $calculator->calculateGreaterThan($maximum, array_values($this->amountCounterMap));
+    public function hasSomeGreaterThan(CounterForAmount $maximum): bool {
+        $amountGreater = $this->range->max->getAmount() > $maximum->getAmount();
+        $amountEqual = $this->range->max->getAmount() === $maximum->getAmount();
+        $countHigher = $this->range->max->count() > $maximum->count();
+        return $amountGreater || ($amountEqual && $countHigher);
     }
+
+//    public function calculateGreaterThan(CounterForAmount $maximum): int {
+//        $calculator = new AmountCalculator();
+//        return $calculator->calculateGreaterThan($maximum, array_values($this->amountCounterMap));
+//    }
 
 //    /**
 //     * @return list<CounterForAmount>

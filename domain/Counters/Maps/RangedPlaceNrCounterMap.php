@@ -1,22 +1,21 @@
 <?php
 
-namespace SportsPlanning\Counters\Maps\Schedule;
+namespace SportsPlanning\Counters\Maps;
 
 use Psr\Log\LoggerInterface;
 use SportsPlanning\Combinations\AmountRange as AmountRange;
+use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
+use SportsPlanning\Counters\Maps\Schedule\SideNrCounterMap;
 use SportsPlanning\Counters\Reports\PlaceNrCountersPerAmountReport;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-class RangedPlaceNrCounterMap
+class RangedPlaceNrCounterMap extends RangedNrCounterMapAbstract
 {
     public function __construct(
-        protected AmountNrCounterMap|SideNrCounterMap $map, protected readonly AmountRange $allowedRange) {
-    }
-
-    public function getAllowedRange(): AmountRange {
-        return $this->allowedRange;
+        protected AmountNrCounterMap|SideNrCounterMap $map, AmountRange $allowedRange) {
+        parent::__construct($allowedRange);
     }
 
     public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
@@ -63,45 +62,6 @@ class RangedPlaceNrCounterMap
 //    public function getNrOfEntitiesForAmount(int $amount): int {
 //        return count((new PlaceNrCountersPerAmountReport($this->map))->getPlaceNrsWithSameAmount($amount));
 //    }
-
-    public function withinRange(int $nrOfCombinationsToGo): bool
-    {
-        return $this->minimumCanBeReached($nrOfCombinationsToGo) && !$this->aboveMaximum($nrOfCombinationsToGo);
-    }
-
-    public function minimumCanBeReached(int $nrOfPlacesToGo): bool
-    {
-        $perAmountReport = $this->createPerAmountReport();
-        $nrSmallerThan = $perAmountReport->calculateSmallerThan($this->allowedRange->min);
-        if( $nrOfPlacesToGo >= $nrSmallerThan ) {
-            return true;
-        };
-
-//        if ( $perAmountReport->range->min->getAmount() === $this->allowedRange->min->getAmount()
-//            && $perAmountReport->range->min->count() + $nrOfPlacesToGo <= $this->allowedRange->min->count()
-//        ) {
-//            return true;
-//        }
-        return false;
-    }
-
-    public function aboveMaximum(int $nrOfPlacesToGo): bool
-    {
-        $perAmountReport = $this->createPerAmountReport();
-        if( $perAmountReport->calculateGreaterThan($this->allowedRange->max) === 0 ) {
-            return false;
-        }
-
-        if ( $perAmountReport->range->max->getAmount() === $this->allowedRange->max->getAmount()
-            &&
-            (
-                $perAmountReport->range->max->count() + $nrOfPlacesToGo <= $perAmountReport->nrOfPlaces
-            )
-        ) {
-            return false;
-        }
-        return true;
-    }
 
     public function cloneAsSideNrCounterMap(): SideNrCounterMap {
         if( $this->map instanceof SideNrCounterMap) {

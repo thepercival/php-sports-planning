@@ -55,4 +55,10 @@ class CounterForPlaceNrTest extends TestCase
         self::assertSame('1 2x', (string)$counterForPlaceNr);
     }
 
+    public function testGetIndex(): void
+    {
+        $counterForDuoPlaceNr = new CounterForDuoPlaceNr(new DuoPlaceNr(1, 2));
+        self::assertSame('1 & 2', $counterForDuoPlaceNr->getIndex());
+    }
+
 }

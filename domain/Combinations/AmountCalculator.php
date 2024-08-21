@@ -37,27 +37,27 @@ readonly class AmountCalculator
         return $countBelowMinimum;
     }
 
-    /**
-     * @param CounterForAmount $maxAmountCounter
-     * @param list<CounterForAmount> $amountCounters
-     * @return int
-     */
-    public function calculateGreaterThan(CounterForAmount $maxAmountCounter, array $amountCounters): int
-    {
-        $countAboveMaximum = 0;
-        $totalCountGreaterThanOrEqualToMax = 0;
-        $maxAmount = $maxAmountCounter->getAmount();
-        while ( $amountCounter = array_shift($amountCounters) ) {
-            if( $amountCounter->getAmount() > $maxAmount ) {
-                $countAboveMaximum += (int)($amountCounter->count() * ($amountCounter->getAmount() - $maxAmount ) );
-            }
-            if( $amountCounter->getAmount() >= $maxAmount ) {
-                $totalCountGreaterThanOrEqualToMax += $amountCounter->count();
-            }
-        }
-        if( $totalCountGreaterThanOrEqualToMax > $maxAmountCounter->count() ) {
-            $countAboveMaximum += $totalCountGreaterThanOrEqualToMax - $maxAmountCounter->count();
-        }
-        return $countAboveMaximum;
-    }
+//    /**
+//     * @param AmountBoundary $maxAmountBoundary
+//     * @param list<CounterForAmount> $amountCounters
+//     * @return int
+//     */
+//    public function calculateGreaterThan(AmountBoundary $maxAmountBoundary, array $amountCounters): int
+//    {
+//        $countAboveMaximum = 0;
+//        $totalCountGreaterThanOrEqualToMax = 0;
+//        $maxAmount = $maxAmountBoundary->getAmount();
+//        while ( $amountCounter = array_shift($amountCounters) ) {
+//            if( $amountCounter->getAmount() > $maxAmount ) {
+//                $countAboveMaximum += (int)($amountCounter->count() * ($amountCounter->getAmount() - $maxAmount ) );
+//            }
+//            if( $amountCounter->getAmount() === $maxAmount && $amountCounter->count() > $maxAmountBoundary->count() ) {
+//                $totalCountGreaterThanOrEqualToMax += $amountCounter->count() - $maxAmountBoundary->count();
+//            }
+//        }
+//        if( $totalCountGreaterThanOrEqualToMax > $maxAmountCounter->count() ) {
+//            $countAboveMaximum += $totalCountGreaterThanOrEqualToMax - $maxAmountCounter->count();
+//        }
+//        return $countAboveMaximum;
+//    }
 }
