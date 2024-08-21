@@ -38,6 +38,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           files: ./tests/coverage.xml
+          # add secrets to repo
           #fail_ci_if_error: true
           #token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
