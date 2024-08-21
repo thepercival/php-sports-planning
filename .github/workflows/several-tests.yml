@@ -33,8 +33,9 @@ jobs:
           args: tests --coverage-clover ./tests/coverage.xml
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./tests/coverage.xml
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
