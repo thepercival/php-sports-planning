@@ -25,7 +25,6 @@ class OneVsOneHomeAwayTest extends TestCase
         $homeAway = new OneVsOneHomeAway(1, 2);
         self::assertTrue($homeAway->hasPlaceNr(1));
         self::assertTrue($homeAway->hasPlaceNr(2));
-        self::assertFalse($homeAway->hasPlaceNr(0));
         self::assertFalse($homeAway->hasPlaceNr(3));
 
         self::assertTrue($homeAway->hasPlaceNr(1, Side::Home));

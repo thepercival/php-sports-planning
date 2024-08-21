@@ -31,6 +31,10 @@ readonly class OneVsOneHomeAway extends HomeAwayAbstract
 
     public function hasPlaceNr(int $placeNr, AgainstSide $side = null): bool
     {
+        if( $placeNr < 1) {
+            throw new \Exception('placeNr should be at least 1');
+        }
+
         $inHome = $this->home === $placeNr;
         if( ($side === AgainstSide::Home || $side === null) && $inHome ) {
             return true;

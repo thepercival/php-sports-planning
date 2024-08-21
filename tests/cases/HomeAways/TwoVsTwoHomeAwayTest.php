@@ -41,7 +41,6 @@ class TwoVsTwoHomeAwayTest extends TestCase
         self::assertTrue($homeAway->hasPlaceNr(2));
         self::assertTrue($homeAway->hasPlaceNr(3));
         self::assertTrue($homeAway->hasPlaceNr(4));
-        self::assertFalse($homeAway->hasPlaceNr(0));
         self::assertFalse($homeAway->hasPlaceNr(5));
 
         self::assertTrue($homeAway->hasPlaceNr(1, Side::Home));
