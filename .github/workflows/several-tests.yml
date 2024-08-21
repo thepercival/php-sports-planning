@@ -1,0 +1,36 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  build-test-2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          coverage: xdebug
+
+      - name: Install dependencies with Composer
+        uses: ramsey/composer-install@v3
+
+      - name: Coding standards
+        run: vendor/bin/phpcs
+
+      - name: Static analysis
+        run: vendor/bin/phpstan
+
+      - name: Tests
+        run: vendor/bin/phpunit --coverage-clover clover.xml
+
+      - name: Upload coverage results to Coveralls
+        env:
+          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          composer require php-coveralls/php-coveralls -n -W
+          vendor/bin/php-coveralls --coverage_clover=clover.xml -v
