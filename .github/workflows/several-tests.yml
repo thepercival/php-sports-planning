@@ -33,7 +33,7 @@ jobs:
           args: tests --coverage-clover ./tests/coverage.xml
 
       - name: Upload to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v2
         with:
           files: ./tests/coverage.xml
           # new token
