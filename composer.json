@@ -53,6 +53,8 @@
         }
     },
     "scripts": {
+        "phpunit": "phpunit",
+        "cdk": "XDEBUG_MODE=coverage vendor/bin/phpunit --no-configuration --coverage-clover clover.xml",
         "test": [
             "XDEBUG_MODE=coverage vendor/bin/phpunit --configuration tests/phpunit.xml tests/cases/"
         ],

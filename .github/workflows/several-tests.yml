@@ -19,18 +19,23 @@ jobs:
       - name: Install dependencies with Composer
         uses: ramsey/composer-install@v3
 
-#      - name: Coding standards
-#        run: vendor/bin/phpcs
-
       - name: Static analysis
         run: vendor/bin/psalm
 
-      - name: Tests
-        run: vendor/bin/phpunit --coverage-clover clover.xml
-
-      - name: Upload coverage results to Coveralls
+      - name: PHPUnit Tests
+        uses: php-actions/phpunit@v3
         env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          composer require php-coveralls/php-coveralls -n -W
-          vendor/bin/php-coveralls --coverage_clover=clover.xml -v
+          XDEBUG_MODE: coverage
+        with:
+          #bootstrap: vendor/autoload.php
+          configuration: phpunit.xml
+          php_extensions: xdebug
+          args: tests --coverage-clover ./coverage.xml
+
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          #token: ${{ secrets.CODE_COV_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          files: ./coverage.xml
+          verbose: true
