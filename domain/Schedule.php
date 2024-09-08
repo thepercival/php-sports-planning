@@ -8,17 +8,16 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use SportsHelpers\Identifiable;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
-use SportsHelpers\Sport\Variant\Single as Single;
-use SportsHelpers\Sport\VariantWithFields;
-use SportsPlanning\Schedule\Name as ScheduleName;
-use SportsPlanning\Schedule\Sport as SportSchedule;
+use SportsHelpers\SportVariants\AgainstGpp;
+use SportsHelpers\SportVariants\AgainstH2h;
+use SportsHelpers\SportVariants\AllInOneGame;
+use SportsHelpers\SportVariants\Single;
+use SportsPlanning\Schedule\ScheduleSport as SportSchedule;
+use SportsPlanning\Schedule\SportVariantWithNr;
 
-class Schedule extends Identifiable implements \Stringable
+class Schedule extends Identifiable
 {
-    protected string $sportsConfigName;
+    private string $sportsConfigName;
     protected int $succeededMargin = -1;
     protected Poule|null $poule = null;
     protected int $nrOfTimeoutSecondsTried = 0;
@@ -31,12 +30,19 @@ class Schedule extends Identifiable implements \Stringable
 
     /**
      * @param int $nrOfPlaces
-     * @param list<Single|AgainstH2h|AgainstGpp|AllInOneGame> $sportVariants
+     * @param list<SportVariantWithNr> $sportVariantsWithNr
      */
-    public function __construct(protected int $nrOfPlaces, array $sportVariants)
+    public function __construct(protected int $nrOfPlaces, array $sportVariantsWithNr)
     {
-        $this->sportsConfigName = (string)new ScheduleName($sportVariants);
         $this->sportSchedules = new ArrayCollection();
+        $nrOfH2h = 0;
+        array_map(function(SportVariantWithNr $sportVariantWithNr) use(&$nrOfH2h): SportSchedule {
+            if(++$nrOfH2h > 1) {
+                throw new \Exception('Only 1 h2h allowed');
+            }
+            return new SportSchedule($this, $sportVariantWithNr->number, $sportVariantWithNr->sportVariant->toPersistVariant());
+        }, $sportVariantsWithNr);
+        $this->sportsConfigName = $this->toJsonCustom();
     }
 
     public function getNrOfPlaces(): int
@@ -44,9 +50,10 @@ class Schedule extends Identifiable implements \Stringable
         return $this->nrOfPlaces;
     }
 
-    public function getSportsConfigName(): string
+    public function createSportVariantsName(): string
     {
-        return $this->sportsConfigName;
+        $name = json_encode($this->createSportVariants());
+        return $name === false ? '?' : $name;
     }
 
     /**
@@ -78,16 +85,16 @@ class Schedule extends Identifiable implements \Stringable
 //        );
 //    }
 
-    /**
-     * @return list<VariantWithFields>
-     */
-    public function createSportVariantWithFields(): array
-    {
-        return array_map( function(Single|AgainstH2h|AgainstGpp|AllInOneGame $sportVariant): VariantWithFields {
-                return new VariantWithFields($sportVariant, 1);
-            } , $this->createSportVariants()
-        );
-    }
+//    /**
+//     * @return list<VariantWithFields>
+//     */
+//    public function createSportVariantsWithFields(): array
+//    {
+//        return array_map( function(Single|AgainstH2h|AgainstGpp|AllInOneGame $sportVariant): VariantWithFields {
+//                return new VariantWithFields($sportVariant, 1);
+//            } , $this->createSportVariants()
+//        );
+//    }
 
     public function getSucceededMargin(): int
     {
@@ -109,14 +116,12 @@ class Schedule extends Identifiable implements \Stringable
         $this->nrOfTimeoutSecondsTried = $nrOfTimeoutSecondsTried;
     }
 
-    public function __toString(): string
+    public function toJsonCustom(): string
     {
-        $XYZ = 'XYZ';
-        $scheduleName = (string)new ScheduleName($this->createSportVariants());
-        $json = json_encode(["nrOfPlaces" => $this->nrOfPlaces, "sportsConfigName" => $XYZ]);
-        if ($json === false) {
-            return '';
-        }
-        return str_replace($XYZ, $scheduleName, $json);
+        $output = new \stdClass();
+        $output->nrOfPlaces = $this->nrOfPlaces;
+        $output->sportVariants = $this->createSportVariants();
+        $json = json_encode($output);
+        return $json === false ? '?' : $json;
     }
 }

@@ -7,7 +7,7 @@ namespace SportsPlanning\Tests\Counters;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\Sport\VariantWithFields;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\SportVariants\AgainstH2h;
 use SportsPlanning\Counters\CounterForPlaceNr;
 use SportsPlanning\Counters\CounterForPoule;
 use SportsPlanning\Input;

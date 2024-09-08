@@ -16,7 +16,7 @@ readonly class DuoPlaceNr implements \Stringable
             throw new \Exception('placeNr should be at least 1');
         }
         if($placeNrOne === $placeNrTwo ) {
-            throw new \Exception('placeNr should be at least 1');
+            throw new \Exception('placeNrs can not be equal');
         }
         $this->placeNrOne = min($placeNrOne, $placeNrTwo);
         $this->placeNrTwo = max($placeNrOne, $placeNrTwo);

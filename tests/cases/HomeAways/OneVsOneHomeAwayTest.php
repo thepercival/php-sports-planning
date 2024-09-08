@@ -9,9 +9,15 @@ use SportsHelpers\Against\Side;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
+use SportsPlanning\Schedule\GameRounds\AgainstGameRound;
 
 class OneVsOneHomeAwayTest extends TestCase
 {
+    public function testCreateException(): void
+    {
+        self::expectException(\Exception::class);
+        new OneVsOneHomeAway(1, 1);
+    }
 
     public function testGetHomeAndGetAway(): void
     {
@@ -32,6 +38,13 @@ class OneVsOneHomeAwayTest extends TestCase
 
         self::assertFalse($homeAway->hasPlaceNr(2, Side::Home));
         self::assertTrue($homeAway->hasPlaceNr(2, Side::Away));
+    }
+
+    public function testHasPlaceNrException(): void
+    {
+        $homeAway = new OneVsOneHomeAway(1, 2);
+        self::expectException(\Exception::class);
+        $homeAway->hasPlaceNr(0);
     }
 
     public function testPlaysAgainst(): void

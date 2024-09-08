@@ -12,19 +12,19 @@ use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
-use SportsPlanning\Schedule\Sport as SportSchedule;
+use SportsPlanning\Schedule\ScheduleSport;
 
-class Game extends Identifiable
+class ScheduleGame extends Identifiable
 {
     /**
-     * @var Collection<int|string, GamePlace>
+     * @var Collection<int|string, ScheduleGamePlace>
      */
     protected Collection $places;
 
-    public function __construct(protected SportSchedule $sportSchedule, protected int|null $gameRoundNumber = null)
+    public function __construct(protected ScheduleSport $scheduleSport, protected int|null $gameRoundNumber = null)
     {
-        if (!$sportSchedule->getGames()->contains($this)) {
-            $sportSchedule->getGames()->add($this) ;
+        if (!$scheduleSport->getGames()->contains($this)) {
+            $scheduleSport->getGames()->add($this) ;
         }
         $this->places = new ArrayCollection();
     }
@@ -38,7 +38,7 @@ class Game extends Identifiable
     }
 
     /**
-     * @return Collection<int|string, GamePlace>
+     * @return Collection<int|string, ScheduleGamePlace>
      */
     public function getGamePlaces(): Collection
     {
@@ -54,7 +54,7 @@ class Game extends Identifiable
         $poulePlaceNrs = [];
         foreach ($this->getGamePlaces() as $gameRoundGamePlace) {
             if ($gameRoundGamePlace->getAgainstSide() === $againstSide) {
-                $poulePlaceNrs[] = $gameRoundGamePlace->getNumber();
+                $poulePlaceNrs[] = $gameRoundGamePlace->getPlaceNr();
             }
         }
         return $poulePlaceNrs;
@@ -83,8 +83,15 @@ class Game extends Identifiable
 
     public function __toString(): string
     {
-        $retVal = $this->gameRoundNumber !== null ? 'gameroundnr ' . $this->gameRoundNumber . ' : ' : '';
-        $retVal .= implode(' & ', $this->getGamePlaces()->toArray());
-        return $retVal;
+        if( $this->gameRoundNumber !== null ) { // Against, AllInOneGame
+            return 'gr ' . $this->gameRoundNumber . ' : ' . $this->convertToHomeAway();
+        }
+        // Single
+        $gamePlacesAsString = array_map(function (ScheduleGamePlace $gamePlace): string {
+            return $gamePlace->getPlaceNr() . '(gr' . $gamePlace->getGameRoundNumber() . ')';
+        }, $this->getGamePlaces()->toArray());
+        return join(' & ', $gamePlacesAsString);
     }
+
+
 }

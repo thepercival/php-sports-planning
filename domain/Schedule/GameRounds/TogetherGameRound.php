@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Schedule\GameRounds;
 
 use SportsPlanning\Combinations\DuoPlaceNr;
+use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
 use SportsPlanning\Planning\ListNode;
 
 /**
@@ -13,33 +14,55 @@ use SportsPlanning\Planning\ListNode;
 class TogetherGameRound extends ListNode
 {
     /**
-     * @var list<GameRoundTogetherGame>
+     * @var array<int, AmountNrCounterMap>
+     */
+    protected array $amountNrCounterMapsPerGameRoundNumber = [];
+
+    /**
+     * @var list<TogetherGameRoundGame>
      */
     protected array $games = [];
 
-    public function __construct(TogetherGameRound|null $previous = null)
+    public function __construct(private int $nrOfPlaces, TogetherGameRound|null $previous = null)
     {
         parent::__construct($previous);
     }
 
     public function createNext(): TogetherGameRound
     {
-        $this->next = new TogetherGameRound($this);
+        $this->next = new TogetherGameRound($this->nrOfPlaces, $this);
         return $this->next;
     }
 
     /**
-     * @return list<GameRoundTogetherGame>
+     * @return list<TogetherGameRoundGame>
      */
     public function getGames(): array
     {
         return $this->games;
     }
 
-    public function addGame(GameRoundTogetherGame $game): void
+    /**
+     * @param list<TogetherGameRoundGamePlace> $gamePlaces
+     * @return void
+     * @throws \Exception
+     */
+    public function addGame(array $gamePlaces): void
     {
-        $this->games[] = $game;
+        foreach($gamePlaces as $gamePlace) {
+            if( array_key_exists($gamePlace->gameRoundNumber, $this->amountNrCounterMapsPerGameRoundNumber) === false ) {
+                $this->amountNrCounterMapsPerGameRoundNumber[$gamePlace->gameRoundNumber] = new AmountNrCounterMap($this->nrOfPlaces);
+            }
+            if( $this->amountNrCounterMapsPerGameRoundNumber[$gamePlace->gameRoundNumber]->count($gamePlace->placeNr) > 0 ) {
+                throw new \Exception('a placeNr can only be used 1 time per gameRound');
+            }
+        }
+        foreach($gamePlaces as $gamePlace) {
+            $this->amountNrCounterMapsPerGameRoundNumber[$gamePlace->gameRoundNumber]->incrementPlaceNr($gamePlace->placeNr);
+        }
+        $this->games[] = new TogetherGameRoundGame($gamePlaces);
     }
+
 //
 //    public function remove(PlaceCombination $placeCombination): void
 //    {
@@ -52,32 +75,32 @@ class TogetherGameRound extends ListNode
 //        }
 //    }
 
-    /**
-     * @return list<DuoPlaceNr>
-     */
-    public function convertToDuoPlaceNrs(): array
-    {
-        $allDuoPlaceNrs = array_map(function(GameRoundTogetherGame $game): array {
-            return $game->convertToDuoPlaceNrs();
-        }, $this->games);
-        $uniqueDuoPlaceNrs = [];
-        foreach( $allDuoPlaceNrs as $duoPlaceNrs) {
-            foreach( $duoPlaceNrs as $duoPlaceNr) {
-                $uniqueDuoPlaceNrs[$duoPlaceNr->getIndex()] = $duoPlaceNr;
-            }
-        }
-        return array_values($uniqueDuoPlaceNrs);
-    }
-
-    /**
-     * @return list<int>
-     */
-    public function convertToPlaceNrs(): array
-    {
-        $placeNrs = [];
-        foreach( $this->games as $game ) {
-            $placeNrs = array_merge($placeNrs, $game->convertToPlaceNrs() );
-        }
-        return $placeNrs;
-    }
+//    /**
+//     * @return list<DuoPlaceNr>
+//     */
+//    public function convertToUniqueDuoPlaceNrs(): array
+//    {
+//        $duoPlaceNrsPerGame = array_map(function(TogetherGameRoundGame $game): array {
+//            return $game->convertToDuoPlaceNrs();
+//        }, $this->games);
+//        $uniqueDuoPlaceNrs = [];
+//        foreach( $duoPlaceNrsPerGame as $duoPlaceNrs) {
+//            foreach( $duoPlaceNrs as $duoPlaceNr) {
+//                $uniqueDuoPlaceNrs[$duoPlaceNr->getIndex()] = $duoPlaceNr;
+//            }
+//        }
+//        return array_values($uniqueDuoPlaceNrs);
+//    }
+//
+//    /**
+//     * @return list<int>
+//     */
+//    public function convertToPlaceNrs(): array
+//    {
+//        $placeNrs = [];
+//        foreach( $this->games as $game ) {
+//            $placeNrs = array_merge($placeNrs, $game->convertToPlaceNrs() );
+//        }
+//        return $placeNrs;
+//    }
 }

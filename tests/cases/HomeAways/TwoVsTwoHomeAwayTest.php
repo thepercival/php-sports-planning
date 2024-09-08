@@ -56,6 +56,15 @@ class TwoVsTwoHomeAwayTest extends TestCase
         self::assertTrue($homeAway->hasPlaceNr(4, Side::Away));
     }
 
+    public function testHasPlaceNrException(): void
+    {
+        $home = new DuoPlaceNr(1, 2);
+        $away = new DuoPlaceNr(3, 4);
+        $homeAway = new TwoVsTwoHomeAway($home, $away);
+        self::expectException(\Exception::class);
+        $homeAway->hasPlaceNr(0);
+    }
+
     public function testPlaysAgainst(): void
     {
         $home = new DuoPlaceNr(1, 2);

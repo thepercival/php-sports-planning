@@ -7,21 +7,21 @@ namespace SportsPlanning\Schedule;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Identifiable;
 
-class GamePlace extends Identifiable
+class ScheduleGamePlace extends Identifiable
 {
     protected int|null $gameRoundNumber = null;
     protected AgainstSide|null $againstSide = null;
 
-    public function __construct(protected Game $game, protected int $number)
+    public function __construct(protected ScheduleGame $game, protected int $placeNr)
     {
         if (!$game->getGamePlaces()->contains($this)) {
             $game->getGamePlaces()->add($this) ;
         }
     }
 
-    public function getNumber(): int
+    public function getPlaceNr(): int
     {
-        return $this->number;
+        return $this->placeNr;
     }
 
     public function getGameRoundNumber(): int
@@ -48,18 +48,5 @@ class GamePlace extends Identifiable
     public function setAgainstSide(AgainstSide $againstSide): void
     {
         $this->againstSide = $againstSide;
-    }
-
-    public function __toString(): string
-    {
-        $retVal = (string)$this->getNumber();
-        $retVal .= '(';
-        if ($this->againstSide !== null) {
-            $retVal .= $this->getAgainstSide() === AgainstSide::Home ? 'H' : 'A';
-        } else {
-            $retVal .= $this->getGameRoundNumber();
-        }
-        $retVal .= ')';
-        return $retVal;
     }
 }

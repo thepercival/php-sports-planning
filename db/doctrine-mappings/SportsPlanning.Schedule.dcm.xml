@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-  <entity name="SportsPlanning\Schedule" table="planningSchedules">
+  <entity name="SportsPlanning\Schedule" table="schedules">
     <field name="nrOfPlaces" column="nrOfPlaces" type="smallint" nullable="false" unique="false"/>
       <field name="sportsConfigName" column="sportsConfigName" type="string" length="1024" nullable="false"
              unique="false"/>
@@ -8,7 +8,7 @@
              unique="false"/>
       <field name="nrOfTimeoutSecondsTried" column="nrOfTimeoutSecondsTried" type="smallint" nullable="false"
              unique="false"/>
-      <one-to-many field="sportSchedules" target-entity="SportsPlanning\Schedule\Sport" mapped-by="schedule">
+      <one-to-many field="sportSchedules" target-entity="SportsPlanning\Schedule\ScheduleSport" mapped-by="schedule">
           <cascade>
               <cascade-persist/>
               <cascade-remove/>

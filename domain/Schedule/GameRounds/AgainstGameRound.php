@@ -36,38 +36,37 @@ class AgainstGameRound extends ListNode
 
     public function createNext(): AgainstGameRound
     {
-        $this->next = new AgainstGameRound($this->nrOfPlaces);
+        $this->next = new AgainstGameRound($this->nrOfPlaces, $this);
         return $this->next;
     }
 
     public function add(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
-        $this->placeNrCounterMap->addHomeAway($homeAway);
-    }
-
-    public function remove(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
-    {
-        $this->placeNrCounterMap->removeHomeAway($homeAway);
-    }
-
-    public function swapSidesOfHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $reversedHomeAway): bool
-    {
-        foreach( $this->homeAways as $needle => $homeAwayIt) {
-            $revOneVsOne = $reversedHomeAway instanceof OneVsOneHomeAway;
-            $revOneVsTwo = $reversedHomeAway instanceof OneVsTwoHomeAway;
-            $revTwoVsTwo = $reversedHomeAway instanceof TwoVsTwoHomeAway;
-
-            $haOneVsOne = $homeAwayIt instanceof OneVsOneHomeAway;
-            $haOneVsTwo = $homeAwayIt instanceof OneVsTwoHomeAway;
-            $haTwoVsTwo = $homeAwayIt instanceof TwoVsTwoHomeAway;
-
-            if( $homeAwayIt->equals($reversedHomeAway) ) {
-                array_splice($this->homeAways, $needle, 1, [$reversedHomeAway]);
-                return true;
+        foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
+            if( $this->placeNrCounterMap->count($placeNr) > 0 ) {
+                throw new \Exception('a placeNr can only be used 1 time per gameRound');
             }
+            $this->placeNrCounterMap->incrementPlaceNr($placeNr);
         }
-        return false;
+        $this->homeAways[] = $homeAway;
+
     }
+
+//    public function remove(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
+//    {
+//        $this->placeNrCounterMap->removeHomeAway($homeAway);
+//    }
+
+//    public function swapSidesOfHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $reversedHomeAway): bool
+//    {
+//        foreach( $this->homeAways as $needle => $homeAwayIt) {
+//            if( $homeAwayIt->equals($reversedHomeAway) ) {
+//                array_splice($this->homeAways, $needle, 1, [$reversedHomeAway]);
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     /**
      * @return list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway>
@@ -87,10 +86,10 @@ class AgainstGameRound extends ListNode
         return false;
     }
 
-    public function getNrOfHomeAwaysRecursive(): int {
+    public function getSelfAndAllPreviousNrOfHomeAways(): int {
         $previous = $this->getPrevious();
         if( $previous !== null ) {
-            return count($this->getHomeAways()) + $previous->getNrOfHomeAwaysRecursive();
+            return count($this->getHomeAways()) + $previous->getSelfAndAllPreviousNrOfHomeAways();
         }
         return count($this->getHomeAways());
     }

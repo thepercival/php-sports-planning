@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-  <entity name="SportsPlanning\Schedule\GamePlace" table="planningScheduleGamePlaces" repository-class="SportsPlanning\Schedule\GamePlace\Repository">
-    <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
+  <entity name="SportsPlanning\Schedule\ScheduleGamePlace" table="scheduleGamePlaces" repository-class="SportsPlanning\Schedule\ScheduleGamePlace\Repository">
+    <field name="placeNr" column="placeNr" type="smallint" nullable="false" unique="false"/>
     <field name="gameRoundNumber" column="gameRoundNumber" type="smallint" nullable="true" unique="false"/>
     <field name="againstSide" column="againstSide" type="enum_AgainstSide" nullable="true" unique="false"/>
-    <many-to-one field="game" target-entity="SportsPlanning\Schedule\Game" inversed-by="places">
+    <many-to-one field="game" target-entity="SportsPlanning\Schedule\ScheduleGame" inversed-by="places">
       <join-columns>
         <join-column name="gameId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>

@@ -3,11 +3,11 @@
 namespace SportsPlanning;
 
 use SportsHelpers\SelfReferee;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsHelpers\Sport\Variant\AllInOneGame;
+use SportsHelpers\SportVariants\AgainstGpp;
+use SportsHelpers\SportVariants\AgainstH2h;
+use SportsHelpers\SportVariants\AllInOneGame;
 use SportsHelpers\Sport\Variant\Creator as VariantCreator;
-use SportsHelpers\Sport\Variant\Single;
+use SportsHelpers\SportVariants\Single;
 use SportsHelpers\Sport\Variant\WithNrOfPlaces\Against\GamesPerPlace as AgainstGppWithNrOfPlaces;
 use SportsHelpers\Sport\Variant\WithNrOfPlaces\AllInOneGame as AllInOneGameWithNrOfPlaces;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;

@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace SportsPlanning\Input;
 
 use SportsHelpers\PouleStructure;
-use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
-use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
+use SportsHelpers\SportVariants\AgainstGpp;
+use SportsHelpers\SportVariants\AgainstH2h;
+use SportsHelpers\SportVariants\AllInOneGame;
+use SportsHelpers\SportVariants\Single;
 
 class Service
 {
@@ -27,7 +28,7 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstSportVariant|SingleSportVariant|AllInOneGameSportVariant> $sportVariants
+     * @param list<AgainstGpp|AgainstH2h|Single|AllInOneGame> $sportVariants
      * @return bool
      */
     public function canSelfRefereeBeAvailable(PouleStructure $pouleStructure, array $sportVariants): bool
@@ -43,14 +44,14 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstSportVariant|SingleSportVariant|AllInOneGameSportVariant> $sportVariants
+     * @param list<AgainstGpp|AgainstH2h|Single|AllInOneGame> $sportVariants
      * @return bool
      */
     public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, array $sportVariants): bool
     {
         $smallestNrOfPlaces = $pouleStructure->getSmallestPoule();
         foreach ($sportVariants as $sportVariant) {
-            if ($sportVariant instanceof AllInOneGameSportVariant) {
+            if ($sportVariant instanceof AllInOneGame) {
                 return false;
             }
             if ($sportVariant->getNrOfGamePlaces() >= $smallestNrOfPlaces) {

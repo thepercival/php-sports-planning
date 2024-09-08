@@ -29,7 +29,7 @@ class SportTest extends TestCase
         self::assertSame(1, $sport->getNrOfHomePlaces());
         self::assertSame(1, $sport->getNrOfAwayPlaces());
         self::assertSame(0, $sport->getNrOfGamePlaces());
-        self::assertSame(1, $sport->getNrOfH2H());
+        self::assertSame(1, $sport->getNrOfH2h());
         self::assertSame(0, $sport->getNrOfGamesPerPlace());
     }
 }

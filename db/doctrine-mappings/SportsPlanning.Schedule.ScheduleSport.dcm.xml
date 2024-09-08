@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-  <entity name="SportsPlanning\Schedule\Sport" table="planningSportSchedules" repository-class="SportsPlanning\Schedule\Sport\Repository">
+  <entity name="SportsPlanning\Schedule\Sport" table="scheduleSports" repository-class="SportsPlanning\Schedule\Sport\Repository">
     <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
     <many-to-one field="schedule" target-entity="SportsPlanning\Schedule" inversed-by="sportSchedules">
       <join-columns>
         <join-column name="scheduleId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>
     </many-to-one>
-    <one-to-many field="games" target-entity="SportsPlanning\Schedule\Game" mapped-by="sportSchedule">
+    <one-to-many field="games" target-entity="SportsPlanning\Schedule\ScheduleGame" mapped-by="sportSchedule">
       <cascade>
         <cascade-persist/>
         <cascade-remove/>

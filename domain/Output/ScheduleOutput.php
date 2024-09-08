@@ -24,7 +24,7 @@ use SportsPlanning\Input;
 use SportsPlanning\Poule;
 use SportsPlanning\Referee\Info;
 use SportsPlanning\Schedule as ScheduleBase;
-use SportsPlanning\Schedule\Name;
+use SportsPlanning\Schedule\SportsName;
 
 class ScheduleOutput extends OutputHelper
 {
@@ -42,7 +42,7 @@ class ScheduleOutput extends OutputHelper
     {
         foreach ($schedules as $schedule) {
             $prefix = '    ';
-            $name = new Name($schedule->createSportVariants());
+            $name = new SportsName($schedule->createSportVariants());
             $this->logger->info( $prefix . ' schedule => nrOfPlaces: ' . $schedule->getNrOfPlaces() . ' , name: "' . $name . '"');
             foreach ($schedule->getSportSchedules() as $sportSchedule) {
                 if ($sportNumber !== null && $sportNumber !== $sportSchedule->getNumber()) {
@@ -121,11 +121,11 @@ class ScheduleOutput extends OutputHelper
     }
 
     /**
-     * @param list<ScheduleBase\Game> $scheduleGames
+     * @param list<ScheduleBase\ScheduleGame> $scheduleGames
      * @return list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway>
      */
     public function convertGamesToHomeAways(array $scheduleGames): array {
-        return array_map( function(ScheduleBase\Game $game): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
+        return array_map( function(ScheduleBase\ScheduleGame $game): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
             return $game->convertToHomeAway();
         }, $scheduleGames );
     }

@@ -6,8 +6,8 @@ namespace SportsPlanning\Tests\Counters;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\PouleStructure;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\VariantWithFields;
+use SportsHelpers\SportVariants\AgainstH2h;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
 use SportsPlanning\Counters\CounterForPlaceNr;

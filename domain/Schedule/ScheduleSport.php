@@ -6,13 +6,14 @@ namespace SportsPlanning\Schedule;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Sport\PersistVariant;
 use SportsPlanning\Schedule;
 
-class Sport extends PersistVariant
+class ScheduleSport extends PersistVariant implements \Stringable
 {
     /**
-     * @var Collection<int|string, Game>
+     * @var Collection<int|string, ScheduleGame>
      */
     protected Collection $games;
 
@@ -23,7 +24,7 @@ class Sport extends PersistVariant
             $sportVariant->getNrOfHomePlaces(),
             $sportVariant->getNrOfAwayPlaces(),
             $sportVariant->getNrOfGamePlaces(),
-            $sportVariant->getNrOfH2H(),
+            $sportVariant->getNrOfH2h(),
             $sportVariant->getNrOfGamesPerPlace()
         );
         if (!$schedule->getSportSchedules()->contains($this)) {
@@ -42,7 +43,7 @@ class Sport extends PersistVariant
     }
 
     /**
-     * @return Collection<int|string, Game>
+     * @return Collection<int|string, ScheduleGame>
      */
     public function getGames(): Collection
     {
@@ -59,4 +60,15 @@ class Sport extends PersistVariant
 //        }
 //        return $variantWithPoule->allPlacesSameNrOfGamesAssignable();
 //    }
+
+    public function __toString(): string
+    {
+        $jsonClass = new \stdClass();
+        $jsonClass->number = $this->number;
+        $jsonClass->sportVariant = $this->createVariant();
+
+
+        $retVal = json_encode($jsonClass);
+        return $retVal === false ? '?' : $retVal;
+    }
 }

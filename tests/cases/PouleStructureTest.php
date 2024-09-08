@@ -5,14 +5,13 @@ namespace SportsPlanning\Tests;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\PouleStructure as PouleStructureBase;
+use SportsHelpers\SportVariants\AgainstGpp;
+use SportsHelpers\SportVariants\AllInOneGame;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsHelpers\SelfRefereeInfo;
-use SportsHelpers\Sport\Variant\AllInOneGame;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsPlanning\PouleStructure as PlanningPouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\VariantWithFields;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGppSportVariant;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class PouleStructureTest extends TestCase
@@ -21,7 +20,7 @@ class PouleStructureTest extends TestCase
 
     public function testSelfRefereeSamePouleIsInvalid(): void
     {
-        $sportVariant = new AgainstGppSportVariant(2, 2, 3);
+        $sportVariant = new AgainstGpp(2, 2, 3);
         $pouleStructureBase = new PouleStructureBase(5, 4);
         $sportVariantsWithFields = [new VariantWithFields($sportVariant, 1)];
         $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule));
@@ -31,7 +30,7 @@ class PouleStructureTest extends TestCase
 
     public function testSelfRefereeSamePouleIsValid(): void
     {
-        $sportVariant = new AgainstGppSportVariant(2, 2, 1);
+        $sportVariant = new AgainstGpp(2, 2, 1);
         $pouleStructureBase = new PouleStructureBase(5);
         $sportVariantsWithFields = [new VariantWithFields($sportVariant, 1)];
         $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule));
@@ -41,7 +40,7 @@ class PouleStructureTest extends TestCase
 
     public function testSelfRefereeOtherPoulesIsInvalid(): void
     {
-        $sportVariant = new AgainstGppSportVariant(2, 2, 1);
+        $sportVariant = new AgainstGpp(2, 2, 1);
         $pouleStructureBase = new PouleStructureBase(4);
         $sportVariantsWithFields = [new VariantWithFields($sportVariant, 1)];
         $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules));
@@ -51,7 +50,7 @@ class PouleStructureTest extends TestCase
 
     public function testSelfRefereeOtherPoulesIsValid(): void
     {
-        $sportVariant = new AgainstGppSportVariant(2, 2, 1);
+        $sportVariant = new AgainstGpp(2, 2, 1);
         $pouleStructureBase = new PouleStructureBase(4, 4);
         $sportVariantsWithFields = [new VariantWithFields($sportVariant, 1)];
         $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules));
@@ -61,7 +60,7 @@ class PouleStructureTest extends TestCase
 
     public function testSelfRefereeDisabledIsValid(): void
     {
-        $sportVariant = new AgainstGppSportVariant(2, 2, 1);
+        $sportVariant = new AgainstGpp(2, 2, 1);
         $pouleStructureBase = new PouleStructureBase(4);
         $sportVariantsWithFields = [new VariantWithFields($sportVariant, 1)];
         $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::Disabled));
