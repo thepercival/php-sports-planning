@@ -12,15 +12,14 @@ use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\AgainstGame as AgainstGame;
+use SportsPlanning\Game\GameAbstract;
+use SportsPlanning\Game\TogetherGame as TogetherGame;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning\BatchGamesType;
 use SportsPlanning\Planning\Filter;
-use SportsPlanning\Planning\State;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
-use SportsPlanning\Planning\TimeoutConfig;
 use SportsPlanning\Planning\Type as PlanningType;
 
 class Planning extends Identifiable
@@ -174,7 +173,7 @@ class Planning extends Identifiable
 
     public function createFirstBatch(): Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch
     {
-        $games = $this->getGames(Game::ORDER_BY_BATCH);
+        $games = $this->getGames(GameAbstract::ORDER_BY_BATCH);
         $batch = new Batch();
         if ($this->input->selfRefereeEnabled()) {
             if ($this->input->getSelfReferee() === SelfReferee::SamePoule) {
@@ -203,8 +202,8 @@ class Planning extends Identifiable
         foreach ($this->input->getPoules() as $poule) {
             $games = array_merge($games, $this->getGamesForPoule($poule));
         }
-        if ($order === Game::ORDER_BY_BATCH) {
-            uasort($games, function (Game $g1, Game  $g2): int {
+        if ($order === GameAbstract::ORDER_BY_BATCH) {
+            uasort($games, function (GameAbstract $g1, GameAbstract $g2): int {
                 if ($g1->getBatchNr() === $g2->getBatchNr()) {
                     if ($g1->getField()->getUniqueIndex() === $g2->getField()->getUniqueIndex()) {
                         return 0;

@@ -39,52 +39,56 @@ class HomeAwayOutput extends OutputHelper
     }
 
     /**
+     * @param int $nrOfPlaces
      * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
      * @param bool $againstTotals
      * @param bool $withTotals
      * @param bool $homeTotals
      * @return void
      */
-    public function outputTotalDetails(array $homeAways,
+    public function outputTotalDetails(int $nrOfPlaces, array $homeAways,
                                        bool $againstTotals, bool $withTotals, bool $homeTotals): void {
         if( $againstTotals ) {
-            $this->outputAgainstTotals($homeAways);
+            $this->outputAgainstTotals($nrOfPlaces, $homeAways);
         }
         if( $withTotals ) {
-            $this->outputWithTotals($homeAways);
+            $this->outputWithTotals($nrOfPlaces, $homeAways);
         }
         if( $homeTotals ) {
-            $this->outputWithTotals($homeAways);
+            $this->outputWithTotals($nrOfPlaces, $homeAways);
         }
     }
 
     /**
+     * @param int $nrOfPlaces
      * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
      * @return void
      */
-    public function outputAgainstTotals(array $homeAways): void {
-        $map = new AgainstNrCounterMap();
+    public function outputAgainstTotals(int $nrOfPlaces, array $homeAways): void {
+        $map = new AgainstNrCounterMap($nrOfPlaces);
         $map->addHomeAways($homeAways);
         $map->output($this->logger, '', '==== AgainstTotals ====');
     }
 
     /**
+     * @param int $nrOfPlaces
      * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
      * @return void
      */
-    public function outputWithTotals(array $homeAways): void {
-        $map = new WithNrCounterMap();
+    public function outputWithTotals(int $nrOfPlaces, array $homeAways): void {
+        $map = new WithNrCounterMap($nrOfPlaces);
         $map->addHomeAways($homeAways);
         $map->output($this->logger, '', '==== WithTotals ====');
     }
 
     /**
+     * @param int $nrOfPlaces
      * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
      * @return void
      */
-    public function outputHomeTotals(array $homeAways): void
+    public function outputHomeTotals(int $nrOfPlaces, array $homeAways): void
     {
-        $map = new SideNrCounterMap(Side::Home);
+        $map = new SideNrCounterMap(Side::Home, $nrOfPlaces);
         $map->addHomeAways($homeAways);
         $map->output($this->logger, '', '==== HomeTotals ====');
     }

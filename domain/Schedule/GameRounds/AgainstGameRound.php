@@ -23,7 +23,7 @@ class AgainstGameRound extends ListNode
      */
     protected array $homeAways = [];
 
-    public function __construct(private int $nrOfPlaces, AgainstGameRound|null $previous = null)
+    public function __construct(public readonly int $nrOfPlaces, AgainstGameRound|null $previous = null)
     {
         $this->placeNrCounterMap = new AmountNrCounterMap($nrOfPlaces);
         parent::__construct($previous);

@@ -10,9 +10,9 @@ use SportsHelpers\SportRange;
 use SportsPlanning\Batch as BatchBase;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
-use SportsPlanning\Game\Against as AgainstGame;
+use SportsPlanning\Game\AgainstGame as AgainstGame;
 use SportsPlanning\Output\GameOutput as GameOutput;
-use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\TogetherGame as TogetherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Output\PlaceOutput as PlaceOutput;
 

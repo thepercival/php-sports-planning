@@ -6,8 +6,8 @@ use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePoule;
 use SportsPlanning\Counters\GamePlacesCounterForPoule;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\AgainstGame as AgainstGame;
+use SportsPlanning\Game\TogetherGame as TogetherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 

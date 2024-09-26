@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace SportsPlanning;
 
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\AgainstGame as AgainstGame;
+use SportsPlanning\Game\TogetherGame as TogetherGame;
 use SportsPlanning\Planning\ListNode;
 
 /**

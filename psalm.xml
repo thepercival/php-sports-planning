@@ -15,7 +15,6 @@
         <directory name="serialization/handlers"/>
         <ignoreFiles>
             <directory name="vendor"/>
-            <directory name="domain/Output"/>
         </ignoreFiles>
     </projectFiles>
     <plugins>

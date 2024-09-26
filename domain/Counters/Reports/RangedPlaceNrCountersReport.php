@@ -111,4 +111,8 @@ readonly class RangedPlaceNrCountersReport
 //        return true;
 //    }
 
+    public function output(): string {
+        return 'laat hier zien wat de range is, maar dit hoeft nog niet omdat er misschien helemaal niet meer met ranges wordt gewerkt';
+    }
+
 }

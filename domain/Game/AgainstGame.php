@@ -13,17 +13,15 @@ use SportsHelpers\SportVariants\AgainstGpp;
 use SportsHelpers\SportVariants\AgainstH2h;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Field;
-use SportsPlanning\Game;
-use SportsPlanning\Game\Place\Against as AgainstGamePlace;
+use SportsPlanning\Game\AgainstGamePlace as AgainstGamePlace;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Game\Place as GamePlace;
 
-class Against extends Game
+class AgainstGame extends GameAbstract
 {
     /**
      * @psalm-var Collection<int|string, AgainstGamePlace>
@@ -122,10 +120,10 @@ class Against extends Game
 
     public function createHomeAway(): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
         $againstVariant = $this->createVariant();
-        $homePlaces = $this->getSidePlaces(Side::Home)->toArray();
-        $homePlaceNrs = array_map(fn(GamePlace $homeGamePlace) => $homeGamePlace->getPlace()->getPlaceNr(), $homePlaces);
-        $awayPlaces = $this->getSidePlaces(Side::Away)->toArray();
-        $awayPlaceNrs = array_map(fn(GamePlace $awayPlace) => $awayPlace->getPlace()->getPlaceNr(), $awayPlaces);
+        $homePlaces = array_values($this->getSidePlaces(Side::Home)->toArray());
+        $homePlaceNrs = array_map(fn(GamePlaceAbstract $homeGamePlace) => $homeGamePlace->getPlace()->getPlaceNr(), $homePlaces);
+        $awayPlaces = array_values($this->getSidePlaces(Side::Away)->toArray());
+        $awayPlaceNrs = array_map(fn(GamePlaceAbstract $awayPlace) => $awayPlace->getPlace()->getPlaceNr(), $awayPlaces);
         if( $againstVariant->nrOfHomePlaces === 1 && $againstVariant->nrOfAwayPlaces === 1 ) {
             return new OneVsOneHomeAway($homePlaceNrs[0], $awayPlaceNrs[0]);
         } else if( $againstVariant->nrOfHomePlaces === 1 && $againstVariant->nrOfAwayPlaces === 2 ) {

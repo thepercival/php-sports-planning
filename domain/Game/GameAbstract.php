@@ -2,13 +2,19 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning;
+namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Identifiable;
 use SportsHelpers\PlaceLocationInterface;
+use SportsPlanning\Field;
+use SportsPlanning\Place;
+use SportsPlanning\Planning;
+use SportsPlanning\Poule;
+use SportsPlanning\Referee;
+use SportsPlanning\Sport;
 
-abstract class Game extends Identifiable
+abstract class GameAbstract extends Identifiable
 {
     protected int $batchNr = 0;
     protected Place|null $refereePlace = null;

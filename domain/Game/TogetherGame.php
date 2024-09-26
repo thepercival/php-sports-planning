@@ -10,13 +10,13 @@ use SportsHelpers\GameMode;
 use SportsHelpers\SportVariants\AllInOneGame;
 use SportsHelpers\SportVariants\Single;
 use SportsPlanning\Field;
-use SportsPlanning\Game as GameBase;
-use SportsPlanning\Game\Place\Together as TogetherGamePlace;
+use SportsPlanning\Game\GameAbstract as GameBase;
+use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 
-class Together extends GameBase
+class TogetherGame extends GameBase
 {
     /**
      * @var Collection<int|string, TogetherGamePlace>

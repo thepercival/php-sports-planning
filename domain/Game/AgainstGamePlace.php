@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Game\Place;
+namespace SportsPlanning\Game;
 
 use SportsHelpers\Against\Side as AgainstSide;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Place as GamePlace;
+use SportsPlanning\Game\AgainstGame as AgainstGame;
+use SportsPlanning\Game\GamePlaceAbstract as GamePlace;
 use SportsPlanning\Place as PoulePlace;
 
-class Against extends GamePlace
+class AgainstGamePlace extends GamePlaceAbstract
 {
     public function __construct(protected AgainstGame $game, PoulePlace $place, private AgainstSide $side)
     {

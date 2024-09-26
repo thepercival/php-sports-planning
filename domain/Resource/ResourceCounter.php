@@ -2,11 +2,8 @@
 
 namespace SportsPlanning\Resource;
 
-use SportsHelpers\SelfReferee;
-use SportsPlanning\Game;
-use SportsPlanning\Place;
+use SportsPlanning\Game\GameAbstract;
 use SportsPlanning\Planning;
-use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
 
 class ResourceCounter
@@ -48,7 +45,7 @@ class ResourceCounter
             }
         }
 
-        $games = $this->planning->getGames(Game::ORDER_BY_BATCH);
+        $games = $this->planning->getGames(GameAbstract::ORDER_BY_BATCH);
         foreach ($games as $game) {
             $fieldGameCounter = $this->fieldMap[$game->getField()->getUniqueIndex()];
             $this->fieldMap[$game->getField()->getUniqueIndex()] = $fieldGameCounter->increment();

@@ -5,7 +5,7 @@ namespace SportsPlanning\Game;
 use SportsHelpers\Identifiable;
 use SportsPlanning\Place as PoulePlace;
 
-abstract class Place extends Identifiable
+abstract class GamePlaceAbstract extends Identifiable
 {
     protected PoulePlace $place;
 

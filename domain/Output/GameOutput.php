@@ -12,10 +12,10 @@ use SportsHelpers\Output\Color;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Place\Against as AgainstGamePlace;
-use SportsPlanning\Game\Place\Together as TogetherGamePlace;
-use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\AgainstGame as AgainstGame;
+use SportsPlanning\Game\AgainstGamePlace as AgainstGamePlace;
+use SportsPlanning\Game\TogetherGame as TogetherGame;
+use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
 use SportsPlanning\Output\PlaceOutput as PlaceOutput;
 
 class GameOutput extends OutputHelper
@@ -41,9 +41,9 @@ class GameOutput extends OutputHelper
     }
 
     public function output(
-        AgainstGame|TogetherGame $game,
+        AgainstGame|TogetherGame                        $game,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null,
-        string|null $prefix = null
+        string|null                                                     $prefix = null
     ): void {
         $useColors = $this->useColors();
         $batchNr = $game->getBatchNr();
@@ -78,7 +78,7 @@ class GameOutput extends OutputHelper
     }
 
     protected function getPlaces(
-        AgainstGame|TogetherGame $game,
+        AgainstGame|TogetherGame                        $game,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null
     ): string {
         $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
@@ -111,8 +111,8 @@ class GameOutput extends OutputHelper
 
     protected function getPlace(
         AgainstGamePlace|TogetherGamePlace $gamePlace,
-        int|null $gamesInARow,
-        bool $useColors
+        int|null                                           $gamesInARow,
+        bool                                               $useColors
     ): string {
         return $this->placeOutput->getPlace(
             $gamePlace->getPlace(),

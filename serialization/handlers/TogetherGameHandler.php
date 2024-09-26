@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace SportsPlanning\SerializationHandler;
 
 //use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
-use JMS\Serializer\Context;
-use SportsHelpers\SportRange;
 use SportsPlanning\Field;
-use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Game\Place\Together as TogetherGamePlace;
-
+use SportsPlanning\Game\TogetherGame as TogetherGame;
+use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;

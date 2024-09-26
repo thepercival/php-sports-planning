@@ -17,8 +17,8 @@ use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsPlanning\Game\Together as TogetherGame;
+use SportsPlanning\Game\AgainstGame as AgainstGame;
+use SportsPlanning\Game\TogetherGame as TogetherGame;
 use SportsPlanning\Poule;
 
 /**

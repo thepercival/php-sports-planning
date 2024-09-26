@@ -1,12 +1,12 @@
 <?php
 
-namespace SportsPlanning\Game\Place;
+namespace SportsPlanning\Game;
 
+use SportsPlanning\Game\GamePlaceAbstract as GamePlace;
+use SportsPlanning\Game\TogetherGame as TogetherGame;
 use SportsPlanning\Place as PoulePlace;
-use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Game\Place as GamePlace;
 
-class Together extends GamePlace
+class TogetherGamePlace extends GamePlaceAbstract
 {
     public function __construct(private TogetherGame $game, PoulePlace $place, private int $gameRoundNumber)
     {
