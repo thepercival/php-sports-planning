@@ -17,7 +17,7 @@ use SportsHelpers\Sport\Variant\WithNrOfPlaces\Against\H2h as AgainstH2hWithNrOf
 use SportsHelpers\Sport\Variant\WithNrOfPlaces\AllInOneGame as AllInOneGameWithNrOfPlaces;
 use SportsHelpers\Sport\Variant\Single;
 use SportsHelpers\Sport\Variant\WithNrOfPlaces\Single as SingleWithNrOfPlaces;
-use SportsPlanning\PouleStructure as PlanningPouleStructure;
+use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsPlanning\Input;
 use SportsPlanning\Referee\Info as RefereeInfo;

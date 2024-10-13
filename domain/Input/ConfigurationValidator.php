@@ -2,17 +2,18 @@
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\PouleStructure;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SelfRefereeInfo;
-use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
-use SportsHelpers\SportVariants\AgainstGpp;
-use SportsHelpers\SportVariants\AgainstH2h;
+use SportsHelpers\SportVariants\AgainstOneVsOne;
+use SportsHelpers\SportVariants\AgainstOneVsTwo;
+use SportsHelpers\SportVariants\AgainstTwoVsTwo;
 use SportsHelpers\SportVariants\AllInOneGame;
+use SportsHelpers\SportVariants\Persist\SportPersistVariantWithNrOfFields;
 use SportsHelpers\SportVariants\Single;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Input\Service as PlanningInputService;
-use SportsPlanning\PouleStructure as PlanningPouleStructure;
+use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
 use SportsPlanning\Referee\Info as RefereeInfo;
 
 class ConfigurationValidator
@@ -23,37 +24,39 @@ class ConfigurationValidator
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportVariantWithFields> $sportVariantsWithFields
+     * @param list<SportPersistVariantWithNrOfFields> $sportVariantsWithNrOfFields
      * @param RefereeInfo $refereeInfo
      * @param bool $perPoule
      */
     public function createReducedAndValidatedInputConfiguration(
         PouleStructure $pouleStructure,
-        array $sportVariantsWithFields,
+        array $sportVariantsWithNrOfFields,
         RefereeInfo $refereeInfo,
         bool $perPoule
         ): InputConfiguration
     {
 
-        $sportVariants = array_map( function (SportVariantWithFields $sportVariantWithField): Single|AgainstH2h|AgainstGpp|AllInOneGame {
-            return $sportVariantWithField->getSportVariant();
-        }, $sportVariantsWithFields);
+        $sportVariants = array_map( function (SportPersistVariantWithNrOfFields $sportVariantWithNrOfFields): Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame {
+            return $sportVariantWithNrOfFields->createSportVariant();
+        }, $sportVariantsWithNrOfFields);
 
         $validatedRefereeInfo = $this->getValidatedRefereeInfo(
             $refereeInfo, $pouleStructure, $sportVariants);
 
-        $efficientSportVariants = $this->reduceFields($pouleStructure, $sportVariantsWithFields, $validatedRefereeInfo);
+        $efficientSportVariants = $this->reduceFields($pouleStructure, $sportVariantsWithNrOfFields, $validatedRefereeInfo);
         return new InputConfiguration(
-            $pouleStructure,
-            $efficientSportVariants,
-            $validatedRefereeInfo,
+            new PlanningPouleStructure(
+                $pouleStructure,
+                $efficientSportVariants,
+                $validatedRefereeInfo
+            ),
             $perPoule
         );
     }
 
     /**
      * @param RefereeInfo $refereeInfo
-     * @param list<AgainstH2h|AgainstGpp|Single|AllInOneGame> $sportVariants
+     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|Single|AllInOneGame> $sportVariants
      * @param PouleStructure $pouleStructure
      * @return RefereeInfo
      */
@@ -72,7 +75,7 @@ class ConfigurationValidator
     /**
      * @param SelfReferee $selfReferee
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstH2h|AgainstGpp|Single|AllInOneGame> $sportVariants
+     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|Single|AllInOneGame> $sportVariants
     * @return SelfReferee
      */
     protected function getValidatedSelfReferee(
@@ -98,9 +101,9 @@ class ConfigurationValidator
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportVariantWithFields> $sportVariantsWithFields
+     * @param list<SportPersistVariantWithNrOfFields> $sportVariantsWithFields
      * @param RefereeInfo $refereeInfo
-     * @return list<SportVariantWithFields>
+     * @return list<SportPersistVariantWithNrOfFields>
      */
     protected function reduceFields(
         PouleStructure $pouleStructure,
@@ -115,12 +118,12 @@ class ConfigurationValidator
         $maxNrOfGamesPerBatch = $planningPouleStructure->getMaxNrOfGamesPerBatch();
         $reducedSportVariants = [];
         foreach ($sportVariantsWithFields as $sportVariantWithField) {
-            $reducedNrOfFields = $sportVariantWithField->getNrOfFields();
+            $reducedNrOfFields = $sportVariantWithField->nrOfFields;
             if ($reducedNrOfFields > $maxNrOfGamesPerBatch) {
                 $reducedNrOfFields = $maxNrOfGamesPerBatch;
             }
-            $reducedSportVariants[] = new SportVariantWithFields(
-                $sportVariantWithField->getSportVariant(),
+            $reducedSportVariants[] = new SportPersistVariantWithNrOfFields(
+                $sportVariantWithField->createSportVariant(),
                 $reducedNrOfFields
             );
         }
@@ -129,8 +132,8 @@ class ConfigurationValidator
 
         usort(
             $moreReducedSportVariants,
-            function (SportVariantWithFields $sportA, SportVariantWithFields $sportB): int {
-                return $sportA->getNrOfFields() > $sportB->getNrOfFields() ? -1 : 1;
+            function (SportPersistVariantWithNrOfFields $sportA, SportPersistVariantWithNrOfFields $sportB): int {
+                return $sportA->nrOfFields > $sportB->nrOfFields ? -1 : 1;
             }
         );
         return $moreReducedSportVariants;
@@ -138,36 +141,36 @@ class ConfigurationValidator
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportVariantWithFields> $sportVariantsWithFields
-     * @return list<SportVariantWithFields>
+     * @param list<SportPersistVariantWithNrOfFields> $sportVariantsWithNrOfFields
+     * @return list<SportPersistVariantWithNrOfFields>
      */
-    protected function reduceFieldsBySports(PouleStructure $pouleStructure, array $sportVariantsWithFields): array
+    protected function reduceFieldsBySports(PouleStructure $pouleStructure, array $sportVariantsWithNrOfFields): array
     {
-        $leastNrOfBatchesNeeded = $this->getLeastNrOfBatchesNeeded($pouleStructure, $sportVariantsWithFields);
+        $leastNrOfBatchesNeeded = $this->getLeastNrOfBatchesNeeded($pouleStructure, $sportVariantsWithNrOfFields);
         return array_map(
-            function (SportVariantWithFields $sportVariantWithFields) use (
+            function (SportPersistVariantWithNrOfFields $sportVariantWithNrOfFields) use (
                 $pouleStructure,
                 $leastNrOfBatchesNeeded
-            ): SportVariantWithFields {
+            ): SportPersistVariantWithNrOfFields {
                 return $this->reduceSportVariantFields(
                     $pouleStructure,
-                    $sportVariantWithFields,
+                    $sportVariantWithNrOfFields,
                     $leastNrOfBatchesNeeded
                 );
             },
-            $sportVariantsWithFields
+            $sportVariantsWithNrOfFields
         );
     }
 
     protected function reduceSportVariantFields(
         PouleStructure $pouleStructure,
-        SportVariantWithFields $sportVariantWithFields,
+        SportPersistVariantWithNrOfFields $sportVariantWithNrOfFields,
         int $minNrOfBatches
-    ): SportVariantWithFields {
-        $sportVariant = $sportVariantWithFields->getSportVariant();
-        $nrOfFields = $sportVariantWithFields->getNrOfFields();
+    ): SportPersistVariantWithNrOfFields {
+        $sportVariant = $sportVariantWithNrOfFields->createSportVariant();
+        $nrOfFields = $sportVariantWithNrOfFields->nrOfFields;
         if ($nrOfFields === 1) {
-            return $sportVariantWithFields;
+            return $sportVariantWithNrOfFields;
         }
         $nrOfBatchesNeeded = $this->getNrOfBatchesNeeded($pouleStructure, $sportVariant, $nrOfFields);
         while ($nrOfBatchesNeeded < $minNrOfBatches) {
@@ -176,22 +179,22 @@ class ConfigurationValidator
             }
             $nrOfBatchesNeeded = $this->getNrOfBatchesNeeded($pouleStructure, $sportVariant, $nrOfFields);
         }
-        return new SportVariantWithFields($sportVariant, $nrOfFields);
+        return new SportPersistVariantWithNrOfFields($sportVariant, $nrOfFields);
     }
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportVariantWithFields> $sportVariantsWithFields
+     * @param list<SportPersistVariantWithNrOfFields> $sportVariantsWithNrOfFields
      * @return int
      */
-    protected function getLeastNrOfBatchesNeeded(PouleStructure $pouleStructure, array $sportVariantsWithFields): int
+    protected function getLeastNrOfBatchesNeeded(PouleStructure $pouleStructure, array $sportVariantsWithNrOfFields): int
     {
         $leastNrOfBatchesNeeded = null;
-        foreach ($sportVariantsWithFields as $sportVariantWithField) {
+        foreach ($sportVariantsWithNrOfFields as $sportVariantWithNrOfFields) {
             $nrOfBatchesNeeded = $this->getNrOfBatchesNeeded(
                 $pouleStructure,
-                $sportVariantWithField->getSportVariant(),
-                $sportVariantWithField->getNrOfFields()
+                $sportVariantWithNrOfFields->createSportVariant(),
+                $sportVariantWithNrOfFields->nrOfFields
             );
             if ($leastNrOfBatchesNeeded === null || $nrOfBatchesNeeded > $leastNrOfBatchesNeeded) {
                 $leastNrOfBatchesNeeded = $nrOfBatchesNeeded;
@@ -205,10 +208,10 @@ class ConfigurationValidator
 
     protected function getNrOfBatchesNeeded(
         PouleStructure $pouleStructure,
-        AgainstH2h|AgainstGpp|Single|AllInOneGame $sportVariant,
+        AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|Single|AllInOneGame $sportVariant,
         int $nrOfFields
     ): int {
-        $nrOfGames = $pouleStructure->getTotalNrOfGames([$sportVariant]);
+        $nrOfGames = $pouleStructure->calculateTotalNrOfGames([$sportVariant]);
         return (int)ceil($nrOfGames / $nrOfFields);
     }
 }

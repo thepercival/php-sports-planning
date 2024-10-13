@@ -6,25 +6,26 @@ namespace SportsPlanning\Schedule;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use SportsHelpers\Against\Side as AgainstSide;
-use SportsHelpers\Sport\PersistVariant;
+use SportsHelpers\SportVariants\Helpers\SportVariantWithNrOfPlacesCreator;
+use SportsHelpers\SportVariants\Persist\SportPersistVariant;
+use SportsHelpers\SportVariants\WithNrOfPlaces\AgainstWithNrOfPlaces;
 use SportsPlanning\Schedule;
 
-class ScheduleSport extends PersistVariant implements \Stringable
+class ScheduleSport extends SportPersistVariant implements \Stringable
 {
     /**
      * @var Collection<int|string, ScheduleGame>
      */
     protected Collection $games;
 
-    public function __construct(protected Schedule $schedule, protected int $number, PersistVariant $sportVariant)
+    public function __construct(protected Schedule $schedule, protected int $number, SportPersistVariant $sportVariant)
     {
         parent::__construct(
             $sportVariant->getGameMode(),
             $sportVariant->getNrOfHomePlaces(),
             $sportVariant->getNrOfAwayPlaces(),
             $sportVariant->getNrOfGamePlaces(),
-            $sportVariant->getNrOfH2h(),
+            $sportVariant->getNrOfCycles(),
             $sportVariant->getNrOfGamesPerPlace()
         );
         if (!$schedule->getSportSchedules()->contains($this)) {
@@ -50,16 +51,6 @@ class ScheduleSport extends PersistVariant implements \Stringable
         return $this->games;
     }
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])
-
-//    public function allPlacesSameNrOfGamesAssignable(): bool
-//    {
-//        $nrOfPlaces = $this->schedule->getNrOfPlaces();
-//        $variantWithPoule = (new VariantCreator())->createWithPoule($nrOfPlaces, $this->createVariant());
-//        if( !($variantWithPoule instanceof AgainstGppWithPoule) ) {
-//            return true;
-//        }
-//        return $variantWithPoule->allPlacesSameNrOfGamesAssignable();
-//    }
 
     public function __toString(): string
     {

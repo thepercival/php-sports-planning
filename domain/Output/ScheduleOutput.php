@@ -5,27 +5,17 @@ declare(strict_types=1);
 namespace SportsPlanning\Output;
 
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Against\Side as AgainstSide;
 use SportsHelpers\Counter;
 use SportsHelpers\Output as OutputHelper;
-use SportsHelpers\PouleStructure;
-use SportsHelpers\Sport\Variant\Creator as VariantCreator;
-use SportsHelpers\Sport\Variant\WithNrOfPlaces\Against\GamesPerPlace as AgainstGppWithNrOfPlaces;
-use SportsHelpers\SportVariants\AgainstGpp;
-use SportsHelpers\SportVariants\AgainstH2h;
-use SportsPlanning\Combinations\AmountBoundary;
-use SportsPlanning\Combinations\AmountRange;
-use SportsPlanning\Combinations\DuoPlaceNr;
+use SportsHelpers\SportVariants\AllInOneGame;
+use SportsHelpers\SportVariants\Helpers\SportVariantWithNrOfPlacesCreator;
+use SportsHelpers\SportVariants\Single;
+use SportsHelpers\SportVariants\WithNrOfPlaces\AgainstWithNrOfPlaces;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
 use SportsPlanning\Counters\Maps\Schedule\AllScheduleMaps;
-use SportsPlanning\Counters\Reports\RangedPlaceNrCountersReport;
-use SportsPlanning\HomeAways\HomeAwayAbstract;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
-use SportsPlanning\Input;
-use SportsPlanning\Poule;
-use SportsPlanning\Referee\Info;
 use SportsPlanning\Schedule as ScheduleBase;
 
 class ScheduleOutput extends OutputHelper
@@ -76,7 +66,7 @@ class ScheduleOutput extends OutputHelper
         $unequalNrOfGames = 0;
         foreach ($schedule->getSportSchedules() as $sportSchedule) {
             $sportVariant = $sportSchedule->createVariant();
-            if (!($sportVariant instanceof AgainstGpp || $sportVariant instanceof AgainstH2h)) {
+            if (($sportVariant instanceof Single || $sportVariant instanceof AllInOneGame)) {
                 continue;
             }
             $hasAgainstSport = true;
@@ -84,11 +74,6 @@ class ScheduleOutput extends OutputHelper
                 $hasWithSport = true;
             }
 
-            $variantWithNrOfPlaces = (new VariantCreator())->createWithNrOfPlaces($schedule->getNrOfPlaces(), $sportVariant);
-
-            if( $variantWithNrOfPlaces instanceof AgainstGppWithNrOfPlaces && !$variantWithNrOfPlaces->allPlacesSameNrOfGamesAssignable() ){
-                $unequalNrOfGames++;
-            }
             $homeAways = $this->convertGamesToHomeAways(array_values( $sportSchedule->getGames()->toArray()));
             $allScheduleMaps->addHomeAways($homeAways);
         }

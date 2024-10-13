@@ -7,10 +7,12 @@ namespace SportsPlanning\Game;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
-use SportsHelpers\Against\Side;
-use SportsHelpers\Against\Side as AgainstSide;
-use SportsHelpers\SportVariants\AgainstGpp;
-use SportsHelpers\SportVariants\AgainstH2h;
+use SportsHelpers\Against\AgainstSide;
+use SportsHelpers\SportVariants\AgainstOneVsOne;
+use SportsHelpers\SportVariants\AgainstOneVsTwo;
+use SportsHelpers\SportVariants\AgainstTwoVsTwo;
+use SportsHelpers\SportVariants\AllInOneGame;
+use SportsHelpers\SportVariants\Single;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Field;
 use SportsPlanning\Game\AgainstGamePlace as AgainstGamePlace;
@@ -109,10 +111,10 @@ class AgainstGame extends GameAbstract
         return $this->poulePlaces;
     }
 
-    public function createVariant(): AgainstH2h|AgainstGpp
+    public function createVariant(): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo
     {
         $sportVariant = $this->getSport()->createVariant();
-        if (!($sportVariant instanceof AgainstH2h) && !($sportVariant instanceof AgainstGpp)) {
+        if (($sportVariant instanceof AllInOneGame) || ($sportVariant instanceof Single)) {
             throw new \Exception('the wrong sport is linked to the game', E_ERROR);
         }
         return $sportVariant;
@@ -120,9 +122,9 @@ class AgainstGame extends GameAbstract
 
     public function createHomeAway(): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
         $againstVariant = $this->createVariant();
-        $homePlaces = array_values($this->getSidePlaces(Side::Home)->toArray());
+        $homePlaces = array_values($this->getSidePlaces(AgainstSide::Home)->toArray());
         $homePlaceNrs = array_map(fn(GamePlaceAbstract $homeGamePlace) => $homeGamePlace->getPlace()->getPlaceNr(), $homePlaces);
-        $awayPlaces = array_values($this->getSidePlaces(Side::Away)->toArray());
+        $awayPlaces = array_values($this->getSidePlaces(AgainstSide::Away)->toArray());
         $awayPlaceNrs = array_map(fn(GamePlaceAbstract $awayPlace) => $awayPlace->getPlace()->getPlaceNr(), $awayPlaces);
         if( $againstVariant->nrOfHomePlaces === 1 && $againstVariant->nrOfAwayPlaces === 1 ) {
             return new OneVsOneHomeAway($homePlaceNrs[0], $awayPlaceNrs[0]);

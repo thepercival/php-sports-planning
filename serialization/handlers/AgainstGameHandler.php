@@ -8,7 +8,7 @@ namespace SportsPlanning\SerializationHandler;
 use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
-use SportsHelpers\Against\Side;
+use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Field;
 use SportsPlanning\Game\AgainstGame as AgainstGame;
 use SportsPlanning\Game\AgainstGamePlace as AgainstGamePlace;
@@ -81,7 +81,7 @@ class AgainstGameHandler extends Handler implements SubscribingHandlerInterface
         }
 
         foreach ($fieldValue['places'] as $arrGamePlace) {
-            $side = Side::from($arrGamePlace['side']);
+            $side = AgainstSide::from($arrGamePlace['side']);
             $place = $placeLocationMap[ $arrGamePlace['placeLocation'] ];
             new AgainstGamePlace($againstGame, $place, $side);
         }

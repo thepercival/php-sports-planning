@@ -6,7 +6,7 @@ namespace SportsPlanning\Schedule;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Against\AgainstSide;
 use SportsHelpers\Identifiable;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;

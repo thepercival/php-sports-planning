@@ -7,10 +7,10 @@ namespace SportsPlanning;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
-use SportsHelpers\Sport\PersistVariant;
-use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
+use SportsHelpers\SportVariants\Persist\SportPersistVariant;
+use SportsHelpers\SportVariants\Persist\SportPersistVariantWithNrOfFields;
 
-class Sport extends PersistVariant implements \Stringable
+class Sport extends SportPersistVariant implements \Stringable
 {
     /**
      * @var Collection<int|string, Field>
@@ -18,15 +18,15 @@ class Sport extends PersistVariant implements \Stringable
     protected Collection $fields;
     protected int $number;
 
-    public function __construct(protected Input $input, PersistVariant $sportVariant)
+    public function __construct(protected Input $input, SportPersistVariant $sportPersistVariant)
     {
         parent::__construct(
-            $sportVariant->getGameMode(),
-            $sportVariant->getNrOfHomePlaces(),
-            $sportVariant->getNrOfAwayPlaces(),
-            $sportVariant->getNrOfGamePlaces(),
-            $sportVariant->getNrOfH2h(),
-            $sportVariant->getNrOfGamesPerPlace()
+            $sportPersistVariant->getGameMode(),
+            $sportPersistVariant->getNrOfHomePlaces(),
+            $sportPersistVariant->getNrOfAwayPlaces(),
+            $sportPersistVariant->getNrOfGamePlaces(),
+            $sportPersistVariant->getNrOfCycles(),
+            $sportPersistVariant->getNrOfGamesPerPlace()
         );
         $this->number = $input->getSports()->count() + 1;
         $this->input->getSports()->add($this);
@@ -66,9 +66,9 @@ class Sport extends PersistVariant implements \Stringable
         return $this->getFields()->count();
     }
 
-    public function createVariantWithFields(): SportVariantWithFields
+    public function createVariantWithFields(): SportPersistVariantWithNrOfFields
     {
-        return new SportVariantWithFields($this->createVariant(), $this->getNrOfFields());
+        return new SportPersistVariantWithNrOfFields($this->createVariant(), $this->getNrOfFields());
     }
 
     public function __toString(): string

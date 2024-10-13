@@ -2,11 +2,9 @@
 
 namespace SportsPlanning\Planning;
 
-use Doctrine\DBAL\Platforms\AbstractPlatform;
-use SportsHelpers\EnumDbType;
-use SportsHelpers\SportMath;
 use SportsPlanning\Input;
 use SportsPlanning\Planning;
+use SportsPlanning\PlanningPouleStructure;
 
 class TimeoutConfig
 {
@@ -27,8 +25,7 @@ class TimeoutConfig
 
     public function getDefaultTimeoutSeconds(Input $input): int
     {
-        $sportVariants = $input->createSportVariants();
-        $totalNrOfGames = $input->createPouleStructure()->getTotalNrOfGames($sportVariants);
+        $totalNrOfGames = $input->createPouleStructure()->calculateTotalNrOfGames($input->createSportVariants());
         $nrOfGamesPerSecond = 10;
         $nrOfSeconds = (int)ceil($totalNrOfGames / $nrOfGamesPerSecond);
         if ($nrOfSeconds < self::MINIMUM_TIMEOUTSECONDS) {

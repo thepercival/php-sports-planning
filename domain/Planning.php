@@ -316,15 +316,17 @@ class Planning extends Identifiable
     public function getMaxNrOfBatches(): int
     {
         $sportVariants = $this->input->createSportVariants();
-        $totalNrOfGames = $this->input->createPouleStructure()->getTotalNrOfGames($sportVariants);
+        $totalNrOfGames = $this->input->createPouleStructure()->calculateTotalNrOfGames($sportVariants);
         return (int)ceil($totalNrOfGames / $this->getMinNrOfBatchGames());
     }
 
     public function createInputConfiguration(): InputConfiguration {
         return new InputConfiguration(
-            $this->input->createPouleStructure(),
-            $this->input->createSportVariantsWithFields(),
-            $this->input->getRefereeInfo(),
+            new PlanningPouleStructure(
+                $this->input->createPouleStructure(),
+                $this->input->createSportVariantsWithFields(),
+                $this->input->getRefereeInfo()
+            ),
             $this->input->getPerPoule()
         );
     }

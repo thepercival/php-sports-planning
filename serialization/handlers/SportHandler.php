@@ -7,7 +7,7 @@ namespace SportsPlanning\SerializationHandler;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\Context;
-use SportsHelpers\Sport\PersistVariant as PersistSportVariant;
+use SportsHelpers\SportVariants\Persist\SportPersistVariant;
 use SportsPlanning\Field;
 use SportsPlanning\Input;
 use SportsPlanning\Poule;
@@ -41,12 +41,12 @@ class SportHandler extends Handler implements SubscribingHandlerInterface
         Context $context
     ): Sport {
         $fieldValue['persistVariant'] = $fieldValue;
-        /** @var PersistSportVariant $sportVariant */
+        /** @var SportPersistVariant $sportVariant */
         $sportVariant = $this->getProperty(
             $visitor,
             $fieldValue,
             'persistVariant',
-            PersistSportVariant::class
+            SportPersistVariant::class
         );
 
         $sport = new Sport($fieldValue['input'], $sportVariant);

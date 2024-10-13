@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Counters\Maps\Schedule;
 
-use SportsHelpers\Against\Side;
+use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
@@ -30,8 +30,8 @@ class AllScheduleMaps
         $this->amountCounterMap = new AmountNrCounterMap($nrOfPlaces);
         $this->withCounterMap = new WithNrCounterMap($nrOfPlaces);
         $this->againstCounterMap = new AgainstNrCounterMap($nrOfPlaces);
-        $this->homeCounterMap = new SideNrCounterMap(Side::Home, $nrOfPlaces);
-        $this->awayCounterMap = new SideNrCounterMap(Side::Away, $nrOfPlaces);
+        $this->homeCounterMap = new SideNrCounterMap(AgainstSide::Home, $nrOfPlaces);
+        $this->awayCounterMap = new SideNrCounterMap(AgainstSide::Away, $nrOfPlaces);
         $this->togetherCounterMap = new TogetherNrCounterMap($nrOfPlaces);
     }
 

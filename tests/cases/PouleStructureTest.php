@@ -9,7 +9,7 @@ use SportsHelpers\SportVariants\AgainstGpp;
 use SportsHelpers\SportVariants\AllInOneGame;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsHelpers\SelfRefereeInfo;
-use SportsPlanning\PouleStructure as PlanningPouleStructure;
+use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\Sport\VariantWithFields;
 use SportsPlanning\TestHelper\PlanningCreator;

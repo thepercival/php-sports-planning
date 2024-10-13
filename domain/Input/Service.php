@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\PouleStructure;
-use SportsHelpers\SportVariants\AgainstGpp;
-use SportsHelpers\SportVariants\AgainstH2h;
+use SportsHelpers\PouleStructures\PouleStructure;
+use SportsHelpers\SportVariants\AgainstOneVsOne;
+use SportsHelpers\SportVariants\AgainstOneVsTwo;
+use SportsHelpers\SportVariants\AgainstTwoVsTwo;
 use SportsHelpers\SportVariants\AllInOneGame;
 use SportsHelpers\SportVariants\Single;
 
@@ -28,7 +29,7 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstGpp|AgainstH2h|Single|AllInOneGame> $sportVariants
+     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|Single|AllInOneGame> $sportVariants
      * @return bool
      */
     public function canSelfRefereeBeAvailable(PouleStructure $pouleStructure, array $sportVariants): bool
@@ -44,7 +45,7 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstGpp|AgainstH2h|Single|AllInOneGame> $sportVariants
+     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|Single|AllInOneGame> $sportVariants
      * @return bool
      */
     public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, array $sportVariants): bool
@@ -54,7 +55,8 @@ class Service
             if ($sportVariant instanceof AllInOneGame) {
                 return false;
             }
-            if ($sportVariant->getNrOfGamePlaces() >= $smallestNrOfPlaces) {
+            $nrOfGamePlaces = ($sportVariant instanceof Single) ? $sportVariant->nrOfGamePlaces : $sportVariant->getNrOfGamePlaces();
+            if ($nrOfGamePlaces >= $smallestNrOfPlaces) {
                 return false;
             }
         }

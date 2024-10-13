@@ -8,8 +8,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use SportsHelpers\Identifiable;
-use SportsHelpers\SportVariants\AgainstGpp;
-use SportsHelpers\SportVariants\AgainstH2h;
+use SportsHelpers\SportVariants\AgainstOneVsOne;
+use SportsHelpers\SportVariants\AgainstOneVsTwo;
+use SportsHelpers\SportVariants\AgainstTwoVsTwo;
 use SportsHelpers\SportVariants\AllInOneGame;
 use SportsHelpers\SportVariants\Single;
 use SportsPlanning\Schedule\ScheduleSport as SportSchedule;
@@ -65,12 +66,12 @@ class Schedule extends Identifiable
     }
 
     /**
-     * @return list<Single|AgainstH2h|AgainstGpp|AllInOneGame>
+     * @return list<Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame>
      */
     public function createSportVariants(): array
     {
         return array_map(
-            function (SportSchedule $sportSchedule): Single|AgainstH2h|AgainstGpp|AllInOneGame {
+            function (SportSchedule $sportSchedule): Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame {
                 return $sportSchedule->createVariant();
             }, array_values($this->sportSchedules->toArray())
         );

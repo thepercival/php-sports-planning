@@ -2,44 +2,37 @@
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\PouleStructure;
-use SportsHelpers\SportVariants\AgainstGpp;
-use SportsHelpers\SportVariants\AgainstH2h;
+use SportsHelpers\PouleStructures\PouleStructure;
+use SportsHelpers\SportVariants\AgainstOneVsOne;
+use SportsHelpers\SportVariants\AgainstOneVsTwo;
+use SportsHelpers\SportVariants\AgainstTwoVsTwo;
 use SportsHelpers\SportVariants\AllInOneGame;
+use SportsHelpers\SportVariants\Persist\SportPersistVariantWithNrOfFields;
 use SportsHelpers\SportVariants\Single;
+use SportsPlanning\PlanningPouleStructure;
 use SportsPlanning\Referee\Info as RefereeInfo;
-use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
-use SportsPlanning\Sport;
 
 class Configuration
 {
     private string|null $name = null;
 
-    /**
-     * @param PouleStructure $pouleStructure
-     * @param list<SportVariantWithFields> $sportVariantsWithFields
-     * @param RefereeInfo $refereeInfo
-     * @param bool $perPoule
-     */
-    public function __construct(
-        public PouleStructure $pouleStructure,
-        public array $sportVariantsWithFields,
-        public RefereeInfo $refereeInfo,
-        public bool $perPoule
-    )
+    public function __construct(public PlanningPouleStructure $planningPouleStructure, public bool $perPoule )
     {
-        if( !$pouleStructure->sportsAndSelfRefereeAreCompatible(
-            $this->createSportVariants(), $refereeInfo->selfRefereeInfo->selfReferee) ) {
+        $pouleStructure = $this->planningPouleStructure->pouleStructure;
+        $selfReferee = $this->planningPouleStructure->refereeInfo->selfRefereeInfo->selfReferee;
+        if( !$pouleStructure->areSportsAndSelfRefereeCompatible( $this->createSportVariants(), $selfReferee ) ) {
             throw new \Exception('selfReferee is not compatible with poulestructure', E_ERROR);
         }
     }
 
     public function getName(): string {
         if( $this->name === null ) {
+            $pouleStructure = $this->planningPouleStructure->pouleStructure;
+            $sportVariantsWithNrOfFields = $this->planningPouleStructure->sportVariantsWithNrOfFields;
             $nameParts = [
-                '[' . $this->pouleStructure . ']',
-                '[' . join(' & ', $this->sportVariantsWithFields) . ']',
-                'ref=>' . $this->refereeInfo
+                '[' . $pouleStructure . ']',
+                '[' . join(' & ', $sportVariantsWithNrOfFields) . ']',
+                'ref=>' . $this->planningPouleStructure->refereeInfo
             ];
             if( $this->perPoule ) {
                 $nameParts[] =  'pp';
@@ -50,13 +43,14 @@ class Configuration
     }
 
     /**
-     * @return list<Single|AgainstH2h|AgainstGpp|AllInOneGame>
+     * @return list<Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame>
      */
     public function createSportVariants(): array
     {
-        return array_map( function (SportVariantWithFields $sportVariantWithField): Single|AgainstH2h|AgainstGpp|AllInOneGame {
-            return $sportVariantWithField->getSportVariant();
-        }, $this->sportVariantsWithFields);
+        $sportVariantsWithNrOfFields = $this->planningPouleStructure->sportVariantsWithNrOfFields;
+        return array_map( function (SportPersistVariantWithNrOfFields $sportVariantWithField): Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame {
+            return $sportVariantWithField->createSportVariant();
+        }, $sportVariantsWithNrOfFields);
     }
 
 //    public function equals(Configuration $configuration): bool {

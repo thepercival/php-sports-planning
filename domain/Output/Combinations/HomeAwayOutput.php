@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Output\Combinations;
 
 use Psr\Log\LoggerInterface;
+use SportsHelpers\Against\AgainstSide;
 use SportsHelpers\Against\Side;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
@@ -88,7 +89,7 @@ class HomeAwayOutput extends OutputHelper
      */
     public function outputHomeTotals(int $nrOfPlaces, array $homeAways): void
     {
-        $map = new SideNrCounterMap(Side::Home, $nrOfPlaces);
+        $map = new SideNrCounterMap(AgainstSide::Home, $nrOfPlaces);
         $map->addHomeAways($homeAways);
         $map->output($this->logger, '', '==== HomeTotals ====');
     }

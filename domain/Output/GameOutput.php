@@ -6,7 +6,7 @@ namespace SportsPlanning\Output;
 
 use Doctrine\Common\Collections\Collection;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Against\AgainstSide;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
 use SportsPlanning\Batch;
