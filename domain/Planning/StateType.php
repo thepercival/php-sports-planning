@@ -3,7 +3,7 @@
 namespace SportsPlanning\Planning;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use SportsHelpers\EnumDbType;
+use SportsHelpers\DbEnums\EnumDbType;
 
 class StateType extends EnumDbType
 {

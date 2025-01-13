@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\HomeAways;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\Against\Side;
+use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
@@ -25,8 +25,8 @@ class OneVsTwoHomeAwayTest extends TestCase
     {
         $away = new DuoPlaceNr(2, 3);
         $homeAway = new OneVsTwoHomeAway(1, $away);
-        self::assertSame(1, $homeAway->get(Side::Home));
-        self::assertSame($away, $homeAway->get(Side::Away));
+        self::assertSame(1, $homeAway->get(AgainstSide::Home));
+        self::assertSame($away, $homeAway->get(AgainstSide::Away));
     }
 
     public function testHasPlaceNr(): void
@@ -37,11 +37,11 @@ class OneVsTwoHomeAwayTest extends TestCase
         self::assertTrue($homeAway->hasPlaceNr(3));
         self::assertFalse($homeAway->hasPlaceNr(4));
 
-        self::assertTrue($homeAway->hasPlaceNr(1, Side::Home));
-        self::assertFalse($homeAway->hasPlaceNr(1, Side::Away));
+        self::assertTrue($homeAway->hasPlaceNr(1, AgainstSide::Home));
+        self::assertFalse($homeAway->hasPlaceNr(1, AgainstSide::Away));
 
-        self::assertFalse($homeAway->hasPlaceNr(2, Side::Home));
-        self::assertTrue($homeAway->hasPlaceNr(2, Side::Away));
+        self::assertFalse($homeAway->hasPlaceNr(2, AgainstSide::Home));
+        self::assertTrue($homeAway->hasPlaceNr(2, AgainstSide::Away));
     }
 
     public function testHasPlaceNrException(): void
@@ -145,10 +145,10 @@ class OneVsTwoHomeAwayTest extends TestCase
     public function testConvertToPlacesWithSide(): void
     {
         $homeAway = new OneVsTwoHomeAway(1, new DuoPlaceNr(2, 3));
-        self::assertCount(1, $homeAway->convertToPlaceNrs(Side::Home));
-        self::assertCount(2, $homeAway->convertToPlaceNrs(Side::Away));
-        self::assertSame(1, $homeAway->convertToPlaceNrs(Side::Home)[0]);
-        self::assertSame(2, $homeAway->convertToPlaceNrs(Side::Away)[0]);
-        self::assertSame(3, $homeAway->convertToPlaceNrs(Side::Away)[1]);
+        self::assertCount(1, $homeAway->convertToPlaceNrs(AgainstSide::Home));
+        self::assertCount(2, $homeAway->convertToPlaceNrs(AgainstSide::Away));
+        self::assertSame(1, $homeAway->convertToPlaceNrs(AgainstSide::Home)[0]);
+        self::assertSame(2, $homeAway->convertToPlaceNrs(AgainstSide::Away)[0]);
+        self::assertSame(3, $homeAway->convertToPlaceNrs(AgainstSide::Away)[1]);
     }
 }

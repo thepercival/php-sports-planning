@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\Counters\Maps\Schedule;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\Against\Side;
+use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\SideNrCounterMap;
@@ -18,7 +18,7 @@ class SideNrCounterMapTest extends TestCase
 
     public function testWithNrOfPlaces(): void
     {
-        $homeNrCounterMap = new SideNrCounterMap(Side::Home, 5);
+        $homeNrCounterMap = new SideNrCounterMap(AgainstSide::Home, 5);
         $homeNrCounterMap->addHomeAway(new OneVsOneHomeAway(1, 2));
         self::assertSame(1, $homeNrCounterMap->count(1));
         self::assertSame(0, $homeNrCounterMap->count(2));
@@ -26,7 +26,7 @@ class SideNrCounterMapTest extends TestCase
 
     public function testWithoutNrOfPlacesAndAddHomeAways(): void
     {
-        $awayNrCounterMap = new SideNrCounterMap(Side::Away, 2);
+        $awayNrCounterMap = new SideNrCounterMap(AgainstSide::Away, 2);
         $awayNrCounterMap->addHomeAways(
             [new OneVsOneHomeAway(1, 2)]
         );
@@ -35,7 +35,7 @@ class SideNrCounterMapTest extends TestCase
 
     public function testAddOneVsTwoHomeAwayHome(): void
     {
-        $homeNrCounterMap = new SideNrCounterMap(Side::Home, 5);
+        $homeNrCounterMap = new SideNrCounterMap(AgainstSide::Home, 5);
         $homeNrCounterMap->addHomeAway(new OneVsTwoHomeAway(1, new DuoPlaceNr(2, 3)));
         self::assertSame(1, $homeNrCounterMap->count(1));
         self::assertSame(0, $homeNrCounterMap->count(2));
@@ -44,7 +44,7 @@ class SideNrCounterMapTest extends TestCase
 
     public function testAddOneVsTwoHomeAwayAway(): void
     {
-        $homeNrCounterMap = new SideNrCounterMap(Side::Away, 5);
+        $homeNrCounterMap = new SideNrCounterMap(AgainstSide::Away, 5);
         $homeNrCounterMap->addHomeAway(new OneVsTwoHomeAway(1, new DuoPlaceNr(2, 3)));
         self::assertSame(0, $homeNrCounterMap->count(1));
         self::assertSame(1, $homeNrCounterMap->count(2));
@@ -53,7 +53,7 @@ class SideNrCounterMapTest extends TestCase
 
     public function testAddYwoVsTwoHomeAway(): void
     {
-        $homeNrCounterMap = new SideNrCounterMap(Side::Home, 5);
+        $homeNrCounterMap = new SideNrCounterMap(AgainstSide::Home, 5);
         $homeNrCounterMap->addHomeAway(
             new TwoVsTwoHomeAway(
                 new DuoPlaceNr(1, 4), new DuoPlaceNr(2, 3)));

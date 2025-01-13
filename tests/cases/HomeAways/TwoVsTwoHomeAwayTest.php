@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\HomeAways;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\Against\Side;
+use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
@@ -28,8 +28,8 @@ class TwoVsTwoHomeAwayTest extends TestCase
         $home = new DuoPlaceNr(1, 2);
         $away = new DuoPlaceNr(3, 4);
         $homeAway = new TwoVsTwoHomeAway($home, $away);
-        self::assertSame($home, $homeAway->get(Side::Home));
-        self::assertSame($away, $homeAway->get(Side::Away));
+        self::assertSame($home, $homeAway->get(AgainstSide::Home));
+        self::assertSame($away, $homeAway->get(AgainstSide::Away));
     }
 
     public function testHasPlaceNr(): void
@@ -43,17 +43,17 @@ class TwoVsTwoHomeAwayTest extends TestCase
         self::assertTrue($homeAway->hasPlaceNr(4));
         self::assertFalse($homeAway->hasPlaceNr(5));
 
-        self::assertTrue($homeAway->hasPlaceNr(1, Side::Home));
-        self::assertFalse($homeAway->hasPlaceNr(1, Side::Away));
+        self::assertTrue($homeAway->hasPlaceNr(1, AgainstSide::Home));
+        self::assertFalse($homeAway->hasPlaceNr(1, AgainstSide::Away));
 
-        self::assertTrue($homeAway->hasPlaceNr(2, Side::Home));
-        self::assertFalse($homeAway->hasPlaceNr(2, Side::Away));
+        self::assertTrue($homeAway->hasPlaceNr(2, AgainstSide::Home));
+        self::assertFalse($homeAway->hasPlaceNr(2, AgainstSide::Away));
 
-        self::assertFalse($homeAway->hasPlaceNr(3, Side::Home));
-        self::assertTrue($homeAway->hasPlaceNr(3, Side::Away));
+        self::assertFalse($homeAway->hasPlaceNr(3, AgainstSide::Home));
+        self::assertTrue($homeAway->hasPlaceNr(3, AgainstSide::Away));
 
-        self::assertFalse($homeAway->hasPlaceNr(4, Side::Home));
-        self::assertTrue($homeAway->hasPlaceNr(4, Side::Away));
+        self::assertFalse($homeAway->hasPlaceNr(4, AgainstSide::Home));
+        self::assertTrue($homeAway->hasPlaceNr(4, AgainstSide::Away));
     }
 
     public function testHasPlaceNrException(): void
@@ -177,12 +177,12 @@ class TwoVsTwoHomeAwayTest extends TestCase
         $home = new DuoPlaceNr(1, 2);
         $away = new DuoPlaceNr(3, 4);
         $homeAway = new TwoVsTwoHomeAway($home, $away);
-        self::assertCount(2, $homeAway->convertToPlaceNrs(Side::Home));
-        self::assertCount(2, $homeAway->convertToPlaceNrs(Side::Away));
-        self::assertSame(1, $homeAway->convertToPlaceNrs(Side::Home)[0]);
-        self::assertSame(2, $homeAway->convertToPlaceNrs(Side::Home)[1]);
-        self::assertSame(3, $homeAway->convertToPlaceNrs(Side::Away)[0]);
-        self::assertSame(4, $homeAway->convertToPlaceNrs(Side::Away)[1]);
+        self::assertCount(2, $homeAway->convertToPlaceNrs(AgainstSide::Home));
+        self::assertCount(2, $homeAway->convertToPlaceNrs(AgainstSide::Away));
+        self::assertSame(1, $homeAway->convertToPlaceNrs(AgainstSide::Home)[0]);
+        self::assertSame(2, $homeAway->convertToPlaceNrs(AgainstSide::Home)[1]);
+        self::assertSame(3, $homeAway->convertToPlaceNrs(AgainstSide::Away)[0]);
+        self::assertSame(4, $homeAway->convertToPlaceNrs(AgainstSide::Away)[1]);
     }
 
     public function testValidate(): void

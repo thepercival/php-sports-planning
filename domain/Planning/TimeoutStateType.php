@@ -3,7 +3,7 @@
 namespace SportsPlanning\Planning;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
-use SportsHelpers\EnumDbType;
+use SportsHelpers\DbEnums\EnumDbType;
 
 class TimeoutStateType extends EnumDbType
 {
@@ -34,6 +34,6 @@ class TimeoutStateType extends EnumDbType
 
     public function getSQLDeclaration(array $column, AbstractPlatform $platform)
     {
-        return 'varchar(20)';;
+        return 'varchar(20)';
     }
 }

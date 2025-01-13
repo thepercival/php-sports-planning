@@ -7,7 +7,7 @@ namespace SportsPlanning\Tests\Counters\Maps;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Against\Side;
+use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\AmountBoundary;
 use SportsPlanning\Combinations\AmountRange;
 use SportsPlanning\Counters\Maps\RangedPlaceNrCounterMap;
@@ -312,7 +312,7 @@ class RangedPlaceNrCounterMapTest extends TestCase
 
     public function testCloneAsSideNrCounterMapException(): void
     {
-        $sideNrCounterMap = new SideNrCounterMap(Side::Home, 4);
+        $sideNrCounterMap = new SideNrCounterMap(AgainstSide::Home, 4);
         $allowedRange = new AmountRange(new AmountBoundary(2,3),new AmountBoundary(4,3));
         $rangedSideNrCounterMap = new RangedPlaceNrCounterMap($sideNrCounterMap, $allowedRange);
 

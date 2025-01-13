@@ -20,7 +20,7 @@ class Configuration
     {
         $pouleStructure = $this->planningPouleStructure->pouleStructure;
         $selfReferee = $this->planningPouleStructure->refereeInfo->selfRefereeInfo->selfReferee;
-        if( !$pouleStructure->areSportsAndSelfRefereeCompatible( $this->createSportVariants(), $selfReferee ) ) {
+        if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee( $this->createSportVariants(), $selfReferee ) ) {
             throw new \Exception('selfReferee is not compatible with poulestructure', E_ERROR);
         }
     }

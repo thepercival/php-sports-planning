@@ -7,7 +7,7 @@ namespace SportsPlanning\Tests\Counters\Maps\Schedule;
 use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Against\Side;
+use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Counters\Maps\Schedule\AgainstNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\AllScheduleMaps;
@@ -56,7 +56,7 @@ class AllScheduleMapsTest extends TestCase
                 new OneVsOneHomeAway(2,3)
             ]
         );
-        $allScheduleMaps->setHomeCounterMap(new SideNrCounterMap(Side::Home, 4));
+        $allScheduleMaps->setHomeCounterMap(new SideNrCounterMap(AgainstSide::Home, 4));
         self::assertSame(0, $allScheduleMaps->getHomeCounterMap()->count(2));
     }
 
@@ -68,7 +68,7 @@ class AllScheduleMapsTest extends TestCase
                 new OneVsOneHomeAway(2,3)
             ]
         );
-        $allScheduleMaps->setAwayCounterMap(new SideNrCounterMap(Side::Away, 4));
+        $allScheduleMaps->setAwayCounterMap(new SideNrCounterMap(AgainstSide::Away, 4));
         self::assertSame(0, $allScheduleMaps->getHomeCounterMap()->count(3));
     }
 

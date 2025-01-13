@@ -19,7 +19,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo();
-        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstOneVsOneSportPersistVariantWithNrOfFields(2);
         $input = $this->createInput(
             [3, 2, 2],
             [$sportVariantWithFields],
@@ -27,7 +27,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertTrue(
-            $inputService->canSelfRefereeBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
+            $inputService->canSelfRefereeBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->createSportVariant()])
         );
     }
 
@@ -35,11 +35,11 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo();
-        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstOneVsOneSportPersistVariantWithNrOfFields(2);
         $input = $this->createInput([2], [$sportVariantWithFields], $refereeInfo);
 
         self::assertFalse(
-            $inputService->canSelfRefereeBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
+            $inputService->canSelfRefereeBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->createSportVariant()])
         );
     }
 
@@ -47,7 +47,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo();
-        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstOneVsOneSportPersistVariantWithNrOfFields(2);
         $input = $this->createInput(
             [2, 2],
             [$sportVariantWithFields],
@@ -55,7 +55,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertFalse(
-            $inputService->canSelfRefereeSamePouleBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
+            $inputService->canSelfRefereeSamePouleBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->createSportVariant()])
         );
     }
 
@@ -63,7 +63,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo();
-        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstOneVsOneSportPersistVariantWithNrOfFields(2);
         $input = $this->createInput(
             [3, 2],
             [$sportVariantWithFields],
@@ -71,7 +71,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertFalse(
-            $inputService->canSelfRefereeSamePouleBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
+            $inputService->canSelfRefereeSamePouleBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->createSportVariant()])
         );
     }
 
@@ -79,7 +79,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo();
-        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstOneVsOneSportPersistVariantWithNrOfFields(2);
         $input = $this->createInput(
             [3, 3],
             [$sportVariantWithFields],
@@ -87,7 +87,7 @@ class ServiceTest extends TestCase
         );
 
         self::assertTrue(
-            $inputService->canSelfRefereeSamePouleBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->getSportVariant()])
+            $inputService->canSelfRefereeSamePouleBeAvailable($input->createPouleStructure(), [$sportVariantWithFields->createSportVariant()])
         );
     }
 
@@ -95,7 +95,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo();
-        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstOneVsOneSportPersistVariantWithNrOfFields(2);
         $input = $this->createInput([3], [$sportVariantWithFields], $refereeInfo);
 
         self::assertFalse(
@@ -107,7 +107,7 @@ class ServiceTest extends TestCase
     {
         $inputService = new InputService();
         $refereeInfo = new RefereeInfo();
-        $sportVariantWithFields = $this->getAgainstH2hSportVariantWithFields(2);
+        $sportVariantWithFields = $this->getAgainstOneVsOneSportPersistVariantWithNrOfFields(2);
         $input = $this->createInput(
             [2, 2],
             [$sportVariantWithFields],

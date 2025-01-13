@@ -30,7 +30,7 @@ readonly class PlanningPouleStructure
         public RefereeInfo $refereeInfo )
     {
 
-        if( !$pouleStructure->areSportsAndSelfRefereeCompatible(
+        if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee(
             $this->createSportVariants(), $refereeInfo->selfRefereeInfo->selfReferee) ) {
             throw new SelfRefereeIncompatibleWithPouleStructureException(
                 $pouleStructure, $sportVariantsWithNrOfFields,

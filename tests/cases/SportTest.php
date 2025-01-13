@@ -4,7 +4,7 @@ namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
-use SportsHelpers\Sport\PersistVariant as PersistSportVariant;
+use SportsHelpers\SportVariants\Persist\SportPersistVariant;
 use SportsPlanning\Sport;
 use SportsPlanning\TestHelper\PlanningCreator;
 
@@ -15,7 +15,7 @@ class SportTest extends TestCase
     public function testConstruct(): void
     {
         $input = $this->createInput([3]);
-        $dbSportVariant = new PersistSportVariant(
+        $dbSportVariant = new SportPersistVariant(
             GameMode::Against,
             1,
             1,
@@ -29,7 +29,7 @@ class SportTest extends TestCase
         self::assertSame(1, $sport->getNrOfHomePlaces());
         self::assertSame(1, $sport->getNrOfAwayPlaces());
         self::assertSame(0, $sport->getNrOfGamePlaces());
-        self::assertSame(1, $sport->getNrOfH2h());
+        self::assertSame(1, $sport->getNrOfCycles());
         self::assertSame(0, $sport->getNrOfGamesPerPlace());
     }
 }

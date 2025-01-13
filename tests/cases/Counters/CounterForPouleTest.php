@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\Counters;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\PouleStructure;
-use SportsHelpers\Sport\VariantWithFields;
-use SportsHelpers\SportVariants\AgainstH2h;
+use SportsHelpers\PouleStructures\PouleStructure;
+use SportsHelpers\SportVariants\AgainstOneVsOne;
+use SportsHelpers\SportVariants\Persist\SportPersistVariantWithNrOfFields;
 use SportsPlanning\Counters\CounterForPlaceNr;
 use SportsPlanning\Counters\CounterForPoule;
 use SportsPlanning\Input;
+use SportsPlanning\PlanningPouleStructure;
 use SportsPlanning\Poule;
 use SportsPlanning\Referee\Info as RefereeInfo;
 
@@ -62,9 +63,11 @@ class CounterForPouleTest extends TestCase
     private function getPoule(): Poule
     {
         $input = new Input( new Input\Configuration(
-            new PouleStructure(3),
-            [new VariantWithFields(new AgainstH2h(1,1,1), 1)],
-            new RefereeInfo(),
+            new PlanningPouleStructure(
+                new PouleStructure(3),
+                [new SportPersistVariantWithNrOfFields(new AgainstOneVsOne(1), 1)],
+                new RefereeInfo()
+            ),
             false
         ));
         return $input->getFirstPoule();

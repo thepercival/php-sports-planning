@@ -8,7 +8,11 @@ use Exception;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\SportRange;
+use SportsHelpers\PouleStructures\PouleStructure;
+use SportsHelpers\SportVariants\AgainstOneVsOne;
+use SportsHelpers\SportVariants\AgainstOneVsTwo;
+use SportsHelpers\SportVariants\AgainstTwoVsTwo;
+use SportsHelpers\SportVariants\Persist\SportPersistVariantWithNrOfFields;
 use SportsHelpers\SportVariants\AllInOneGame;
 use SportsHelpers\SportVariants\Single;
 use SportsPlanning\Input;
@@ -20,21 +24,13 @@ use SportsPlanning\Referee\Info as RefereeInfo;
 
 trait PlanningCreator
 {
-    protected function getAgainstH2hSportVariant(
-        int $nrOfHomePlaces = 1,
-        int $nrOfAwayPlaces = 1,
-        int $nrOfH2h = 1
-    ): AgainstH2h {
-        return new AgainstH2h($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2h);
-    }
-
-    protected function getAgainstGppSportVariant(
-        int $nrOfHomePlaces = 1,
-        int $nrOfAwayPlaces = 1,
-        int $nrOfGamesPerPlace = 1
-    ): AgainstGpp {
-        return new AgainstGpp($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfGamesPerPlace);
-    }
+//    protected function getAgainstGppSportVariant(
+//        int $nrOfHomePlaces = 1,
+//        int $nrOfAwayPlaces = 1,
+//        int $nrOfGamesPerPlace = 1
+//    ): AgainstGpp {
+//        return new AgainstGpp($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfGamesPerPlace);
+//    }
 
     protected function getSingleSportVariant(int $nrOfGamesPerPlace = 1, int $nrOfGamePlaces = 1): Single
     {
@@ -46,46 +42,43 @@ trait PlanningCreator
         return new AllInOneGame($nrOfGamesPerPlace);
     }
 
-    protected function getAgainstH2hSportVariantWithFields(
+    protected function getAgainstOneVsOneSportPersistVariantWithNrOfFields(
         int $nrOfFields,
-        int $nrOfHomePlaces = 1,
-        int $nrOfAwayPlaces = 1,
-        int $nrOfH2h = 1
-    ): SportVariantWithFields {
-        return new SportVariantWithFields(
-            $this->getAgainstH2hSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2h),
-            $nrOfFields
-        );
+        int $nrOfCycles = 1
+    ): SportPersistVariantWithNrOfFields {
+        return new SportPersistVariantWithNrOfFields( new AgainstOneVsOne($nrOfCycles), $nrOfFields );
     }
 
-    protected function getAgainstGppSportVariantWithFields(
+    protected function getAgainstOneVsTwoSportPersistVariantWithNrOfFields(
         int $nrOfFields,
-        int $nrOfHomePlaces = 1,
-        int $nrOfAwayPlaces = 1,
-        int $nrOfGamesPerPlace = 1
-    ): SportVariantWithFields {
-        return new SportVariantWithFields(
-            $this->getAgainstGppSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfGamesPerPlace),
-            $nrOfFields
-        );
+        int $nrOfCycles = 1
+    ): SportPersistVariantWithNrOfFields {
+        return new SportPersistVariantWithNrOfFields( new AgainstOneVsTwo($nrOfCycles), $nrOfFields );
     }
 
-    protected function getSingleSportVariantWithFields(
+    protected function getAgainstTwoVsTwoSportPersistVariantWithNrOfFields(
+        int $nrOfFields,
+        int $nrOfCycles = 1
+    ): SportPersistVariantWithNrOfFields {
+        return new SportPersistVariantWithNrOfFields( new AgainstTwoVsTwo($nrOfCycles), $nrOfFields );
+    }
+
+    protected function getSingleSportPersistVariantWithNrOfFields(
         int $nrOfFields,
         int $nrOfGamesPerPlace = 1,
         int $nrOfGamePlaces = 1
-    ): SportVariantWithFields {
-        return new SportVariantWithFields(
+    ): SportPersistVariantWithNrOfFields {
+        return new SportPersistVariantWithNrOfFields(
             $this->getSingleSportVariant($nrOfGamesPerPlace, $nrOfGamePlaces),
             $nrOfFields
         );
     }
 
-    protected function getAllInOneGameSportVariantWithFields(
+    protected function getAllInOneGameSportPersistVariantWithFields(
         int $nrOfFields,
         int $nrOfGamesPerPlace = 1
-    ): SportVariantWithFields {
-        return new SportVariantWithFields($this->getAllInOneGameSportVariant($nrOfGamesPerPlace), $nrOfFields);
+    ): SportPersistVariantWithNrOfFields {
+        return new SportPersistVariantWithNrOfFields($this->getAllInOneGameSportVariant($nrOfGamesPerPlace), $nrOfFields);
     }
 
     protected function getLogger(): LoggerInterface
@@ -106,18 +99,18 @@ trait PlanningCreator
 
     /**
      * @param list<int> $pouleStructureAsArray
-     * @param list<SportVariantWithFields>|null $sportVariantsWithFields
+     * @param list<SportPersistVariantWithNrOfFields>|null $sportPersistVariantsWithFields
      * @param RefereeInfo|null $refereeInfo
      * @return Input
      */
     protected function createInput(
         array $pouleStructureAsArray,
-        array $sportVariantsWithFields = null,
+        array $sportPersistVariantsWithFields = null,
         RefereeInfo|null $refereeInfo = null,
         bool $perPoule = false
     ) {
-        if ($sportVariantsWithFields === null) {
-            $sportVariantsWithFields = [$this->getAgainstH2hSportVariantWithFields(2)];
+        if ($sportPersistVariantsWithFields === null) {
+            $sportPersistVariantsWithFields = [$this->getAgainstOneVsOneSportPersistVariantWithNrOfFields(2)];
         }
         if ($refereeInfo === null) {
             $refereeInfo = new RefereeInfo($this->getDefaultNrOfReferees());
@@ -125,7 +118,7 @@ trait PlanningCreator
         $configurationValidator = new Input\ConfigurationValidator();
         $configuration = $configurationValidator->createReducedAndValidatedInputConfiguration(
             new PouleStructure(...$pouleStructureAsArray),
-            $sportVariantsWithFields,
+            $sportPersistVariantsWithFields,
             $refereeInfo,
             $perPoule
         );
