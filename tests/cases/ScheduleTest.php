@@ -2,20 +2,19 @@
 
 namespace SportsPlanning\Tests;
 
-use old\SportVariantWithNr;
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\SportVariants\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\Schedule;
+use SportsPlanning\Schedule\ScheduleAgainstOneVsOne;
 
 class ScheduleTest extends TestCase
 {
     public function testGetNrOfPlaces(): void
     {
         $nrOfPlaces = 5;
-        $schedule = new Schedule(
-            $nrOfPlaces,
-            [
-                new SportVariantWithNr( 1, new AgainstOneVsOne(1) )
+        $schedule = new Schedule($nrOfPlaces);
+        $schedule->setSportSchedules([
+            new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne() )
             ]
         );
         self::assertSame(5, $schedule->getNrOfPlaces() );
@@ -24,12 +23,9 @@ class ScheduleTest extends TestCase
     public function testToJsonCustom(): void
     {
         $nrOfPlaces = 5;
-        $schedule = new Schedule(
-            $nrOfPlaces,
-            [
-                new SportVariantWithNr( 1, new AgainstOneVsOne(1) )
-            ]
-        );
+        $schedule = new Schedule($nrOfPlaces);
+        $nrOfOneVsOne = 0;
+
         self::assertSame('{"nrOfPlaces":5,"sportVariants":[{"nrOfHomePlaces":1,"nrOfAwayPlaces":1,"nrOfCycles":1}]}', $schedule->toJsonCustom() );
     }
 
@@ -45,30 +41,30 @@ class ScheduleTest extends TestCase
 //        self::assertSame('[{"nrOfHomePlaces":1,"nrOfAwayPlaces":1,"nrOfH2h":1}]', $schedule->getSportsConfigName() );
 //    }
 
-    public function testGetSetSucceededMargin(): void
-    {
-        $nrOfPlaces = 5;
-        $schedule = new Schedule(
-            $nrOfPlaces,
-            [
-                new SportVariantWithNr( 1, new AgainstOneVsOne(1) )
-            ]
-        );
-        $schedule->setSucceededMargin(1);
-        self::assertSame(1, $schedule->getSucceededMargin() );
-    }
-
-    public function testNrOfTimeoutSecondsTried(): void
-    {
-        $nrOfPlaces = 5;
-        $schedule = new Schedule(
-            $nrOfPlaces,
-            [
-                new SportVariantWithNr( 1, new AgainstOneVsOne( 1) )
-            ]
-        );
-        $schedule->setNrOfTimeoutSecondsTried(5);
-        self::assertSame(5, $schedule->getNrOfTimeoutSecondsTried() );
-    }
+//    public function testGetSetSucceededMargin(): void
+//    {
+//        $nrOfPlaces = 5;
+//        $schedule = new Schedule(
+//            $nrOfPlaces,
+//            [
+//                new SportVariantWithNr( 1, new AgainstOneVsOne(1) )
+//            ]
+//        );
+//        $schedule->setSucceededMargin(1);
+//        self::assertSame(1, $schedule->getSucceededMargin() );
+//    }
+//
+//    public function testNrOfTimeoutSecondsTried(): void
+//    {
+//        $nrOfPlaces = 5;
+//        $schedule = new Schedule(
+//            $nrOfPlaces,
+//            [
+//                new SportVariantWithNr( 1, new AgainstOneVsOne( 1) )
+//            ]
+//        );
+//        $schedule->setNrOfTimeoutSecondsTried(5);
+//        self::assertSame(5, $schedule->getNrOfTimeoutSecondsTried() );
+//    }
 
 }

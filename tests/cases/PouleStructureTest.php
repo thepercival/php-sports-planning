@@ -4,10 +4,7 @@ namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\PouleStructures\PouleStructure as PouleStructureBase;
-use SportsHelpers\SportVariants\AgainstOneVsOne;
-use SportsHelpers\SportVariants\AgainstTwoVsTwo;
-use SportsHelpers\SportVariants\AllInOneGame;
-use SportsHelpers\SportVariants\Persist\SportPersistVariantWithNrOfFields;
+use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsHelpers\SelfRefereeInfo;
 use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;

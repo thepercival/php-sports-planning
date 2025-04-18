@@ -32,28 +32,31 @@ class Schedule extends Identifiable
 
     /**
      * @param int $nrOfPlaces
-     * @param list<ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo> $scheduleSports
      */
-    public function __construct(protected int $nrOfPlaces, array $scheduleSports)
+    public function __construct(protected int $nrOfPlaces)
     {
         $this->sportSchedules = new ArrayCollection();
-        $nrOfOneVsOne = 0;
-        foreach( $scheduleSports as $scheduleSport ) {
-            if( $scheduleSport instanceof ScheduleAgainstOneVsOne ) {
-                $nrOfOneVsOne++;
-            }
-            if(++$nrOfOneVsOne > 1) {
-                throw new \Exception('Only 1 OneVsOne allowed');
-            }
+        $this->sportsConfigName = $this->toJsonCustom();
 
-
-        }
-        $this->sportsConfigName = "UNKNOWN"; // $this->toJsonCustom();
     }
 
     public function getNrOfPlaces(): int
     {
         return $this->nrOfPlaces;
+    }
+
+    public function setSportSchedules(array $sportSchedules): void {
+        $nrOfOneVsOne = 0;
+        foreach( $sportSchedules as $sportSchedule ) {
+            if( $sportSchedule instanceof ScheduleAgainstOneVsOne ) {
+                $nrOfOneVsOne++;
+            }
+            if(++$nrOfOneVsOne > 1) {
+                throw new \Exception('Only 1 OneVsOne allowed');
+            }
+        }
+        $this->sportSchedules = new ArrayCollection($sportSchedules);
+        $this->sportsConfigName = $this->toJsonCustom();
     }
 
 //    public function createSportVariantsName(): string
@@ -80,6 +83,15 @@ class Schedule extends Identifiable
                 return $sportSchedule->sport;
             } , $this->getSportSchedules()->toArray() )
         );
+    }
+
+    public function toJsonCustom(): string
+    {
+        $output = new \stdClass();
+        $output->nrOfPlaces = $this->nrOfPlaces;
+        $output->sports = $this->createSports();
+        $json = json_encode($output);
+        return $json === false ? '?' : $json;
     }
 
 

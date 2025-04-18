@@ -26,32 +26,33 @@ class SportHandler extends Handler implements SubscribingHandlerInterface
         return static::getDeserializationMethods(PlannableSport::class);
     }
 
-    /**
-     * @param JsonDeserializationVisitor $visitor
-     * @param _FieldValue $fieldValue
-     * @param array<string, array> $type
-     * @param Context $context
-     * @return PlannableSport
-     */
-    public function deserializeFromJson(
-        JsonDeserializationVisitor $visitor,
-        array $fieldValue,
-        array $type,
-        Context $context
-    ): PlannableSport {
-        $fieldValue['persistVariant'] = $fieldValue;
-        /** @var SportPersistVariant $sportVariant */
-        $sportVariant = $this->getProperty(
-            $visitor,
-            $fieldValue,
-            'persistVariant',
-            SportPersistVariant::class
-        );
-
-        $sport = new PlannableSport($fieldValue['input'], $sportVariant);
-        foreach ($fieldValue['fields'] as $arrField) {
-            new Field($sport, $arrField['number']);
-        }
-        return $sport;
-    }
+    // @TODO CDK
+//    /**
+//     * @param JsonDeserializationVisitor $visitor
+//     * @param _FieldValue $fieldValue
+//     * @param array<string, array> $type
+//     * @param Context $context
+//     * @return PlannableSport
+//     */
+//    public function deserializeFromJson(
+//        JsonDeserializationVisitor $visitor,
+//        array $fieldValue,
+//        array $type,
+//        Context $context
+//    ): PlannableSport {
+//        $fieldValue['persistVariant'] = $fieldValue;
+//        /** @var SportPersistVariant $sportVariant */
+//        $sportVariant = $this->getProperty(
+//            $visitor,
+//            $fieldValue,
+//            'persistVariant',
+//            SportPersistVariant::class
+//        );
+//
+//        $sport = new PlannableSport($fieldValue['input'], $sportVariant);
+//        foreach ($fieldValue['fields'] as $arrField) {
+//            new Field($sport, $arrField['number']);
+//        }
+//        return $sport;
+//    }
 }
