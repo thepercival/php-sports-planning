@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedule;
 
-use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsPlanning\Schedule;
 
-class ScheduleAgainstSportTwoVsTwo extends ScheduleSport
+class ScheduleAgainstTwoVsTwo extends ScheduleSport
 {
-    public function __construct(Schedule $schedule, int $number, protected AgainstOneVsOne $againstSport)
+    public function __construct(Schedule $schedule, int $number, public readonly AgainstTwoVsTwo $sport)
     {
+        if (!$schedule->getSportSchedules()->contains($this)) {
+            $schedule->getSportSchedules()->add($this);
+        }
         parent::__construct($schedule, $number);
     }
 

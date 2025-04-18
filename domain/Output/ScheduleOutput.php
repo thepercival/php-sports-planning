@@ -7,16 +7,14 @@ namespace SportsPlanning\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Counter;
 use SportsHelpers\Output as OutputHelper;
-use SportsHelpers\SportVariants\AllInOneGame;
-use SportsHelpers\SportVariants\Helpers\SportVariantWithNrOfPlacesCreator;
-use SportsHelpers\SportVariants\Single;
-use SportsHelpers\SportVariants\WithNrOfPlaces\AgainstWithNrOfPlaces;
+use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
 use SportsPlanning\Counters\Maps\Schedule\AllScheduleMaps;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Schedule as ScheduleBase;
+use SportsPlanning\Schedule\ScheduleTogetherSport;
 
 class ScheduleOutput extends OutputHelper
 {
@@ -34,12 +32,19 @@ class ScheduleOutput extends OutputHelper
     {
         foreach ($schedules as $schedule) {
             $prefix = '    ';
-            $this->logger->info( $prefix . ' schedule => ' . $schedule->toJsonCustom() );
+            $this->logger->info( $prefix . ' schedule => ' . $this->toJsonCustom($schedule) );
             foreach ($schedule->getSportSchedules() as $sportSchedule) {
                 if ($sportNumber !== null && $sportNumber !== $sportSchedule->getNumber()) {
                     continue;
                 }
-                $this->logger->info( $prefix . '    sportschedule => sportNr: ' . $sportSchedule->getNumber() . ' , variant: "' . $sportSchedule->createVariant() . '"');
+                if( $sportSchedule instanceof ScheduleTogetherSport) {
+                    $sport = 'together(' . ($sportSchedule->sport->getNrOfGamePlaces() ?? 'null') . ')';
+                } else {
+                    $sport = 'against(' . $sportSchedule->sport->nrOfHomePlaces . 'vs' . $sportSchedule->sport->nrOfAwayPlaces . ')';
+                }
+
+//    }
+                $this->logger->info( $prefix . '    sportschedule => sportNr: ' . $sportSchedule->getNumber() . ' , sport: "' . $sport . '"');
                 foreach ($sportSchedule->getGames() as $gameRoundGame) {
                     $this->logger->info('            ' . $gameRoundGame);
                 }
@@ -65,12 +70,11 @@ class ScheduleOutput extends OutputHelper
         $allScheduleMaps = new AllScheduleMaps($nrOfPlaces);
         $unequalNrOfGames = 0;
         foreach ($schedule->getSportSchedules() as $sportSchedule) {
-            $sportVariant = $sportSchedule->createVariant();
-            if (($sportVariant instanceof Single || $sportVariant instanceof AllInOneGame)) {
+            if (($sportSchedule->sport instanceof TogetherSport)) {
                 continue;
             }
             $hasAgainstSport = true;
-            if( $sportVariant->hasMultipleSidePlaces() ) {
+            if( $sportSchedule->sport->hasMultipleSidePlaces() ) {
                 $hasWithSport = true;
             }
 
@@ -172,6 +176,15 @@ class ScheduleOutput extends OutputHelper
         if( strlen($line) > 0 ) {
             $this->logger->info($prefix . $line);
         }
+    }
+
+    private function toJsonCustom(ScheduleBase $schedule): string
+    {
+        $output = new \stdClass();
+        $output->nrOfPlaces = $schedule->getNrOfPlaces();
+        $output->sports = $schedule->createSports();
+        $json = json_encode($output);
+        return $json === false ? '?' : $json;
     }
 
 }

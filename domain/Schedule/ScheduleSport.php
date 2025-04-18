@@ -6,9 +6,13 @@ namespace SportsPlanning\Schedule;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstOneVsTwo;
+use SportsHelpers\Sports\AgainstSport;
+use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Schedule;
 
-class ScheduleSport
+abstract class ScheduleSport
 {
     /**
      * @var Collection<int|string, ScheduleGame>
@@ -17,9 +21,6 @@ class ScheduleSport
 
     public function __construct(protected Schedule $schedule, protected int $number)
     {
-        if (!$schedule->getSportSchedules()->contains($this)) {
-            $schedule->getSportSchedules()->add($this);
-        }
         $this->games = new ArrayCollection();
     }
 
@@ -39,6 +40,7 @@ class ScheduleSport
     {
         return $this->games;
     }
+
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])
 
 //    public function __toString(): string

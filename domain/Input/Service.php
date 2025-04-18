@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace SportsPlanning\Input;
 
 use SportsHelpers\PouleStructures\PouleStructure;
-use SportsHelpers\SportVariants\AgainstOneVsOne;
-use SportsHelpers\SportVariants\AgainstOneVsTwo;
-use SportsHelpers\SportVariants\AgainstTwoVsTwo;
-use SportsHelpers\SportVariants\AllInOneGame;
-use SportsHelpers\SportVariants\Single;
+use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstOneVsTwo;
+use SportsHelpers\Sports\AgainstTwoVsTwo;
+use SportsHelpers\Sports\TogetherSport;
 
 class Service
 {
@@ -29,12 +28,12 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|Single|AllInOneGame> $sportVariants
+     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport> $sports
      * @return bool
      */
-    public function canSelfRefereeBeAvailable(PouleStructure $pouleStructure, array $sportVariants): bool
+    public function canSelfRefereeBeAvailable(PouleStructure $pouleStructure, array $sports): bool
     {
-        return $this->canSelfRefereeSamePouleBeAvailable($pouleStructure, $sportVariants)
+        return $this->canSelfRefereeSamePouleBeAvailable($pouleStructure, $sports)
             || $this->canSelfRefereeOtherPoulesBeAvailable($pouleStructure);
     }
 
@@ -45,18 +44,17 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|Single|AllInOneGame> $sports
+     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport> $sports
      * @return bool
      */
     public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, array $sports): bool
     {
         $smallestNrOfPlaces = $pouleStructure->getSmallestPoule();
         foreach ($sports as $sport) {
-            if ($sport instanceof AllInOneGame) {
+            if ($sport instanceof TogetherSport && $sport->getNrOfGamePlaces() === null) {
                 return false;
             }
-            $nrOfGamePlaces = ($sport instanceof Single) ? $sport->nrOfGamePlaces : $sport->getNrOfGamePlaces();
-            if ($nrOfGamePlaces >= $smallestNrOfPlaces) {
+            if ($sport->getNrOfGamePlaces() >= $smallestNrOfPlaces) {
                 return false;
             }
         }

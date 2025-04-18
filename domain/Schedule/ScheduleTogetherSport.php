@@ -16,13 +16,12 @@ class ScheduleTogetherSport extends ScheduleSport
      */
     protected Collection $games;
 
-    public function __construct(Schedule $schedule, int $number, protected TogetherSport $togetherSport)
+    public function __construct(Schedule $schedule, int $number, public readonly TogetherSport $sport)
     {
-        parent::__construct($schedule, $number);
         if (!$schedule->getSportSchedules()->contains($this)) {
             $schedule->getSportSchedules()->add($this);
         }
-        $this->games = new ArrayCollection();
+        parent::__construct($schedule, $number);
     }
 
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])

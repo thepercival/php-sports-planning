@@ -8,9 +8,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use SportsHelpers\Identifiable;
-use SportsPlanning\Schedule\ScheduleAgainstSportOneVsOne;
-use SportsPlanning\Schedule\ScheduleAgainstSportOneVsTwo;
-use SportsPlanning\Schedule\ScheduleAgainstSportTwoVsTwo;
+use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstOneVsTwo;
+use SportsHelpers\Sports\AgainstTwoVsTwo;
+use SportsHelpers\Sports\TogetherSport;
+use SportsPlanning\Schedule\ScheduleAgainstOneVsOne;
+use SportsPlanning\Schedule\ScheduleAgainstOneVsTwo;
+use SportsPlanning\Schedule\ScheduleAgainstTwoVsTwo;
 use SportsPlanning\Schedule\ScheduleSport as SportSchedule;
 use SportsPlanning\Schedule\ScheduleTogetherSport;
 
@@ -21,21 +25,21 @@ class Schedule extends Identifiable
     protected Poule|null $poule = null;
 
     /**
-     * @phpstan-var ArrayCollection<int|string, SportSchedule>|PersistentCollection<int|string, SportSchedule>|SportSchedule[]
-     * @psalm-var ArrayCollection<int|string, SportSchedule>
+     * @phpstan-var ArrayCollection<int|string, ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo>|PersistentCollection<int|string, ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo>|SportSchedule[]
+     * @psalm-var ArrayCollection<int|string, ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo>
      */
     protected ArrayCollection|PersistentCollection $sportSchedules;
 
     /**
      * @param int $nrOfPlaces
-     * @param list<ScheduleTogetherSport|ScheduleAgainstSportOneVsOne|ScheduleAgainstSportOneVsTwo|ScheduleAgainstSportTwoVsTwo> $scheduleSports
+     * @param list<ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo> $scheduleSports
      */
     public function __construct(protected int $nrOfPlaces, array $scheduleSports)
     {
         $this->sportSchedules = new ArrayCollection();
         $nrOfOneVsOne = 0;
         foreach( $scheduleSports as $scheduleSport ) {
-            if( $scheduleSport instanceof ScheduleAgainstSportOneVsOne ) {
+            if( $scheduleSport instanceof ScheduleAgainstOneVsOne ) {
                 $nrOfOneVsOne++;
             }
             if(++$nrOfOneVsOne > 1) {
@@ -59,12 +63,25 @@ class Schedule extends Identifiable
 //    }
 
     /**
-     * @return Collection<int|string, SportSchedule>
+     * @return Collection<int|string, ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo>
      */
     public function getSportSchedules(): Collection
     {
         return $this->sportSchedules;
     }
+
+    /**
+     * @return list<TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo>
+     */
+    public function createSports(): array
+    {
+        return array_values(
+                array_map( function(ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo $sportSchedule): TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo {
+                return $sportSchedule->sport;
+            } , $this->getSportSchedules()->toArray() )
+        );
+    }
+
 
 //    public function createSportVariantWithPoules(): array
 //    {
@@ -84,14 +101,5 @@ class Schedule extends Identifiable
 //                return new VariantWithFields($sportVariant, 1);
 //            } , $this->createSportVariants()
 //        );
-//    }
-
-//    public function toJsonCustom(): string
-//    {
-//        $output = new \stdClass();
-//        $output->nrOfPlaces = $this->nrOfPlaces;
-//        $output->sportVariants = $this->createSportVariants();
-//        $json = json_encode($output);
-//        return $json === false ? '?' : $json;
 //    }
 }

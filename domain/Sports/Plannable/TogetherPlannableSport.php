@@ -7,6 +7,7 @@ namespace SportsPlanning\Sports\Plannable;
 use Exception;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Input;
+use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
 
@@ -26,6 +27,10 @@ class TogetherPlannableSport extends PlannableSport
 
     public function createSportWithNrOfPlaces(int $nrOfPlaces): TogetherSportWithNrOfPlaces {
         return new TogetherSportWithNrOfPlaces( $nrOfPlaces, $this->sport );
+    }
+
+    public function createSportWithNrOfFields(): SportWithNrOfFields {
+        return new SportWithNrOfFields( $this->sport, $this->getNrOfFields() );
     }
 
 //    public function createVariantWithFields(): SportPersistVariantWithNrOfFields
