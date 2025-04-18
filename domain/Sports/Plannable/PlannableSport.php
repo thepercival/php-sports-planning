@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use Exception;
 use SportsPlanning\Field;
 use SportsPlanning\Input;
+use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 abstract class PlannableSport
 {
@@ -21,7 +22,6 @@ abstract class PlannableSport
     public function __construct(protected Input $input)
     {
         $this->number = $input->getSports()->count() + 1;
-        $this->input->getSports()->add($this);
         $this->fields = new ArrayCollection();
     }
 
@@ -58,10 +58,8 @@ abstract class PlannableSport
         return $this->getFields()->count();
     }
 
-//    public function createVariantWithFields(): SportPersistVariantWithNrOfFields
-//    {
-//        return new SportPersistVariantWithNrOfFields($this->createVariant(), $this->getNrOfFields());
-//    }
+
+
 
 //    public function __toString(): string
 //    {

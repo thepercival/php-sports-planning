@@ -24,9 +24,9 @@ class SelfRefereeIncompatibleWithPouleStructureException extends \Exception
         $sportDescriptions = array_map(
             function (AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport $sport): string {
                 if( $sport instanceof TogetherSport) {
-                    return "t(".$sport->getNrOfGamePlaces().")";
+                    return "t(".($sport->getNrOfGamePlaces() ?? 'null').")";
                 }
-                return "a(".$sport->getNrOfHomePlaces()."vs".$sport->getNrOfAwayPlaces().")";
+                return "a(".$sport->nrOfHomePlaces."vs".$sport->nrOfAwayPlaces.")";
         }, $sports );
         $sportVariantsAsString = 'sports "[' . join(',', $sportDescriptions ) . ']"';
         $pouleStructureAsString = 'poulestructure "[' . $pouleStructure . ']"';

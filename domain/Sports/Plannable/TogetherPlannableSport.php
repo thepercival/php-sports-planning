@@ -8,6 +8,7 @@ use Exception;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Input;
 use SportsPlanning\Sports\SportWithNrOfFields;
+use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
 
@@ -21,8 +22,8 @@ class TogetherPlannableSport extends PlannableSport
         if( $this->nrOfCycles < 1 ) {
             throw new Exception('Nr of cycles must be greater than 1');
         }
-
         parent::__construct($input);
+        $this->input->getSports()->add($this);
     }
 
     public function createSportWithNrOfPlaces(int $nrOfPlaces): TogetherSportWithNrOfPlaces {
@@ -33,10 +34,14 @@ class TogetherPlannableSport extends PlannableSport
         return new SportWithNrOfFields( $this->sport, $this->getNrOfFields() );
     }
 
-//    public function createVariantWithFields(): SportPersistVariantWithNrOfFields
-//    {
-//        return new SportPersistVariantWithNrOfFields($this->createVariant(), $this->getNrOfFields());
-//    }
+    public function createSportWithNrOfFieldsAndNrOfCycles(): SportWithNrOfFieldsAndNrOfCycles
+    {
+        return new SportWithNrOfFieldsAndNrOfCycles(
+            $this->sport,
+            $this->getNrOfFields(),
+            $this->nrOfCycles
+        );
+    }
 
 //    public function __toString(): string
 //    {

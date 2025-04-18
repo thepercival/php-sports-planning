@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Sports\Plannable;
 
-use oldsportshelpers\old\WithNrOfPlaces\SportWithNrOfPlaces;
 use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\Input;
 use SportsPlanning\Sports\SportWithNrOfFields;
+use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsOneWithNrOfPlaces;
 
-abstract class AgainstPlannableOneVsOne extends AgainstPlannableSport
+class AgainstPlannableOneVsOne extends AgainstPlannableSport
 {
     public function __construct(
         public readonly AgainstOneVsOne $sport,
@@ -18,6 +18,7 @@ abstract class AgainstPlannableOneVsOne extends AgainstPlannableSport
         Input                           $input)
     {
         parent::__construct($nrOfCycles, $input);
+        $this->input->getSports()->add($this);
     }
 
     public function createSportWithNrOfPlaces(int $nrOfPlaces): AgainstOneVsOneWithNrOfPlaces {
@@ -26,6 +27,15 @@ abstract class AgainstPlannableOneVsOne extends AgainstPlannableSport
 
     public function createSportWithNrOfFields(): SportWithNrOfFields {
         return new SportWithNrOfFields( $this->sport, $this->getNrOfFields() );
+    }
+
+    public function createSportWithNrOfFieldsAndNrOfCycles(): SportWithNrOfFieldsAndNrOfCycles
+    {
+        return new SportWithNrOfFieldsAndNrOfCycles(
+            $this->sport,
+            $this->getNrOfFields(),
+            $this->nrOfCycles
+        );
     }
 
 //    public function __toString(): string

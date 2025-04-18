@@ -26,8 +26,13 @@ use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Type as PlanningType;
 use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
 use SportsPlanning\Referee\Info as RefereeInfo;
+use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsOne;
+use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsTwo;
+use SportsPlanning\Sports\Plannable\AgainstPlannableTwoVsTwo;
 use SportsPlanning\Sports\Plannable\PlannableSport;
+use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
 use SportsPlanning\Sports\SportWithNrOfFields;
+use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 class Input extends Identifiable
 {
@@ -48,7 +53,7 @@ class Input extends Identifiable
      */
     protected Collection $poules;
     /**
-     * @var Collection<int|string, PlannableSport>
+     * @var Collection<int|string, TogetherPlannableSport|AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo>
      */
     protected Collection $sports;
     /**
@@ -86,9 +91,17 @@ class Input extends Identifiable
             }
         }
 
-        foreach ($configuration->sportsWithNrOfFields as $sportWithNrOfFields) {
-            $sport = new PlannableSport($this);
-            for ($fieldNr = 1; $fieldNr <= $sportVariantWithNrOfFields->nrOfFields; $fieldNr++) {
+        foreach ($configuration->sportsWithNrOfFieldsAndNrOfCycles as $sportWithNrOfFieldsAndNrOfCycles) {
+            if( $sportWithNrOfFieldsAndNrOfCycles->sport instanceof TogetherSport ) {
+                $sport = new TogetherPlannableSport($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
+            } else if( $sportWithNrOfFieldsAndNrOfCycles->sport instanceof AgainstOneVsOne ) {
+                $sport = new AgainstPlannableOneVsOne($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
+            } else if( $sportWithNrOfFieldsAndNrOfCycles->sport instanceof AgainstOneVsTwo ) {
+                $sport = new AgainstPlannableOneVsTwo($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
+            } else /*if( $sportWithNrOfFieldsAndNrOfCycles->sport instanceof AgainstTwoVsTwo )*/ {
+                $sport = new AgainstPlannableTwoVsTwo($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
+            }
+            for ($fieldNr = 1; $fieldNr <= $sportWithNrOfFieldsAndNrOfCycles->nrOfFields; $fieldNr++) {
                 new Field($sport);
             }
         }
@@ -96,7 +109,7 @@ class Input extends Identifiable
             $this->perPoule = false;
         }
 
-        $refereeInfo = $planningPouleStructure->refereeInfo;
+        $refereeInfo = $this->configuration->refereeInfo;
         $this->selfReferee = $refereeInfo->selfRefereeInfo->selfReferee;
         $this->nrOfSimSelfRefs = $refereeInfo->selfRefereeInfo->nrIfSimSelfRefs;
         if ($this->selfReferee === SelfReferee::Disabled) {
@@ -112,7 +125,7 @@ class Input extends Identifiable
 
         return new InputConfiguration(
             $this->createPouleStructure(),
-            $this->createSportVariantsWithFields(),
+            $this->createSportsWithNrOfFieldsAndNrOfCycles(),
             $this->getRefereeInfo(),
             $this->getPerPoule()
         );
@@ -212,7 +225,7 @@ class Input extends Identifiable
     {
         return new PlanningPouleStructure(
             $this->createPouleStructure(),
-            $this->sports->toArray(),
+            $this->createSportsWithNrOfFieldsAndNrOfCycles(),
             $this->getRefereeInfo()
         );
     }
@@ -231,7 +244,7 @@ class Input extends Identifiable
     }*/
 
     /**
-     * @return Collection<int|string, PlannableSport>
+     * @return Collection<int|string, TogetherPlannableSport|AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo>
      */
     public function getSports(): Collection
     {
@@ -249,12 +262,12 @@ class Input extends Identifiable
     }
 
     /**
-     * @return list<SportWithNrOfFields>
+     * @return list<SportWithNrOfFieldsAndNrOfCycles>
      */
-    public function createSportsWithNrOfFields(): array
+    public function createSportsWithNrOfFieldsAndNrOfCycles(): array
     {
-        return array_values( array_map(function (PlannableSport $sport): SportWithNrOfFields {
-            return $sport->createSportWithNrOfFields();
+        return array_values( array_map(function (TogetherPlannableSport|AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo $plannableSport): SportWithNrOfFieldsAndNrOfCycles {
+            return $plannableSport->createSportWithNrOfFieldsAndNrOfCycles();
         }, $this->sports->toArray()) );
     }
 
@@ -263,9 +276,12 @@ class Input extends Identifiable
      */
     public function createSports(): array
     {
-        return array_map( function (PlannableSport $sport): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {
-            return $sport->sport;
-        }, $this->sports->toArray());
+        return array_values(
+            array_map( function (PlannableSport $sport): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {
+                return $sport->sport;
+            }, $this->sports->toArray())
+        );
+
     }
 
     /**
@@ -330,7 +346,7 @@ class Input extends Identifiable
     {
         return (new PlanningPouleStructure(
             $this->createPouleStructure(),
-            $this->createSportVariantsWithFields(),
+            $this->createSportsWithNrOfFieldsAndNrOfCycles(),
             $this->getRefereeInfo()
         ))->getMaxNrOfGamesPerBatch();
     }
@@ -340,7 +356,7 @@ class Input extends Identifiable
         if ($this->maxNrOfGamesInARow === null) {
             $this->maxNrOfGamesInARow = (new PlanningPouleStructure(
                 $this->createPouleStructure(),
-                $this->createSportVariantsWithFields(),
+                $this->createSportsWithNrOfFieldsAndNrOfCycles(),
                 $this->getRefereeInfo()
             ))->getMaxNrOfGamesInARow();
             if ($this->maxNrOfGamesInARow > self::MaxNrOfGamesInARow) {

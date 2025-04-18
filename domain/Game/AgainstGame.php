@@ -8,11 +8,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use SportsHelpers\Against\AgainstSide;
-use SportsHelpers\SportVariants\AgainstOneVsOne;
-use SportsHelpers\SportVariants\AgainstOneVsTwo;
-use SportsHelpers\SportVariants\AgainstTwoVsTwo;
-use SportsHelpers\SportVariants\AllInOneGame;
-use SportsHelpers\SportVariants\Single;
+use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstOneVsTwo;
+use SportsHelpers\Sports\AgainstTwoVsTwo;
+use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Field;
 use SportsPlanning\Game\AgainstGamePlace as AgainstGamePlace;
@@ -22,6 +21,10 @@ use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
+use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsOne;
+use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsTwo;
+use SportsPlanning\Sports\Plannable\AgainstPlannableTwoVsTwo;
+use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
 
 class AgainstGame extends GameAbstract
 {
@@ -111,24 +114,29 @@ class AgainstGame extends GameAbstract
         return $this->poulePlaces;
     }
 
-    public function createVariant(): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo
+    public function getSport(): AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo
     {
-        $sportVariant = $this->getSport()->createVariant();
-        if (($sportVariant instanceof AllInOneGame) || ($sportVariant instanceof Single)) {
+        $sport = $this->field->getSport();
+        if ($sport instanceof TogetherPlannableSport) {
             throw new \Exception('the wrong sport is linked to the game', E_ERROR);
         }
-        return $sportVariant;
+        return $sport;
+    }
+
+    public function createSport(): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo
+    {
+        return $this->getSport()->sport;
     }
 
     public function createHomeAway(): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
-        $againstVariant = $this->createVariant();
+        $againstSport = $this->createSport();
         $homePlaces = array_values($this->getSidePlaces(AgainstSide::Home)->toArray());
         $homePlaceNrs = array_map(fn(GamePlaceAbstract $homeGamePlace) => $homeGamePlace->getPlace()->getPlaceNr(), $homePlaces);
         $awayPlaces = array_values($this->getSidePlaces(AgainstSide::Away)->toArray());
         $awayPlaceNrs = array_map(fn(GamePlaceAbstract $awayPlace) => $awayPlace->getPlace()->getPlaceNr(), $awayPlaces);
-        if( $againstVariant->nrOfHomePlaces === 1 && $againstVariant->nrOfAwayPlaces === 1 ) {
+        if( $againstSport instanceof AgainstOneVsOne ) {
             return new OneVsOneHomeAway($homePlaceNrs[0], $awayPlaceNrs[0]);
-        } else if( $againstVariant->nrOfHomePlaces === 1 && $againstVariant->nrOfAwayPlaces === 2 ) {
+        } else if( $againstSport instanceof AgainstOneVsTwo ) {
             return new OneVsTwoHomeAway($homePlaceNrs[0], new DuoPlaceNr($awayPlaceNrs[0], $awayPlaceNrs[1]));
         } else { // TwoVsTwoHomeAway
             return new TwoVsTwoHomeAway(

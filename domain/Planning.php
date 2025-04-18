@@ -322,7 +322,7 @@ class Planning extends Identifiable
     public function createInputConfiguration(): InputConfiguration {
         return new InputConfiguration(
             $this->input->createPouleStructure(),
-            $this->input->createSportsWithNrOfFields(),
+            $this->input->createSportsWithNrOfFieldsAndNrOfCycles(),
             $this->input->getRefereeInfo(),
             $this->input->getPerPoule()
         );

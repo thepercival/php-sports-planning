@@ -15,6 +15,10 @@ use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
+use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsOne;
+use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsTwo;
+use SportsPlanning\Sports\Plannable\AgainstPlannableTwoVsTwo;
+use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
 
 class TogetherGame extends GameBase
 {
@@ -106,14 +110,23 @@ class TogetherGame extends GameBase
         return $this->poulePlaces;
     }
 
-    public function createVariant(): Single|AllInOneGame
+    public function getSport(): TogetherPlannableSport
     {
-        if ($this->getSport()->getGameMode() === GameMode::Single) {
-            return new Single(
-                $this->getSport()->getNrOfGamePlaces(),
-                $this->getSport()->getNrOfGamesPerPlace()
-            );
+        $sport = $this->field->getSport();
+        if (!($sport instanceof TogetherPlannableSport)) {
+            throw new \Exception('the wrong sport is linked to the game', E_ERROR);
         }
-        return new AllInOneGame($this->getSport()->getNrOfGamePlaces());
+        return $sport;
     }
+
+//    public function createVariant(): Single|AllInOneGame
+//    {
+//        if ($this->getSport()->getGameMode() === GameMode::Single) {
+//            return new Single(
+//                $this->getSport()->getNrOfGamePlaces(),
+//                $this->getSport()->getNrOfGamesPerPlace()
+//            );
+//        }
+//        return new AllInOneGame($this->getSport()->getNrOfGamePlaces());
+//    }
 }

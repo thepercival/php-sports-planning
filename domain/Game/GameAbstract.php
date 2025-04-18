@@ -12,6 +12,7 @@ use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Referee;
+use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsOne;
 use SportsPlanning\Sports\Plannable\PlannableSport;
 
 abstract class GameAbstract extends Identifiable
@@ -44,11 +45,6 @@ abstract class GameAbstract extends Identifiable
     public function getPouleNr(): int
     {
         return $this->poule->getNumber();
-    }
-
-    public function getSport(): PlannableSport
-    {
-        return $this->field->getSport();
     }
 
     public function getBatchNr(): int

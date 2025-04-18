@@ -7,13 +7,9 @@ use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
-use SportsPlanning\PlanningPouleStructure;
 use SportsPlanning\Referee\Info as RefereeInfo;
-use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsOne;
-use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsTwo;
-use SportsPlanning\Sports\Plannable\AgainstPlannableTwoVsTwo;
-use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
 use SportsPlanning\Sports\SportWithNrOfFields;
+use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 class Configuration
 {
@@ -21,23 +17,23 @@ class Configuration
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportWithNrOfFields> $sportsWithNrOfFields
+     * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
      * @param RefereeInfo $refereeInfo
      * @param bool $perPoule
      * @throws \Exception
      */
     public function __construct(
         public PouleStructure $pouleStructure,
-        public array $sportsWithNrOfFields,
+        public array $sportsWithNrOfFieldsAndNrOfCycles,
         public RefereeInfo $refereeInfo,
         public bool $perPoule )
     {
         $selfReferee = $refereeInfo->selfRefereeInfo->selfReferee;
 
-        if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee( $this->getSports(), $selfReferee ) ) {
+        if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee( $this->createSports(), $selfReferee ) ) {
             throw new \Exception('selfReferee is not compatible with poulestructure', E_ERROR);
         }
-        if( !$pouleStructure->isCompatibleWithSports( $this->getSports() ) ) {
+        if( !$pouleStructure->isCompatibleWithSports( $this->createSports() ) ) {
             throw new \Exception('te weinig poule-plekken om wedstrijden te kunnen plannen, maak de poule(s) groter', E_ERROR);
         }
     }
@@ -45,17 +41,17 @@ class Configuration
     /**
      * @return list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport>
      */
-    private function getSports(): array {
-        return array_map( function(SportWithNrOfFields $sportWithNrOfFields): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {
-            return $sportWithNrOfFields->sport;
-        }, $this->sportsWithNrOfFields );
+    private function createSports(): array {
+        return array_map( function(SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {
+            return $sportWithNrOfFieldsAndNrOfCycles->sport;
+        }, $this->sportsWithNrOfFieldsAndNrOfCycles );
     }
 
     public function getName(): string {
         if( $this->name === null ) {
             $nameParts = [
                 '[' . $this->pouleStructure . ']',
-                '[' . join(' & ', $this->sportsWithNrOfFields) . ']',
+                '[' . join(' & ', $this->sportsWithNrOfFieldsAndNrOfCycles) . ']',
                 'ref=>' . $this->refereeInfo
             ];
             if( $this->perPoule ) {
