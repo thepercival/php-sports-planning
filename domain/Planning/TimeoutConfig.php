@@ -25,7 +25,7 @@ class TimeoutConfig
 
     public function getDefaultTimeoutSeconds(Input $input): int
     {
-        $totalNrOfGames = $input->createPouleStructure()->calculateTotalNrOfGames($input->createSportVariants());
+        $totalNrOfGames = $input->createPlanningPouleStructure()->calculateNrOfGames();
         $nrOfGamesPerSecond = 10;
         $nrOfSeconds = (int)ceil($totalNrOfGames / $nrOfGamesPerSecond);
         if ($nrOfSeconds < self::MINIMUM_TIMEOUTSECONDS) {

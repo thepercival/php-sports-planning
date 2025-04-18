@@ -45,17 +45,17 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|Single|AllInOneGame> $sportVariants
+     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|Single|AllInOneGame> $sports
      * @return bool
      */
-    public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, array $sportVariants): bool
+    public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, array $sports): bool
     {
         $smallestNrOfPlaces = $pouleStructure->getSmallestPoule();
-        foreach ($sportVariants as $sportVariant) {
-            if ($sportVariant instanceof AllInOneGame) {
+        foreach ($sports as $sport) {
+            if ($sport instanceof AllInOneGame) {
                 return false;
             }
-            $nrOfGamePlaces = ($sportVariant instanceof Single) ? $sportVariant->nrOfGamePlaces : $sportVariant->getNrOfGamePlaces();
+            $nrOfGamePlaces = ($sport instanceof Single) ? $sport->nrOfGamePlaces : $sport->getNrOfGamePlaces();
             if ($nrOfGamePlaces >= $smallestNrOfPlaces) {
                 return false;
             }

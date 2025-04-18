@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace SportsPlanning\SerializationHandler;
 
+use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
-use JMS\Serializer\Context;
 use SportsHelpers\SportVariants\Persist\SportPersistVariant;
 use SportsPlanning\Field;
 use SportsPlanning\Input;
-use SportsPlanning\Poule;
-use SportsPlanning\Sport;
+use SportsPlanning\Sports\Plannable\PlannableSport;
 
 /**
  * @psalm-type _Field = array{number: int}
@@ -24,7 +23,7 @@ class SportHandler extends Handler implements SubscribingHandlerInterface
      */
     public static function getSubscribingMethods(): array
     {
-        return static::getDeserializationMethods(Sport::class);
+        return static::getDeserializationMethods(PlannableSport::class);
     }
 
     /**
@@ -32,14 +31,14 @@ class SportHandler extends Handler implements SubscribingHandlerInterface
      * @param _FieldValue $fieldValue
      * @param array<string, array> $type
      * @param Context $context
-     * @return Sport
+     * @return PlannableSport
      */
     public function deserializeFromJson(
         JsonDeserializationVisitor $visitor,
         array $fieldValue,
         array $type,
         Context $context
-    ): Sport {
+    ): PlannableSport {
         $fieldValue['persistVariant'] = $fieldValue;
         /** @var SportPersistVariant $sportVariant */
         $sportVariant = $this->getProperty(
@@ -49,7 +48,7 @@ class SportHandler extends Handler implements SubscribingHandlerInterface
             SportPersistVariant::class
         );
 
-        $sport = new Sport($fieldValue['input'], $sportVariant);
+        $sport = new PlannableSport($fieldValue['input'], $sportVariant);
         foreach ($fieldValue['fields'] as $arrField) {
             new Field($sport, $arrField['number']);
         }

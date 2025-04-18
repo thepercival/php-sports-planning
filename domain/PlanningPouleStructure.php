@@ -2,38 +2,38 @@
 
 namespace SportsPlanning;
 
-use SportsHelpers\SelfReferee;
-use SportsHelpers\SportVariants\AgainstOneVsOne;
-use SportsHelpers\SportVariants\AgainstOneVsTwo;
-use SportsHelpers\SportVariants\AgainstTwoVsTwo;
-use SportsHelpers\SportVariants\AllInOneGame;
-use SportsHelpers\SportVariants\Helpers\SportVariantWithNrOfPlacesCreator;
-use SportsHelpers\SportVariants\Helpers\SportVariantWithNrOfPlacesCreator as VariantCreator;
-use SportsHelpers\SportVariants\Persist\SportPersistVariantWithNrOfFields;
-use SportsHelpers\SportVariants\Single;
+use oldsportshelpers\old\WithNrOfPlaces\SportWithNrOfPlaces;
 use SportsHelpers\PouleStructures\PouleStructure;
-use SportsHelpers\SportRange;
+use SportsHelpers\SelfReferee;
+use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstOneVsTwo;
+use SportsHelpers\Sports\AgainstTwoVsTwo;
+use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
 use SportsPlanning\Referee\Info as RefereeInfo;
+use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsOne;
+use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsTwo;
+use SportsPlanning\Sports\Plannable\AgainstPlannableTwoVsTwo;
+use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
+use SportsPlanning\Sports\SportWithNrOfPlaces\SportWithNrOfPlacesInterface;
 
 readonly class PlanningPouleStructure
 {
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportPersistVariantWithNrOfFields> $sportVariantsWithNrOfFields
+     * @param list<AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo|TogetherPlannableSport> $plannableSports
      * @param RefereeInfo $refereeInfo
      * @throws \Exception
      */
     public function __construct(
         public PouleStructure $pouleStructure,
-        public array $sportVariantsWithNrOfFields,
+        public array $plannableSports,
         public RefereeInfo $refereeInfo )
     {
-
-        if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee(
-            $this->createSportVariants(), $refereeInfo->selfRefereeInfo->selfReferee) ) {
+        $sports = $this->convertPlannableSportsToSports();
+        if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee($sports, $refereeInfo->selfRefereeInfo->selfReferee) ) {
             throw new SelfRefereeIncompatibleWithPouleStructureException(
-                $pouleStructure, $sportVariantsWithNrOfFields,
+                $pouleStructure, $sports,
                 $refereeInfo->selfRefereeInfo->selfReferee
             );
         }
@@ -59,22 +59,22 @@ readonly class PlanningPouleStructure
 
     public function getMaxNrOfGamesPerBatch(): int {
 
-        $sortedSportVariantsWithFields = $this->getSortedSportVariantsByNrOfGamePlaces();
+        $sortedPlannableSports = $this->sortPlannableSportsByNrOfGamePlaces();
 
         $nrOfBatchGames = 0;
         $poules = array_reverse($this->pouleStructure->toArray());
         $nrOfReferees = $this->refereeInfo->nrOfReferees;
         $doSelfRefereeOtherPouleCheck = $this->refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::OtherPoules;
         $doRefereeCheck = $nrOfReferees > 0;
-        $sportVariantWithFields = array_shift($sortedSportVariantsWithFields);
+        $plannableSport = array_shift($sortedPlannableSports);
         // $singleSportVariantWithFields = count($sortedSportVariantsWithFields) === 0 ? $sportVariantWithFields : null;
         $currentPouleNrOfPlaces = $this->substractPlaces($poules);
         $nrOfPlaces = $currentPouleNrOfPlaces;
 
-        while ($nrOfPlaces > 0 && $sportVariantWithFields !== null &&  (!$doRefereeCheck || $nrOfReferees > 0)) {
-            $nrOfFields = $sportVariantWithFields->nrOfFields;
-            $sportVariant = $sportVariantWithFields->createSportVariant();
-            $nrOfGamePlaces = $this->getNrOfGamePlaces($sportVariant, $currentPouleNrOfPlaces);
+        while ($nrOfPlaces > 0 && $plannableSport !== null &&  (!$doRefereeCheck || $nrOfReferees > 0)) {
+            $nrOfFields = $plannableSport->getNrOfFields();
+            // be
+            $nrOfGamePlaces = $plannableSport->sport->getNrOfGamePlaces() ?? $currentPouleNrOfPlaces;
             // SelfRef::SamePoule
             $nrOfGamePlaces += ($this->refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::SamePoule ? 1 : 0);
 
@@ -94,7 +94,7 @@ readonly class PlanningPouleStructure
                     $nrOfPlaces += $currentPouleNrOfPlaces;
                 }
             }
-            $sportVariantWithFields = array_shift($sortedSportVariantsWithFields);
+            $plannableSport = array_shift($sortedPlannableSports);
         }
         if ($nrOfBatchGames === 0) {
             return 1;
@@ -135,7 +135,12 @@ readonly class PlanningPouleStructure
 
         $nrOfRestPlaces = $nrOfPlaces - $maxNrOfBatchPlaces;
         if ($nrOfRestPlaces <= 0) {
-            $totalNrOfGamesPerPlace = $this->getTotalNrOfGamesPerPlaceForPoule($nrOfPlaces);
+            $nrOfPlacesPouleStructure = new PlanningPouleStructure(
+                new PouleStructure($nrOfPlaces),
+                $this->plannableSports,
+                $this->refereeInfo );
+
+            $totalNrOfGamesPerPlace = $nrOfPlacesPouleStructure->calculateNrOfGames();
             if ($totalNrOfGamesPerPlace > ($biggestPouleNrOfPlaces - 1)) {
                 $totalNrOfGamesPerPlace = $biggestPouleNrOfPlaces - 1;
             }
@@ -149,14 +154,14 @@ readonly class PlanningPouleStructure
     }
 
     /**
-     * @return list<Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame>
+     * @return list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport>
      */
-    public function createSportVariants(): array
+    public function convertPlannableSportsToSports(): array
     {
         return array_map(
-            function (SportPersistVariantWithNrOfFields $sportVariantWithField): Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame {
-                return $sportVariantWithField->createSportVariant();
-        }, $this->sportVariantsWithNrOfFields);
+            function (AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo|TogetherPlannableSport $plannableSport): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {
+                return $plannableSport->sport;
+            } , $this->plannableSports);
     }
 
     /**
@@ -173,19 +178,15 @@ readonly class PlanningPouleStructure
      */
     protected function getMaxNrOfPlacesPerBatch(): int
     {
-        $sortedSportVariantsWithFields = $this->getSortedSportVariantsByNrOfGamePlaces();
+        $sortedPlannableSports = $this->sortPlannableSportsByNrOfGamePlaces();
         $selfReferee = $this->refereeInfo->selfRefereeInfo->selfReferee !== SelfReferee::Disabled;
         $nrOfBatchPlaces = 0;
         $nrOfPlaces = $this->pouleStructure->getNrOfPlaces();
-        while ($nrOfPlaces > 0 && count($sortedSportVariantsWithFields) > 0) {
-            $sportVariantWithFields = array_shift($sortedSportVariantsWithFields);
-            $sportVariant = $sportVariantWithFields->createSportVariant();
-            if ($sportVariant instanceof AllInOneGame) {
-                return $this->pouleStructure->getBiggestPoule();
-            }
-            $sportNrOfGamePlaces = ($sportVariant instanceof Single) ? $sportVariant->nrOfGamePlaces : $sportVariant->getNrOfGamePlaces();
+        while ($nrOfPlaces > 0 && count($sortedPlannableSports) > 0) {
+            $plannableSport = array_shift($sortedPlannableSports);
+            $sportNrOfGamePlaces = $plannableSport->sport->getNrOfGamePlaces() ?? $this->pouleStructure->getBiggestPoule();
             $sportNrOfGamePlaces = $sportNrOfGamePlaces + ($selfReferee ? 1 : 0);
-            $nrOfFields = $sportVariantWithFields->nrOfFields;
+            $nrOfFields = $plannableSport->getNrOfFields();
             while ($nrOfPlaces > 0 && $nrOfFields-- > 0) {
                 $nrOfGamePlaces = $sportNrOfGamePlaces + ($selfReferee ? 1 : 0);
                 $nrOfPlaces -= $nrOfGamePlaces;
@@ -200,21 +201,24 @@ readonly class PlanningPouleStructure
     }
 
     /**
-     * @return list<SportPersistVariantWithNrOfFields>
+     * @return list<AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo|TogetherPlannableSport>
      */
-    protected function getSortedSportVariantsByNrOfGamePlaces(): array {
-        $sportVariantsWithFields = array_slice( $this->sportVariantsWithNrOfFields, 0);
+    protected function sortPlannableSportsByNrOfGamePlaces(): array {
+        $plannableSportsForSort = array_slice( $this->plannableSports, 0);
         $nrOfPlaces = $this->pouleStructure->getBiggestPoule();
 
         uasort(
-            $sportVariantsWithFields,
-            function (SportPersistVariantWithNrOfFields $a, SportPersistVariantWithNrOfFields $b) use($nrOfPlaces): int {
-                $nrOfGamePlacesA = $this->getNrOfGamePlaces($a->createSportVariant(), $nrOfPlaces);
-                $nrOfGamePlacesB = $this->getNrOfGamePlaces($b->createSportVariant(), $nrOfPlaces);
+            $plannableSportsForSort,
+            function (
+                AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo|TogetherPlannableSport $a,
+                AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo|TogetherPlannableSport $b)
+            use($nrOfPlaces): int {
+                $nrOfGamePlacesA = $a->sport->getNrOfGamePlaces() ?? $nrOfPlaces;
+                $nrOfGamePlacesB = $b->sport->getNrOfGamePlaces() ?? $nrOfPlaces;
                 return $nrOfGamePlacesA < $nrOfGamePlacesB ? -1 : 1;
             }
         );
-        return array_values( $sportVariantsWithFields );
+        return array_values( $plannableSportsForSort );
     }
 
     // MOVE TO OTHER
@@ -257,37 +261,30 @@ readonly class PlanningPouleStructure
 //        return $maxNrOfGamesPerBatchPerPoule * $this->getNrOfPoules();
 //    }
 
-    public function getMaxNrOfGamesPerPlaceRange(): SportRange
+//    public function getMaxNrOfGamesPerPlaceRange(): SportRange
+//    {
+//        return new SportRange(
+//            $this->getTotalNrOfGamesPerPlaceForNrOfPlaces( $this->pouleStructure->getSmallestPoule() ),
+//            $this->getTotalNrOfGamesPerPlaceForNrOfPlaces( $this->pouleStructure->getBiggestPoule() )
+//        );
+//    }
+
+    public function calculateNrOfGames(): int
     {
-        return new SportRange(
-            $this->getTotalNrOfGamesPerPlaceForPoule( $this->pouleStructure->getSmallestPoule() ),
-            $this->getTotalNrOfGamesPerPlaceForPoule( $this->pouleStructure->getBiggestPoule() )
-        );
+        return array_sum(
+            array_map( function(int $nrOfPlaces): int {
+
+                return array_sum(
+                    array_map( function(AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo|TogetherPlannableSport $plannableSport) use($nrOfPlaces): int {
+                        $sportWithNrOfPlaces = $plannableSport->createSportWithNrOfPlaces($nrOfPlaces);
+                        if( !($sportWithNrOfPlaces instanceof SportWithNrOfPlacesInterface)) {
+                            throw new \Exception('unknown class (not SportWithNrOfPlacesInterface)');
+                        }
+                        return $sportWithNrOfPlaces->calculateNrOfGames($plannableSport->nrOfCycles);
+                    }, $this->plannableSports )
+                );
+            }, $this->pouleStructure->toArray()));
     }
-
-    private function getTotalNrOfGamesPerPlaceForPoule(int $nrOfPlaces): int
-    {
-        $sportVariants = $this->createSportVariants();
-        $sportVariantsWithNrOfPlaces = (new SportVariantWithNrOfPlacesCreator())->createListWithNrOfPlaces($nrOfPlaces, $sportVariants);
-
-        $nrOfGamesPerPlace = 0;
-        foreach ($sportVariantsWithNrOfPlaces as $sportVariantWithNrOfPlaces) {
-            $nrOfGamesPerPlace += $sportVariantWithNrOfPlaces->getTotalNrOfGamesPerPlace();
-        }
-        return $nrOfGamesPerPlace;
-    }
-
-    protected function getNrOfGamePlaces(AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|Single|AllInOneGame $sportVariant, int $nrOfPlaces): int
-    {
-        if( $sportVariant instanceof AllInOneGame ) {
-            return $nrOfPlaces;
-        }
-        if( $sportVariant instanceof Single ) {
-            return $sportVariant->nrOfGamePlaces;
-        }
-        return $sportVariant->getNrOfGamePlaces();
-    }
-
 
 //    public function getMaxNrOfGamesPerBatchForSportVariantWithFields(
 //        SportVariantWithFields $sportVariantWithFields ): int {

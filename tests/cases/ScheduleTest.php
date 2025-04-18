@@ -2,11 +2,10 @@
 
 namespace SportsPlanning\Tests;
 
+use old\SportVariantWithNr;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportVariants\AgainstOneVsOne;
 use SportsPlanning\Schedule;
-use SportsPlanning\Schedule\SportVariantWithNr;
-use SportsPlanning\Sport;
 
 class ScheduleTest extends TestCase
 {

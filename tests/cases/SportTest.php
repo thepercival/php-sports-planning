@@ -5,7 +5,7 @@ namespace SportsPlanning\Tests;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\GameMode;
 use SportsHelpers\SportVariants\Persist\SportPersistVariant;
-use SportsPlanning\Sport;
+use SportsPlanning\Sports\Plannable\PlannableSport;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class SportTest extends TestCase
@@ -23,7 +23,7 @@ class SportTest extends TestCase
             1,
             0
         );
-        $sport = new Sport($input, $dbSportVariant);
+        $sport = new PlannableSport($input, $dbSportVariant);
         self::assertSame($input, $sport->getInput());
         self::assertSame(2, $sport->getNumber());
         self::assertSame(1, $sport->getNrOfHomePlaces());

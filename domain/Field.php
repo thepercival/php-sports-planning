@@ -5,12 +5,13 @@ declare(strict_types=1);
 namespace SportsPlanning;
 
 use SportsHelpers\Identifiable;
+use SportsPlanning\Sports\Plannable\PlannableSport;
 
 class Field extends Identifiable implements Resource
 {
     protected int $number;
 
-    public function __construct(protected Sport $sport, int $number = null)
+    public function __construct(protected PlannableSport $sport, int $number = null)
     {
         if( $number === null ) {
             $number = $sport->getFields()->count() + 1;
@@ -29,7 +30,7 @@ class Field extends Identifiable implements Resource
         return $this->getSport()->getNumber() . '.' . $this->getNumber();
     }
 
-    public function getSport(): Sport
+    public function getSport(): PlannableSport
     {
         return $this->sport;
     }

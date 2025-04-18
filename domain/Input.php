@@ -9,16 +9,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 use SportsHelpers\Identifiable;
-use SportsHelpers\SelfRefereeInfo;
-use SportsHelpers\SportVariants\AgainstOneVsOne;
-use SportsHelpers\SportVariants\AgainstOneVsTwo;
-use SportsHelpers\SportVariants\AgainstTwoVsTwo;
-use SportsHelpers\SportVariants\AllInOneGame;
-use SportsHelpers\SportVariants\Persist\SportPersistVariantWithNrOfFields;
-use SportsHelpers\SportVariants\Single;
 use SportsHelpers\PouleStructures\PouleStructure;
-use SportsPlanning\Exceptions\NoBestPlanningException;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SelfRefereeInfo;
+use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstOneVsTwo;
+use SportsHelpers\Sports\AgainstTwoVsTwo;
+use SportsHelpers\Sports\TogetherSport;
+use SportsPlanning\Exceptions\NoBestPlanningException;
 use SportsPlanning\Input\Configuration;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning\Comparer;
@@ -28,6 +26,8 @@ use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Type as PlanningType;
 use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
 use SportsPlanning\Referee\Info as RefereeInfo;
+use SportsPlanning\Sports\Plannable\PlannableSport;
+use SportsPlanning\Sports\SportWithNrOfFields;
 
 class Input extends Identifiable
 {
@@ -48,7 +48,7 @@ class Input extends Identifiable
      */
     protected Collection $poules;
     /**
-     * @var Collection<int|string, Sport>
+     * @var Collection<int|string, PlannableSport>
      */
     protected Collection $sports;
     /**
@@ -77,37 +77,17 @@ class Input extends Identifiable
         $this->historicalBestPlannings = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
 
-        $planningPouleStructure = $configuration->planningPouleStructure;
-        $pouleStructure = $planningPouleStructure->pouleStructure;
+//        $planningPouleStructure = $configuration->planningPouleStructure;
+        $pouleStructure = $configuration->pouleStructure;
         foreach ($pouleStructure->toArray() as $nrOfPoulePlaces) {
             $poule = new Poule($this);
             for ($placeNr = 1; $placeNr <= $nrOfPoulePlaces; $placeNr++) {
                 new Place($poule);
             }
         }
-        /*
-        foreach( $pouleStructures as $pouleStructure) {
-            $category = new Category($this);
-            foreach ($pouleStructure->toArray() as $nrOfPoulePlaces) {
-                $poule = new Poule($category);
-                for ($placeNr = 1; $placeNr <= $nrOfPoulePlaces; $placeNr++) {
-                    new Place($poule);
-                }
-            }
-        }*/
 
-        foreach ($planningPouleStructure->sportVariantsWithNrOfFields as $sportVariantWithNrOfFields) {
-            $sportVariant = $sportVariantWithNrOfFields->createSportVariant();
-            if (!($sportVariant instanceof AllInOneGame)) {
-                $nrOfGamePlaces = ($sportVariant instanceof Single) ? $sportVariant->nrOfGamePlaces : $sportVariant->getNrOfGamePlaces();
-                if( $nrOfGamePlaces > $pouleStructure->getSmallestPoule()) {
-                    throw new Exception(
-                        'te weinig poule-plekken om wedstrijden te kunnen plannen, maak de poule(s) groter',
-                        E_ERROR
-                    );
-                }
-            }
-            $sport = new Sport($this, $sportVariant->toPersistVariant());
+        foreach ($configuration->sportsWithNrOfFields as $sportWithNrOfFields) {
+            $sport = new PlannableSport($this);
             for ($fieldNr = 1; $fieldNr <= $sportVariantWithNrOfFields->nrOfFields; $fieldNr++) {
                 new Field($sport);
             }
@@ -131,11 +111,9 @@ class Input extends Identifiable
     public function createConfiguration(): Configuration {
 
         return new InputConfiguration(
-            new PlanningPouleStructure(
-                $this->createPouleStructure(),
-                $this->createSportVariantsWithFields(),
-                $this->getRefereeInfo()
-            ),
+            $this->createPouleStructure(),
+            $this->createSportVariantsWithFields(),
+            $this->getRefereeInfo(),
             $this->getPerPoule()
         );
     }
@@ -230,6 +208,15 @@ class Input extends Identifiable
         return new PouleStructure(...$poules);
     }
 
+    public function createPlanningPouleStructure(): PlanningPouleStructure
+    {
+        return new PlanningPouleStructure(
+            $this->createPouleStructure(),
+            $this->sports->toArray(),
+            $this->getRefereeInfo()
+        );
+    }
+
     /*public function createPouleStructures(): array
     {
         $pouleStructures = [];
@@ -244,14 +231,14 @@ class Input extends Identifiable
     }*/
 
     /**
-     * @return Collection<int|string, Sport>
+     * @return Collection<int|string, PlannableSport>
      */
     public function getSports(): Collection
     {
         return $this->sports;
     }
 
-    public function getSport(int $number): Sport
+    public function getSport(int $number): PlannableSport
     {
         foreach ($this->getSports() as $sport) {
             if ($sport->getNumber() === $number) {
@@ -262,23 +249,23 @@ class Input extends Identifiable
     }
 
     /**
-     * @return list<SportPersistVariantWithNrOfFields>
+     * @return list<SportWithNrOfFields>
      */
-    public function createSportVariantsWithFields(): array
+    public function createSportsWithNrOfFields(): array
     {
-        return array_values( array_map(function (Sport $sport): SportPersistVariantWithNrOfFields {
-            return $sport->createVariantWithFields();
+        return array_values( array_map(function (PlannableSport $sport): SportWithNrOfFields {
+            return $sport->createSportWithNrOfFields();
         }, $this->sports->toArray()) );
     }
 
     /**
-     * @return list<Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame>
+     * @return list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport>
      */
-    public function createSportVariants(): array
+    public function createSports(): array
     {
-        return array_values( array_map( function (Sport $sport): Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame {
-            return $sport->createVariant();
-        }, $this->sports->toArray()) );
+        return array_map( function (PlannableSport $sport): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {
+            return $sport->sport;
+        }, $this->sports->toArray());
     }
 
     /**

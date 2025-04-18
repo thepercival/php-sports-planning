@@ -4,24 +4,31 @@ namespace SportsPlanning\Exceptions;
 
 use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SelfReferee;
-use SportsHelpers\SportVariants\Persist\SportPersistVariantWithNrOfFields;
+use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstOneVsTwo;
+use SportsHelpers\Sports\AgainstTwoVsTwo;
+use SportsHelpers\Sports\TogetherSport;
 
 class SelfRefereeIncompatibleWithPouleStructureException extends \Exception
 {
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportPersistVariantWithNrOfFields> $sportVariantsWithNrOfFields
+     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport> $sports
      * @param SelfReferee $selfReferee
      */
     public function __construct(
         PouleStructure $pouleStructure,
-        array $sportVariantsWithNrOfFields,
+        array $sports,
         SelfReferee $selfReferee
     ) {
-        $sportVariantStrings = array_map( function (SportPersistVariantWithNrOfFields $sportVariantWithNrOfFields): string {
-            return (string)$sportVariantWithNrOfFields->createSportVariant();
-        }, $sportVariantsWithNrOfFields );
-        $sportVariantsAsString = 'sports "[' . join(',', $sportVariantStrings ) . ']"';
+        $sportDescriptions = array_map(
+            function (AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport $sport): string {
+                if( $sport instanceof TogetherSport) {
+                    return "t(".$sport->getNrOfGamePlaces().")";
+                }
+                return "a(".$sport->getNrOfHomePlaces()."vs".$sport->getNrOfAwayPlaces().")";
+        }, $sports );
+        $sportVariantsAsString = 'sports "[' . join(',', $sportDescriptions ) . ']"';
         $pouleStructureAsString = 'poulestructure "[' . $pouleStructure . ']"';
         $selfRefereeAsString = 'selfReferee "'.$selfReferee->value.'"';
         parent::__construct($selfRefereeAsString . ' is not compatible with ' .

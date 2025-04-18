@@ -8,20 +8,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use SportsHelpers\Identifiable;
-use SportsHelpers\SportVariants\AgainstOneVsOne;
-use SportsHelpers\SportVariants\AgainstOneVsTwo;
-use SportsHelpers\SportVariants\AgainstTwoVsTwo;
-use SportsHelpers\SportVariants\AllInOneGame;
-use SportsHelpers\SportVariants\Single;
+use SportsPlanning\Schedule\ScheduleAgainstSportOneVsOne;
+use SportsPlanning\Schedule\ScheduleAgainstSportOneVsTwo;
+use SportsPlanning\Schedule\ScheduleAgainstSportTwoVsTwo;
 use SportsPlanning\Schedule\ScheduleSport as SportSchedule;
-use SportsPlanning\Schedule\SportVariantWithNr;
+use SportsPlanning\Schedule\ScheduleTogetherSport;
 
 class Schedule extends Identifiable
 {
     private string $sportsConfigName;
-    protected int $succeededMargin = -1;
+
     protected Poule|null $poule = null;
-    protected int $nrOfTimeoutSecondsTried = 0;
 
     /**
      * @phpstan-var ArrayCollection<int|string, SportSchedule>|PersistentCollection<int|string, SportSchedule>|SportSchedule[]
@@ -31,19 +28,23 @@ class Schedule extends Identifiable
 
     /**
      * @param int $nrOfPlaces
-     * @param list<SportVariantWithNr> $sportVariantsWithNr
+     * @param list<ScheduleTogetherSport|ScheduleAgainstSportOneVsOne|ScheduleAgainstSportOneVsTwo|ScheduleAgainstSportTwoVsTwo> $scheduleSports
      */
-    public function __construct(protected int $nrOfPlaces, array $sportVariantsWithNr)
+    public function __construct(protected int $nrOfPlaces, array $scheduleSports)
     {
         $this->sportSchedules = new ArrayCollection();
-        $nrOfH2h = 0;
-        array_map(function(SportVariantWithNr $sportVariantWithNr) use(&$nrOfH2h): SportSchedule {
-            if(++$nrOfH2h > 1) {
-                throw new \Exception('Only 1 h2h allowed');
+        $nrOfOneVsOne = 0;
+        foreach( $scheduleSports as $scheduleSport ) {
+            if( $scheduleSport instanceof ScheduleAgainstSportOneVsOne ) {
+                $nrOfOneVsOne++;
             }
-            return new SportSchedule($this, $sportVariantWithNr->number, $sportVariantWithNr->sportVariant->toPersistVariant());
-        }, $sportVariantsWithNr);
-        $this->sportsConfigName = $this->toJsonCustom();
+            if(++$nrOfOneVsOne > 1) {
+                throw new \Exception('Only 1 OneVsOne allowed');
+            }
+
+
+        }
+        $this->sportsConfigName = "UNKNOWN"; // $this->toJsonCustom();
     }
 
     public function getNrOfPlaces(): int
@@ -51,11 +52,11 @@ class Schedule extends Identifiable
         return $this->nrOfPlaces;
     }
 
-    public function createSportVariantsName(): string
-    {
-        $name = json_encode($this->createSportVariants());
-        return $name === false ? '?' : $name;
-    }
+//    public function createSportVariantsName(): string
+//    {
+//        $name = json_encode($this->createSportVariants());
+//        return $name === false ? '?' : $name;
+//    }
 
     /**
      * @return Collection<int|string, SportSchedule>
@@ -63,18 +64,6 @@ class Schedule extends Identifiable
     public function getSportSchedules(): Collection
     {
         return $this->sportSchedules;
-    }
-
-    /**
-     * @return list<Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame>
-     */
-    public function createSportVariants(): array
-    {
-        return array_map(
-            function (SportSchedule $sportSchedule): Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame {
-                return $sportSchedule->createVariant();
-            }, array_values($this->sportSchedules->toArray())
-        );
     }
 
 //    public function createSportVariantWithPoules(): array
@@ -97,32 +86,12 @@ class Schedule extends Identifiable
 //        );
 //    }
 
-    public function getSucceededMargin(): int
-    {
-        return $this->succeededMargin;
-    }
-
-    public function setSucceededMargin(int $succeededMargin): void
-    {
-        $this->succeededMargin = $succeededMargin;
-    }
-
-    public function getNrOfTimeoutSecondsTried(): int
-    {
-        return $this->nrOfTimeoutSecondsTried;
-    }
-
-    public function setNrOfTimeoutSecondsTried(int $nrOfTimeoutSecondsTried): void
-    {
-        $this->nrOfTimeoutSecondsTried = $nrOfTimeoutSecondsTried;
-    }
-
-    public function toJsonCustom(): string
-    {
-        $output = new \stdClass();
-        $output->nrOfPlaces = $this->nrOfPlaces;
-        $output->sportVariants = $this->createSportVariants();
-        $json = json_encode($output);
-        return $json === false ? '?' : $json;
-    }
+//    public function toJsonCustom(): string
+//    {
+//        $output = new \stdClass();
+//        $output->nrOfPlaces = $this->nrOfPlaces;
+//        $output->sportVariants = $this->createSportVariants();
+//        $json = json_encode($output);
+//        return $json === false ? '?' : $json;
+//    }
 }

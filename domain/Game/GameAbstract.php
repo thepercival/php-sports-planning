@@ -12,7 +12,7 @@ use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Referee;
-use SportsPlanning\Sport;
+use SportsPlanning\Sports\Plannable\PlannableSport;
 
 abstract class GameAbstract extends Identifiable
 {
@@ -46,7 +46,7 @@ abstract class GameAbstract extends Identifiable
         return $this->poule->getNumber();
     }
 
-    public function getSport(): Sport
+    public function getSport(): PlannableSport
     {
         return $this->field->getSport();
     }

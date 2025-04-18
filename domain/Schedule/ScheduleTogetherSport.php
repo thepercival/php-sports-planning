@@ -6,39 +6,25 @@ namespace SportsPlanning\Schedule;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Schedule;
 
-class ScheduleSport
+class ScheduleTogetherSport extends ScheduleSport
 {
     /**
      * @var Collection<int|string, ScheduleGame>
      */
     protected Collection $games;
 
-    public function __construct(protected Schedule $schedule, protected int $number)
+    public function __construct(Schedule $schedule, int $number, protected TogetherSport $togetherSport)
     {
+        parent::__construct($schedule, $number);
         if (!$schedule->getSportSchedules()->contains($this)) {
             $schedule->getSportSchedules()->add($this);
         }
         $this->games = new ArrayCollection();
     }
 
-    public function getSchedule(): Schedule {
-        return $this->schedule;
-    }
-
-    public function getNumber(): int
-    {
-        return $this->number;
-    }
-
-    /**
-     * @return Collection<int|string, ScheduleGame>
-     */
-    public function getGames(): Collection
-    {
-        return $this->games;
-    }
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])
 
 //    public function __toString(): string
