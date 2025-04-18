@@ -45,6 +45,11 @@ class Schedule extends Identifiable
         return $this->nrOfPlaces;
     }
 
+    /**
+     * @param list<ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo> $sportSchedules
+     * @return void
+     * @throws \Exception
+     */
     public function setSportSchedules(array $sportSchedules): void {
         $nrOfOneVsOne = 0;
         foreach( $sportSchedules as $sportSchedule ) {
@@ -55,7 +60,11 @@ class Schedule extends Identifiable
                 throw new \Exception('Only 1 OneVsOne allowed');
             }
         }
-        $this->sportSchedules = new ArrayCollection($sportSchedules);
+        $this->sportSchedules = new ArrayCollection();
+        foreach( $sportSchedules as $sportSchedule ) {
+            $this->sportSchedules->add($sportSchedule);
+        }
+
         $this->sportsConfigName = $this->toJsonCustom();
     }
 

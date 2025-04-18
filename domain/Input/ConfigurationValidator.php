@@ -36,7 +36,11 @@ class ConfigurationValidator
         bool $perPoule
         ): InputConfiguration
     {
-        $validatedRefereeInfo = $this->getValidatedRefereeInfo($refereeInfo, $pouleStructure, $sportsWithNrOfFieldsAndNrOfCycles);
+        $sports = array_map( function(SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport{
+                return $sportWithNrOfFieldsAndNrOfCycles->sport;
+            }, $sportsWithNrOfFieldsAndNrOfCycles
+        );
+        $validatedRefereeInfo = $this->getValidatedRefereeInfo($refereeInfo, $pouleStructure, $sports);
 
         $efficientSports = $this->reduceFields($pouleStructure, $sportsWithNrOfFieldsAndNrOfCycles, $validatedRefereeInfo);
         return new InputConfiguration(
@@ -96,7 +100,7 @@ class ConfigurationValidator
      * @param PouleStructure $pouleStructure
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
      * @param RefereeInfo $refereeInfo
-     * @return list<SportWithNrOfFields>
+     * @return list<SportWithNrOfFieldsAndNrOfCycles>
      */
     protected function reduceFields(
         PouleStructure $pouleStructure,
@@ -109,84 +113,86 @@ class ConfigurationValidator
             $refereeInfo
         );
         $maxNrOfGamesPerBatch = $planningPouleStructure->getMaxNrOfGamesPerBatch();
-        $reducedSportsWithNrOfFields = [];
+        $reducedSportsWithNrOfFieldsAndNrOfCycles = [];
         foreach ($sportsWithNrOfFieldsAndNrOfCycles as $sportWithNrOfFieldsAndNrOfCycles) {
             $reducedNrOfFields = $sportWithNrOfFieldsAndNrOfCycles->nrOfFields;
             if ($reducedNrOfFields > $maxNrOfGamesPerBatch) {
                 $reducedNrOfFields = $maxNrOfGamesPerBatch;
             }
-            $reducedSportsWithNrOfFields[] = new SportWithNrOfFields(
+            $reducedSportsWithNrOfFieldsAndNrOfCycles[] = new SportWithNrOfFieldsAndNrOfCycles(
                 $sportWithNrOfFieldsAndNrOfCycles->sport,
-                $reducedNrOfFields
+                $reducedNrOfFields,
+                $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles
             );
         }
 
-        $moreReducedSportVariants = $this->reduceFieldsBySports($pouleStructure, $reducedSportsWithNrOfFields);
+        $moreReducedSports = $this->reduceFieldsBySports($pouleStructure, $reducedSportsWithNrOfFieldsAndNrOfCycles);
 
         usort(
-            $moreReducedSportVariants,
+            $moreReducedSports,
             function (SportWithNrOfFields $sportA, SportWithNrOfFields $sportB): int {
                 return $sportA->nrOfFields > $sportB->nrOfFields ? -1 : 1;
             }
         );
-        return $moreReducedSportVariants;
+        return $moreReducedSports;
     }
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportWithNrOfFields> $sportsWithNrOfFields
-     * @return list<SportWithNrOfFields>
+     * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
+     * @return list<SportWithNrOfFieldsAndNrOfCycles>
      */
-    protected function reduceFieldsBySports(PouleStructure $pouleStructure, array $sportsWithNrOfFields): array
+    protected function reduceFieldsBySports(PouleStructure $pouleStructure, array $sportsWithNrOfFieldsAndNrOfCycles): array
     {
-        $leastNrOfBatchesNeeded = $this->getLeastNrOfBatchesNeeded($pouleStructure, $sportsWithNrOfFields);
+        $leastNrOfBatchesNeeded = $this->getLeastNrOfBatchesNeeded($pouleStructure, $sportsWithNrOfFieldsAndNrOfCycles);
         return array_map(
-            function (SportWithNrOfFields $sportWithNrOfFields) use (
+            function (SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles) use (
                 $pouleStructure,
                 $leastNrOfBatchesNeeded
-            ): SportWithNrOfFields {
-                return $this->reduceSportVariantFields(
+            ): SportWithNrOfFieldsAndNrOfCycles {
+                return $this->reduceSportWithNrOfFieldsAndNrOfCycles(
                     $pouleStructure,
-                    $sportWithNrOfFields,
+                    $sportWithNrOfFieldsAndNrOfCycles,
                     $leastNrOfBatchesNeeded
                 );
             },
-            $sportsWithNrOfFields
+            $sportsWithNrOfFieldsAndNrOfCycles
         );
     }
 
-//    protected function reduceSportVariantFields(
-//        PouleStructure $pouleStructure,
-//        SportWithNrOfFields $sportWithNrOfFields,
-//        int $minNrOfBatches
-//    ): SportWithNrOfFields {
-//        $sport = $sportWithNrOfFields->sport;
-//        $nrOfFields = $sportWithNrOfFields->nrOfFields;
-//        if ($nrOfFields === 1) {
-//            return $sportWithNrOfFields;
-//        }
-//        $nrOfBatchesNeeded = $this->getNrOfBatchesNeeded($pouleStructure, $sport, $nrOfFields);
-//        while ($nrOfBatchesNeeded < $minNrOfBatches) {
-//            if (--$nrOfFields === 1) {
-//                break;
-//            }
-//            $nrOfBatchesNeeded = $this->getNrOfBatchesNeeded($pouleStructure, $sport, $nrOfFields);
-//        }
-//        return new SportWithNrOfFields($sport, $nrOfFields);
-//    }
+    protected function reduceSportWithNrOfFieldsAndNrOfCycles(
+        PouleStructure $pouleStructure,
+        SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles,
+        int $minNrOfBatches
+    ): SportWithNrOfFieldsAndNrOfCycles {
+        $sport = $sportWithNrOfFieldsAndNrOfCycles->sport;
+        $nrOfFields = $sportWithNrOfFieldsAndNrOfCycles->nrOfFields;
+        if ($nrOfFields === 1) {
+            return $sportWithNrOfFieldsAndNrOfCycles;
+        }
+        $nrOfBatchesNeeded = $this->getNrOfBatchesNeeded($pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles], $nrOfFields);
+        while ($nrOfBatchesNeeded < $minNrOfBatches) {
+            if (--$nrOfFields === 1) {
+                break;
+            }
+            $nrOfBatchesNeeded = $this->getNrOfBatchesNeeded($pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles], $nrOfFields);
+        }
+        return new SportWithNrOfFieldsAndNrOfCycles($sport, $nrOfFields, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles);
+    }
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportWithNrOfFields> $sportsWithNrOfFields
+     * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
      * @return int
      */
-    protected function getLeastNrOfBatchesNeeded(PouleStructure $pouleStructure, array $sportsWithNrOfFields): int
+    protected function getLeastNrOfBatchesNeeded(PouleStructure $pouleStructure, array $sportsWithNrOfFieldsAndNrOfCycles): int
     {
         $leastNrOfBatchesNeeded = null;
-        foreach ($sportWithNrOfFields as $sportsWithNrOfFields) {
+        foreach ($sportsWithNrOfFieldsAndNrOfCycles as $sportWithNrOfFieldsAndNrOfCycles) {
             $nrOfBatchesNeeded = $this->getNrOfBatchesNeeded(
                 $pouleStructure,
-                $sportWithNrOfFields
+                [$sportWithNrOfFieldsAndNrOfCycles],
+                $sportWithNrOfFieldsAndNrOfCycles->nrOfFields
             );
             if ($leastNrOfBatchesNeeded === null || $nrOfBatchesNeeded > $leastNrOfBatchesNeeded) {
                 $leastNrOfBatchesNeeded = $nrOfBatchesNeeded;
@@ -200,16 +206,16 @@ class ConfigurationValidator
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<SportWithNrOfFields> $sportsWithNrOfFields
+     * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
      * @param int $nrOfFields
      * @return int
      */
     protected function getNrOfBatchesNeeded(
         PouleStructure $pouleStructure,
-        array $sportsWithNrOfFields,
+        array $sportsWithNrOfFieldsAndNrOfCycles,
         int $nrOfFields
     ): int {
-        $nrOfGames = $pouleStructure->calculateTotalNrOfGames([$sportsWithNrOfFields]);
+        $nrOfGames = $this->calculateTotalNrOfGames($pouleStructure, $sportsWithNrOfFieldsAndNrOfCycles);
         return (int)ceil($nrOfGames / $nrOfFields);
     }
 
@@ -226,9 +232,9 @@ class ConfigurationValidator
                 return array_sum(
                     array_map( function(SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles) use($nrOfPlaces): int {
                         $sportWithNrOfPlaces = $sportWithNrOfFieldsAndNrOfCycles->createSportWithNrOfPlaces($nrOfPlaces);
-                        if( !($sportWithNrOfPlaces instanceof SportWithNrOfPlacesInterface)) {
-                            throw new \Exception('unknown class (not SportWithNrOfPlacesInterface)');
-                        }
+//                        if( !($sportWithNrOfPlaces instanceof SportWithNrOfPlacesInterface)) {
+//                            throw new \Exception('unknown class (not SportWithNrOfPlacesInterface)');
+//                        }
                         return $sportWithNrOfPlaces->calculateNrOfGames($sportWithNrOfFieldsAndNrOfCycles->nrOfCycles);
                     }, $sportsWithNrOfFieldsAndNrOfCycles )
                 );
