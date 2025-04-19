@@ -7,6 +7,8 @@ use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
+use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
+use SportsPlanning\Exceptions\SportsIncompatibleWithPouleStructureException;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
@@ -30,11 +32,12 @@ class Configuration
     {
         $selfReferee = $refereeInfo->selfRefereeInfo->selfReferee;
 
-        if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee( $this->createSports(), $selfReferee ) ) {
-            throw new \Exception('selfReferee is not compatible with poulestructure', E_ERROR);
+        $sports = $this->createSports();
+        if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee( $sports, $selfReferee ) ) {
+            throw new SelfRefereeIncompatibleWithPouleStructureException($pouleStructure, $sports, $selfReferee);
         }
-        if( !$pouleStructure->isCompatibleWithSports( $this->createSports() ) ) {
-            throw new \Exception('te weinig poule-plekken om wedstrijden te kunnen plannen, maak de poule(s) groter', E_ERROR);
+        if( !$pouleStructure->isCompatibleWithSports( $sports ) ) {
+            throw new SportsIncompatibleWithPouleStructureException($pouleStructure, $sports);
         }
     }
 

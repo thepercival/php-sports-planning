@@ -3,7 +3,7 @@
 namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\PouleStructures\PouleStructure as PouleStructureBase;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsHelpers\SelfRefereeInfo;
@@ -17,54 +17,55 @@ class PouleStructureTest extends TestCase
 
     public function testSelfRefereeSamePouleIsInvalid(): void
     {
-        $pouleStructureBase = new PouleStructureBase(5, 4);
+        $pouleStructure = new PouleStructure(5, 4);
         $sportsWithNrOfFieldsAndNrOfCycles = [$this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(1, 3)];
 
         $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule));
-        self::expectException(\Exception::class);
-        new PlanningPouleStructure($pouleStructureBase, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
+        self::expectNotToPerformAssertions();
+        new PlanningPouleStructure($pouleStructure, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
     }
 
     public function testSelfRefereeSamePouleIsValid(): void
     {
-        $pouleStructureBase = new PouleStructureBase(5);
+        $pouleStructure = new PouleStructure(5);
         $sportsWithNrOfFieldsAndNrOfCycles = [$this->createAgainstTwoVsTwoSportWithNrOfFieldsAndNrOfCycles(1)];
         $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::SamePoule));
         self::expectNotToPerformAssertions();
-        new PlanningPouleStructure($pouleStructureBase, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
+        new PlanningPouleStructure($pouleStructure, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
     }
 
     public function testSelfRefereeOtherPoulesIsInvalid(): void
     {
-        $pouleStructureBase = new PouleStructureBase(4);
+        $pouleStructure = new PouleStructure(4);
         $sportsWithNrOfFieldsAndNrOfCycles = [$this->createAgainstTwoVsTwoSportWithNrOfFieldsAndNrOfCycles(1)];
         $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules));
         self::expectException(\Exception::class);
-        new PlanningPouleStructure($pouleStructureBase, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
+        new PlanningPouleStructure($pouleStructure, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
     }
 
     public function testSelfRefereeOtherPoulesIsValid(): void
     {
-        $pouleStructureBase = new PouleStructureBase(4, 4);
+        $pouleStructure = new PouleStructure(4, 4);
         $sportsWithNrOfFieldsAndNrOfCycles = [$this->createAgainstTwoVsTwoSportWithNrOfFieldsAndNrOfCycles(1)];
         $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules));
         self::expectNotToPerformAssertions();
-        new PlanningPouleStructure($pouleStructureBase, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
+        new PlanningPouleStructure($pouleStructure, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
     }
 
     public function testSelfRefereeDisabledIsValid(): void
     {
-        $pouleStructureBase = new PouleStructureBase(4);
+        $PouleStructure = new PouleStructure(4);
         $sportsWithNrOfFieldsAndNrOfCycles = [$this->createAgainstTwoVsTwoSportWithNrOfFieldsAndNrOfCycles(1)];
         $refereeInfo = new RefereeInfo(new SelfRefereeInfo(SelfReferee::Disabled));
         self::expectNotToPerformAssertions();
-        new PlanningPouleStructure($pouleStructureBase, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
+        new PlanningPouleStructure($PouleStructure, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
     }
 
     public function testMaxNrOfGamesPerBatchSimple(): void
     {
+        self::expectException(\Exception::class);
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(3, 2, 2),
+            new PouleStructure(3, 2, 2),
             [$this->createAgainstTwoVsTwoSportWithNrOfFieldsAndNrOfCycles(4)],
             new RefereeInfo());
 
@@ -77,7 +78,7 @@ class PouleStructureTest extends TestCase
         $sportVariantWithFields = $this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(3);
 
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(6),
+            new PouleStructure(6),
             [$sportVariantWithFields],
             new RefereeInfo(1));
 
@@ -89,7 +90,7 @@ class PouleStructureTest extends TestCase
     public function testMaxNrOfGamesPerBatchOtherPouleSimple(): void
     {
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(2, 2, 2, 2, 2, 2),
+            new PouleStructure(2, 2, 2, 2, 2, 2),
             [$this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(6)],
             new RefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules))
         );
@@ -102,7 +103,7 @@ class PouleStructureTest extends TestCase
     public function testMaxNrOfGamesPerBatchOtherPouleSimple2(): void
     {
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(2, 2, 2, 2),
+            new PouleStructure(2, 2, 2, 2),
             [$this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(2)],
             new RefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules))
         );
@@ -118,7 +119,7 @@ class PouleStructureTest extends TestCase
         ];
 
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(6),
+            new PouleStructure(6),
             $sportVariantsWithFields,
             new RefereeInfo(2));
 
@@ -131,7 +132,7 @@ class PouleStructureTest extends TestCase
     {
 
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(3, 2, 2, 2),
+            new PouleStructure(3, 2, 2, 2),
             [$this->createTogetherSportWithNrOfFieldsAndNrOfCycles(2)],
             new RefereeInfo());
 
@@ -142,7 +143,7 @@ class PouleStructureTest extends TestCase
     public function testMaxNrOfGamesPerBatchSportsExceedNrOfPlaces(): void
     {
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(5),
+            new PouleStructure(5),
             [
                 $this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(2),
                 $this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(2),
@@ -156,7 +157,7 @@ class PouleStructureTest extends TestCase
     public function testMaxNrOfGamesInARow6Places2Fields(): void
     {
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(6),
+            new PouleStructure(6),
             [$this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(2)],
             new RefereeInfo());
 
@@ -182,7 +183,7 @@ class PouleStructureTest extends TestCase
         ];
 
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(8),
+            new PouleStructure(8),
             $sportVariantsWithFields,
             new RefereeInfo());
 
@@ -198,7 +199,7 @@ class PouleStructureTest extends TestCase
         ];
 
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(10, 10, 10, 10),
+            new PouleStructure(10, 10, 10, 10),
             $sportVariantsWithFields,
             new RefereeInfo());
 
@@ -213,7 +214,7 @@ class PouleStructureTest extends TestCase
         $sportPersistVariantWithFields = $this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(3);
 
         $pouleStructure = new PlanningPouleStructure(
-            new PouleStructureBase(6),
+            new PouleStructure(6),
             [$sportPersistVariantWithFields],
             new RefereeInfo(2)
         );

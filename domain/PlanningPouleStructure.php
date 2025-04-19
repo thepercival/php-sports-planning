@@ -10,6 +10,7 @@ use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
+use SportsPlanning\Exceptions\SportsIncompatibleWithPouleStructureException;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsOne;
 use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsTwo;
@@ -41,6 +42,9 @@ readonly class PlanningPouleStructure
                 $pouleStructure, $sports,
                 $refereeInfo->selfRefereeInfo->selfReferee
             );
+        }
+        if( !$pouleStructure->isCompatibleWithSports( $sports ) ) {
+            throw new SportsIncompatibleWithPouleStructureException($pouleStructure, $sports);
         }
     }
 

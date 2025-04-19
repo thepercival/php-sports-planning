@@ -4,6 +4,7 @@ namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsPlanning\Schedule;
 use SportsPlanning\Schedule\ScheduleAgainstOneVsOne;
 
@@ -20,13 +21,28 @@ class ScheduleTest extends TestCase
         self::assertSame(5, $schedule->getNrOfPlaces() );
     }
 
+    public function testMultipleException(): void
+    {
+        $nrOfPlaces = 5;
+        $schedule = new Schedule($nrOfPlaces);
+        self::expectException(\Exception::class);
+        $schedule->setSportSchedules([
+                new Schedule\ScheduleAgainstTwoVsTwo($schedule, 1, new AgainstTwoVsTwo() ),
+                new Schedule\ScheduleAgainstTwoVsTwo($schedule, 2, new AgainstTwoVsTwo() )
+            ]
+        );
+    }
+
     public function testToJsonCustom(): void
     {
         $nrOfPlaces = 5;
         $schedule = new Schedule($nrOfPlaces);
-        $nrOfOneVsOne = 0;
+        $schedule->setSportSchedules([
+                new Schedule\ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne() )
+            ]
+        );
 
-        self::assertSame('{"nrOfPlaces":5,"sportVariants":[{"nrOfHomePlaces":1,"nrOfAwayPlaces":1,"nrOfCycles":1}]}', $schedule->toJsonCustom() );
+        self::assertSame('{"nrOfPlaces":5,"sports":[{"nrOfHomePlaces":1,"nrOfAwayPlaces":1}]}', $schedule->toJsonCustom() );
     }
 
 //    public function testGetSportsConfigName(): void

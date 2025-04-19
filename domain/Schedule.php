@@ -52,12 +52,24 @@ class Schedule extends Identifiable
      */
     public function setSportSchedules(array $sportSchedules): void {
         $nrOfOneVsOne = 0;
+        $nrOfOneVsTwo = 0;
+        $nrOfTwoVsTwo = 0;
+        $nrOfTogether = 0;
         foreach( $sportSchedules as $sportSchedule ) {
             if( $sportSchedule instanceof ScheduleAgainstOneVsOne ) {
                 $nrOfOneVsOne++;
             }
-            if(++$nrOfOneVsOne > 1) {
-                throw new \Exception('Only 1 OneVsOne allowed');
+            if( $sportSchedule instanceof ScheduleAgainstOneVsTwo ) {
+                $nrOfOneVsTwo++;
+            }
+            if( $sportSchedule instanceof ScheduleAgainstTwoVsTwo ) {
+                $nrOfTwoVsTwo++;
+            }
+            if( $sportSchedule instanceof ScheduleTogetherSport ) {
+                $nrOfTogether++;
+            }
+            if($nrOfOneVsOne > 1 || $nrOfOneVsTwo > 1 || $nrOfTogether > 1 || $nrOfTwoVsTwo > 1) {
+                throw new \Exception('Only 1 aloowed per SportType');
             }
         }
         $this->sportSchedules = new ArrayCollection();
