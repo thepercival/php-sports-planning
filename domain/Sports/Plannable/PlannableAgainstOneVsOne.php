@@ -10,7 +10,7 @@ use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsOneWithNrOfPlaces;
 
-class PlannableOneVsOneAgainst extends PlannableAgainstSportAbstract
+class PlannableAgainstOneVsOne extends PlannableAgainstSportAbstract
 {
     public function __construct(
         public readonly AgainstOneVsOne $sport,

@@ -6,8 +6,8 @@ namespace SportsPlanning;
 
 use SportsHelpers\Identifiable;
 use SportsHelpers\Sports\TogetherSport;
-use SportsPlanning\Sports\Plannable\PlannableOneVsOneAgainst;
-use SportsPlanning\Sports\Plannable\PlannableOneVsTwoAgainst;
+use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsOne;
+use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsTwo;
 use SportsPlanning\Sports\Plannable\PlannableAgainstTwoVsTwo;
 use SportsPlanning\Sports\Plannable\PlannableSport;
 use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
@@ -16,7 +16,7 @@ class Field extends Identifiable implements Resource
 {
     protected int $number;
 
-    public function __construct(protected PlannableOneVsOneAgainst|PlannableOneVsTwoAgainst|PlannableAgainstTwoVsTwo|TogetherPlannableSport $sport, int $number = null)
+    public function __construct(protected PlannableAgainstOneVsOne|PlannableAgainstOneVsTwo|PlannableAgainstTwoVsTwo|TogetherPlannableSport $sport, int $number = null)
     {
         if( $number === null ) {
             $number = $sport->getFields()->count() + 1;
@@ -35,7 +35,7 @@ class Field extends Identifiable implements Resource
         return $this->getSport()->getNumber() . '.' . $this->getNumber();
     }
 
-    public function getSport(): PlannableOneVsOneAgainst|PlannableOneVsTwoAgainst|PlannableAgainstTwoVsTwo|TogetherPlannableSport
+    public function getSport(): PlannableAgainstOneVsOne|PlannableAgainstOneVsTwo|PlannableAgainstTwoVsTwo|TogetherPlannableSport
     {
         return $this->sport;
     }

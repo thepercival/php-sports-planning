@@ -15,8 +15,8 @@ use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Sports\Plannable\PlannableOneVsOneAgainst;
-use SportsPlanning\Sports\Plannable\PlannableOneVsTwoAgainst;
+use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsOne;
+use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsTwo;
 use SportsPlanning\Sports\Plannable\PlannableAgainstTwoVsTwo;
 use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
 
