@@ -1,0 +1,48 @@
+<?php
+
+declare(strict_types=1);
+
+namespace SportsPlanning\Schedules\Sports;
+
+use SportsHelpers\Sports\AgainstTwoVsTwo;
+use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
+use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
+use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
+
+class ScheduleAgainstTwoVsTwo extends ScheduleSportAbstract
+{
+    /**
+     * @var list<ScheduleGameAgainstTwoVsTwo>
+     */
+    protected array $games = [];
+
+    public function __construct(ScheduleWithNrOfPlaces $schedule, int $number, public readonly AgainstTwoVsTwo $sport)
+    {
+        parent::__construct($schedule, $number);
+        $schedule->addSportSchedule($this);
+    }
+
+    /**
+     * @return list<ScheduleGameAgainstTwoVsTwo>
+     */
+    public function getGames(): array {
+        return $this->games;
+    }
+
+    public function addGame(ScheduleGameAgainstTwoVsTwo $game): void {
+        $this->games[] = $game;
+    }
+
+    // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])
+
+//    public function __toString(): string
+//    {
+//        $jsonClass = new \stdClass();
+//        $jsonClass->number = $this->number;
+//        $jsonClass->sportVariant = $this->createVariant();
+//
+//
+//        $retVal = json_encode($jsonClass);
+//        return $retVal === false ? '?' : $retVal;
+//    }
+}

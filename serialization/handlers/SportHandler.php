@@ -7,24 +7,23 @@ namespace SportsPlanning\SerializationHandler;
 use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
-use SportsHelpers\SportVariants\Persist\SportPersistVariant;
 use SportsPlanning\Field;
 use SportsPlanning\Input;
-use SportsPlanning\Sports\Plannable\PlannableSport;
+// use SportsPlanning\Sports\Plannable\PlannableSport;
 
 /**
  * @psalm-type _Field = array{number: int}
  * @psalm-type _FieldValue = array{input: Input, fields: list<_Field>}
  */
-class SportHandler extends Handler implements SubscribingHandlerInterface
+class SportHandler extends Handler // implements SubscribingHandlerInterface
 {
-    /**
-     * @psalm-return list<array<string, int|string>>
-     */
-    public static function getSubscribingMethods(): array
-    {
-        return static::getDeserializationMethods(PlannableSport::class);
-    }
+//    /**
+//     * @psalm-return list<array<string, int|string>>
+//     */
+//    public static function getSubscribingMethods(): array
+//    {
+//        return static::getDeserializationMethods(PlannableSport::class);
+//    }
 
     // @TODO CDK
 //    /**

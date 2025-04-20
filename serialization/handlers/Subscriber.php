@@ -16,7 +16,7 @@ class Subscriber
     public function subscribeHandlers(HandlerRegistry $registry): void
     {
         $registry->registerSubscribingHandler(new PouleHandler());
-        $registry->registerSubscribingHandler(new SportHandler());
+//        $registry->registerSubscribingHandler(new SportHandler());
         $registry->registerSubscribingHandler(new RefereeHandler());
 
         $registry->registerSubscribingHandler(new PlanningHandler());

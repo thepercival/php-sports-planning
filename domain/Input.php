@@ -26,9 +26,9 @@ use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Type as PlanningType;
 use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
 use SportsPlanning\Referee\Info as RefereeInfo;
-use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsOne;
-use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsTwo;
-use SportsPlanning\Sports\Plannable\AgainstPlannableTwoVsTwo;
+use SportsPlanning\Sports\Plannable\PlannableOneVsOneAgainst;
+use SportsPlanning\Sports\Plannable\PlannableOneVsTwoAgainst;
+use SportsPlanning\Sports\Plannable\PlannableAgainstTwoVsTwo;
 use SportsPlanning\Sports\Plannable\PlannableSport;
 use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
 use SportsPlanning\Sports\SportWithNrOfFields;
@@ -53,7 +53,7 @@ class Input extends Identifiable
      */
     protected Collection $poules;
     /**
-     * @var Collection<int|string, TogetherPlannableSport|AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo>
+     * @var Collection<int|string, TogetherPlannableSport|PlannableOneVsOneAgainst|PlannableOneVsTwoAgainst|PlannableAgainstTwoVsTwo>
      */
     protected Collection $sports;
     /**
@@ -95,11 +95,11 @@ class Input extends Identifiable
             if( $sportWithNrOfFieldsAndNrOfCycles->sport instanceof TogetherSport ) {
                 $sport = new TogetherPlannableSport($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
             } else if( $sportWithNrOfFieldsAndNrOfCycles->sport instanceof AgainstOneVsOne ) {
-                $sport = new AgainstPlannableOneVsOne($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
+                $sport = new PlannableOneVsOneAgainst($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
             } else if( $sportWithNrOfFieldsAndNrOfCycles->sport instanceof AgainstOneVsTwo ) {
-                $sport = new AgainstPlannableOneVsTwo($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
+                $sport = new PlannableOneVsTwoAgainst($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
             } else /*if( $sportWithNrOfFieldsAndNrOfCycles->sport instanceof AgainstTwoVsTwo )*/ {
-                $sport = new AgainstPlannableTwoVsTwo($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
+                $sport = new PlannableAgainstTwoVsTwo($sportWithNrOfFieldsAndNrOfCycles->sport, $sportWithNrOfFieldsAndNrOfCycles->nrOfCycles, $this);
             }
             for ($fieldNr = 1; $fieldNr <= $sportWithNrOfFieldsAndNrOfCycles->nrOfFields; $fieldNr++) {
                 new Field($sport);
@@ -244,14 +244,14 @@ class Input extends Identifiable
     }*/
 
     /**
-     * @return Collection<int|string, TogetherPlannableSport|AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo>
+     * @return Collection<int|string, TogetherPlannableSport|PlannableOneVsOneAgainst|PlannableOneVsTwoAgainst|PlannableAgainstTwoVsTwo>
      */
     public function getSports(): Collection
     {
         return $this->sports;
     }
 
-    public function getSport(int $number): PlannableSport
+    public function getSport(int $number): TogetherPlannableSport|PlannableOneVsOneAgainst|PlannableOneVsTwoAgainst|PlannableAgainstTwoVsTwo
     {
         foreach ($this->getSports() as $sport) {
             if ($sport->getNumber() === $number) {
@@ -266,7 +266,7 @@ class Input extends Identifiable
      */
     public function createSportsWithNrOfFieldsAndNrOfCycles(): array
     {
-        return array_values( array_map(function (TogetherPlannableSport|AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo $plannableSport): SportWithNrOfFieldsAndNrOfCycles {
+        return array_values( array_map(function (TogetherPlannableSport|PlannableOneVsOneAgainst|PlannableOneVsTwoAgainst|PlannableAgainstTwoVsTwo $plannableSport): SportWithNrOfFieldsAndNrOfCycles {
             return $plannableSport->createSportWithNrOfFieldsAndNrOfCycles();
         }, $this->sports->toArray()) );
     }
@@ -277,7 +277,7 @@ class Input extends Identifiable
     public function createSports(): array
     {
         return array_values(
-            array_map( function (PlannableSport $sport): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {
+            array_map( function (TogetherPlannableSport|PlannableOneVsOneAgainst|PlannableOneVsTwoAgainst|PlannableAgainstTwoVsTwo $sport): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {
                 return $sport->sport;
             }, $this->sports->toArray())
         );

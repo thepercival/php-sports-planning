@@ -11,7 +11,7 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Output\Combinations\HomeAwayOutput as HomeAwayOutput;
-use SportsPlanning\Schedule\GameRounds\AgainstGameRound as AgainstGameRound;
+use SportsPlanning\Schedules\GameRounds\AgainstGameRound as AgainstGameRound;
 
 class GameRoundOutput extends OutputHelper
 {

@@ -15,9 +15,9 @@ use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsOne;
-use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsTwo;
-use SportsPlanning\Sports\Plannable\AgainstPlannableTwoVsTwo;
+use SportsPlanning\Sports\Plannable\PlannableOneVsOneAgainst;
+use SportsPlanning\Sports\Plannable\PlannableOneVsTwoAgainst;
+use SportsPlanning\Sports\Plannable\PlannableAgainstTwoVsTwo;
 use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
 
 class TogetherGame extends GameBase

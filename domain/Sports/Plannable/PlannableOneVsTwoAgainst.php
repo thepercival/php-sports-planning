@@ -4,29 +4,25 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Sports\Plannable;
 
-use Exception;
-use SportsHelpers\Sports\TogetherSport;
+use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsPlanning\Input;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
-use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
+use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsTwoWithNrOfPlaces;
 
-class TogetherPlannableSport extends PlannableSportAbstract
+class PlannableOneVsTwoAgainst extends PlannableAgainstSportAbstract
 {
     public function __construct(
-        public readonly TogetherSport       $sport,
-        public readonly int                 $nrOfCycles,
-        Input                               $input)
+        public readonly AgainstOneVsTwo $sport,
+        int                             $nrOfCycles,
+        Input                           $input)
     {
-        if( $this->nrOfCycles < 1 ) {
-            throw new Exception('Nr of cycles must be greater than 1');
-        }
-        parent::__construct($input);
+        parent::__construct($nrOfCycles, $input);
         $this->input->getSports()->add($this);
     }
 
-    public function createSportWithNrOfPlaces(int $nrOfPlaces): TogetherSportWithNrOfPlaces {
-        return new TogetherSportWithNrOfPlaces( $nrOfPlaces, $this->sport );
+    public function createSportWithNrOfPlaces(int $nrOfPlaces): AgainstOneVsTwoWithNrOfPlaces {
+        return new AgainstOneVsTwoWithNrOfPlaces( $nrOfPlaces, $this->sport );
     }
 
     public function createSportWithNrOfFields(): SportWithNrOfFields {

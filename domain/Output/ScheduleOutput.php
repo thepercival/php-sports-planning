@@ -13,8 +13,12 @@ use SportsPlanning\Counters\Maps\Schedule\AllScheduleMaps;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
-use SportsPlanning\Schedule as ScheduleBase;
-use SportsPlanning\Schedule\ScheduleTogetherSport;
+use SportsPlanning\Schedules as ScheduleBase;
+use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
+use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsTwo;
+use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
+use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
+use SportsPlanning\Schedules\Sports\ScheduleTogetherSport;
 
 class ScheduleOutput extends OutputHelper
 {
@@ -25,16 +29,16 @@ class ScheduleOutput extends OutputHelper
     }
 
     /**
-     * @param list<ScheduleBase> $schedules
+     * @param list<ScheduleWithNrOfPlaces> $schedules
      * @param int|null $sportNumber
      */
     public function output(array $schedules, int $sportNumber = null): void
     {
         foreach ($schedules as $schedule) {
             $prefix = '    ';
-            $this->logger->info( $prefix . ' schedule => ' . $this->toJsonCustom($schedule) );
+            $this->logger->info( $prefix . ' schedule => ' . $schedule->createJson() );
             foreach ($schedule->getSportSchedules() as $sportSchedule) {
-                if ($sportNumber !== null && $sportNumber !== $sportSchedule->getNumber()) {
+                if ($sportNumber !== null && $sportNumber !== $sportSchedule->number) {
                     continue;
                 }
                 if( $sportSchedule instanceof ScheduleTogetherSport) {
@@ -44,7 +48,7 @@ class ScheduleOutput extends OutputHelper
                 }
 
 //    }
-                $this->logger->info( $prefix . '    sportschedule => sportNr: ' . $sportSchedule->getNumber() . ' , sport: "' . $sport . '"');
+                $this->logger->info( $prefix . '    sportschedule => sportNr: ' . $sportSchedule->number . ' , sport: "' . $sport . '"');
                 foreach ($sportSchedule->getGames() as $gameRoundGame) {
                     $this->logger->info('            ' . $gameRoundGame);
                 }
@@ -53,16 +57,16 @@ class ScheduleOutput extends OutputHelper
     }
 
     /**
-     * @param list<ScheduleBase> $schedules
+     * @param list<ScheduleWithNrOfPlaces> $schedules
      */
     public function outputTotals(array $schedules): void
     {
         foreach ($schedules as $schedule) {
-            $this->outputScheduleTotals($schedule->getNrOfPlaces(), $schedule);
+            $this->outputScheduleTotals($schedule->nrOfPlaces, $schedule);
         }
     }
 
-    public function outputScheduleTotals(int $nrOfPlaces, ScheduleBase $schedule): void
+    public function outputScheduleTotals(int $nrOfPlaces, ScheduleWithNrOfPlaces $schedule): void
     {
         $hasWithSport = false;
         $hasAgainstSport = false;
@@ -70,7 +74,7 @@ class ScheduleOutput extends OutputHelper
         $allScheduleMaps = new AllScheduleMaps($nrOfPlaces);
         $unequalNrOfGames = 0;
         foreach ($schedule->getSportSchedules() as $sportSchedule) {
-            if (($sportSchedule->sport instanceof TogetherSport)) {
+            if ($sportSchedule instanceof ScheduleTogetherSport) {
                 continue;
             }
             $hasAgainstSport = true;
@@ -78,7 +82,7 @@ class ScheduleOutput extends OutputHelper
                 $hasWithSport = true;
             }
 
-            $homeAways = $this->convertGamesToHomeAways(array_values( $sportSchedule->getGames()->toArray()));
+            $homeAways = $this->convertGamesToHomeAways($sportSchedule->getGames());
             $allScheduleMaps->addHomeAways($homeAways);
         }
         $prefix = '         ';
@@ -109,13 +113,16 @@ class ScheduleOutput extends OutputHelper
     }
 
     /**
-     * @param list<ScheduleBase\ScheduleGame> $scheduleGames
+     * @param list<ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo> $scheduleAgainstGames
      * @return list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway>
      */
-    public function convertGamesToHomeAways(array $scheduleGames): array {
-        return array_map( function(ScheduleBase\ScheduleGame $game): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
-            return $game->convertToHomeAway();
-        }, $scheduleGames );
+    public function convertGamesToHomeAways(array $scheduleAgainstGames): array {
+        return array_map(
+            function(
+                ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo $scheduleAgainstGame
+            ): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
+            return $scheduleAgainstGame->convertToHomeAway();
+        }, $scheduleAgainstGames );
     }
 
 //    /**
@@ -176,15 +183,6 @@ class ScheduleOutput extends OutputHelper
         if( strlen($line) > 0 ) {
             $this->logger->info($prefix . $line);
         }
-    }
-
-    private function toJsonCustom(ScheduleBase $schedule): string
-    {
-        $output = new \stdClass();
-        $output->nrOfPlaces = $schedule->getNrOfPlaces();
-        $output->sports = $schedule->createSports();
-        $json = json_encode($output);
-        return $json === false ? '?' : $json;
     }
 
 }

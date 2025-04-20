@@ -21,9 +21,9 @@ use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsOne;
-use SportsPlanning\Sports\Plannable\AgainstPlannableOneVsTwo;
-use SportsPlanning\Sports\Plannable\AgainstPlannableTwoVsTwo;
+use SportsPlanning\Sports\Plannable\PlannableOneVsOneAgainst;
+use SportsPlanning\Sports\Plannable\PlannableOneVsTwoAgainst;
+use SportsPlanning\Sports\Plannable\PlannableAgainstTwoVsTwo;
 use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
 
 class AgainstGame extends GameAbstract
@@ -114,7 +114,7 @@ class AgainstGame extends GameAbstract
         return $this->poulePlaces;
     }
 
-    public function getSport(): AgainstPlannableOneVsOne|AgainstPlannableOneVsTwo|AgainstPlannableTwoVsTwo
+    public function getSport(): PlannableOneVsOneAgainst|PlannableOneVsTwoAgainst|PlannableAgainstTwoVsTwo
     {
         $sport = $this->field->getSport();
         if ($sport instanceof TogetherPlannableSport) {

@@ -6,13 +6,10 @@ use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
-use SportsPlanning\Schedule\ScheduleTogetherSport;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsOneWithNrOfPlaces;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsTwoWithNrOfPlaces;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
-use SportsPlanning\Sports\SportWithNrOfPlaces\SportWithNrOfPlacesInterface;
 use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
-use function PHPUnit\Framework\throwException;
 
 class SportWithNrOfFieldsAndNrOfCycles extends SportWithNrOfFields implements \Stringable
 {

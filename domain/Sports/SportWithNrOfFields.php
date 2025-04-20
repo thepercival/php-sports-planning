@@ -6,7 +6,6 @@ use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
-use SportsPlanning\Schedule\ScheduleTogetherSport;
 
 class SportWithNrOfFields implements \Stringable
 {
