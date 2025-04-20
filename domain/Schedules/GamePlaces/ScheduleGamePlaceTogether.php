@@ -12,7 +12,8 @@ class ScheduleGamePlaceTogether
     public function __construct(
         public readonly ScheduleGameTogether $game,
         public readonly int $placeNr,
-        public readonly int $cycleNr)
+        public readonly int $cycleNr,
+    )
     {
         $game->addGamePlace($this);
     }

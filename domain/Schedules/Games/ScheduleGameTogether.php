@@ -14,10 +14,7 @@ class ScheduleGameTogether
      */
     private array $gamePlaces = [];
 
-    public function __construct(
-        public readonly ScheduleTogetherSport $scheduleSport,
-        public readonly int $cycleNr,
-        public readonly int $cyclePartNr)
+    public function __construct(public readonly ScheduleTogetherSport $scheduleSport)
     {
         $this->scheduleSport->addGame($this);
     }
