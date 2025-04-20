@@ -105,6 +105,38 @@ class ScheduleWithNrOfPlaces
     }
 
     /**
+     * @return list<ScheduleTogetherSport>
+     * @throws \Exception
+     */
+    public function getTogetherSportSchedules(): array {
+
+        return array_values( array_filter(
+            array_map( function($sportSchedule): ScheduleTogetherSport|null {
+                return ($sportSchedule instanceof ScheduleTogetherSport ) ? $sportSchedule : null;
+            }, $this->getSportSchedules() ),
+            function(ScheduleTogetherSport|null $scheduleTogetherSport ): bool {
+                return $scheduleTogetherSport instanceof ScheduleTogetherSport;
+            }
+        ) );
+    }
+
+    /**
+     * @return list<ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo>
+     * @throws \Exception
+     */
+    public function getAgainstSportSchedules(): array {
+
+        return array_values( array_filter(
+            array_map( function($sportSchedule): ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo|null {
+                return ($sportSchedule instanceof ScheduleTogetherSport ) ? null : $sportSchedule;
+            }, $this->getSportSchedules() ),
+            function(ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo|null $scheduleAgainstSport ): bool {
+                return $scheduleAgainstSport !== null;
+            }
+        ) );
+    }
+
+    /**
      * @param list<ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo> $sportSchedules
      * @return void
      * @throws \Exception
