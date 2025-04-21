@@ -15,9 +15,10 @@ class ScheduleAgainstOneVsTwo extends ScheduleSportAbstract
      */
     protected array $games = [];
 
-    public function __construct(ScheduleWithNrOfPlaces $schedule, int $number, public readonly AgainstOneVsTwo $sport)
+    public function __construct(ScheduleWithNrOfPlaces $schedule, int $number, public readonly AgainstOneVsTwo $sport,
+                                int $nrOfCycles)
     {
-        parent::__construct($schedule, $number);
+        parent::__construct($schedule, $number,$nrOfCycles);
         $schedule->addSportSchedule($this);
     }
 

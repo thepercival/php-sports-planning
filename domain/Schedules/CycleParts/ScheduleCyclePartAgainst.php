@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Schedules\GameRounds;
+namespace SportsPlanning\Schedules\CycleParts;
 
 use SportsPlanning\Counters\Maps\PlaceNrCounterMapAbstract;
 use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
@@ -10,22 +10,28 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Planning\ListNode;
+use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainst;
+use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
+use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsTwo;
+use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
 
 /**
- * @template-extends ListNode<AgainstGameRound>
+ * @template-extends ListNode<ScheduleCyclePartAgainst>
  */
-class AgainstGameRound extends ListNode
+class ScheduleCyclePartAgainst extends ListNode
 {
     protected AmountNrCounterMap $placeNrCounterMap;
 
     /**
-     * @var list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway>
+     * @var list<ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo>
      */
-    protected array $homeAways = [];
+    protected array $games = [];
 
-    public function __construct(public readonly int $nrOfPlaces, AgainstGameRound|null $previous = null)
+    public function __construct(
+        public readonly ScheduleCycleAgainst $cycle,
+        ScheduleCyclePartAgainst|null $previous = null)
     {
-        $this->placeNrCounterMap = new AmountNrCounterMap($nrOfPlaces);
+        $this->placeNrCounterMap = new AmountNrCounterMap($cycle->nrOfPlaces);
         parent::__construct($previous);
     }
 
@@ -34,21 +40,22 @@ class AgainstGameRound extends ListNode
         return $this->placeNrCounterMap->count($placeNr) > 0;
     }
 
-    public function createNext(): AgainstGameRound
+    public function createNext(): ScheduleCyclePartAgainst
     {
-        $this->next = new AgainstGameRound($this->nrOfPlaces, $this);
+        $this->next = new ScheduleCyclePartAgainst($this->cycle, $this);
         return $this->next;
     }
 
-    public function add(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
+    public function addGame(ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo $againstGame): void
     {
+        $homeAway = $againstGame->convertToHomeAway();
         foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
             if( $this->placeNrCounterMap->count($placeNr) > 0 ) {
                 throw new \Exception('a placeNr can only be used 1 time per gameRound');
             }
             $this->placeNrCounterMap->incrementPlaceNr($placeNr);
         }
-        $this->homeAways[] = $homeAway;
+        $this->games[] = $againstGame;
 
     }
 
@@ -71,9 +78,12 @@ class AgainstGameRound extends ListNode
     /**
      * @return list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway>
      */
-    public function getHomeAways(): array
+    public function getGamesAsHomeAways(): array
     {
-        return $this->homeAways;
+        return array_map(
+            function(ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo $againstGame){
+                return $againstGame->convertToHomeAway();
+            }, $this->games );
     }
 
     public function isSomeHomeAwayPlaceNrParticipating(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): bool
@@ -89,24 +99,21 @@ class AgainstGameRound extends ListNode
     public function getSelfAndAllPreviousNrOfHomeAways(): int {
         $previous = $this->getPrevious();
         if( $previous !== null ) {
-            return count($this->getHomeAways()) + $previous->getSelfAndAllPreviousNrOfHomeAways();
+            return count($this->getGamesAsHomeAways()) + $previous->getSelfAndAllPreviousNrOfHomeAways();
         }
-        return count($this->getHomeAways());
+        return count($this->getGamesAsHomeAways());
     }
 
-    /**
-     * @return list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway>
-     */
-    public function getAllHomeAways(): array
-    {
-        $homeAways = [];
-        $gameRound = $this->getFirst();
-        while ($gameRound) {
-            foreach ($gameRound->getHomeAways() as $homeAway) {
-                $homeAways[] = $homeAway;
-            }
-            $gameRound = $gameRound->getNext();
-        }
-        return $homeAways;
-    }
+
+
+//    /**
+//     * @return list<ScheduleGameAgainstOneVsOne>
+//     */
+//    public function getGames(): array {
+//        return $this->games;
+//    }
+//
+//    public function addGame(ScheduleGameAgainstOneVsOne $game): void {
+//        $this->games[] = $game;
+//    }
 }

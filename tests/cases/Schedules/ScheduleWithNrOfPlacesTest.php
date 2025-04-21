@@ -5,16 +5,17 @@ namespace SportsPlanning\Tests\Schedules;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
+use SportsPlanning\Sports\SportWithNrOfCycles;
 
 class ScheduleWithNrOfPlacesTest extends TestCase
 {
     public function testGetNrOfPlaces(): void
     {
         $nrOfPlaces = 5;
-        $sports = [
-            new AgainstOneVsOne()
+        $sportsWithNrOfCycles = [
+            new SportWithNrOfCycles( new AgainstOneVsOne(), 1)
         ];
-        $schedule = new ScheduleWithNrOfPlaces($nrOfPlaces, $sports);
+        $schedule = new ScheduleWithNrOfPlaces($nrOfPlaces, $sportsWithNrOfCycles);
         self::assertSame(5, $schedule->nrOfPlaces );
     }
 
@@ -31,10 +32,10 @@ class ScheduleWithNrOfPlacesTest extends TestCase
     public function testCreateJson(): void
     {
         $nrOfPlaces = 5;
-        $sports = [
-            new AgainstOneVsOne()
+        $sportsWithNrOfCycles = [
+            new SportWithNrOfCycles( new AgainstOneVsOne(), 1)
         ];
-        $schedule = new ScheduleWithNrOfPlaces($nrOfPlaces, $sports);
+        $schedule = new ScheduleWithNrOfPlaces($nrOfPlaces, $sportsWithNrOfCycles);
         self::assertSame('{"nrOfPlaces":5,"sports":[{"nrOfHomePlaces":1,"nrOfAwayPlaces":1}]}', $schedule->createJson() );
     }
 

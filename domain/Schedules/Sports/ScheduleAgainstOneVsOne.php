@@ -15,9 +15,14 @@ class ScheduleAgainstOneVsOne extends ScheduleSportAbstract
      */
     protected array $games = [];
 
-    public function __construct(ScheduleWithNrOfPlaces $schedule, int $number, public readonly AgainstOneVsOne $sport)
+    public function __construct(
+        ScheduleWithNrOfPlaces $schedule,
+        int $number,
+        public readonly AgainstOneVsOne $sport,
+        int $nrOfCycles
+    )
     {
-        parent::__construct($schedule, $number);
+        parent::__construct($schedule, $number,$nrOfCycles);
         $schedule->addSportSchedule($this);
     }
 
@@ -26,10 +31,6 @@ class ScheduleAgainstOneVsOne extends ScheduleSportAbstract
      */
     public function getGames(): array {
         return $this->games;
-    }
-
-    public function addGame(ScheduleGameAgainstOneVsOne $game): void {
-        $this->games[] = $game;
     }
 
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])

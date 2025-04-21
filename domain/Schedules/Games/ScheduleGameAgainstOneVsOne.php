@@ -6,20 +6,15 @@ namespace SportsPlanning\Schedules\Games;
 
 use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
 
 class ScheduleGameAgainstOneVsOne extends ScheduleGameAgainstAbstract
 {
-    public function __construct(
-        public readonly ScheduleAgainstOneVsOne $scheduleSport,
-        public readonly int $cycleNr,
-        public readonly int $cyclePartNr)
+    public function __construct(ScheduleCyclePartAgainst $cyclePart)
     {
-        parent::__construct();
-        $this->scheduleSport->addGame($this);
+        parent::__construct($cyclePart);
     }
-
-
 
     /**
      * @param AgainstSide $againstSide
@@ -44,7 +39,7 @@ class ScheduleGameAgainstOneVsOne extends ScheduleGameAgainstAbstract
 
     public function __toString(): string
     {
-        return 'cy ' . $this->cycleNr. '.' . $this->cyclePartNr. ' : ' . $this->convertToHomeAway();
+        return 'cy ' . $this->cyclePart->getNumber(). '.' . $this->cyclePart->cycle->getNumber(). ' : ' . $this->convertToHomeAway();
     }
 
 }

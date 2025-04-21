@@ -10,7 +10,8 @@ abstract class ScheduleSportAbstract
 {
     public function __construct(
         public readonly ScheduleWithNrOfPlaces $schedule,
-        public readonly int $number)
+        public readonly int $number,
+        public readonly int $nrOfCycles)
     {
     }
 

@@ -12,21 +12,21 @@ class ScheduleAgainstOneVsOneTest extends TestCase
     public function testGetSchedule(): void
     {
         $schedule = new ScheduleWithNrOfPlaces(5, []);
-        $scheduleSport = new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne());
+        $scheduleSport = new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne(), 1);
         self::assertSame($schedule, $scheduleSport->schedule );
     }
 
     public function testGetNumber(): void
     {
         $schedule = new ScheduleWithNrOfPlaces(5, []);
-        $scheduleSport = new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne());
+        $scheduleSport = new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne(), 1);
         self::assertSame(1, $scheduleSport->number );
     }
 
     public function testGetGames(): void
     {
         $schedule = new ScheduleWithNrOfPlaces(5, []);
-        $scheduleSport = new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne());
+        $scheduleSport = new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne(), 1);
         self::assertCount(0, $scheduleSport->getGames() );
     }
 }

@@ -12,6 +12,7 @@ use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsTwo;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstTwoVsTwo;
 use SportsPlanning\Schedules\Sports\ScheduleTogetherSport;
+use SportsPlanning\Sports\SportWithNrOfCycles;
 
 class ScheduleWithNrOfPlaces
 {
@@ -22,12 +23,12 @@ class ScheduleWithNrOfPlaces
 
     /**
      * @param int $nrOfPlaces
-     * @param list<TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo> $sports
+     * @param list<SportWithNrOfCycles> $sportsWithNrOfCycles
      */
-    public function __construct(public int $nrOfPlaces, array $sports)
+    public function __construct(public int $nrOfPlaces, array $sportsWithNrOfCycles)
     {
-        foreach($this->sortSports($sports) as $sport) {
-            $this->createSportSchedule(count($this->sportSchedules) + 1, $sport);
+        foreach($this->sortSports($sportsWithNrOfCycles) as $sportWithNrOfCycles) {
+            $this->createSportSchedule(count($this->sportSchedules) + 1, $sportWithNrOfCycles);
         }
     }
 
@@ -39,16 +40,17 @@ class ScheduleWithNrOfPlaces
      * 5. AgainstOneVsTwo
      * 6. AgainstTwoVsTwo
      *
-     * @param list<TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo> $sports
-     * @return list<TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo>
+     * @param list<SportWithNrOfCycles> $sportsWithNrOfCycles
+     * @return list<SportWithNrOfCycles>
      *
      */
-    private  function sortSports(array $sports): array
+    private  function sortSports(array $sportsWithNrOfCycles): array
     {
-        uasort($sports, function (
-            TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo $sportA,
-            TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo $sportB): int {
-
+        uasort($sportsWithNrOfCycles, function (
+            SportWithNrOfCycles $sportWithNrOfCyclesA,
+            SportWithNrOfCycles $sportWithNrOfCyclesB): int {
+            $sportA = $sportWithNrOfCyclesA->sport;
+            $sportB = $sportWithNrOfCyclesB->sport;
             if ( $sportA instanceof TogetherSport && $sportB instanceof TogetherSport ) {
                 return ($sportA->getNrOfGamePlaces() ?? 0) - ( $sportB->getNrOfGamePlaces() ?? 0);
             }
@@ -72,22 +74,24 @@ class ScheduleWithNrOfPlaces
             }
             return 0;
         });
-        return array_values($sports);
+        return array_values($sportsWithNrOfCycles);
     }
 
     private  function createSportSchedule(
         int $number,
-        TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo $sport
+        SportWithNrOfCycles $sportWithNrOfCycles
     ) : ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo
     {
+        $sport = $sportWithNrOfCycles->sport;
+        $nrOfCycles = $sportWithNrOfCycles->nrOfCycles;
         if ( $sport instanceof TogetherSport ) {
-            return new ScheduleTogetherSport($this, $number, $sport);
+            return new ScheduleTogetherSport($this, $number, $sport, $nrOfCycles);
         } else if ( $sport instanceof AgainstOneVsOne ) {
-            return new ScheduleAgainstOneVsOne($this, $number, $sport);
+            return new ScheduleAgainstOneVsOne($this, $number, $sport, $nrOfCycles);
         } else if ( $sport instanceof AgainstOneVsTwo ) {
-            return new ScheduleAgainstOneVsTwo($this, $number, $sport);
+            return new ScheduleAgainstOneVsTwo($this, $number, $sport, $nrOfCycles);
         }
-        return new ScheduleAgainstTwoVsTwo($this, $number, $sport);
+        return new ScheduleAgainstTwoVsTwo($this, $number, $sport, $nrOfCycles);
     }
 
     public function addSportSchedule(

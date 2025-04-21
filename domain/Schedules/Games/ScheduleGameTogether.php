@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedules\Games;
 
+use SportsPlanning\Schedules\Cycles\ScheduleCycleTogether;
 use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceTogether;
-use SportsPlanning\Schedules\Sports\ScheduleTogetherSport;
 
 class ScheduleGameTogether
 {
@@ -14,9 +14,9 @@ class ScheduleGameTogether
      */
     private array $gamePlaces = [];
 
-    public function __construct(public readonly ScheduleTogetherSport $scheduleSport)
+    public function __construct(public readonly ScheduleCycleTogether $cycle)
     {
-        $this->scheduleSport->addGame($this);
+        $cycle->addGame($this);
     }
 
     /**
@@ -29,6 +29,7 @@ class ScheduleGameTogether
 
     public function addGamePlace(ScheduleGamePlaceTogether $gamePlace): void
     {
+        $this->cycle->addGamePlace($gamePlace);
         $this->gamePlaces[] = $gamePlace;
     }
 

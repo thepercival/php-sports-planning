@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedules\Games;
 
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
 use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceAgainst;
 
 abstract class ScheduleGameAgainstAbstract
@@ -13,7 +14,7 @@ abstract class ScheduleGameAgainstAbstract
      */
     private array $gamePlaces = [];
 
-    public function __construct()
+    public function __construct(public readonly ScheduleCyclePartAgainst $cyclePart)
     {
     }
 

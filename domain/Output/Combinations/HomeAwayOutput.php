@@ -18,7 +18,8 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Place;
-use SportsPlanning\Schedules\GameRounds\AgainstGameRound as AgainstGameRound;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst as AgainstGameRound;
 
 class HomeAwayOutput extends OutputHelper
 {
@@ -97,17 +98,17 @@ class HomeAwayOutput extends OutputHelper
 
     public function output(
         OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway,
-        AgainstGameRound|null $gameRound = null,
-        string|null $prefix = null): void
+        ScheduleCyclePartAgainst|null                      $cycle = null,
+        string|null                                        $prefix = null): void
     {
         $useColors = $this->useColors();
-        $gameRoundColorNr = ($useColors && $gameRound !== null) ? ($gameRound->getNumber() % 10) : -1;
+        $gameRoundColorNr = ($useColors && $cycle !== null) ? ($cycle->getNumber() % 10) : -1;
         $gameRoundColor = $this->convertNumberToColor($gameRoundColorNr);
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
-            ($gameRound !== null ? Color::getColored(
+            ($cycle !== null ? Color::getColored(
                     $gameRoundColor,
-                    'gameRound ' . $gameRound->getNumber()
+                    'cy ' . $cycle->getNumber()
                 ) . ', ' : '')
             // . 'substr(' . $game->getRoundNumber(), 2 ) . substr( $game->getSubNumber(), 2 ) . ") "
             . $homeAway

@@ -15,6 +15,5 @@ class ScheduleGamePlaceTogether
         public readonly int $cycleNr,
     )
     {
-        $game->addGamePlace($this);
     }
 }
