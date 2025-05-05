@@ -4,19 +4,32 @@ namespace SportsPlanning\Tests\Schedules\Games;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\Against\AgainstSide;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
-use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainst;
+use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
+use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainstOneVsOne;
 use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceAgainst;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
+use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
+use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
+use SportsPlanning\Sports\SportWithNrOfCycles;
 
 class ScheduleGameAgainstOneVsOneTest extends TestCase
 {
     public function testGetSidePlaceNrs(): void
     {
         $nrOfPlaces = 5;
-        $cycle = new ScheduleCycleAgainst($nrOfPlaces);
+        $againstOneVsOne = new AgainstOneVsOne();
+        $sportsWithNrOfCycles = [
+            new SportWithNrOfCycles($againstOneVsOne, 1)
+        ];
 
-        $cyclePart = new ScheduleCyclePartAgainst($cycle);
+        $scheduleWithNrOfPlaces = new ScheduleWithNrOfPlaces($nrOfPlaces, $sportsWithNrOfCycles);
+        $schedulesAgainstOneVsOne = $scheduleWithNrOfPlaces->getAgainstSportSchedules();
+        $scheduleAgainstOneVsOne = reset($schedulesAgainstOneVsOne);
+        self::assertInstanceOf(ScheduleAgainstOneVsOne::class, $scheduleAgainstOneVsOne);
+        $cycle = new ScheduleCycleAgainstOneVsOne($scheduleAgainstOneVsOne);
+
+        $cyclePart = new ScheduleCyclePartAgainstOneVsOne($cycle);
         $game = new ScheduleGameAgainstOneVsOne($cyclePart);
         new ScheduleGamePlaceAgainst($game, AgainstSide::Home, 1);
         self::assertCount(1, $game->getSidePlaceNrs(AgainstSide::Home) );

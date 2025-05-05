@@ -8,30 +8,26 @@ use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
 use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
+use SportsPlanning\Sports\SportWithNrOfCycles;
+use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsTwoWithNrOfPlaces;
+use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 
 class ScheduleAgainstTwoVsTwo extends ScheduleSportAbstract
 {
-    /**
-     * @var list<ScheduleGameAgainstTwoVsTwo>
-     */
-    protected array $games = [];
-
     public function __construct(ScheduleWithNrOfPlaces $schedule, int $number, public readonly AgainstTwoVsTwo $sport,
                                 int $nrOfCycles)
     {
         parent::__construct($schedule, $number,$nrOfCycles);
-        $schedule->addSportSchedule($this);
     }
 
-    /**
-     * @return list<ScheduleGameAgainstTwoVsTwo>
-     */
-    public function getGames(): array {
-        return $this->games;
+    public function createSportWithNrOfPlaces(): AgainstTwoVsTwoWithNrOfPlaces
+    {
+        return new AgainstTwoVsTwoWithNrOfPlaces($this->scheduleWithNrOfPlaces->nrOfPlaces, $this->sport);
     }
 
-    public function addGame(ScheduleGameAgainstTwoVsTwo $game): void {
-        $this->games[] = $game;
+    public function createSportWithNrOfCycles(): SportWithNrOfCycles
+    {
+        return new SportWithNrOfCycles($this->sport, $this->nrOfCycles);
     }
 
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])

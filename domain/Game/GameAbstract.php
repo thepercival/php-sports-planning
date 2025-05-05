@@ -12,8 +12,6 @@ use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Referee;
-use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsOne;
-use SportsPlanning\Sports\Plannable\PlannableSport;
 
 abstract class GameAbstract extends Identifiable
 {

@@ -9,25 +9,24 @@ use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
 use SportsPlanning\Exceptions\SportsIncompatibleWithPouleStructureException;
-use SportsPlanning\Referee\Info as RefereeInfo;
-use SportsPlanning\Sports\SportWithNrOfFields;
+use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
-class Configuration
+readonly class Configuration
 {
-    private string|null $name = null;
+    private string $name;
 
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
-     * @param RefereeInfo $refereeInfo
+     * @param PlanningRefereeInfo $refereeInfo
      * @param bool $perPoule
      * @throws \Exception
      */
     public function __construct(
         public PouleStructure $pouleStructure,
         public array $sportsWithNrOfFieldsAndNrOfCycles,
-        public RefereeInfo $refereeInfo,
+        public PlanningRefereeInfo $refereeInfo,
         public bool $perPoule )
     {
         $selfReferee = $refereeInfo->selfRefereeInfo->selfReferee;
@@ -39,6 +38,7 @@ class Configuration
         if( !$pouleStructure->isCompatibleWithSports( $sports ) ) {
             throw new SportsIncompatibleWithPouleStructureException($pouleStructure, $sports);
         }
+        $this->name = $this->setNameFromProperties();
     }
 
     /**
@@ -50,18 +50,21 @@ class Configuration
         }, $this->sportsWithNrOfFieldsAndNrOfCycles );
     }
 
-    public function getName(): string {
-        if( $this->name === null ) {
-            $nameParts = [
-                '[' . $this->pouleStructure . ']',
-                '[' . join(' & ', $this->sportsWithNrOfFieldsAndNrOfCycles) . ']',
-                'ref=>' . $this->refereeInfo
-            ];
-            if( $this->perPoule ) {
-                $nameParts[] =  'pp';
-            }
-            $this->name = join(' - ', $nameParts);
+    private function setNameFromProperties(): string {
+
+        $nameParts = [
+            '[' . $this->pouleStructure . ']',
+            '[' . join(' & ', $this->sportsWithNrOfFieldsAndNrOfCycles) . ']',
+            'ref=>' . $this->refereeInfo
+        ];
+        if( $this->perPoule ) {
+            $nameParts[] =  'pp';
         }
+        return join(' - ', $nameParts);
+    }
+
+    public function getName(): string {
+
         return $this->name;
     }
 

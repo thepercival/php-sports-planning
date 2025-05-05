@@ -9,7 +9,7 @@ use SportsHelpers\PouleStructures\PouleStructure;
 use SportsPlanning\Counters\CounterForPoule;
 use SportsPlanning\Input;
 use SportsPlanning\Poule;
-use SportsPlanning\Referee\Info as RefereeInfo;
+use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class CounterForPouleTest extends TestCase
@@ -65,7 +65,7 @@ class CounterForPouleTest extends TestCase
         $input = new Input( new Input\Configuration(
             new PouleStructure(3),
             [$sportWithNrOfFieldsAndNrOfCycles],
-            new RefereeInfo(),
+            new PlanningRefereeInfo(),
             false
         ));
         return $input->getFirstPoule();

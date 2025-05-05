@@ -18,7 +18,7 @@ use SportsPlanning\Poule;
 use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsOne;
 use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsTwo;
 use SportsPlanning\Sports\Plannable\PlannableAgainstTwoVsTwo;
-use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
+use SportsPlanning\Sports\Plannable\PlannableTogetherSport;
 
 class TogetherGame extends GameBase
 {
@@ -42,18 +42,18 @@ class TogetherGame extends GameBase
         return $this->places;
     }
 
-    /**
-     * @param int $gameRoundNumber
-     * @return Collection<int|string, TogetherGamePlace>
-     */
-    public function getPlacesForRoundNumber(int $gameRoundNumber): Collection
-    {
-        return $this->places->filter(
-            function (TogetherGamePlace $gamePlace) use ($gameRoundNumber): bool {
-                return $gamePlace->getGameRoundNumber() === $gameRoundNumber;
-            }
-        );
-    }
+//    /**
+//     * @param int $gameRoundNumber
+//     * @return Collection<int|string, TogetherGamePlace>
+//     */
+//    public function getPlacesForRoundNumber(int $gameRoundNumber): Collection
+//    {
+//        return $this->places->filter(
+//            function (TogetherGamePlace $gamePlace) use ($gameRoundNumber): bool {
+//                return $gamePlace->getGameRoundNumber() === $gameRoundNumber;
+//            }
+//        );
+//    }
 
 //    /**
 //     * @param ArrayCollection | GamePlace[] $places
@@ -110,10 +110,10 @@ class TogetherGame extends GameBase
         return $this->poulePlaces;
     }
 
-    public function getSport(): TogetherPlannableSport
+    public function getSport(): PlannableTogetherSport
     {
         $sport = $this->field->getSport();
-        if (!($sport instanceof TogetherPlannableSport)) {
+        if (!($sport instanceof PlannableTogetherSport)) {
             throw new \Exception('the wrong sport is linked to the game', E_ERROR);
         }
         return $sport;

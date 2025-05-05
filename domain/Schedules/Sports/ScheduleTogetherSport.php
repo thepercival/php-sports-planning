@@ -4,37 +4,35 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedules\Sports;
 
+use oldsportshelpers\old\WithNrOfPlaces\SportWithNrOfPlaces;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Schedules\Games\ScheduleGameTogether;
 use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
+use SportsPlanning\Sports\SportWithNrOfCycles;
+use SportsPlanning\Sports\SportWithNrOfPlaces\SportWithNrOfPlacesInterface;
+use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
 
 class ScheduleTogetherSport extends ScheduleSportAbstract
 {
-    /**
-     * @var list<ScheduleGameTogether>
-     */
-    protected array $games = [];
-
     public function __construct(
-        ScheduleWithNrOfPlaces $schedule,
+        ScheduleWithNrOfPlaces $scheduleWithNrOfPlaces,
         int $number,
         public readonly TogetherSport $sport,
         int $nrOfCycles)
     {
-        parent::__construct($schedule, $number, $nrOfCycles);
-        $schedule->addSportSchedule($this);
+        parent::__construct($scheduleWithNrOfPlaces, $number, $nrOfCycles);
     }
 
-    /**
-     * @return ScheduleGameTogether[]
-     */
-    public function getGames(): array {
-        return $this->games;
+    public function createSportWithNrOfPlaces(): TogetherSportWithNrOfPlaces
+    {
+        return new TogetherSportWithNrOfPlaces($this->scheduleWithNrOfPlaces->nrOfPlaces, $this->sport);
     }
 
-    public function addGame(ScheduleGameTogether $game): void {
-        $this->games[] = $game;
+    public function createSportWithNrOfCycles(): SportWithNrOfCycles
+    {
+        return new SportWithNrOfCycles($this->sport, $this->nrOfCycles);
     }
+
 
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])
 

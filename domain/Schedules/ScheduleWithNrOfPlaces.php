@@ -14,12 +14,12 @@ use SportsPlanning\Schedules\Sports\ScheduleAgainstTwoVsTwo;
 use SportsPlanning\Schedules\Sports\ScheduleTogetherSport;
 use SportsPlanning\Sports\SportWithNrOfCycles;
 
-class ScheduleWithNrOfPlaces
+readonly class ScheduleWithNrOfPlaces
 {
     /**
-     * @var list<ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo>
+     * @var array<int, ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo>
      */
-    protected array $sportSchedules = [];
+    protected array $sportSchedules;
 
     /**
      * @param int $nrOfPlaces
@@ -27,9 +27,12 @@ class ScheduleWithNrOfPlaces
      */
     public function __construct(public int $nrOfPlaces, array $sportsWithNrOfCycles)
     {
+        $sportSchedules = [];
         foreach($this->sortSports($sportsWithNrOfCycles) as $sportWithNrOfCycles) {
-            $this->createSportSchedule(count($this->sportSchedules) + 1, $sportWithNrOfCycles);
+            $sportSchedule = $this->createSportSchedule(count($sportSchedules) + 1, $sportWithNrOfCycles);
+            $sportSchedules[$sportSchedule->number] = $sportSchedule;
         }
+        $this->sportSchedules = $sportSchedules;
     }
 
     /**
@@ -94,18 +97,19 @@ class ScheduleWithNrOfPlaces
         return new ScheduleAgainstTwoVsTwo($this, $number, $sport, $nrOfCycles);
     }
 
-    public function addSportSchedule(
-        ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo $sportSchedule
-    ): void {
-        $this->sportSchedules[] = $sportSchedule;
-    }
-
     /**
      * @return list<ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo>
      * @throws \Exception
      */
     public function getSportSchedules(): array {
-        return $this->sportSchedules;
+        return array_values($this->sportSchedules);
+    }
+
+    public function getSportSchedule(int $number): ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo {
+        if( !array_key_exists($number, $this->sportSchedules)) {
+            throw new \Exception('unknown sportnr');
+        }
+        return $this->sportSchedules[$number];
     }
 
     /**
@@ -120,6 +124,54 @@ class ScheduleWithNrOfPlaces
             }, $this->getSportSchedules() ),
             function(ScheduleTogetherSport|null $scheduleTogetherSport ): bool {
                 return $scheduleTogetherSport instanceof ScheduleTogetherSport;
+            }
+        ) );
+    }
+
+    /**
+     * @return list<ScheduleAgainstOneVsOne>
+     * @throws \Exception
+     */
+    public function getAgainstOneVsOneSchedules(): array {
+
+        return array_values( array_filter(
+            array_map( function($sportSchedule): ScheduleAgainstOneVsOne|null {
+                return ($sportSchedule instanceof ScheduleAgainstOneVsOne ) ? $sportSchedule : null;
+            }, $this->getSportSchedules() ),
+            function(ScheduleAgainstOneVsOne|null $scheduleAgainstSport ): bool {
+                return $scheduleAgainstSport !== null;
+            }
+        ) );
+    }
+
+    /**
+     * @return list<ScheduleAgainstOneVsTwo>
+     * @throws \Exception
+     */
+    public function getAgainstOneVsTwoSchedules(): array {
+
+        return array_values( array_filter(
+            array_map( function($sportSchedule): ScheduleAgainstOneVsTwo|null {
+                return ($sportSchedule instanceof ScheduleAgainstOneVsTwo ) ? $sportSchedule : null;
+            }, $this->getSportSchedules() ),
+            function(ScheduleAgainstOneVsTwo|null $scheduleAgainstSport ): bool {
+                return $scheduleAgainstSport !== null;
+            }
+        ) );
+    }
+
+    /**
+     * @return list<ScheduleAgainstTwoVsTwo>
+     * @throws \Exception
+     */
+    public function getAgainstTwoVsTwoSchedules(): array {
+
+        return array_values( array_filter(
+            array_map( function($sportSchedule): ScheduleAgainstTwoVsTwo|null {
+                return ($sportSchedule instanceof ScheduleAgainstTwoVsTwo ) ? $sportSchedule : null;
+            }, $this->getSportSchedules() ),
+            function(ScheduleAgainstTwoVsTwo|null $scheduleAgainstSport ): bool {
+                return $scheduleAgainstSport !== null;
             }
         ) );
     }
@@ -140,14 +192,6 @@ class ScheduleWithNrOfPlaces
         ) );
     }
 
-    /**
-     * @param list<ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo> $sportSchedules
-     * @return void
-     * @throws \Exception
-     */
-    public function setSportSchedules(array $sportSchedules): void {
-        $this->sportSchedules = $sportSchedules;
-    }
 
 //    /**
 //     * @param int $nrOfPlaces
@@ -174,7 +218,7 @@ class ScheduleWithNrOfPlaces
     {
         return array_map( function(ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo $sportSchedule): TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo {
             return $sportSchedule->sport;
-        } , $this->sportSchedules );
+        } , array_values($this->sportSchedules ) );
     }
 
     public function createJson(): string

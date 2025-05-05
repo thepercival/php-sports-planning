@@ -18,8 +18,8 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Place;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst as AgainstGameRound;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne as AgainstGameRound;
 
 class HomeAwayOutput extends OutputHelper
 {
@@ -98,7 +98,7 @@ class HomeAwayOutput extends OutputHelper
 
     public function output(
         OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway,
-        ScheduleCyclePartAgainst|null                      $cycle = null,
+        ScheduleCyclePartAgainstOneVsOne|null              $cycle = null,
         string|null                                        $prefix = null): void
     {
         $useColors = $this->useColors();

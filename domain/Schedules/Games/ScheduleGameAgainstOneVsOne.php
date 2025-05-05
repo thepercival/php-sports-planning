@@ -6,14 +6,20 @@ namespace SportsPlanning\Schedules\Games;
 
 use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
-use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
+use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceAgainst;
 
 class ScheduleGameAgainstOneVsOne extends ScheduleGameAgainstAbstract
 {
-    public function __construct(ScheduleCyclePartAgainst $cyclePart)
+    public function __construct(ScheduleCyclePartAgainstOneVsOne $cyclePart, OneVsOneHomeAway|null $homeAway = null)
     {
         parent::__construct($cyclePart);
+        if( $homeAway instanceof OneVsOneHomeAway ){
+            foreach( [AgainstSide::Home, AgainstSide::Away] as $side ) {
+                $placeNr = $homeAway->get($side);
+                $this->addGamePlace(new ScheduleGamePlaceAgainst($this, $side, $placeNr));
+            }
+        }
     }
 
     /**

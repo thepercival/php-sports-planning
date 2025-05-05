@@ -10,7 +10,7 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Output\Combinations\HomeAwayOutput as HomeAwayOutput;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
 
 class ScheduleCyclePartAgainstOutput extends OutputHelper
 {
@@ -23,11 +23,11 @@ class ScheduleCyclePartAgainstOutput extends OutputHelper
     }
 
     public function output(
-        ScheduleCyclePartAgainst    $cycle,
-        bool                        $showGameRoundHeaderLine,
-        string                      $title = null,
-        int                         $max = null,
-        int                         $min = null
+        ScheduleCyclePartAgainstOneVsOne $cycle,
+        bool                             $showGameRoundHeaderLine,
+        string                           $title = null,
+        int                              $max = null,
+        int                              $min = null
     ): void {
         if ($title !== null) {
             $this->logger->info('------ title: ' . $title . ' -------------');
@@ -39,10 +39,10 @@ class ScheduleCyclePartAgainstOutput extends OutputHelper
     }
 
     protected function outputHelper(
-        ScheduleCyclePartAgainst    $cycle,
-        bool                        $showGameRoundHeaderLine,
-        int|null                    $min = null,
-        int|null                    $max = null
+        ScheduleCyclePartAgainstOneVsOne $cycle,
+        bool                             $showGameRoundHeaderLine,
+        int|null                         $min = null,
+        int|null                         $max = null
     ): void {
         if ($min !== null && $cycle->getNumber() < $min) {
             $nextGameRound = $cycle->getNext();
@@ -66,14 +66,14 @@ class ScheduleCyclePartAgainstOutput extends OutputHelper
 
     /**
      * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
-     * @param ScheduleCyclePartAgainst|null $cycle
+     * @param ScheduleCyclePartAgainstOneVsOne|null $cycle
      * @param string|null $header
      * @return void
      */
     public function outputHomeAways(
-        array                           $homeAways,
-        ScheduleCyclePartAgainst|null   $cycle = null,
-        string|null                     $header = null): void
+        array                                 $homeAways,
+        ScheduleCyclePartAgainstOneVsOne|null $cycle = null,
+        string|null                           $header = null): void
     {
         if ($header !== null) {
             $this->logger->info($header);

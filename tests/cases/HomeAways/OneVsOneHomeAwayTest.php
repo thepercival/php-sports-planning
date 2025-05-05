@@ -9,7 +9,7 @@ use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
 
 class OneVsOneHomeAwayTest extends TestCase
 {

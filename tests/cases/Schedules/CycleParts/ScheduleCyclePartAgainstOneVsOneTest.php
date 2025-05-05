@@ -8,46 +8,63 @@ use PHPUnit\Framework\TestCase;
 use SportsHelpers\Against\AgainstSide;
 use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
-use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainst;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
+use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainstOneVsOne;
 use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceAgainst;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
 use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
+use SportsPlanning\Sports\SportWithNrOfCycles;
 
-class ScheduleCyclePartAgainstTest extends TestCase
+class ScheduleCyclePartAgainstOneVsOneTest extends TestCase
 {
     public function testCyclePartNr(): void
     {
-        $nrOfPlaces = 5;
-        $cycle = new ScheduleCycleAgainst($nrOfPlaces);
-        $cyclePart = new ScheduleCyclePartAgainst($cycle);
+        $sportsWithNrOfCycles = [ new SportWithNrOfCycles(new AgainstOneVsOne(), 1)];
+        $scheduleWithNrOfPlaces = new ScheduleWithNrOfPlaces(5, $sportsWithNrOfCycles);
+        $sportSchedule = $scheduleWithNrOfPlaces->getSportSchedule(1);
+        self::assertInstanceOf(ScheduleAgainstOneVsOne::class, $sportSchedule);
+
+        $cycle = new ScheduleCycleAgainstOneVsOne($sportSchedule);
+        $cyclePart = new ScheduleCyclePartAgainstOneVsOne($cycle);
 
         self::assertSame(1, $cyclePart->getNumber() );
     }
 
     public function testIsParticipating(): void
     {
-        $nrOfPlaces = 5;
-        $cycle = new ScheduleCycleAgainst($nrOfPlaces);
-        $cyclePart = new ScheduleCyclePartAgainst($cycle);
+        $sportsWithNrOfCycles = [ new SportWithNrOfCycles(new AgainstOneVsOne(), 1)];
+        $scheduleWithNrOfPlaces = new ScheduleWithNrOfPlaces(5, $sportsWithNrOfCycles);
+        $sportSchedule = $scheduleWithNrOfPlaces->getSportSchedule(1);
+        self::assertInstanceOf(ScheduleAgainstOneVsOne::class, $sportSchedule);
+
+        $cycle = new ScheduleCycleAgainstOneVsOne($sportSchedule);
+        $cyclePart = new ScheduleCyclePartAgainstOneVsOne($cycle);
 
         self::assertFalse($cyclePart->isParticipating(1));
     }
 
     public function testCreateNext(): void
     {
-        $nrOfPlaces = 5;
-        $cycle = new ScheduleCycleAgainst($nrOfPlaces);
-        $cyclePart = new ScheduleCyclePartAgainst($cycle);
-        self::assertInstanceOf(ScheduleCyclePartAgainst::class, $cyclePart->createNext());
+        $sportsWithNrOfCycles = [ new SportWithNrOfCycles(new AgainstOneVsOne(), 1)];
+        $scheduleWithNrOfPlaces = new ScheduleWithNrOfPlaces(5, $sportsWithNrOfCycles);
+        $sportSchedule = $scheduleWithNrOfPlaces->getSportSchedule(1);
+        self::assertInstanceOf(ScheduleAgainstOneVsOne::class, $sportSchedule);
+
+        $cycle = new ScheduleCycleAgainstOneVsOne($sportSchedule);
+        $cyclePart = new ScheduleCyclePartAgainstOneVsOne($cycle);
+        self::assertInstanceOf(ScheduleCyclePartAgainstOneVsOne::class, $cyclePart->createNext());
     }
 
     public function testAdd(): void
     {
-        $nrOfPlaces = 4;
-        $cycle = new ScheduleCycleAgainst($nrOfPlaces);
-        $cyclePart = new ScheduleCyclePartAgainst($cycle);
+        $sportsWithNrOfCycles = [ new SportWithNrOfCycles(new AgainstOneVsOne(), 1)];
+        $scheduleWithNrOfPlaces = new ScheduleWithNrOfPlaces(4, $sportsWithNrOfCycles);
+        $sportSchedule = $scheduleWithNrOfPlaces->getSportSchedule(1);
+        self::assertInstanceOf(ScheduleAgainstOneVsOne::class, $sportSchedule);
+
+        $cycle = new ScheduleCycleAgainstOneVsOne($sportSchedule);
+        $cyclePart = new ScheduleCyclePartAgainstOneVsOne($cycle);
 
         $this->addOneVsOne($cyclePart, 1, 2);
         self::assertCount(1, $cyclePart->getGamesAsHomeAways());
@@ -55,9 +72,13 @@ class ScheduleCyclePartAgainstTest extends TestCase
 
     public function testAddException(): void
     {
-        $nrOfPlaces = 4;
-        $cycle = new ScheduleCycleAgainst($nrOfPlaces);
-        $cyclePart = new ScheduleCyclePartAgainst($cycle);
+        $sportsWithNrOfCycles = [ new SportWithNrOfCycles(new AgainstOneVsOne(), 1)];
+        $scheduleWithNrOfPlaces = new ScheduleWithNrOfPlaces(4, $sportsWithNrOfCycles);
+        $sportSchedule = $scheduleWithNrOfPlaces->getSportSchedule(1);
+        self::assertInstanceOf(ScheduleAgainstOneVsOne::class, $sportSchedule);
+
+        $cycle = new ScheduleCycleAgainstOneVsOne($sportSchedule);
+        $cyclePart = new ScheduleCyclePartAgainstOneVsOne($cycle);
 
         $this->addOneVsOne($cyclePart, 1, 2);
 
@@ -84,9 +105,13 @@ class ScheduleCyclePartAgainstTest extends TestCase
 
     public function testIsSomeHomeAwayPlaceNrParticipating(): void
     {
-        $nrOfPlaces = 4;
-        $cycle = new ScheduleCycleAgainst($nrOfPlaces);
-        $cyclePart = new ScheduleCyclePartAgainst($cycle);
+        $sportsWithNrOfCycles = [ new SportWithNrOfCycles(new AgainstOneVsOne(), 1)];
+        $scheduleWithNrOfPlaces = new ScheduleWithNrOfPlaces(4, $sportsWithNrOfCycles);
+        $sportSchedule = $scheduleWithNrOfPlaces->getSportSchedule(1);
+        self::assertInstanceOf(ScheduleAgainstOneVsOne::class, $sportSchedule);
+
+        $cycle = new ScheduleCycleAgainstOneVsOne($sportSchedule);
+        $cyclePart = new ScheduleCyclePartAgainstOneVsOne($cycle);
         $this->addOneVsOne($cyclePart, 1, 2);
 
         self::assertTrue($cyclePart->isSomeHomeAwayPlaceNrParticipating(new OneVsOneHomeAway(1,2)));
@@ -99,10 +124,14 @@ class ScheduleCyclePartAgainstTest extends TestCase
 
     public function testGetSelfAndAllPreviousNrOfHomeAways(): void
     {
-        $nrOfPlaces = 4;
-        $cycle = new ScheduleCycleAgainst($nrOfPlaces);
+        $sportsWithNrOfCycles = [ new SportWithNrOfCycles(new AgainstOneVsOne(), 1)];
+        $scheduleWithNrOfPlaces = new ScheduleWithNrOfPlaces(4, $sportsWithNrOfCycles);
+        $sportSchedule = $scheduleWithNrOfPlaces->getSportSchedule(1);
+        self::assertInstanceOf(ScheduleAgainstOneVsOne::class, $sportSchedule);
 
-        $cyclePartOne = new ScheduleCyclePartAgainst($cycle);
+        $cycle = new ScheduleCycleAgainstOneVsOne($sportSchedule);
+
+        $cyclePartOne = new ScheduleCyclePartAgainstOneVsOne($cycle);
         $this->addOneVsOne($cyclePartOne, 1, 2);
         $this->addOneVsOne($cyclePartOne, 3, 4);
 
@@ -138,9 +167,9 @@ class ScheduleCyclePartAgainstTest extends TestCase
 //    }
 
     private function addOneVsOne(
-        ScheduleCyclePartAgainst $cyclePart,
-        int $homePlaceNr,
-        int $awayPlaceNr ): ScheduleGameAgainstOneVsOne{
+        ScheduleCyclePartAgainstOneVsOne $cyclePart,
+        int                              $homePlaceNr,
+        int                              $awayPlaceNr ): ScheduleGameAgainstOneVsOne{
         $game = new ScheduleGameAgainstOneVsOne($cyclePart);
         new ScheduleGamePlaceAgainst($game, AgainstSide::Home, $homePlaceNr);
         new ScheduleGamePlaceAgainst($game, AgainstSide::Away, $awayPlaceNr);

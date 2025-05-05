@@ -9,7 +9,7 @@ use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
 abstract class ScheduleSportAbstract
 {
     public function __construct(
-        public readonly ScheduleWithNrOfPlaces $schedule,
+        public readonly ScheduleWithNrOfPlaces $scheduleWithNrOfPlaces,
         public readonly int $number,
         public readonly int $nrOfCycles)
     {

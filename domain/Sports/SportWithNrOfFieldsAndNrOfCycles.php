@@ -32,6 +32,14 @@ class SportWithNrOfFieldsAndNrOfCycles extends SportWithNrOfFields implements \S
         return new AgainstTwoVsTwoWithNrOfPlaces($nrOfPlaces, $this->sport);
     }
 
+    public function createSportWithNrOfCycles(): SportWithNrOfCycles {
+        return new SportWithNrOfCycles($this->sport, $this->nrOfCycles);
+    }
+
+    public function createSportWithNrOfFields(): SportWithNrOfFields {
+        return new SportWithNrOfFields($this->sport, $this->nrOfFields);
+    }
+
     public function __toString(): string
     {
         if( $this->sport instanceof TogetherSport) {

@@ -10,15 +10,16 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Planning\ListNode;
-use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainst;
+use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainstAbstract;
+use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainstOneVsOne;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsTwo;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
 
 /**
- * @template-extends ListNode<ScheduleCyclePartAgainst>
+ * @template-extends ListNode<ScheduleCyclePartAgainstOneVsOne>
  */
-class ScheduleCyclePartAgainst extends ListNode
+class ScheduleCyclePartAgainstOneVsOne extends ListNode
 {
     protected AmountNrCounterMap $placeNrCounterMap;
 
@@ -28,10 +29,10 @@ class ScheduleCyclePartAgainst extends ListNode
     protected array $games = [];
 
     public function __construct(
-        public readonly ScheduleCycleAgainst $cycle,
-        ScheduleCyclePartAgainst|null $previous = null)
+        public readonly ScheduleCycleAgainstOneVsOne $cycle,
+        ScheduleCyclePartAgainstOneVsOne|null        $previous = null)
     {
-        $this->placeNrCounterMap = new AmountNrCounterMap($cycle->nrOfPlaces);
+        $this->placeNrCounterMap = new AmountNrCounterMap($cycle->sportSchedule->scheduleWithNrOfPlaces->nrOfPlaces);
         parent::__construct($previous);
     }
 
@@ -40,9 +41,9 @@ class ScheduleCyclePartAgainst extends ListNode
         return $this->placeNrCounterMap->count($placeNr) > 0;
     }
 
-    public function createNext(): ScheduleCyclePartAgainst
+    public function createNext(): ScheduleCyclePartAgainstOneVsOne
     {
-        $this->next = new ScheduleCyclePartAgainst($this->cycle, $this);
+        $this->next = new ScheduleCyclePartAgainstOneVsOne($this->cycle, $this);
         return $this->next;
     }
 

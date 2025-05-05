@@ -24,7 +24,7 @@ use SportsPlanning\Poule;
 use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsOne;
 use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsTwo;
 use SportsPlanning\Sports\Plannable\PlannableAgainstTwoVsTwo;
-use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
+use SportsPlanning\Sports\Plannable\PlannableTogetherSport;
 
 class AgainstGame extends GameAbstract
 {
@@ -37,16 +37,11 @@ class AgainstGame extends GameAbstract
         Planning $planning,
         Poule $poule,
         Field $field,
-        protected int $gameRoundNumber
+        public int $cyclePartNr
     ) {
         parent::__construct($planning, $poule, $field);
         $this->places = new ArrayCollection();
         $this->planning->getAgainstGames()->add($this);
-    }
-
-    public function getGameRoundNumber(): int
-    {
-        return $this->gameRoundNumber;
     }
 
     /**
@@ -117,7 +112,7 @@ class AgainstGame extends GameAbstract
     public function getSport(): PlannableAgainstOneVsOne|PlannableAgainstOneVsTwo|PlannableAgainstTwoVsTwo
     {
         $sport = $this->field->getSport();
-        if ($sport instanceof TogetherPlannableSport) {
+        if ($sport instanceof PlannableTogetherSport) {
             throw new \Exception('the wrong sport is linked to the game', E_ERROR);
         }
         return $sport;

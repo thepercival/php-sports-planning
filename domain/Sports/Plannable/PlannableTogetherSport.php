@@ -11,7 +11,7 @@ use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
 
-class TogetherPlannableSport extends PlannableSportAbstract
+class PlannableTogetherSport extends PlannableSportAbstract
 {
     public function __construct(
         public readonly TogetherSport       $sport,

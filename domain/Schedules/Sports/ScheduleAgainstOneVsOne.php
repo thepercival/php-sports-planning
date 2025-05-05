@@ -5,15 +5,12 @@ declare(strict_types=1);
 namespace SportsPlanning\Schedules\Sports;
 
 use SportsHelpers\Sports\AgainstOneVsOne;
-use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
 use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
+use SportsPlanning\Sports\SportWithNrOfCycles;
+use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsOneWithNrOfPlaces;
 
 class ScheduleAgainstOneVsOne extends ScheduleSportAbstract
 {
-    /**
-     * @var list<ScheduleGameAgainstOneVsOne>
-     */
-    protected array $games = [];
 
     public function __construct(
         ScheduleWithNrOfPlaces $schedule,
@@ -23,14 +20,16 @@ class ScheduleAgainstOneVsOne extends ScheduleSportAbstract
     )
     {
         parent::__construct($schedule, $number,$nrOfCycles);
-        $schedule->addSportSchedule($this);
     }
 
-    /**
-     * @return list<ScheduleGameAgainstOneVsOne>
-     */
-    public function getGames(): array {
-        return $this->games;
+    public function createSportWithNrOfPlaces(): AgainstOneVsOneWithNrOfPlaces
+    {
+        return new AgainstOneVsOneWithNrOfPlaces($this->scheduleWithNrOfPlaces->nrOfPlaces, $this->sport);
+    }
+
+    public function createSportWithNrOfCycles(): SportWithNrOfCycles
+    {
+        return new SportWithNrOfCycles($this->sport, $this->nrOfCycles);
     }
 
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])

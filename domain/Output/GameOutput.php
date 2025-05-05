@@ -47,9 +47,9 @@ class GameOutput extends OutputHelper
     ): void {
         $useColors = $this->useColors();
         $batchNr = $game->getBatchNr();
-        $gameRoundNumber = 0;
+        $cyclePartNr = 0;
         if ($game instanceof AgainstGame) {
-            $gameRoundNumber = $game->getGameRoundNumber();
+            $cyclePartNr = $game->cyclePartNr;
         }
         $batchColor = $this->convertNumberToColor($useColors ? ($batchNr % 10) : -1);
         $fieldNr = $game->getField()->getNumber();
@@ -59,7 +59,7 @@ class GameOutput extends OutputHelper
 
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
-            Color::getColored($batchColor, 'batch ' . $batchNr . '(' . $gameRoundNumber . ')') . " " .
+            Color::getColored($batchColor, 'batch ' . $batchNr . '(' . $cyclePartNr . ')') . " " .
             // . 'substr(' . $game->getRoundNumber(), 2 ) . substr( $game->getSubNumber(), 2 ) . ") "
             'poule ' . $game->getPoule()->getNumber()
             . ', ' . $this->getPlaces($game, $batch)
@@ -74,7 +74,7 @@ class GameOutput extends OutputHelper
         if ($game instanceof TogetherGame) {
             return '';
         }
-        return '(' . $game->getGameRoundNumber() . ')';
+        return '(' . $game->cyclePartNr . ')';
     }
 
     protected function getPlaces(

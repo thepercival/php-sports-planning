@@ -12,10 +12,9 @@ use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Input\Service as PlanningInputService;
 use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
-use SportsPlanning\Referee\Info as RefereeInfo;
+use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
-use SportsPlanning\Sports\SportWithNrOfPlaces\SportWithNrOfPlacesInterface;
 
 class ConfigurationValidator
 {
@@ -26,13 +25,13 @@ class ConfigurationValidator
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
-     * @param RefereeInfo $refereeInfo
+     * @param PlanningRefereeInfo $refereeInfo
      * @param bool $perPoule
      */
     public function createReducedAndValidatedInputConfiguration(
         PouleStructure $pouleStructure,
         array $sportsWithNrOfFieldsAndNrOfCycles,
-        RefereeInfo $refereeInfo,
+        PlanningRefereeInfo $refereeInfo,
         bool $perPoule
         ): InputConfiguration
     {
@@ -52,21 +51,21 @@ class ConfigurationValidator
     }
 
     /**
-     * @param RefereeInfo $refereeInfo
+     * @param PlanningRefereeInfo $refereeInfo
      * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport> $sports
      * @param PouleStructure $pouleStructure
-     * @return RefereeInfo
+     * @return PlanningRefereeInfo
      */
     protected function getValidatedRefereeInfo(
-        RefereeInfo $refereeInfo, PouleStructure $pouleStructure, array $sports
-        ): RefereeInfo
+        PlanningRefereeInfo $refereeInfo, PouleStructure $pouleStructure, array $sports
+        ): PlanningRefereeInfo
     {
         $selfRefereeInfo = $refereeInfo->selfRefereeInfo;
         $newSelfReferee = $this->getValidatedSelfReferee($selfRefereeInfo->selfReferee, $pouleStructure, $sports);
         if( $newSelfReferee === SelfReferee::Disabled ) {
-            return new RefereeInfo( $refereeInfo->nrOfReferees );
+            return new PlanningRefereeInfo( $refereeInfo->nrOfReferees );
         }
-        return new RefereeInfo( new SelfRefereeInfo( $newSelfReferee, $selfRefereeInfo->nrIfSimSelfRefs ) );
+        return new PlanningRefereeInfo( new SelfRefereeInfo( $newSelfReferee, $selfRefereeInfo->nrIfSimSelfRefs ) );
     }
 
     /**
@@ -99,13 +98,13 @@ class ConfigurationValidator
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
-     * @param RefereeInfo $refereeInfo
+     * @param PlanningRefereeInfo $refereeInfo
      * @return list<SportWithNrOfFieldsAndNrOfCycles>
      */
     protected function reduceFields(
         PouleStructure $pouleStructure,
         array $sportsWithNrOfFieldsAndNrOfCycles,
-        RefereeInfo $refereeInfo
+        PlanningRefereeInfo $refereeInfo
     ): array {
         $planningPouleStructure = new PlanningPouleStructure(
             $pouleStructure,

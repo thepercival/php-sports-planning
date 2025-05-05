@@ -8,7 +8,7 @@ use SportsHelpers\RefereeInfo;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SelfRefereeInfo;
 
-class Info extends RefereeInfo implements \Stringable
+class PlanningRefereeInfo extends RefereeInfo implements \Stringable
 {
     public function __construct(RefereeInfo|SelfRefereeInfo|int|null $selfRefereeInfoOrNrOfReferees = null)
     {

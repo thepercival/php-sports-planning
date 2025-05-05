@@ -9,11 +9,11 @@ use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
 
 class ScheduleAgainstOneVsOneTest extends TestCase
 {
-    public function testGetSchedule(): void
+    public function testGetScheduleWithNrOfPlaces(): void
     {
         $schedule = new ScheduleWithNrOfPlaces(5, []);
-        $scheduleSport = new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne(), 1);
-        self::assertSame($schedule, $scheduleSport->schedule );
+        $sportSchedule = new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne(), 1);
+        self::assertSame($schedule, $sportSchedule->scheduleWithNrOfPlaces );
     }
 
     public function testGetNumber(): void
@@ -21,12 +21,5 @@ class ScheduleAgainstOneVsOneTest extends TestCase
         $schedule = new ScheduleWithNrOfPlaces(5, []);
         $scheduleSport = new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne(), 1);
         self::assertSame(1, $scheduleSport->number );
-    }
-
-    public function testGetGames(): void
-    {
-        $schedule = new ScheduleWithNrOfPlaces(5, []);
-        $scheduleSport = new ScheduleAgainstOneVsOne($schedule, 1, new AgainstOneVsOne(), 1);
-        self::assertCount(0, $scheduleSport->getGames() );
     }
 }

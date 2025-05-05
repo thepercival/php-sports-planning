@@ -7,11 +7,11 @@ namespace SportsPlanning\Schedules\Games;
 use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsTwo;
 
 class ScheduleGameAgainstOneVsTwo extends ScheduleGameAgainstAbstract
 {
-    public function __construct(ScheduleCyclePartAgainst $cyclePart)
+    public function __construct(ScheduleCyclePartAgainstOneVsTwo $cyclePart)
     {
         parent::__construct($cyclePart);
     }

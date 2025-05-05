@@ -10,24 +10,27 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Planning\ListNode;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainst;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
+use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
 
 /**
- * @template-extends ListNode<ScheduleCycleAgainst>
+ * @template-extends ListNode<ScheduleCycleAgainstOneVsOne>
  */
-class ScheduleCycleAgainst extends ListNode
+class ScheduleCycleAgainstOneVsOne extends ListNode
 {
-    public readonly ScheduleCyclePartAgainst $firstPart;
+    public readonly ScheduleCyclePartAgainstOneVsOne $firstPart;
 
-    public function __construct(public readonly int $nrOfPlaces, ScheduleCycleAgainst|null $previous = null)
+    public function __construct(
+        public readonly ScheduleAgainstOneVsOne $sportSchedule,
+        ScheduleCycleAgainstOneVsOne|null $previous = null)
     {
         parent::__construct($previous);
-        $this->firstPart = new ScheduleCyclePartAgainst($this);
+        $this->firstPart = new ScheduleCyclePartAgainstOneVsOne($this);
     }
 
-    public function createNext(): ScheduleCycleAgainst
+    public function createNext(): ScheduleCycleAgainstOneVsOne
     {
-        $this->next = new ScheduleCycleAgainst($this->nrOfPlaces, $this);
+        $this->next = new ScheduleCycleAgainstOneVsOne($this->sportSchedule, $this);
         return $this->next;
     }
 

@@ -11,30 +11,21 @@ use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
 use SportsPlanning\Exceptions\SportsIncompatibleWithPouleStructureException;
-use SportsPlanning\Referee\Info as RefereeInfo;
-use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsOne;
-use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsTwo;
-use SportsPlanning\Sports\Plannable\PlannableAgainstTwoVsTwo;
-use SportsPlanning\Sports\Plannable\TogetherPlannableSport;
+use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
-use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsOneWithNrOfPlaces;
-use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsTwoWithNrOfPlaces;
-use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
-use SportsPlanning\Sports\SportWithNrOfPlaces\SportWithNrOfPlacesInterface;
-use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
 
 readonly class PlanningPouleStructure
 {
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
-     * @param RefereeInfo $refereeInfo
+     * @param PlanningRefereeInfo $refereeInfo
      * @throws \Exception
      */
     public function __construct(
         public PouleStructure $pouleStructure,
         public array $sportsWithNrOfFieldsAndNrOfCycles,
-        public RefereeInfo $refereeInfo )
+        public PlanningRefereeInfo $refereeInfo )
     {
         $sports = $this->convertPlannableSportsToSports();
         if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee($sports, $refereeInfo->selfRefereeInfo->selfReferee) ) {

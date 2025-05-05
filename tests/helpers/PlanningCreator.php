@@ -13,7 +13,7 @@ use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Input;
-use SportsPlanning\Referee\Info as RefereeInfo;
+use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 trait PlanningCreator
@@ -75,20 +75,20 @@ trait PlanningCreator
     /**
      * @param list<int> $pouleStructureAsArray
      * @param list<SportWithNrOfFieldsAndNrOfCycles>|null $sportsWithNrOfFieldsAndNrOfCycles
-     * @param RefereeInfo|null $refereeInfo
+     * @param PlanningRefereeInfo|null $refereeInfo
      * @return Input
      */
     protected function createInput(
         array $pouleStructureAsArray,
         array $sportsWithNrOfFieldsAndNrOfCycles = null,
-        RefereeInfo|null $refereeInfo = null,
+        PlanningRefereeInfo|null $refereeInfo = null,
         bool $perPoule = false
     ) {
         if ($sportsWithNrOfFieldsAndNrOfCycles === null) {
             $sportsWithNrOfFieldsAndNrOfCycles = [$this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(2)];
         }
         if ($refereeInfo === null) {
-            $refereeInfo = new RefereeInfo($this->getDefaultNrOfReferees());
+            $refereeInfo = new PlanningRefereeInfo($this->getDefaultNrOfReferees());
         }
         $configurationValidator = new Input\ConfigurationValidator();
         $configuration = $configurationValidator->createReducedAndValidatedInputConfiguration(
