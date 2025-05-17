@@ -9,7 +9,7 @@ use SportsHelpers\SportRange;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Output\BatchOutput as BatchOutput;
 use SportsPlanning\Planning as PlanningBase;
-use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\PlanningState as PlanningState;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
 use SportsPlanning\Output\PlanningOutput\Extra as PlanningOutputExtra;
@@ -41,7 +41,7 @@ class InputOutput extends OutputHelper
             $color = $this->getColor($filteredPlanning->getState());
             $extra = PlanningOutputExtra::NrOfBatchGamesRange->value;
             $suffix = null;
-            if( $filteredPlanning->getState() === PlanningBase\State::Succeeded ) {
+            if( $filteredPlanning->getState() === PlanningBase\PlanningState::Succeeded ) {
                 $suffix = ', nrOfBatches: ' . $filteredPlanning->getNrOfBatches();
             }
             $this->planningOutput->outputState($filteredPlanning, $extra, $prefix, $suffix, $color);
@@ -52,7 +52,7 @@ class InputOutput extends OutputHelper
                 $color = $this->getColor($gamesInARowPlanning->getState());
                 $extra = PlanningOutputExtra::MaxNrOfGamesInARow->value;
                 $suffix = null;
-                if( $gamesInARowPlanning->getState() === PlanningBase\State::Succeeded ) {
+                if( $gamesInARowPlanning->getState() === PlanningBase\PlanningState::Succeeded ) {
                     $suffix = ', nrOfBatches: ' . $gamesInARowPlanning->getNrOfBatches();
                 }
                 $this->planningOutput->outputState($gamesInARowPlanning, $extra, $prefix, $suffix, $color);
@@ -79,7 +79,7 @@ class InputOutput extends OutputHelper
 //                $color = $this->getColor($gamesInARowPlanning->getState());
 //                $extra = PlanningOutputExtra::MaxNrOfGamesInARow->value;
 //                $suffix = null;
-//                if( $gamesInARowPlanning->getState() === PlanningBase\State::Succeeded ) {
+//                if( $gamesInARowPlanning->getState() === PlanningBase\PlanningState::Succeeded ) {
 //                    $suffix = ', nrOfBatches: ' . $gamesInARowPlanning->getNrOfBatches();
 //                }
 //                $this->planningOutput->outputState($gamesInARowPlanning, $extra, $prefix, $suffix, $color);

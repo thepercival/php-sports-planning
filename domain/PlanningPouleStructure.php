@@ -2,7 +2,6 @@
 
 namespace SportsPlanning;
 
-use oldsportshelpers\old\WithNrOfPlaces\SportWithNrOfPlaces;
 use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\Sports\AgainstOneVsOne;
@@ -12,6 +11,7 @@ use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
 use SportsPlanning\Exceptions\SportsIncompatibleWithPouleStructureException;
 use SportsPlanning\Referee\PlanningRefereeInfo;
+use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 readonly class PlanningPouleStructure
@@ -27,7 +27,7 @@ readonly class PlanningPouleStructure
         public array $sportsWithNrOfFieldsAndNrOfCycles,
         public PlanningRefereeInfo $refereeInfo )
     {
-        $sports = $this->convertPlannableSportsToSports();
+        $sports = $this->createSports();
         if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee($sports, $refereeInfo->selfRefereeInfo->selfReferee) ) {
             throw new SelfRefereeIncompatibleWithPouleStructureException(
                 $pouleStructure, $sports,
@@ -154,9 +154,20 @@ readonly class PlanningPouleStructure
     }
 
     /**
+     * @return list<SportWithNrOfFields>
+     */
+    public function createSportsWithNrOfFields(): array
+    {
+        return array_map(
+            function (SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles): SportWithNrOfFields {
+                return $sportWithNrOfFieldsAndNrOfCycles->createSportWithNrOfFields();
+            } , $this->sportsWithNrOfFieldsAndNrOfCycles);
+    }
+
+    /**
      * @return list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport>
      */
-    public function convertPlannableSportsToSports(): array
+    public function createSports(): array
     {
         return array_map(
             function (SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {

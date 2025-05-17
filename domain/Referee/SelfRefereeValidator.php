@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Input;
+namespace SportsPlanning\Referee;
 
 use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\AgainstOneVsOne;
@@ -10,25 +10,15 @@ use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 
-class Service
+class SelfRefereeValidator
 {
     public function __construct()
     {
     }
 
-
-    /*public function canTeamupBeAvailable(PouleStructure $pouleStructure, array $sportConfigs): bool
-    {
-        if (count($sportConfigs) > 1) {
-            return false;
-        }
-        return $pouleStructure->getBiggestPoule() <= Input::TEAMUP_MAX
-            && $pouleStructure->getSmallestPoule() >= Input::TEAMUP_MIN;
-    }*/
-
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport> $sports
+     * @param list<TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo> $sports
      * @return bool
      */
     public function canSelfRefereeBeAvailable(PouleStructure $pouleStructure, array $sports): bool
@@ -44,7 +34,7 @@ class Service
 
     /**
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport> $sports
+     * @param list<TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo> $sports
      * @return bool
      */
     public function canSelfRefereeSamePouleBeAvailable(PouleStructure $pouleStructure, array $sports): bool

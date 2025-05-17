@@ -10,9 +10,9 @@ use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Input\Configuration as InputConfiguration;
-use SportsPlanning\Input\Service as PlanningInputService;
 use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
 use SportsPlanning\Referee\PlanningRefereeInfo;
+use SportsPlanning\Referee\SelfRefereeValidator;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
@@ -80,9 +80,9 @@ class ConfigurationValidator
         array $sports,
         ): SelfReferee
     {
-        $planningInputService = new PlanningInputService();
-        $otherPoulesAvailable = $planningInputService->canSelfRefereeOtherPoulesBeAvailable($pouleStructure);
-        $samePouleAvailable = $planningInputService->canSelfRefereeSamePouleBeAvailable($pouleStructure, $sports);
+        $validatorSelfRef = new SelfRefereeValidator();
+        $otherPoulesAvailable = $validatorSelfRef->canSelfRefereeOtherPoulesBeAvailable($pouleStructure);
+        $samePouleAvailable = $validatorSelfRef->canSelfRefereeSamePouleBeAvailable($pouleStructure, $sports);
         if (!$otherPoulesAvailable && !$samePouleAvailable) {
             return SelfReferee::Disabled;
         }

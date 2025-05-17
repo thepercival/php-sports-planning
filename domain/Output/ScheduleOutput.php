@@ -13,12 +13,15 @@ use SportsPlanning\Counters\Maps\Schedule\AllScheduleMaps;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
-use SportsPlanning\Schedules as ScheduleBase;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsTwo;
+use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainstOneVsOne;
+use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainstOneVsTwo;
+use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainstTwoVsTwo;
+use SportsPlanning\Schedules\Cycles\ScheduleCycleTogether;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsTwo;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
-use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
-use SportsPlanning\Schedules\Sports\ScheduleTogetherSport;
 
 class ScheduleOutput extends OutputHelper
 {
@@ -28,90 +31,102 @@ class ScheduleOutput extends OutputHelper
         parent::__construct($logger);
     }
 
-//    /**
-//     * @param list<ScheduleWithNrOfPlaces> $schedules
-//     * @param int|null $sportNumber
-//     */
-//    public function output(array $schedules, int $sportNumber = null): void
-//    {
-//        foreach ($schedules as $schedule) {
-//            $prefix = '    ';
-//            $this->logger->info( $prefix . ' schedule => ' . $schedule->createJson() );
-//            foreach ($schedule->getSportSchedules() as $sportSchedule) {
-//                if ($sportNumber !== null && $sportNumber !== $sportSchedule->number) {
-//                    continue;
-//                }
-//                if( $sportSchedule instanceof ScheduleTogetherSport) {
-//                    $sport = 'together(' . ($sportSchedule->sport->getNrOfGamePlaces() ?? 'null') . ')';
-//                } else {
-//                    $sport = 'against(' . $sportSchedule->sport->nrOfHomePlaces . 'vs' . $sportSchedule->sport->nrOfAwayPlaces . ')';
-//                }
-//
-////    }
-//                $this->logger->info( $prefix . '    sportschedule => sportNr: ' . $sportSchedule->number . ' , sport: "' . $sport . '"');
-//                $sportSchedule->
-//                foreach ($sportSchedule->getGames() as $gameRoundGame) {
-//                    $this->logger->info('            ' . $gameRoundGame);
-//                }
-//            }
-//        }
-//    }
+    /**
+     * @param list<ScheduleCycleAgainstOneVsOne|ScheduleCycleAgainstOneVsTwo|ScheduleCycleAgainstTwoVsTwo|ScheduleCycleTogether> $cycles
+     * @return void
+     */
+    public function outputCyclesTotals(int $nrOfPlaces, array $cycles): void
+    {
+        foreach( $cycles as $cycle )
+        {
+            $this->outputCycle($cycle);
+        }
+    }
 
-//    /**
-//     * @param list<ScheduleWithNrOfPlaces> $schedules
-//     */
-//    public function outputTotals(array $schedules): void
-//    {
-//        foreach ($schedules as $schedule) {
-//            $this->outputScheduleTotals($schedule->nrOfPlaces, $schedule);
-//        }
-//    }
-//
-//    public function outputScheduleTotals(int $nrOfPlaces, ScheduleWithNrOfPlaces $schedule): void
-//    {
-//        $hasWithSport = false;
-//        $hasAgainstSport = false;
-//
-//        $allScheduleMaps = new AllScheduleMaps($nrOfPlaces);
-//        $unequalNrOfGames = 0;
-//        foreach ($schedule->getSportSchedules() as $sportSchedule) {
-//            if ($sportSchedule instanceof ScheduleTogetherSport) {
-//                continue;
-//            }
-//            $hasAgainstSport = true;
-//            if( $sportSchedule->sport->hasMultipleSidePlaces() ) {
-//                $hasWithSport = true;
-//            }
-//
-//            $homeAways = $this->convertGamesToHomeAways($sportSchedule->getGames());
-//            $allScheduleMaps->addHomeAways($homeAways);
-//        }
-//        $prefix = '         ';
-//        $this->logger->info($prefix . 'unEqualNrOfGames: '.$unequalNrOfGames.'x');
-//
-////        $amountDifference = $rangedAmountNrCountersReport->getAmountDifference();
-//        $header = 'Amount Totals :'; // (diff:'.$amountDifference.')
-//        // Dit kan evt nog worden toegevoegd als er toch met margins gewerkt moet gaan worden
-//        $allScheduleMaps->getAmountCounterMap()->output($this->logger, $prefix, $header );
-//        if( $hasWithSport ) {
-//            // $withAmountDifference = $allScheduleMaps->getWithCounterMap()->calculateReport()->getAmountDifference();
-//            $header = 'With Totals : '; // (diff'.$withAmountDifference.')
-//            $allScheduleMaps->getWithCounterMap()->output($this->logger, $prefix, $header);
-//        }
-//        if( $hasAgainstSport ) {
-//            // $againstAmountDifference = $allScheduleMaps->getAgainstCounterMap()->calculateReport()->getAmountDifference();
-//            $header = 'Against Totals :'; // (diff'.$againstAmountDifference.')
-//            $allScheduleMaps->getAgainstCounterMap()->output($this->logger, $prefix, $header);
-//            // $homeAmountDifference = $allScheduleMaps->getHomeCounterMap()->calculateReport()->getAmountDifference();
-//            $header = 'Home Totals :k'; // (diff'.$homeAmountDifference.')
-//            $allScheduleMaps->getHomeCounterMap()->output($this->logger, $prefix, $header);
-//        }
-//        if( $hasWithSport ) {
-//            // $withAmountDifference = $allScheduleMaps->getWithCounterMap()->calculateReport()->getAmountDifference();
-//            $header = 'Together Totals : '; // (diff'.$withAmountDifference.')
-//            $allScheduleMaps->getTogetherCounterMap()->output($this->logger, $prefix, $header);
-//        }
-//    }
+    public function outputCycle(
+        ScheduleCycleAgainstOneVsOne|ScheduleCycleAgainstOneVsTwo|ScheduleCycleAgainstTwoVsTwo|ScheduleCycleTogether $cycle,
+        int $sportNumber = null): void
+    {
+        $prefix = '    ';
+
+        while( $cycle !== null ) {
+            if ($sportNumber !== null && $sportNumber !== $cycle->sportSchedule->number) {
+                continue;
+            }
+            $this->logger->info( $prefix . ' nrOfPlaces: ' . $cycle->sportSchedule->scheduleWithNrOfPlaces->nrOfPlaces );
+            $this->logger->info( $prefix . ' sportNr: ' . $cycle->sportSchedule->number );
+            $this->logger->info( $prefix . ' sport  : ' . json_encode($cycle->sportSchedule->sport) );
+            $this->logger->info( $prefix . ' cycle  : ' . $cycle->getNumber() . '/' . $cycle->getLeaf()->getNumber() );
+
+            if( $cycle instanceof ScheduleCycleTogether ) {
+                $output = new ScheduleCycleTogetherOutput($this->logger);
+                $output->output($cycle);
+            } else {
+                $rootCyclePart = $cycle->firstPart;
+
+                $output = new ScheduleCyclePartAgainstOutput($this->logger);
+                if( $rootCyclePart instanceof ScheduleCyclePartAgainstOneVsTwo) {
+                    throw new \Exception('implement');
+                }
+                $output->output($rootCyclePart, true);
+            }
+
+            $cycle = $cycle->getNext();
+        }
+    }
+
+
+    public function outputCycleTotals(
+        ScheduleCycleAgainstOneVsOne|ScheduleCycleAgainstOneVsTwo|ScheduleCycleAgainstTwoVsTwo|ScheduleCycleTogether $cycle
+    ): void
+    {
+        $hasWithSport = false;
+        $hasAgainstSport = false;
+
+        $nrOfPlaces = $cycle->sportSchedule->scheduleWithNrOfPlaces->nrOfPlaces;
+        $allScheduleMaps = new AllScheduleMaps($nrOfPlaces);
+        $unequalNrOfGames = 0;
+        while( $cycle !== null) {
+            if ($cycle instanceof ScheduleCycleTogether) {
+                continue;
+            }
+            $sport = $cycle->sportSchedule->sport;
+            $hasAgainstSport = true;
+            if( $sport->hasMultipleSidePlaces() ) {
+                $hasWithSport = true;
+            }
+
+            $homeAways = $this->convertGamesToHomeAways($cycle->getAllCyclePartGames());
+            $allScheduleMaps->addHomeAways($homeAways);
+
+            $cycle = $cycle->getNext();
+        }
+        $prefix = '     ';
+        $this->logger->info($prefix . 'unEqualNrOfGames: '.$unequalNrOfGames.'x');
+
+//        $amountDifference = $rangedAmountNrCountersReport->getAmountDifference();
+        $header = 'Amount Totals :'; // (diff:'.$amountDifference.')
+        // Dit kan evt nog worden toegevoegd als er toch met margins gewerkt moet gaan worden
+        $allScheduleMaps->getAmountCounterMap()->output($this->logger, $prefix, $header );
+        if( $hasWithSport ) {
+            // $withAmountDifference = $allScheduleMaps->getWithCounterMap()->calculateReport()->getAmountDifference();
+            $header = 'With Totals : '; // (diff'.$withAmountDifference.')
+            $allScheduleMaps->getWithCounterMap()->output($this->logger, $prefix, $header);
+        }
+        if( $hasAgainstSport ) {
+            // $againstAmountDifference = $allScheduleMaps->getAgainstCounterMap()->calculateReport()->getAmountDifference();
+            $header = 'Against Totals :'; // (diff'.$againstAmountDifference.')
+            $allScheduleMaps->getAgainstCounterMap()->output($this->logger, $prefix, $header);
+            // $homeAmountDifference = $allScheduleMaps->getHomeCounterMap()->calculateReport()->getAmountDifference();
+            $header = 'Home Totals :k'; // (diff'.$homeAmountDifference.')
+            $allScheduleMaps->getHomeCounterMap()->output($this->logger, $prefix, $header);
+        }
+        if( $hasWithSport ) {
+            // $withAmountDifference = $allScheduleMaps->getWithCounterMap()->calculateReport()->getAmountDifference();
+            $header = 'Together Totals : '; // (diff'.$withAmountDifference.')
+            $allScheduleMaps->getTogetherCounterMap()->output($this->logger, $prefix, $header);
+        }
+    }
 
     /**
      * @param list<ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo> $scheduleAgainstGames

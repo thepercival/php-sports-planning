@@ -11,6 +11,8 @@ use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Output\Combinations\HomeAwayOutput as HomeAwayOutput;
 use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsTwo;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstTwoVsTwo;
 
 class ScheduleCyclePartAgainstOutput extends OutputHelper
 {
@@ -23,7 +25,7 @@ class ScheduleCyclePartAgainstOutput extends OutputHelper
     }
 
     public function output(
-        ScheduleCyclePartAgainstOneVsOne $cycle,
+        ScheduleCyclePartAgainstOneVsOne|ScheduleCyclePartAgainstOneVsTwo|ScheduleCyclePartAgainstTwoVsTwo $cyclePart,
         bool                             $showGameRoundHeaderLine,
         string                           $title = null,
         int                              $max = null,
@@ -35,30 +37,30 @@ class ScheduleCyclePartAgainstOutput extends OutputHelper
 //        if( $batch->getNumber() > 2 ) {
 //            return;
 //        }
-        $this->outputHelper($cycle->getFirst(), $showGameRoundHeaderLine, $min, $max);
+        $this->outputHelper($cyclePart, $showGameRoundHeaderLine, $min, $max);
     }
 
     protected function outputHelper(
-        ScheduleCyclePartAgainstOneVsOne $cycle,
+        ScheduleCyclePartAgainstOneVsOne|ScheduleCyclePartAgainstOneVsTwo|ScheduleCyclePartAgainstTwoVsTwo $cyclePart,
         bool                             $showGameRoundHeaderLine,
         int|null                         $min = null,
         int|null                         $max = null
     ): void {
-        if ($min !== null && $cycle->getNumber() < $min) {
-            $nextGameRound = $cycle->getNext();
+        if ($min !== null && $cyclePart->getNumber() < $min) {
+            $nextGameRound = $cyclePart->getNext();
             if ($nextGameRound !== null) {
                 $this->outputHelper($nextGameRound, $showGameRoundHeaderLine, $max);
             }
             return;
         }
-        if ($max !== null && $cycle->getNumber() > $max) {
+        if ($max !== null && $cyclePart->getNumber() > $max) {
             return;
         }
         if( $showGameRoundHeaderLine) {
-            $this->logger->info('------ gameround ' . $cycle->getNumber() . ' -------------');
+            $this->logger->info('------ gameround ' . $cyclePart->getNumber() . ' -------------');
         }
-        $this->outputHomeAways($cycle->getGamesAsHomeAways());
-        $nextGameRound = $cycle->getNext();
+        $this->outputHomeAways($cyclePart->getGamesAsHomeAways(), $cyclePart);
+        $nextGameRound = $cyclePart->getNext();
         if ($nextGameRound !== null) {
             $this->outputHelper($nextGameRound, $showGameRoundHeaderLine, $max);
         }
@@ -66,21 +68,22 @@ class ScheduleCyclePartAgainstOutput extends OutputHelper
 
     /**
      * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
-     * @param ScheduleCyclePartAgainstOneVsOne|null $cycle
+     * @param ScheduleCyclePartAgainstOneVsOne|ScheduleCyclePartAgainstOneVsTwo|ScheduleCyclePartAgainstTwoVsTwo $cyclePart
      * @param string|null $header
      * @return void
      */
     public function outputHomeAways(
         array                                 $homeAways,
-        ScheduleCyclePartAgainstOneVsOne|null $cycle = null,
+        ScheduleCyclePartAgainstOneVsOne|ScheduleCyclePartAgainstOneVsTwo|ScheduleCyclePartAgainstTwoVsTwo $cyclePart,
         string|null                           $header = null): void
     {
         if ($header !== null) {
             $this->logger->info($header);
         }
-        $prefix = ''; // $gameRound->getNumber() . ' : ';
+
+        $prefix = '       ' . $this->stringToMinLength('' . $cyclePart->getNumber(), 2) . ' ';
         foreach ($homeAways as $homeAway) {
-            $this->homeAwayOutput->output($homeAway, $cycle, $prefix);
+            $this->homeAwayOutput->output($homeAway, $cyclePart, $prefix);
         }
     }
 }

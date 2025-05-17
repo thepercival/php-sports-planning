@@ -22,7 +22,7 @@ use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning\Comparer;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 use SportsPlanning\Planning\HistoricalBestPlanning;
-use SportsPlanning\Planning\State as PlanningState;
+use SportsPlanning\Planning\PlanningState as PlanningState;
 use SportsPlanning\Planning\Type as PlanningType;
 use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
 use SportsPlanning\Referee\PlanningRefereeInfo;
@@ -35,7 +35,6 @@ use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 class Input extends Identifiable
 {
     private const int MaxNrOfGamesInARow = 5;
-
 
     protected string $name;
     protected DateTimeImmutable $createdAt;

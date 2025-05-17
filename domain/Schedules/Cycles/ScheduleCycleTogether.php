@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedules\Cycles;
 
-use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
 use SportsPlanning\Planning\ListNode;
-use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceTogether;
 use SportsPlanning\Schedules\Games\ScheduleGameTogether;
 use SportsPlanning\Schedules\Sports\ScheduleTogetherSport;
 
@@ -45,5 +43,20 @@ class ScheduleCycleTogether extends ListNode
     public function addGame(ScheduleGameTogether $game): void
     {
         $this->games[] = $game;
+    }
+
+    /**
+     * @return list<ScheduleGameTogether>
+     */
+    public function getAllGames(): array {
+        $games = [];
+        $cycle = $this;
+        while($cycle !== null) {
+            foreach ($cycle->getGames() as $game) {
+                $games[] = $game;
+            }
+            $cycle = $cycle->getNext();
+        }
+        return $games;
     }
 }

@@ -6,6 +6,7 @@ namespace SportsPlanning\Schedules\Cycles;
 
 use SportsPlanning\Planning\ListNode;
 use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstTwoVsTwo;
+use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstTwoVsTwo;
 
 /**
@@ -44,4 +45,19 @@ class ScheduleCycleAgainstTwoVsTwo extends ListNode
 //        }
 //        return $homeAways;
 //    }
+
+    /**
+     * @return list<ScheduleGameAgainstTwoVsTwo>
+     */
+    public function getAllCyclePartGames(): array {
+        $games = [];
+        $cyclePart = $this->firstPart;
+        while($cyclePart !== null) {
+            foreach ($cyclePart->getGames() as $game) {
+                $games[] = $game;
+            }
+            $cyclePart = $cyclePart->getNext();
+        }
+        return $games;
+    }
 }

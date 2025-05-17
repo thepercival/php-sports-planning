@@ -10,10 +10,10 @@ use SportsPlanning\Planning;
 class Filter implements \Stringable
 {
     public function __construct(
-        readonly public Type|null $type,
-        readonly public State|null $state,
+        readonly public Type|null                      $type,
+        readonly public PlanningState|null             $state,
         readonly public SportRange|BatchGamesType|null $batchGamesRange,
-        readonly public int|null $maxNrOfGamesInARow)
+        readonly public int|null                       $maxNrOfGamesInARow)
     {
     }
 

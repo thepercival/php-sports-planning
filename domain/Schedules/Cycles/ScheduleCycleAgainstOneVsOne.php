@@ -11,6 +11,7 @@ use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Planning\ListNode;
 use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
+use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
 
 /**
@@ -32,6 +33,21 @@ class ScheduleCycleAgainstOneVsOne extends ListNode
     {
         $this->next = new ScheduleCycleAgainstOneVsOne($this->sportSchedule, $this);
         return $this->next;
+    }
+
+    /**
+     * @return list<ScheduleGameAgainstOneVsOne>
+     */
+    public function getAllCyclePartGames(): array {
+        $games = [];
+        $cyclePart = $this->firstPart;
+        while($cyclePart !== null) {
+            foreach ($cyclePart->getGames() as $game) {
+                $games[] = $game;
+            }
+            $cyclePart = $cyclePart->getNext();
+        }
+        return $games;
     }
 
 //    /**

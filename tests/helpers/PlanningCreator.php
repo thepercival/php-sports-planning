@@ -27,35 +27,6 @@ trait PlanningCreator
 //    }
 
 
-    protected function createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(
-        int $nrOfFields,
-        int $nrOfCycles = 1
-    ): SportWithNrOfFieldsAndNrOfCycles {
-        return new SportWithNrOfFieldsAndNrOfCycles( new AgainstOneVsOne(), $nrOfFields, $nrOfCycles );
-    }
-
-    protected function createAgainstOneVsTwoSportWithNrOfFieldsAndNrOfCycles(
-        int $nrOfFields,
-        int $nrOfCycles = 1
-    ): SportWithNrOfFieldsAndNrOfCycles {
-        return new SportWithNrOfFieldsAndNrOfCycles( new AgainstOneVsTwo(), $nrOfFields, $nrOfCycles );
-    }
-
-    protected function createAgainstTwoVsTwoSportWithNrOfFieldsAndNrOfCycles(
-        int $nrOfFields,
-        int $nrOfCycles = 1
-    ): SportWithNrOfFieldsAndNrOfCycles {
-        return new SportWithNrOfFieldsAndNrOfCycles( new AgainstTwoVsTwo(), $nrOfFields, $nrOfCycles );
-    }
-
-    protected function createTogetherSportWithNrOfFieldsAndNrOfCycles(
-        int $nrOfFields,
-        int $nrOfCycles = 1,
-        int|null $nrOfGamePlaces = 1
-    ): SportWithNrOfFieldsAndNrOfCycles {
-        return new SportWithNrOfFieldsAndNrOfCycles( new TogetherSport($nrOfGamePlaces), $nrOfFields, $nrOfCycles );
-    }
-
     protected function getLogger(): LoggerInterface
     {
         $logger = new Logger("test-logger");
@@ -85,7 +56,9 @@ trait PlanningCreator
         bool $perPoule = false
     ) {
         if ($sportsWithNrOfFieldsAndNrOfCycles === null) {
-            $sportsWithNrOfFieldsAndNrOfCycles = [$this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(2)];
+            $sportsWithNrOfFieldsAndNrOfCycles = [
+                new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1)
+            ];
         }
         if ($refereeInfo === null) {
             $refereeInfo = new PlanningRefereeInfo($this->getDefaultNrOfReferees());

@@ -6,20 +6,17 @@ namespace SportsPlanning\Output\Combinations;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\AgainstSide;
-use SportsHelpers\Against\Side;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
-use SportsPlanning\Combinations\DuoPlaceNr;
-use SportsPlanning\Counters\CounterForDuoPlaceNr;
 use SportsPlanning\Counters\Maps\Schedule\AgainstNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\SideNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\WithNrCounterMap;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
-use SportsPlanning\Place;
 use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne as AgainstGameRound;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsTwo;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstTwoVsTwo;
 
 class HomeAwayOutput extends OutputHelper
 {
@@ -98,17 +95,17 @@ class HomeAwayOutput extends OutputHelper
 
     public function output(
         OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway,
-        ScheduleCyclePartAgainstOneVsOne|null              $cycle = null,
+        ScheduleCyclePartAgainstOneVsOne|ScheduleCyclePartAgainstOneVsTwo|ScheduleCyclePartAgainstTwoVsTwo|null $cyclePart = null,
         string|null                                        $prefix = null): void
     {
         $useColors = $this->useColors();
-        $gameRoundColorNr = ($useColors && $cycle !== null) ? ($cycle->getNumber() % 10) : -1;
+        $gameRoundColorNr = ($useColors && $cyclePart !== null) ? ($cyclePart->getNumber() % 10) : -1;
         $gameRoundColor = $this->convertNumberToColor($gameRoundColorNr);
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
-            ($cycle !== null ? Color::getColored(
+            ($cyclePart !== null ? Color::getColored(
                     $gameRoundColor,
-                    'cy ' . $cycle->getNumber()
+                    'cy ' . $cyclePart->getNumber()
                 ) . ', ' : '')
             // . 'substr(' . $game->getRoundNumber(), 2 ) . substr( $game->getSubNumber(), 2 ) . ") "
             . $homeAway

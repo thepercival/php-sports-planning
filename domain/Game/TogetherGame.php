@@ -9,12 +9,14 @@ use Doctrine\Common\Collections\Collection;
 use SportsHelpers\GameMode;
 use SportsHelpers\SportVariants\AllInOneGame;
 use SportsHelpers\SportVariants\Single;
+use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Field;
 use SportsPlanning\Game\GameAbstract as GameBase;
 use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
+use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceTogether;
 use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsOne;
 use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsTwo;
 use SportsPlanning\Sports\Plannable\PlannableAgainstTwoVsTwo;
@@ -108,6 +110,25 @@ class TogetherGame extends GameBase
             );
         }
         return $this->poulePlaces;
+    }
+
+    /**
+     * @return list<DuoPlaceNr>
+     * @throws \Exception
+     */
+    public function convertToDuoPlaceNrs(): array {
+        $duoPlaceNrs = [];
+        foreach($this->getPlaces() as $gamePlaceOne) {
+            foreach($this->getPlaces() as $gamePlaceTwo) {
+                if( $gamePlaceOne >= $gamePlaceTwo ) {
+                    continue;
+                }
+                $duoPlaceNrs[] = new DuoPlaceNr(
+                    $gamePlaceOne->getPlace()->getPlaceNr(),
+                    $gamePlaceTwo->getPlace()->getPlaceNr());
+            }
+        }
+        return $duoPlaceNrs;
     }
 
     public function getSport(): PlannableTogetherSport

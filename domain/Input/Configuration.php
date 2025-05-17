@@ -10,6 +10,7 @@ use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
 use SportsPlanning\Exceptions\SportsIncompatibleWithPouleStructureException;
 use SportsPlanning\Referee\PlanningRefereeInfo;
+use SportsPlanning\Sports\SportWithNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 readonly class Configuration
@@ -47,6 +48,15 @@ readonly class Configuration
     private function createSports(): array {
         return array_map( function(SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {
             return $sportWithNrOfFieldsAndNrOfCycles->sport;
+        }, $this->sportsWithNrOfFieldsAndNrOfCycles );
+    }
+
+    /**
+     * @return list<SportWithNrOfCycles>
+     */
+    public function createSportsWithNrOfCycles(): array {
+        return array_map( function(SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles): SportWithNrOfCycles {
+            return $sportWithNrOfFieldsAndNrOfCycles->createSportWithNrOfCycles();
         }, $this->sportsWithNrOfFieldsAndNrOfCycles );
     }
 

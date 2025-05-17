@@ -5,13 +5,9 @@ declare(strict_types=1);
 namespace SportsPlanning\Schedules\CycleParts;
 
 use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
-use SportsPlanning\HomeAways\OneVsOneHomeAway;
-use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Planning\ListNode;
 use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainstTwoVsTwo;
-use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
-use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsTwo;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
 
 /**
@@ -22,7 +18,7 @@ class ScheduleCyclePartAgainstTwoVsTwo extends ListNode
     protected AmountNrCounterMap $placeNrCounterMap;
 
     /**
-     * @var list<ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo>
+     * @var list<ScheduleGameAgainstTwoVsTwo>
      */
     protected array $games = [];
 
@@ -45,7 +41,7 @@ class ScheduleCyclePartAgainstTwoVsTwo extends ListNode
         return $this->next;
     }
 
-    public function addGame(ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo $againstGame): void
+    public function addGame(ScheduleGameAgainstTwoVsTwo $againstGame): void
     {
         $homeAway = $againstGame->convertToHomeAway();
         foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
@@ -75,17 +71,17 @@ class ScheduleCyclePartAgainstTwoVsTwo extends ListNode
 //    }
 
     /**
-     * @return list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway>
+     * @return list<TwoVsTwoHomeAway>
      */
     public function getGamesAsHomeAways(): array
     {
         return array_map(
-            function(ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo $againstGame){
+            function(ScheduleGameAgainstTwoVsTwo $againstGame){
                 return $againstGame->convertToHomeAway();
             }, $this->games );
     }
 
-    public function isSomeHomeAwayPlaceNrParticipating(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): bool
+    public function isSomeHomeAwayPlaceNrParticipating(TwoVsTwoHomeAway $homeAway): bool
     {
         foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
             if ($this->isParticipating($placeNr)) {
@@ -105,14 +101,11 @@ class ScheduleCyclePartAgainstTwoVsTwo extends ListNode
 
 
 
-//    /**
-//     * @return list<ScheduleGameAgainstTwoVsTwo>
-//     */
-//    public function getGames(): array {
-//        return $this->games;
-//    }
-//
-//    public function addGame(ScheduleGameAgainstTwoVsTwo $game): void {
-//        $this->games[] = $game;
-//    }
+    /**
+     * @return list<ScheduleGameAgainstTwoVsTwo>
+     */
+    public function getGames(): array {
+        return $this->games;
+    }
+
 }

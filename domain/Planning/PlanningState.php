@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
 
-enum State: string
+enum PlanningState: string
 {
     case NotProcessed = 'notProcessed';
     case Succeeded = 'succeeded';

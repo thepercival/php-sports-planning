@@ -6,8 +6,10 @@ namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportRange;
+use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\Planning;
 use SportsPlanning\Referee\PlanningRefereeInfo;
+use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class InputTest extends TestCase
@@ -16,19 +18,17 @@ class InputTest extends TestCase
 
     public function testBestPlanningByNrOfBatches(): void
     {
-        $sportWithNrOfFieldsAndNrOfCycles = $this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(6);
-        $input = $this->createInput(
-            [5],
-            [$sportWithNrOfFieldsAndNrOfCycles],
-            new PlanningRefereeInfo()
-        );
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1)
+        ];
+        $input = $this->createInput([5],$sportsWithNrOfFieldsAndNrOfCycles,new PlanningRefereeInfo());
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 0);
-        $planningA->setState(Planning\State::Succeeded);
+        $planningA->setState(Planning\PlanningState::Succeeded);
         $planningA->setNrOfBatches(5);
 
         $planningB = new Planning($input, $batchGamesRange, 0);
-        $planningB->setState(Planning\State::Succeeded);
+        $planningB->setState(Planning\PlanningState::Succeeded);
         $planningB->setNrOfBatches(4);
 
         self::assertSame($planningB, $input->getBestPlanning(null));
@@ -36,18 +36,17 @@ class InputTest extends TestCase
 
     public function testBestPlanning(): void
     {
-        $input = $this->createInput(
-            [5],
-            [$this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(6)],
-            new PlanningRefereeInfo()
-        );
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1)
+        ];
+        $input = $this->createInput([5],$sportsWithNrOfFieldsAndNrOfCycles,new PlanningRefereeInfo());
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 0);
-        $planningA->setState(Planning\State::Succeeded);
+        $planningA->setState(Planning\PlanningState::Succeeded);
         $planningA->setNrOfBatches(5);
 
         $planningB = new Planning($input, $batchGamesRange, 1);
-        $planningB->setState(Planning\State::Failed);
+        $planningB->setState(Planning\PlanningState::Failed);
         $planningB->setNrOfBatches(5);
 
         $bestPlanning = $input->getBestPlanning(null);
@@ -56,18 +55,17 @@ class InputTest extends TestCase
 
     public function testBestPlanningOnBatchGamesVersusGamesInARow(): void
     {
-        $input = $this->createInput(
-            [5],
-            [$this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(6)],
-            new PlanningRefereeInfo()
-        );
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1)
+        ];
+        $input = $this->createInput([5],$sportsWithNrOfFieldsAndNrOfCycles,new PlanningRefereeInfo());
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 0);
-        $planningA->setState(Planning\State::Succeeded);
+        $planningA->setState(Planning\PlanningState::Succeeded);
         $planningA->setNrOfBatches(5);
 
         $planningB = new Planning($input, $batchGamesRange, 1);
-        $planningB->setState(Planning\State::Succeeded);
+        $planningB->setState(Planning\PlanningState::Succeeded);
         $planningB->setNrOfBatches(5);
 
         self::assertSame($planningB, $input->getBestPlanning(null));
@@ -75,18 +73,17 @@ class InputTest extends TestCase
 
     public function testBestPlanningOnGamesInARow(): void
     {
-        $input = $this->createInput(
-            [5],
-            [$this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(6)],
-            new PlanningRefereeInfo()
-        );
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1)
+        ];
+        $input = $this->createInput([5],$sportsWithNrOfFieldsAndNrOfCycles,new PlanningRefereeInfo());
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 1);
-        $planningA->setState(Planning\State::Succeeded);
+        $planningA->setState(Planning\PlanningState::Succeeded);
         $planningA->setNrOfBatches(5);
 
         $planningB = new Planning($input, $batchGamesRange, 2);
-        $planningB->setState(Planning\State::Succeeded);
+        $planningB->setState(Planning\PlanningState::Succeeded);
         $planningB->setNrOfBatches(5);
 
         self::assertSame($planningA, $input->getBestPlanning(null));

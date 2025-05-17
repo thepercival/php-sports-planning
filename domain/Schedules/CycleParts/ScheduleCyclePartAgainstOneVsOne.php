@@ -24,7 +24,7 @@ class ScheduleCyclePartAgainstOneVsOne extends ListNode
     protected AmountNrCounterMap $placeNrCounterMap;
 
     /**
-     * @var list<ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo>
+     * @var list<ScheduleGameAgainstOneVsOne>
      */
     protected array $games = [];
 
@@ -47,7 +47,7 @@ class ScheduleCyclePartAgainstOneVsOne extends ListNode
         return $this->next;
     }
 
-    public function addGame(ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo $againstGame): void
+    public function addGame(ScheduleGameAgainstOneVsOne $againstGame): void
     {
         $homeAway = $againstGame->convertToHomeAway();
         foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
@@ -77,17 +77,17 @@ class ScheduleCyclePartAgainstOneVsOne extends ListNode
 //    }
 
     /**
-     * @return list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway>
+     * @return list<OneVsOneHomeAway>
      */
     public function getGamesAsHomeAways(): array
     {
         return array_map(
-            function(ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo $againstGame){
+            function(ScheduleGameAgainstOneVsOne $againstGame){
                 return $againstGame->convertToHomeAway();
             }, $this->games );
     }
 
-    public function isSomeHomeAwayPlaceNrParticipating(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): bool
+    public function isSomeHomeAwayPlaceNrParticipating(OneVsOneHomeAway $homeAway): bool
     {
         foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
             if ($this->isParticipating($placeNr)) {
@@ -107,14 +107,10 @@ class ScheduleCyclePartAgainstOneVsOne extends ListNode
 
 
 
-//    /**
-//     * @return list<ScheduleGameAgainstOneVsOne>
-//     */
-//    public function getGames(): array {
-//        return $this->games;
-//    }
-//
-//    public function addGame(ScheduleGameAgainstOneVsOne $game): void {
-//        $this->games[] = $game;
-//    }
+    /**
+     * @return list<ScheduleGameAgainstOneVsOne>
+     */
+    public function getGames(): array {
+        return $this->games;
+    }
 }

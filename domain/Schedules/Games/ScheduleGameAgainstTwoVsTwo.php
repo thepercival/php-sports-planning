@@ -6,17 +6,22 @@ namespace SportsPlanning\Schedules\Games;
 
 use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
-use SportsPlanning\HomeAways\OneVsOneHomeAway;
-use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
-use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
-use SportsPlanning\Schedules\Sports\ScheduleAgainstTwoVsTwo;
+use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstTwoVsTwo;
+use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceAgainst;
 
 class ScheduleGameAgainstTwoVsTwo extends ScheduleGameAgainstAbstract
 {
-    public function __construct(ScheduleCyclePartAgainstOneVsOne $cyclePart)
+    public function __construct(ScheduleCyclePartAgainstTwoVsTwo $cyclePart, TwoVsTwoHomeAway|null $homeAway = null)
     {
         parent::__construct($cyclePart);
+        if( $homeAway instanceof TwoVsTwoHomeAway ){
+            foreach( [AgainstSide::Home, AgainstSide::Away] as $side ) {
+                $duoPlaceNr = $homeAway->get($side);
+                new ScheduleGamePlaceAgainst($this, $side, $duoPlaceNr->placeNrOne);
+                new ScheduleGamePlaceAgainst($this, $side, $duoPlaceNr->placeNrTwo);
+            }
+        }
     }
 
     /**
@@ -34,18 +39,9 @@ class ScheduleGameAgainstTwoVsTwo extends ScheduleGameAgainstAbstract
         return $poulePlaceNrs;
     }
 
-    public function convertToHomeAway(): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
+    public function convertToHomeAway(): TwoVsTwoHomeAway {
         $homePlaceNrs = $this->getSidePlaceNrs(AgainstSide::Home);
         $awayPlaceNrs = $this->getSidePlaceNrs(AgainstSide::Away);
-        if( count($homePlaceNrs) === 1 && count($awayPlaceNrs) === 1) {
-            return new OneVsOneHomeAway($homePlaceNrs[0], $awayPlaceNrs[0]);
-        }
-        if( count($homePlaceNrs) === 1 && count($awayPlaceNrs) === 2) {
-            return new OneVsTwoHomeAway(
-                $homePlaceNrs[0],
-                new DuoPlaceNr($awayPlaceNrs[0], $awayPlaceNrs[1])
-            );
-        }
         if( count($homePlaceNrs) === 2 && count($awayPlaceNrs) === 2) {
             return new TwoVsTwoHomeAway(
                 new DuoPlaceNr($homePlaceNrs[0], $homePlaceNrs[1]),

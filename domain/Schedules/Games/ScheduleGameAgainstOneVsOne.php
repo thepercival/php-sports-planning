@@ -17,7 +17,7 @@ class ScheduleGameAgainstOneVsOne extends ScheduleGameAgainstAbstract
         if( $homeAway instanceof OneVsOneHomeAway ){
             foreach( [AgainstSide::Home, AgainstSide::Away] as $side ) {
                 $placeNr = $homeAway->get($side);
-                $this->addGamePlace(new ScheduleGamePlaceAgainst($this, $side, $placeNr));
+                new ScheduleGamePlaceAgainst($this, $side, $placeNr);
             }
         }
     }

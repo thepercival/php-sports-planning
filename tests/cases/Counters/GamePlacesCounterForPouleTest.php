@@ -6,10 +6,12 @@ namespace SportsPlanning\Tests\Counters;
 
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\PouleStructures\PouleStructure;
+use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\Counters\GamePlacesCounterForPoule;
 use SportsPlanning\Input;
 use SportsPlanning\Poule;
 use SportsPlanning\Referee\PlanningRefereeInfo;
+use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 class GamePlacesCounterForPouleTest extends TestCase
@@ -61,9 +63,12 @@ class GamePlacesCounterForPouleTest extends TestCase
 
     private function getPoule(): Poule
     {
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
         $input = new Input( new Input\Configuration(
             new PouleStructure(3),
-            [$this->createAgainstOneVsOneSportWithNrOfFieldsAndNrOfCycles(1)],
+            $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo(),
             false
         ));

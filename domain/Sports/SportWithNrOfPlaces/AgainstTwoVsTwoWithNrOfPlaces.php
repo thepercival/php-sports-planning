@@ -19,8 +19,18 @@ class AgainstTwoVsTwoWithNrOfPlaces extends SportWithNrOfPlacesAbstract implemen
 
     public function calculateNrOfGamesPerCycle(): int
     {
-        $nrOfCombinations = (new SportMath())->above($this->nrOfPlaces, $this->sport->getNrOfGamePlaces());
-        return (int)($nrOfCombinations * $this->sport->getNrOfHomeAwayCombinations());
+        // pure
+        if( $this->nrOfPlaces % 4 === 0 || $this->nrOfPlaces % 4 === 1) {
+            return (int) (($this->nrOfPlaces * ($this->nrOfPlaces - 1)) / 4);
+        }
+
+        // mixed & asymmetric
+        if( $this->nrOfPlaces % 4 === 3) {
+            return (new AgainstTwoVsTwoWithNrOfPlaces($this->nrOfPlaces - 1, $this->sport))
+                ->calculateNrOfGamesPerCycle();
+        }
+
+        return (int)floor($this->nrOfPlaces * ($this->nrOfPlaces - 1) / 4 );
     }
 
     public function calculateNrOfGamesPerPlace(int $nrOfCycles): int
@@ -31,7 +41,10 @@ class AgainstTwoVsTwoWithNrOfPlaces extends SportWithNrOfPlacesAbstract implemen
 
     public function calculateNrOfGamesPerPlacePerCycle(): int
     {
-        throw new \Exception('implement calculateNrOfGamesPerPlacePerCycle');
+        if( $this->nrOfPlaces % 4 === 0 || $this->nrOfPlaces % 4 === 1 || $this->nrOfPlaces % 4 === 2) {
+            return $this->nrOfPlaces - 1;
+        }
+        return $this->nrOfPlaces - 3;
     }
 
 }

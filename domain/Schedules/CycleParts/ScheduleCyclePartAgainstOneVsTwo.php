@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedules\CycleParts;
 
-use SportsPlanning\Counters\Maps\PlaceNrCounterMapAbstract;
 use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Planning\ListNode;
 use SportsPlanning\Schedules\Cycles\ScheduleCycleAgainstOneVsTwo;
-use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsTwo;
-use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
 
 /**
  * @template-extends ListNode<ScheduleCyclePartAgainstOneVsTwo>
@@ -23,7 +20,7 @@ class ScheduleCyclePartAgainstOneVsTwo extends ListNode
     protected AmountNrCounterMap $placeNrCounterMap;
 
     /**
-     * @var list<ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo>
+     * @var list<ScheduleGameAgainstOneVsTwo>
      */
     protected array $games = [];
 
@@ -46,7 +43,7 @@ class ScheduleCyclePartAgainstOneVsTwo extends ListNode
         return $this->next;
     }
 
-    public function addGame(ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo $againstGame): void
+    public function addGame(ScheduleGameAgainstOneVsTwo $againstGame): void
     {
         $homeAway = $againstGame->convertToHomeAway();
         foreach ($homeAway->convertToPlaceNrs() as $placeNr) {
@@ -81,7 +78,7 @@ class ScheduleCyclePartAgainstOneVsTwo extends ListNode
     public function getGamesAsHomeAways(): array
     {
         return array_map(
-            function(ScheduleGameAgainstOneVsOne|ScheduleGameAgainstOneVsTwo|ScheduleGameAgainstTwoVsTwo $againstGame){
+            function(ScheduleGameAgainstOneVsTwo $againstGame){
                 return $againstGame->convertToHomeAway();
             }, $this->games );
     }
@@ -106,14 +103,12 @@ class ScheduleCyclePartAgainstOneVsTwo extends ListNode
 
 
 
-//    /**
-//     * @return list<ScheduleGameAgainstOneVsTwo>
-//     */
-//    public function getGames(): array {
-//        return $this->games;
-//    }
-//
-//    public function addGame(ScheduleGameAgainstOneVsTwo $game): void {
-//        $this->games[] = $game;
-//    }
+
+    /**
+     * @return list<ScheduleGameAgainstOneVsTwo>
+     */
+    public function getGames(): array {
+        return $this->games;
+    }
+
 }

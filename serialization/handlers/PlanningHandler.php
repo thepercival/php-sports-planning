@@ -70,7 +70,7 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
 
         $planning->setCreatedDateTime(new DateTimeImmutable($fieldValue['createdDateTime']));
         $planning->setNrOfBatches($fieldValue['nrOfBatches']);
-        $planning->setState(Planning\State::from($fieldValue['state']));
+        $planning->setState(Planning\PlanningState::from($fieldValue['state']));
         $planning->setValidity($fieldValue['validity']);
 
         $pouleMap = $this->getPouleMap($input->getPoules());
