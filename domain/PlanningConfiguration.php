@@ -1,6 +1,6 @@
 <?php
 
-namespace SportsPlanning\Input;
+namespace SportsPlanning;
 
 use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\AgainstOneVsOne;
@@ -13,7 +13,7 @@ use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
-readonly class Configuration
+readonly class PlanningConfiguration
 {
     private string $name;
 
@@ -43,7 +43,7 @@ readonly class Configuration
     }
 
     /**
-     * @return list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport>
+     * @return list<TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo>
      */
     private function createSports(): array {
         return array_map( function(SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport {

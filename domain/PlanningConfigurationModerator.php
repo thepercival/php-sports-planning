@@ -1,6 +1,6 @@
 <?php
 
-namespace SportsPlanning\Input;
+namespace SportsPlanning;
 
 use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SelfReferee;
@@ -9,14 +9,14 @@ use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
-use SportsPlanning\Input\Configuration as InputConfiguration;
+use SportsPlanning\PlanningConfiguration as InputConfiguration;
 use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
 use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Referee\SelfRefereeValidator;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
-class ConfigurationValidator
+class PlanningConfigurationModerator
 {
     public function __construct()
     {
@@ -52,7 +52,7 @@ class ConfigurationValidator
 
     /**
      * @param PlanningRefereeInfo $refereeInfo
-     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport> $sports
+     * @param list<TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo> $sports
      * @param PouleStructure $pouleStructure
      * @return PlanningRefereeInfo
      */
@@ -71,7 +71,7 @@ class ConfigurationValidator
     /**
      * @param SelfReferee $selfReferee
      * @param PouleStructure $pouleStructure
-     * @param list<AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport> $sports
+     * @param list<TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo> $sports
     * @return SelfReferee
      */
     protected function getValidatedSelfReferee(

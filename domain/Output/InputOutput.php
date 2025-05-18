@@ -5,16 +5,11 @@ namespace SportsPlanning\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
-use SportsHelpers\SportRange;
-use SportsPlanning\Input\Configuration as InputConfiguration;
-use SportsPlanning\Output\BatchOutput as BatchOutput;
-use SportsPlanning\Planning as PlanningBase;
-use SportsPlanning\Planning\PlanningState as PlanningState;
-use SportsPlanning\Resource\GameCounter;
-use SportsPlanning\Resource\ResourceCounter;
-use SportsPlanning\Output\PlanningOutput\Extra as PlanningOutputExtra;
 use SportsPlanning\Input;
+use SportsPlanning\Output\PlanningOutput\Extra as PlanningOutputExtra;
+use SportsPlanning\Planning as PlanningBase;
 use SportsPlanning\Planning\Filter as PlanningFilter;
+use SportsPlanning\Planning\PlanningState as PlanningState;
 
 class InputOutput extends OutputHelper
 {

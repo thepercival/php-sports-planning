@@ -66,7 +66,7 @@ class CounterForPouleTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
         ];
-        $input = new Input( new Input\Configuration(
+        $input = new Input( new \SportsPlanning\PlanningConfiguration(
             new PouleStructure(3),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo(),

@@ -7,18 +7,17 @@ namespace SportsPlanning\SerializationHandler;
 //use Doctrine\Common\Collections\ArrayCollection;
 use DateTimeImmutable;
 use Doctrine\Common\Collections\Collection;
+use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
-use JMS\Serializer\Context;
 use SportsHelpers\SportRange;
+use SportsPlanning\PlanningConfiguration as InputConfiguration;
 use SportsPlanning\Field;
+use SportsPlanning\Game\AgainstGame as AgainstGame;
+use SportsPlanning\Game\TogetherGame as TogetherGame;
 use SportsPlanning\Input;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
-use SportsPlanning\Input\Configuration as InputConfiguration;
-
-use SportsPlanning\Game\AgainstGame as AgainstGame;
-use SportsPlanning\Game\TogetherGame as TogetherGame;
 use SportsPlanning\Poule;
 
 /**

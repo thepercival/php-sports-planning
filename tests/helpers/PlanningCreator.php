@@ -9,9 +9,6 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\AgainstOneVsOne;
-use SportsHelpers\Sports\AgainstOneVsTwo;
-use SportsHelpers\Sports\AgainstTwoVsTwo;
-use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Input;
 use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
@@ -63,7 +60,7 @@ trait PlanningCreator
         if ($refereeInfo === null) {
             $refereeInfo = new PlanningRefereeInfo($this->getDefaultNrOfReferees());
         }
-        $configurationValidator = new Input\ConfigurationValidator();
+        $configurationValidator = new \SportsPlanning\PlanningConfigurationModerator();
         $configuration = $configurationValidator->createReducedAndValidatedInputConfiguration(
             new PouleStructure(...$pouleStructureAsArray),
             $sportsWithNrOfFieldsAndNrOfCycles,

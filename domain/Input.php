@@ -16,9 +16,8 @@ use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
+use SportsPlanning\PlanningConfiguration as InputConfiguration;
 use SportsPlanning\Exceptions\NoBestPlanningException;
-use SportsPlanning\Input\Configuration;
-use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning\Comparer;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 use SportsPlanning\Planning\HistoricalBestPlanning;
@@ -68,7 +67,7 @@ class Input extends Identifiable
     protected int|null $maxNrOfGamesInARow = null;
     protected bool $perPoule;
 
-    public function __construct(readonly Configuration $configuration) {
+    public function __construct(readonly PlanningConfiguration $configuration) {
         $this->perPoule = $configuration->perPoule;
 
         // $this->categories = new ArrayCollection();
@@ -118,7 +117,7 @@ class Input extends Identifiable
         $this->name = $configuration->getName();
     }
 
-    public function createConfiguration(): Configuration {
+    public function createConfiguration(): PlanningConfiguration {
 
         return new InputConfiguration(
             $this->createPouleStructure(),
