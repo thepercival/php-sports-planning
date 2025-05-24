@@ -37,7 +37,8 @@ class AgainstGame extends GameAbstract
         Planning $planning,
         Poule $poule,
         Field $field,
-        public int $cyclePartNr
+        public int $cyclePartNr,
+        public int $cycleNr
     ) {
         parent::__construct($planning, $poule, $field);
         $this->places = new ArrayCollection();

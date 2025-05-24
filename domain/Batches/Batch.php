@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning;
+namespace SportsPlanning\Batches;
 
-use SportsPlanning\Game\AgainstGame as AgainstGame;
-use SportsPlanning\Game\TogetherGame as TogetherGame;
+use SportsPlanning\Game\AgainstGame;
+use SportsPlanning\Game\TogetherGame;
+use SportsPlanning\Place;
 use SportsPlanning\Planning\ListNode;
+use SportsPlanning\Poule;
 
 /**
  * @template-extends ListNode<Batch>
@@ -116,8 +118,8 @@ class Batch extends ListNode
 
     /**
      * @param Poule|null $poule
-     * @return list<TogetherGame|AgainstGame>
-     */
+     * @return list<AgainstGame|TogetherGame>
+    */
     public function getGames(Poule $poule = null): array
     {
         if ($poule === null) {

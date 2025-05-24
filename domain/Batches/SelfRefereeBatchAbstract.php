@@ -1,17 +1,16 @@
 <?php
 
-namespace SportsPlanning\Batch;
+namespace SportsPlanning\Batches;
 
-use SportsPlanning\Batch;
-use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPoule;
-use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePoule;
+use SportsPlanning\Batches\SelfRefereeBatchOtherPoule as SelfRefereeOtherPoule;
+use SportsPlanning\Batches\SelfRefereeBatchSamePoule as SelfRefereeSamePoule;
 use SportsPlanning\Counters\GamePlacesCounterForPoule;
 use SportsPlanning\Game\AgainstGame as AgainstGame;
 use SportsPlanning\Game\TogetherGame as TogetherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
-abstract class SelfReferee
+abstract class SelfRefereeBatchAbstract
 {
     protected SelfRefereeOtherPoule|SelfRefereeSamePoule|null $previous;
     protected SelfRefereeOtherPoule|SelfRefereeSamePoule|null $next = null;
@@ -113,7 +112,7 @@ abstract class SelfReferee
         foreach ($this->previousTotalPouleCounterMap as $key => $gamePlacesCounterForPoule) {
             $copiedGamePlacesCounterForPoule = new GamePlacesCounterForPoule(
                 $gamePlacesCounterForPoule->getPoule(),
-                $gamePlacesCounterForPoule->getNrOfPlacesAssigned(),
+                $gamePlacesCounterForPoule->calculateNrOfAssignedGamePlaces(),
                 $gamePlacesCounterForPoule->getNrOfGames()
             );
             $previousTotalPouleCounterMap[$key] = $gamePlacesCounterForPoule;
@@ -181,7 +180,7 @@ abstract class SelfReferee
         foreach ($this->previousTotalPouleCounterMap as $key => $it) {
             $previousTotalPouleCounterMap[$key] = new GamePlacesCounterForPoule(
                 $it->getPoule(),
-                $it->getNrOfPlacesAssigned(),
+                $it->calculateNrOfAssignedGamePlaces(),
                 $it->getNrOfGames()
             );
         }
@@ -189,7 +188,7 @@ abstract class SelfReferee
         foreach ($this->pouleCounterMap as $key => $it) {
             $pouleCounterMap[$key] = new GamePlacesCounterForPoule(
                 $it->getPoule(),
-                $it->getNrOfPlacesAssigned(),
+                $it->calculateNrOfAssignedGamePlaces(),
                 $it->getNrOfGames()
             );
         }
@@ -212,7 +211,7 @@ abstract class SelfReferee
             } else {
                 $previousPreviousTotalPouleCounterMap[$previousPouleNr] =
                     $previousPreviousTotalPouleCounterMap[$previousPouleNr]->add(
-                        $previousBatchPouleCounter->getNrOfPlacesAssigned(),
+                        $previousBatchPouleCounter->calculateNrOfAssignedGamePlaces(),
                         $previousBatchPouleCounter->getNrOfGames()
                     );
             }
@@ -252,12 +251,12 @@ abstract class SelfReferee
         return $this->pouleCounterMap;
     }
 
-    protected function getNrOfPlacesParticipatingHelper(Poule $poule, int $nrOfRefereePlacePerGame): int
+    protected function getNrOfPlacesParticipatingHelper(Poule $poule, int $nrOfRefereePlacesPerGame): int
     {
         if (!isset($this->pouleCounterMap[$poule->getNumber()])) {
             return 0;
         }
-        return $this->pouleCounterMap[$poule->getNumber()]->getNrOfPlacesAssigned($nrOfRefereePlacePerGame);
+        return $this->pouleCounterMap[$poule->getNumber()]->calculateNrOfAssignedGamePlaces($nrOfRefereePlacesPerGame);
     }
 
     public function add(TogetherGame|AgainstGame $game): void
@@ -272,7 +271,9 @@ abstract class SelfReferee
         if (!array_key_exists($poule->getNumber(), $this->pouleCounterMap)) {
             $this->pouleCounterMap[$poule->getNumber()] = new GamePlacesCounterForPoule($poule);
         }
-        $this->pouleCounterMap[$poule->getNumber()]->add($game->getPlaces()->count());
+        $this->pouleCounterMap[$poule->getNumber()] = $this->pouleCounterMap[$poule->getNumber()]->add(
+            $game->getPlaces()->count()
+        );
     }
 
     public function remove(TogetherGame|AgainstGame $game): void
@@ -284,7 +285,9 @@ abstract class SelfReferee
         }
 
         $poule = $game->getPoule();
-        $this->pouleCounterMap[$poule->getNumber()]->remove($game->getPlaces()->count());
+        $this->pouleCounterMap[$poule->getNumber()] = $this->pouleCounterMap[$poule->getNumber()]->remove(
+            $game->getPlaces()->count()
+        );
     }
 
     /**

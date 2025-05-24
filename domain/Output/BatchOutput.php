@@ -7,14 +7,12 @@ namespace SportsPlanning\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\SportRange;
-use SportsPlanning\Batch as BatchBase;
-use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
-use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
-use SportsPlanning\Game\AgainstGame as AgainstGame;
-use SportsPlanning\Output\GameOutput as GameOutput;
-use SportsPlanning\Game\TogetherGame as TogetherGame;
+use SportsPlanning\Batches\Batch;
+use SportsPlanning\Batches\SelfRefereeBatchOtherPoule;
+use SportsPlanning\Batches\SelfRefereeBatchSamePoule;
+use SportsPlanning\Game\AgainstGame;
+use SportsPlanning\Game\TogetherGame;
 use SportsPlanning\Place;
-use SportsPlanning\Output\PlaceOutput as PlaceOutput;
 
 class BatchOutput extends OutputHelper
 {
@@ -29,10 +27,10 @@ class BatchOutput extends OutputHelper
     }
 
     public function output(
-        BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch,
-        string $title = null,
-        SportRange|null $numberRange = null,
-        bool $showUnassigned = false
+        Batch|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule  $batch,
+        string                                                      $title = null,
+        SportRange|null                                             $numberRange = null,
+        bool                                                        $showUnassigned = false
     ): void {
         if ($title === null) {
             $title = '';
@@ -45,9 +43,9 @@ class BatchOutput extends OutputHelper
     }
 
     protected function outputHelper(
-        BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch,
-        SportRange|null $numberRange = null,
-        bool $showUnassigned = false
+        Batch|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule  $batch,
+        SportRange|null                                             $numberRange = null,
+        bool                                                        $showUnassigned = false
     ): void {
         if ($numberRange !== null && $batch->getNumber() < $numberRange->getMin()) {
             $nextBatch = $batch->getNext();
@@ -72,23 +70,21 @@ class BatchOutput extends OutputHelper
 
     /**
      * @param list<AgainstGame|TogetherGame> $games
-     * @param BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule|null $batch
+     * @param Batch|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule|null $batch
      * @return void
      */
     public function outputGames(
         array $games,
-        BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule|null $batch = null
+        Batch|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule|null $batch = null
     ): void {
         foreach ($games as $game) {
             $this->gameOutput->output($game, $batch);
         }
     }
 
-    protected function outputUnassigned(
-        BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch
-    ): void {
+    protected function outputUnassigned(Batch|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch): void {
         $useColors = $this->useColors();
-        $unassignedPlaces = $batch instanceof BatchBase ? $batch->getUnassignedPlaces() : $batch->getUnassignedPlaces(
+        $unassignedPlaces = $batch instanceof Batch ? $batch->getUnassignedPlaces() : $batch->getUnassignedPlaces(
             true
         );
         $placesAsArrayOfStrings = array_map(

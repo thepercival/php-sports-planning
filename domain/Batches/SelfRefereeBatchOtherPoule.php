@@ -1,43 +1,42 @@
 <?php
 
-namespace SportsPlanning\Batch\SelfReferee;
+namespace SportsPlanning\Batches;
 
-use SportsPlanning\Batch;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
-class OtherPoule extends Batch\SelfReferee
+class SelfRefereeBatchOtherPoule extends SelfRefereeBatchAbstract
 {
     /**
      * @param list<Poule> $poules
      * @param Batch $batch
-     * @param OtherPoule|null $previous
+     * @param SelfRefereeBatchOtherPoule|null $previous
      */
-    public function __construct(protected array $poules, Batch $batch, OtherPoule|null $previous = null)
+    public function __construct(protected array $poules, Batch $batch, SelfRefereeBatchOtherPoule|null $previous = null)
     {
         parent::__construct($batch, $previous);
 
         $nextBatch = $this->getBase()->getNext();
         if ($nextBatch !== null) {
-            $this->next = new OtherPoule($poules, $nextBatch, $this);
+            $this->next = new SelfRefereeBatchOtherPoule($poules, $nextBatch, $this);
         }
     }
 
-    public function getFirst(): OtherPoule|SamePoule
+    public function getFirst(): SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule
     {
         $previous = $this->getPrevious();
         return $previous !== null ? $previous->getFirst() : $this;
     }
 
-    public function getLeaf(): OtherPoule|SamePoule
+    public function getLeaf(): SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule
     {
         $next = $this->getNext();
         return $next !== null ? $next->getLeaf() : $this;
     }
 
-    public function createNext(): OtherPoule
+    public function createNext(): SelfRefereeBatchOtherPoule
     {
-        $this->next = new OtherPoule($this->poules, $this->getBase()->createNext(), $this);
+        $this->next = new SelfRefereeBatchOtherPoule($this->poules, $this->getBase()->createNext(), $this);
         return $this->next;
     }
 
@@ -65,8 +64,8 @@ class OtherPoule extends Batch\SelfReferee
     }
 
     /**
-     * @return array<int,list<Place>>
-     */
+     * @return array<int, list<Place>>
+    */
     protected function getOtherPlacesMap(): array
     {
         $otherPoulePlacesMap = [];

@@ -9,9 +9,9 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\AgainstSide;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
-use SportsPlanning\Batch;
-use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
-use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
+use SportsPlanning\Batches\Batch;
+use SportsPlanning\Batches\SelfRefereeBatchOtherPoule;
+use SportsPlanning\Batches\SelfRefereeBatchSamePoule;
 use SportsPlanning\Game\AgainstGame as AgainstGame;
 use SportsPlanning\Game\AgainstGamePlace as AgainstGamePlace;
 use SportsPlanning\Game\TogetherGame as TogetherGame;
@@ -41,9 +41,9 @@ class GameOutput extends OutputHelper
     }
 
     public function output(
-        AgainstGame|TogetherGame                        $game,
+        AgainstGame|TogetherGame                                                        $game,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null,
-        string|null                                                     $prefix = null
+        string|null                                                                     $prefix = null
     ): void {
         $useColors = $this->useColors();
         $batchNr = $game->getBatchNr();
@@ -78,7 +78,7 @@ class GameOutput extends OutputHelper
     }
 
     protected function getPlaces(
-        AgainstGame|TogetherGame                        $game,
+        AgainstGame|TogetherGame                                        $game,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null
     ): string {
         $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
@@ -97,9 +97,9 @@ class GameOutput extends OutputHelper
      * @return string
      */
     protected function getPlacesHelper(
-        Collection $gamePlaces,
+        Collection                                                      $gamePlaces,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch,
-        bool $useColors
+        bool                                                            $useColors
     ): string {
         $placesAsArrayOfStrings = array_map(
             function (AgainstGamePlace|TogetherGamePlace $gamePlace) use ($useColors, $batch): string {

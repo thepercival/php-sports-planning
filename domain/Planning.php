@@ -10,9 +10,9 @@ use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Identifiable;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
-use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeOtherPouleBatch;
-use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeSamePouleBatch;
-use SportsPlanning\PlanningConfiguration as InputConfiguration;
+use SportsPlanning\Batches\Batch;
+use SportsPlanning\Batches\SelfRefereeBatchOtherPoule;
+use SportsPlanning\Batches\SelfRefereeBatchSamePoule;
 use SportsPlanning\Game\AgainstGame as AgainstGame;
 use SportsPlanning\Game\GameAbstract;
 use SportsPlanning\Game\TogetherGame as TogetherGame;
@@ -21,6 +21,7 @@ use SportsPlanning\Planning\Filter;
 use SportsPlanning\Planning\PlanningState as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\Type as PlanningType;
+use SportsPlanning\PlanningConfiguration as InputConfiguration;
 
 class Planning extends Identifiable
 {
@@ -171,16 +172,16 @@ class Planning extends Identifiable
         return $this->input;
     }
 
-    public function createFirstBatch(): Batch|SelfRefereeSamePouleBatch|SelfRefereeOtherPouleBatch
+    public function createFirstBatch(): Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule
     {
         $games = $this->getGames(GameAbstract::ORDER_BY_BATCH);
         $batch = new Batch();
         if ($this->input->selfRefereeEnabled()) {
             if ($this->input->getSelfReferee() === SelfReferee::SamePoule) {
-                $batch = new SelfRefereeSamePouleBatch($batch);
+                $batch = new SelfRefereeBatchSamePoule($batch);
             } else {
                 $poules = array_values($this->input->getPoules()->toArray());
-                $batch = new SelfRefereeOtherPouleBatch($poules, $batch);
+                $batch = new SelfRefereeBatchOtherPoule($poules, $batch);
             }
         }
         foreach ($games as $game) {

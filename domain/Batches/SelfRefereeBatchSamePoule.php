@@ -1,36 +1,35 @@
 <?php
 
-namespace SportsPlanning\Batch\SelfReferee;
+namespace SportsPlanning\Batches;
 
-use SportsPlanning\Batch;
 use SportsPlanning\Poule;
 
-class SamePoule extends Batch\SelfReferee
+class SelfRefereeBatchSamePoule extends SelfRefereeBatchAbstract
 {
-    public function __construct(Batch $batch, SamePoule $previous = null)
+    public function __construct(Batch $batch, SelfRefereeBatchSamePoule $previous = null)
     {
         parent::__construct($batch, $previous);
         $next = $this->getBase()->getNext();
         if ($next !== null) {
-            $this->next = new SamePoule($next, $this);
+            $this->next = new SelfRefereeBatchSamePoule($next, $this);
         }
     }
 
-    public function getFirst(): SamePoule|OtherPoule
+    public function getFirst(): SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule
     {
         $previous = $this->getPrevious();
         return $previous !== null ? $previous->getFirst() : $this;
     }
 
-    public function getLeaf(): SamePoule|OtherPoule
+    public function getLeaf(): SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule
     {
         $next = $this->getNext();
         return $next !== null ? $next->getLeaf() : $this;
     }
 
-    public function createNext(): SamePoule
+    public function createNext(): SelfRefereeBatchSamePoule
     {
-        $this->next = new SamePoule($this->getBase()->createNext(), $this);
+        $this->next = new SelfRefereeBatchSamePoule($this->getBase()->createNext(), $this);
         return $this->next;
     }
 
@@ -43,7 +42,7 @@ class SamePoule extends Batch\SelfReferee
         foreach ($this->getPouleCounters() as $pouleCounter) {
             $poule = $pouleCounter->getPoule();
 
-            if ($this->pouleCounterMap[$poule->getNumber()]->getNrOfPlacesAssigned() !== $poule->getPlaces()->count()) {
+            if ($this->pouleCounterMap[$poule->getNumber()]->calculateNrOfAssignedGamePlaces() !== $poule->getPlaces()->count()) {
                 continue;
             }
             $forcedRefereePlaces = $this->getPlacesNotParticipating($poule);
@@ -54,8 +53,8 @@ class SamePoule extends Batch\SelfReferee
         return $forcedRefereePlacesMap;
     }
 
-    public function getNrOfPlacesParticipating(Poule $poule, int $nrOfRefereePlacePerGame): int
+    public function getNrOfPlacesParticipating(Poule $poule, int $nrOfRefereePlacesPerGame): int
     {
-        return $this->getNrOfPlacesParticipatingHelper($poule, $nrOfRefereePlacePerGame);
+        return $this->getNrOfPlacesParticipatingHelper($poule, $nrOfRefereePlacesPerGame);
     }
 }

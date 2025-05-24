@@ -21,11 +21,11 @@ class PouleCounterTest extends \PHPUnit\Framework\TestCase
         $nrOfPlacesAssigned = 3;
         $gamePlacesCounter = $gamePlacesCounter->add($nrOfPlacesAssigned);
 
-        self::assertSame($nrOfPlacesAssigned, $gamePlacesCounter->getNrOfPlacesAssigned());
+        self::assertSame($nrOfPlacesAssigned, $gamePlacesCounter->calculateNrOfAssignedGamePlaces());
         self::assertSame(1, $gamePlacesCounter->getNrOfGames());
 
         $gamePlacesCounter = $gamePlacesCounter->reset();
-        self::assertSame(0, $gamePlacesCounter->getNrOfPlacesAssigned());
+        self::assertSame(0, $gamePlacesCounter->calculateNrOfAssignedGamePlaces());
         self::assertSame(0, $gamePlacesCounter->getNrOfGames());
 
         self::assertSame($pouleOne, $gamePlacesCounter->getPoule());

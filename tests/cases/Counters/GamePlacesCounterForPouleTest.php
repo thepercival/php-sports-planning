@@ -30,11 +30,11 @@ class GamePlacesCounterForPouleTest extends TestCase
         self::assertSame($poule, $counter->getPoule());
     }
 
-    public function testGetNrOfPlacesAssignedWithRefereePlace(): void
+    public function testCalculateNrOfAssignedGamePlacesWithRefereePlace(): void
     {
         $poule = $this->getPoule();
         $counter = new GamePlacesCounterForPoule($poule,4, 2);
-        self::assertSame(6, $counter->getNrOfPlacesAssigned(1));
+        self::assertSame(6, $counter->calculateNrOfAssignedGamePlaces(1));
     }
 
     public function testReset(): void
@@ -42,7 +42,7 @@ class GamePlacesCounterForPouleTest extends TestCase
         $poule = $this->getPoule();
         $counter = new GamePlacesCounterForPoule($poule,4, 2);
         self::assertSame(0, $counter->reset()->getNrOfGames());
-        self::assertSame(0, $counter->reset()->getNrOfPlacesAssigned());
+        self::assertSame(0, $counter->reset()->calculateNrOfAssignedGamePlaces());
     }
 
     public function testAdd(): void
@@ -50,7 +50,7 @@ class GamePlacesCounterForPouleTest extends TestCase
         $poule = $this->getPoule();
         $counter = new GamePlacesCounterForPoule($poule,4, 2);
         self::assertSame(4, $counter->add(0, 2)->getNrOfGames());
-        self::assertSame(6, $counter->add(2, 0)->getNrOfPlacesAssigned());
+        self::assertSame(6, $counter->add(2, 0)->calculateNrOfAssignedGamePlaces());
     }
 
     public function testRemove(): void
@@ -58,7 +58,7 @@ class GamePlacesCounterForPouleTest extends TestCase
         $poule = $this->getPoule();
         $counter = new GamePlacesCounterForPoule($poule,4, 2);
         self::assertSame(0, $counter->remove(0, 2)->getNrOfGames());
-        self::assertSame(3, $counter->remove(1, 0)->getNrOfPlacesAssigned());
+        self::assertSame(3, $counter->remove(1, 0)->calculateNrOfAssignedGamePlaces());
     }
 
     private function getPoule(): Poule
