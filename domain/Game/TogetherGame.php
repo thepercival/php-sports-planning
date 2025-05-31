@@ -6,42 +6,39 @@ namespace SportsPlanning\Game;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use SportsHelpers\GameMode;
-use SportsHelpers\SportVariants\AllInOneGame;
-use SportsHelpers\SportVariants\Single;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Field;
-use SportsPlanning\Game\GameAbstract as GameBase;
+use SportsPlanning\Game\GameAbstract;
 use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceTogether;
-use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsOne;
-use SportsPlanning\Sports\Plannable\PlannableAgainstOneVsTwo;
-use SportsPlanning\Sports\Plannable\PlannableAgainstTwoVsTwo;
-use SportsPlanning\Sports\Plannable\PlannableTogetherSport;
+use SportsPlanning\Sports\Plannable\TogetherSportWithNrAndFields;
 
-class TogetherGame extends GameBase
+class TogetherGame extends GameAbstract
 {
     /**
-     * @var Collection<int|string, TogetherGamePlace>
+     * @var list<TogetherGamePlace>
      */
-    protected Collection $places;
+    protected array $gamePlaces = [];
 
-    public function __construct(Planning $planning, Poule $poule, Field $field)
+    public function __construct(Poule $poule, Field $field)
     {
-        parent::__construct($planning, $poule, $field);
-        $this->places = new ArrayCollection();
-        $this->planning->getTogetherGames()->add($this);
+        parent::__construct($poule, $field);
+        $this->poule->addGame($this);
     }
 
     /**
-     * @return Collection<int|string, TogetherGamePlace>
+     * @return list<TogetherGamePlace>
      */
-    public function getPlaces(): Collection
+    public function getGamePlaces(): array
     {
-        return $this->places;
+        return $this->gamePlaces;
+    }
+
+    public function addGamePlace(TogetherGamePlace $gamePlace): void
+    {
+        $this->gamePlaces[] = $gamePlace;
     }
 
 //    /**
@@ -76,10 +73,10 @@ class TogetherGame extends GameBase
 //    }
 //
 
-    public function isParticipating(Place $place): bool
+    public function isParticipating(int $placeNr): bool
     {
-        foreach ($this->getPlaces() as $gamePlace) {
-            if ($gamePlace->getPlace() === $place) {
+        foreach ($this->gamePlaces as $gamePlace) {
+            if ($gamePlace->placeNr === $placeNr) {
                 return true;
             }
         }
@@ -98,18 +95,23 @@ class TogetherGame extends GameBase
 //    }
 //
     /**
-     * @return Collection<int|string,Place>
+     * @return list<int>
      */
-    public function getPoulePlaces(): Collection
+    public function getPlaceNrs(): array
     {
-        if ($this->poulePlaces === null) {
-            $this->poulePlaces = new ArrayCollection(
-                array_map(function (TogetherGamePlace $gamePlace): Place {
-                    return $gamePlace->getPlace();
-                }, $this->getPlaces()->toArray() )
-            );
-        }
-        return $this->poulePlaces;
+        return array_map(function(TogetherGamePlace $gamePlace): int {
+            return $gamePlace->placeNr;
+        }, $this->getGamePlaces() );
+    }
+
+    /**
+     * @return list<Place>
+     */
+    public function getPlaces(): array
+    {
+        return array_map(function(TogetherGamePlace $gamePlace): Place {
+            return $this->poule->getPlace($gamePlace->placeNr);
+        }, $this->getGamePlaces() );
     }
 
     /**
@@ -118,26 +120,15 @@ class TogetherGame extends GameBase
      */
     public function convertToDuoPlaceNrs(): array {
         $duoPlaceNrs = [];
-        foreach($this->getPlaces() as $gamePlaceOne) {
-            foreach($this->getPlaces() as $gamePlaceTwo) {
-                if( $gamePlaceOne >= $gamePlaceTwo ) {
+        foreach($this->getPlaceNrs() as $placeNrOne) {
+            foreach($this->getPlaceNrs() as $placeNrTwo) {
+                if( $placeNrOne >= $placeNrTwo ) {
                     continue;
                 }
-                $duoPlaceNrs[] = new DuoPlaceNr(
-                    $gamePlaceOne->getPlace()->getPlaceNr(),
-                    $gamePlaceTwo->getPlace()->getPlaceNr());
+                $duoPlaceNrs[] = new DuoPlaceNr($placeNrOne, $placeNrTwo);
             }
         }
         return $duoPlaceNrs;
-    }
-
-    public function getSport(): PlannableTogetherSport
-    {
-        $sport = $this->field->getSport();
-        if (!($sport instanceof PlannableTogetherSport)) {
-            throw new \Exception('the wrong sport is linked to the game', E_ERROR);
-        }
-        return $sport;
     }
 
 //    public function createVariant(): Single|AllInOneGame

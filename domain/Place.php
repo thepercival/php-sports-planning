@@ -2,38 +2,17 @@
 
 namespace SportsPlanning;
 
-use SportsHelpers\Identifiable;
 use SportsHelpers\PlaceLocationInterface;
 
-class Place extends Identifiable implements Resource, PlaceLocationInterface, \Stringable
+class Place implements Resource, PlaceLocationInterface
 {
-    private int $placeNr;
+    public const string SEPERATOR = '.';
 
-    public function __construct(protected Poule $poule, int $placeNr = null)
+    public function __construct(public readonly int $placeNr, public readonly int $pouleNr)
     {
-        if( $placeNr === null ) {
-            $placeNr = $poule->getPlaces()->count() + 1;
-        }
         if( $placeNr < 1 ) {
             throw new \Exception('placeNr should be at least 1');
         }
-        $this->placeNr = $placeNr;
-        $poule->getPlaces()->add($this);
-    }
-
-    public function getPoule(): Poule
-    {
-        return $this->poule;
-    }
-
-    public function getPouleNr(): int
-    {
-        return $this->poule->getNumber();
-    }
-
-    public function getPlaceNr(): int
-    {
-        return $this->placeNr;
     }
 
     public function getUniqueNumber(): int
@@ -41,13 +20,16 @@ class Place extends Identifiable implements Resource, PlaceLocationInterface, \S
         return pow(2, $this->placeNr - 1);
     }
 
-    public function getUniqueIndex(): string
-    {
-        return $this->__toString();
+    public function getPlaceNr(): int {
+        return $this->placeNr;
     }
 
-    public function __toString(): string
+    public function getPouleNr(): int {
+        return $this->pouleNr;
+    }
+
+    public function getUniqueIndex(): string
     {
-        return $this->getPouleNr() . '.' . $this->getPlaceNr();
+        return $this->pouleNr . self::SEPERATOR . $this->placeNr;
     }
 }

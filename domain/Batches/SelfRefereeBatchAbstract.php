@@ -2,20 +2,20 @@
 
 namespace SportsPlanning\Batches;
 
-use SportsPlanning\Batches\SelfRefereeBatchOtherPoule as SelfRefereeOtherPoule;
-use SportsPlanning\Batches\SelfRefereeBatchSamePoule as SelfRefereeSamePoule;
+use SportsPlanning\Batches\SelfRefereeBatchOtherPoules;
+use SportsPlanning\Batches\SelfRefereeBatchSamePoule;
 use SportsPlanning\Counters\GamePlacesCounterForPoule;
-use SportsPlanning\Game\AgainstGame as AgainstGame;
-use SportsPlanning\Game\TogetherGame as TogetherGame;
+use SportsPlanning\Game\AgainstGame;
+use SportsPlanning\Game\TogetherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
 abstract class SelfRefereeBatchAbstract
 {
-    protected SelfRefereeOtherPoule|SelfRefereeSamePoule|null $previous;
-    protected SelfRefereeOtherPoule|SelfRefereeSamePoule|null $next = null;
+    protected SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule|null $previous;
+    protected SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule|null $next = null;
     /**
-     * @var array<string|Place>
+     * @var array<string,string>
      */
     protected array $placesAsRefereeMap = [];
     /**
@@ -31,7 +31,7 @@ abstract class SelfRefereeBatchAbstract
      */
     protected array $pouleCounterMap = [];
 
-    public function __construct(protected Batch $batch, SelfRefereeOtherPoule|SelfRefereeSamePoule|null $previous = null)
+    public function __construct(protected Batch $batch, SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule|null $previous = null)
     {
         $this->previous = $previous;
 
@@ -60,7 +60,7 @@ abstract class SelfRefereeBatchAbstract
         return $this->next !== null;
     }
 
-    public function getNext(): SelfRefereeOtherPoule|SelfRefereeSamePoule|null
+    public function getNext(): SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule|null
     {
         return $this->next;
     }
@@ -70,14 +70,14 @@ abstract class SelfRefereeBatchAbstract
         return $this->previous !== null;
     }
 
-    public function getPrevious(): SelfRefereeOtherPoule|SelfRefereeSamePoule|null
+    public function getPrevious(): SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule|null
     {
         return $this->previous;
     }
 
-    public function addReferee(Place $placeReferee): void
+    public function addRefereeUniqueIndex(string $refereePlaceUniqueIndex): void
     {
-        $this->placesAsRefereeMap[(string)$placeReferee] = $placeReferee;
+        $this->placesAsRefereeMap[$refereePlaceUniqueIndex] = $refereePlaceUniqueIndex;
     }
 
     /**
@@ -88,9 +88,9 @@ abstract class SelfRefereeBatchAbstract
         return $this->placesAsRefereeMap;
     }
 
-    public function removeReferee(Place $place): void
+    public function removeReferee(string $refereePlaceUniqueIndex): void
     {
-        unset($this->placesAsRefereeMap[(string)$place]);
+        unset($this->placesAsRefereeMap[$refereePlaceUniqueIndex]);
     }
 
     public function emptyPlacesAsReferees(): void
@@ -100,7 +100,7 @@ abstract class SelfRefereeBatchAbstract
 
     public function isParticipatingAsReferee(Place $placeReferee): bool
     {
-        return array_key_exists((string)$placeReferee, $this->placesAsRefereeMap);
+        return array_key_exists($placeReferee->getUniqueIndex(), $this->placesAsRefereeMap);
     }
 
     /**
@@ -205,7 +205,7 @@ abstract class SelfRefereeBatchAbstract
         array $previousBatchPouleCounterMap
     ): array {
         foreach ($previousBatchPouleCounterMap as $previousBatchPouleCounter) {
-            $previousPouleNr = $previousBatchPouleCounter->getPoule()->getNumber();
+            $previousPouleNr = $previousBatchPouleCounter->getPoule()->pouleNr;
             if (!array_key_exists($previousPouleNr, $previousPreviousTotalPouleCounterMap)) {
                 $previousPreviousTotalPouleCounterMap[$previousPouleNr] = $previousBatchPouleCounter;
             } else {
@@ -236,11 +236,11 @@ abstract class SelfRefereeBatchAbstract
      */
     public function getPlacesNotParticipating(Poule $poule): array
     {
-        return array_values($poule->getPlaces()->filter(
+        return array_values( array_filter($poule->places,
             function (Place $place): bool {
                 return !$this->getBase()->isParticipating($place);
             }
-        )->toArray());
+        ));
     }
 
     /**
@@ -253,40 +253,39 @@ abstract class SelfRefereeBatchAbstract
 
     protected function getNrOfPlacesParticipatingHelper(Poule $poule, int $nrOfRefereePlacesPerGame): int
     {
-        if (!isset($this->pouleCounterMap[$poule->getNumber()])) {
+        if (!isset($this->pouleCounterMap[$poule->pouleNr])) {
             return 0;
         }
-        return $this->pouleCounterMap[$poule->getNumber()]->calculateNrOfAssignedGamePlaces($nrOfRefereePlacesPerGame);
+        return $this->pouleCounterMap[$poule->pouleNr]->calculateNrOfAssignedGamePlaces($nrOfRefereePlacesPerGame);
     }
 
     public function add(TogetherGame|AgainstGame $game): void
     {
         $this->batch->add($game);
-        $refereePlace = $game->getRefereePlace();
-        if ($refereePlace !== null) {
-            $this->addReferee($refereePlace);
+        $refereePlaceUniqueIndex = $game->getRefereePlaceUniqueIndex();
+        if ($refereePlaceUniqueIndex !== null) {
+            $this->addRefereeUniqueIndex($refereePlaceUniqueIndex);
         }
 
-        $poule = $game->getPoule();
-        if (!array_key_exists($poule->getNumber(), $this->pouleCounterMap)) {
-            $this->pouleCounterMap[$poule->getNumber()] = new GamePlacesCounterForPoule($poule);
+        $poule = $game->poule;
+        $pouleNr = $poule->pouleNr;
+        if (!array_key_exists($pouleNr, $this->pouleCounterMap)) {
+            $this->pouleCounterMap[$pouleNr] = new GamePlacesCounterForPoule($poule);
         }
-        $this->pouleCounterMap[$poule->getNumber()] = $this->pouleCounterMap[$poule->getNumber()]->add(
-            $game->getPlaces()->count()
-        );
+        $this->pouleCounterMap[$pouleNr] = $this->pouleCounterMap[$pouleNr]->add(count($game->getGamePlaces()));
     }
 
     public function remove(TogetherGame|AgainstGame $game): void
     {
         $this->batch->remove($game);
-        $refereePlace = $game->getRefereePlace();
-        if ($refereePlace !== null) {
-            $this->removeReferee($refereePlace);
+        $refereePlaceUniqueIndex = $game->getRefereePlaceUniqueIndex();
+        if ($refereePlaceUniqueIndex !== null) {
+            $this->removeReferee($refereePlaceUniqueIndex);
         }
 
-        $poule = $game->getPoule();
-        $this->pouleCounterMap[$poule->getNumber()] = $this->pouleCounterMap[$poule->getNumber()]->remove(
-            $game->getPlaces()->count()
+        $poule = $game->poule;
+        $this->pouleCounterMap[$poule->pouleNr] = $this->pouleCounterMap[$poule->pouleNr]->remove(
+            count($game->getGamePlaces())
         );
     }
 
@@ -324,7 +323,7 @@ abstract class SelfRefereeBatchAbstract
         if ($includeRefereePlaces) {
             return array_values(
                 array_filter($unassignedPlaces, function (Place $place): bool {
-                    return !isset($this->placesAsRefereeMap[(string)$place]);
+                    return !isset($this->placesAsRefereeMap[$place->getUniqueIndex()]);
                 })
             );
         }

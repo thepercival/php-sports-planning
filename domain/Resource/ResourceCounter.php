@@ -2,9 +2,10 @@
 
 namespace SportsPlanning\Resource;
 
+use SportsHelpers\SelfReferee;
 use SportsPlanning\Game\GameAbstract;
 use SportsPlanning\Planning;
-use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
+use SportsPlanning\Resource\GameCounter\GameCounterForPlace;
 
 class ResourceCounter
 {
@@ -31,35 +32,43 @@ class ResourceCounter
 
     protected function init(): void
     {
-        foreach ($this->planning->getInput()->getFields() as $field) {
-            $this->fieldMap[$field->getUniqueIndex()] = new GameCounter($field);
+        $configuration = $this->planning->getConfiguration();
+        $selfRefereeEnabled = $configuration->refereeInfo->selfRefereeInfo->selfReferee !== SelfReferee::Disabled;
+
+        foreach ($this->planning->sports as $sport) {
+            foreach ($sport->fields as $field) {
+                $this->fieldMap[$field->getUniqueIndex()] = new GameCounter($field);
+            }
         }
 
-        if ($this->planning->getInput()->selfRefereeEnabled()) {
-            foreach ($this->planning->getInput()->getPlaces() as $place) {
-                $this->refereePlaceMap[$place->getUniqueIndex()] = new PlaceGameCounter($place);
+        if ($selfRefereeEnabled) {
+            foreach ($this->planning->poules as $poule) {
+                foreach ($poule->places as $place) {
+                    $this->refereePlaceMap[$place->getUniqueIndex()] = new GameCounterForPlace($place);
+                }
             }
         } else {
-            foreach ($this->planning->getInput()->getReferees() as $referee) {
+            foreach ($this->planning->referees as $referee) {
                 $this->refereeMap[$referee->getUniqueIndex()] = new GameCounter($referee);
             }
         }
 
-        $games = $this->planning->getGames(GameAbstract::ORDER_BY_BATCH);
+        $games = $this->planning->getGames(Planning::ORDER_GAMES_BY_BATCH);
         foreach ($games as $game) {
             $fieldGameCounter = $this->fieldMap[$game->getField()->getUniqueIndex()];
             $this->fieldMap[$game->getField()->getUniqueIndex()] = $fieldGameCounter->increment();
-            if ($this->planning->getInput()->selfRefereeEnabled()) {
-                $refereePlace = $game->getRefereePlace();
-                if ($refereePlace !== null) {
-                    $refereePlaceGameCounter = $this->refereePlaceMap[$refereePlace->getUniqueIndex()];
-                    $this->refereePlaceMap[$refereePlace->getUniqueIndex()] = $refereePlaceGameCounter->increment();
+            if ($selfRefereeEnabled) {
+                $refereePlaceUniqueIndex = $game->getRefereePlaceUniqueIndex();
+                if ($refereePlaceUniqueIndex !== null) {
+                    $refereePlaceGameCounter = $this->refereePlaceMap[$refereePlaceUniqueIndex];
+                    $this->refereePlaceMap[$refereePlaceUniqueIndex] = $refereePlaceGameCounter->increment();
                 }
             } else {
-                $referee = $game->getReferee();
-                if ($referee !== null) {
-                    $refereeGameCounter = $this->refereeMap[$referee->getUniqueIndex()];
-                    $this->refereeMap[$referee->getUniqueIndex()] = $refereeGameCounter->increment();
+                $refereeNr = $game->getRefereeNr();
+                if ($refereeNr !== null) {
+                    $refereeNr = (string)$refereeNr;
+                    $refereeGameCounter = $this->refereeMap[$refereeNr];
+                    $this->refereeMap[$refereeNr] = $refereeGameCounter->increment();
                 }
             }
         }

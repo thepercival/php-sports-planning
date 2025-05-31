@@ -51,7 +51,7 @@ class PlanningOutput extends OutputHelper
             $outputs[] = 'timeoutState "' . $timeoutState->value . '"';
         }
         if (($extra & Extra::Input->value) === Extra::Input->value) {
-            $outputs[] = $this->getInputConfigurationAsString($planning->createInputConfiguration());
+            $outputs[] = $this->getInputConfigurationAsString($planning->getConfiguration());
         }
         $output = ($prefix ?? '') . join(', ', $outputs) . ($suffix ?? '');
         if( $color !== null ){

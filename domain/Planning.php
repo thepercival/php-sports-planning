@@ -5,73 +5,112 @@ declare(strict_types=1);
 namespace SportsPlanning;
 
 use DateTimeImmutable;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use Exception;
+use SportsHelpers\Against\AgainstSide;
 use SportsHelpers\Identifiable;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
+use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsHelpers\Sports\AgainstOneVsTwo;
+use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Batches\Batch;
-use SportsPlanning\Batches\SelfRefereeBatchOtherPoule;
+use SportsPlanning\Batches\SelfRefereeBatchOtherPoules;
 use SportsPlanning\Batches\SelfRefereeBatchSamePoule;
-use SportsPlanning\Game\AgainstGame as AgainstGame;
-use SportsPlanning\Game\GameAbstract;
-use SportsPlanning\Game\TogetherGame as TogetherGame;
+use SportsPlanning\Combinations\DuoPlaceNr;
+use SportsPlanning\Game\AgainstGame;
+use SportsPlanning\Game\AgainstGamePlace;
+use SportsPlanning\Game\TogetherGame;
+use SportsPlanning\HomeAways\OneVsOneHomeAway;
+use SportsPlanning\HomeAways\OneVsTwoHomeAway;
+use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Planning\BatchGamesType;
 use SportsPlanning\Planning\Filter;
 use SportsPlanning\Planning\PlanningState as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\Type as PlanningType;
-use SportsPlanning\PlanningConfiguration as InputConfiguration;
+use SportsPlanning\Sports\Plannable\AgainstOneVsOneWithNrAndFields;
+use SportsPlanning\Sports\Plannable\AgainstOneVsTwoWithNrAndFields;
+use SportsPlanning\Sports\Plannable\AgainstTwoVsTwoWithNrAndFields;
+use SportsPlanning\Sports\Plannable\TogetherSportWithNrAndFields;
+use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 class Planning extends Identifiable
 {
-    protected int $minNrOfBatchGames;
-    protected int $maxNrOfBatchGames;
+    public readonly int $minNrOfBatchGames;
+    public readonly int $maxNrOfBatchGames;
     protected DateTimeImmutable $createdDateTime;
     protected PlanningState $state;
     protected TimeoutState|null $timeoutState = null;
     protected int $nrOfBatches = 0;
     protected int $validity = -1;
     /**
-     * @var Collection<int|string, AgainstGame>
+     * @var list<Poule>
      */
-    protected Collection $againstGames;
+    public readonly array $poules;
     /**
-     * @psalm-var Collection<int|string, TogetherGame>
+     * @var list<TogetherSportWithNrAndFields|AgainstOneVsOneWithNrAndFields|AgainstOneVsTwoWithNrAndFields|AgainstTwoVsTwoWithNrAndFields>
      */
-    protected Collection $togetherGames;
+    public readonly array $sports;
+    /**
+     * @var list<Referee>
+     */
+    public readonly array $referees;
+
+    public const int ORDER_GAMES_BY_BATCH = 1;
+    // public const ORDER_GAMES_BY_GAMENUMBER = 2;
 
     public function __construct(protected Input $input, SportRange $nrOfBatchGames, protected int $maxNrOfGamesInARow)
     {
-        $this->minNrOfBatchGames = $nrOfBatchGames->getMin();
-        $this->maxNrOfBatchGames = $nrOfBatchGames->getMax();
         $this->input->getPlannings()->add($this);
 
-        $this->againstGames = new ArrayCollection();
-        $this->togetherGames = new ArrayCollection();
+        $this->minNrOfBatchGames = $nrOfBatchGames->getMin();
+        $this->maxNrOfBatchGames = $nrOfBatchGames->getMax();
 
         $this->createdDateTime = new DateTimeImmutable();
         $this->state = PlanningState::NotProcessed;
+
+        $configuration = $input->configuration;
+        $pouleStructure = $configuration->pouleStructure;
+        $pouleNr = 1;
+        $this->poules = array_map( function (int $nrOfPoulePlaces) use(&$pouleNr): Poule {
+            return new Poule($pouleNr++, $nrOfPoulePlaces);
+        }, $pouleStructure->toArray() );
+
+        $sportNr = 1;
+        $this->sports = array_map( function (SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles) use(&$sportNr): TogetherSportWithNrAndFields|AgainstOneVsOneWithNrAndFields|AgainstOneVsTwoWithNrAndFields|AgainstTwoVsTwoWithNrAndFields {
+            $baseSport = $sportWithNrOfFieldsAndNrOfCycles->sport;
+            $nrOfFields = $sportWithNrOfFieldsAndNrOfCycles->nrOfFields;
+            if( $baseSport instanceof TogetherSport ) {
+                $sport = new TogetherSportWithNrAndFields($sportNr, $baseSport, $nrOfFields);
+            } else if( $baseSport instanceof AgainstOneVsOne ) {
+                $sport = new AgainstOneVsOneWithNrAndFields($sportNr, $baseSport, $nrOfFields);
+            } else if( $baseSport instanceof AgainstOneVsTwo ) {
+                $sport = new AgainstOneVsTwoWithNrAndFields($sportNr, $baseSport, $nrOfFields);
+            } else /*if( $baseSport instanceof AgainstTwoVsTwo )*/ {
+                $sport = new AgainstTwoVsTwoWithNrAndFields($sportNr, $baseSport, $nrOfFields);
+            }
+            $sportNr++;
+            return $sport;
+        }, $configuration->sportsWithNrOfFieldsAndNrOfCycles );
+
+        $referees = [];
+        if ($configuration->refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::Disabled) {
+            for ($refNr = 1; $refNr <= $configuration->refereeInfo->nrOfReferees; $refNr++) {
+                $referees[] = new Referee($refNr);
+            }
+        }
+        $this->referees = $referees;
     }
 
     public function minIsMaxNrOfBatchGames(): bool
     {
-        return $this->getMinNrOfBatchGames() === $this->getMaxNrOfBatchGames();
-    }
-
-    public function getMinNrOfBatchGames(): int
-    {
-        return $this->minNrOfBatchGames;
+        return $this->minNrOfBatchGames === $this->maxNrOfBatchGames;
     }
 
 //    public function setMinNrOfBatchGames( int $minNrOfBatchGames ) {
 //        $this->minNrOfBatchGames = $minNrOfBatchGames;
 //    }
-
-    public function getMaxNrOfBatchGames(): int
-    {
-        return $this->maxNrOfBatchGames;
-    }
 
 //    public function setMaxNrOfBatchGames( int $maxNrOfBatchGames ) {
 //        $this->maxNrOfBatchGames = $maxNrOfBatchGames;
@@ -79,7 +118,7 @@ class Planning extends Identifiable
 
     public function getNrOfBatchGames(): SportRange
     {
-        return new SportRange($this->getMinNrOfBatchGames(), $this->getMaxNrOfBatchGames());
+        return new SportRange($this->minNrOfBatchGames, $this->maxNrOfBatchGames);
     }
 
     public function isNrOfBatchGamesUnequal(): bool
@@ -94,7 +133,7 @@ class Planning extends Identifiable
 
     public function getBatchGamesType(): BatchGamesType
     {
-        if( $this->getMinNrOfBatchGames() === $this->getMaxNrOfBatchGames() ) {
+        if( $this->minNrOfBatchGames === $this->maxNrOfBatchGames ) {
             return BatchGamesType::RangeIsZero;
         }
         return BatchGamesType::RangeIsOneOrMore;
@@ -167,22 +206,21 @@ class Planning extends Identifiable
         $this->validity = $validity;
     }
 
-    public function getInput(): Input
+    public function getConfiguration(): PlanningConfiguration
     {
-        return $this->input;
+        return $this->input->configuration;
     }
 
-    public function createFirstBatch(): Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule
+    public function createFirstBatch(): Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoules
     {
-        $games = $this->getGames(GameAbstract::ORDER_BY_BATCH);
+        $games = $this->getGames(Planning::ORDER_GAMES_BY_BATCH);
         $batch = new Batch();
-        if ($this->input->selfRefereeEnabled()) {
-            if ($this->input->getSelfReferee() === SelfReferee::SamePoule) {
-                $batch = new SelfRefereeBatchSamePoule($batch);
-            } else {
-                $poules = array_values($this->input->getPoules()->toArray());
-                $batch = new SelfRefereeBatchOtherPoule($poules, $batch);
-            }
+        $configuration = $this->getConfiguration();
+        $selfReferee = $configuration->refereeInfo->selfRefereeInfo->selfReferee;
+        if ($selfReferee === SelfReferee::SamePoule) {
+            $batch = new SelfRefereeBatchSamePoule($batch);
+        } else if( $selfReferee === SelfReferee::OtherPoules) {
+            $batch = new SelfRefereeBatchOtherPoules($this->poules, $batch);
         }
         foreach ($games as $game) {
             if ($game->getBatchNr() === ($batch->getNumber() + 1)) {
@@ -200,11 +238,11 @@ class Planning extends Identifiable
     public function getGames(int|null $order = null): array
     {
         $games = [];
-        foreach ($this->input->getPoules() as $poule) {
-            $games = array_merge($games, $this->getGamesForPoule($poule));
+        foreach ($this->poules as $poule) {
+            $games = array_merge($games, $poule->getGames());
         }
-        if ($order === GameAbstract::ORDER_BY_BATCH) {
-            uasort($games, function (GameAbstract $g1, GameAbstract $g2): int {
+        if ($order === Planning::ORDER_GAMES_BY_BATCH) {
+            uasort($games, function (TogetherGame|AgainstGame $g1, TogetherGame|AgainstGame $g2): int {
                 if ($g1->getBatchNr() === $g2->getBatchNr()) {
                     if ($g1->getField()->getUniqueIndex() === $g2->getField()->getUniqueIndex()) {
                         return 0;
@@ -217,72 +255,28 @@ class Planning extends Identifiable
         return array_values($games);
     }
 
-    /**
-     * @return list<AgainstGame|TogetherGame>
-     */
-    public function getGamesForPoule(Poule $poule): array
-    {
-        $allGames = array_merge($this->getAgainstGames()->toArray(), $this->getTogetherGames()->toArray());
-        return array_values(array_filter($allGames, fn ($game) => $game->getPoule() === $poule));
-    }
-
-    /**
-     * @return Collection<int|string, AgainstGame>
-     */
-    public function getAgainstGames(): Collection
-    {
-        return $this->againstGames;
-    }
-
-    /**
-     * @return list<AgainstGame>
-     */
-    public function getAgainstGamesForPoule(Poule $poule): array
-    {
-        $games = $this->getGamesForPoule($poule);
-        return array_values(array_filter($games, function ($game): bool {
-            return $game instanceof AgainstGame;
-        }));
-    }
-
-    /**
-     * @return Collection<int|string, TogetherGame>
-     */
-    public function getTogetherGames(): Collection
-    {
-        return $this->togetherGames;
-    }
-
-    /**
-     * @return list<TogetherGame>
-     */
-    public function getTogetherGamesForPoule(Poule $poule): array
-    {
-        $games = $this->getGamesForPoule($poule);
-        return array_values(array_filter($games, function ($game): bool {
-            return $game instanceof TogetherGame;
-        }));
-    }
-
-    /**
-     * @param PlanningState|null $state
-     * @return list<Planning>
-     */
-    public function getGamesInARowPlannings(PlanningState|null $state = null): array
-    {
-        if ($this->getMaxNrOfGamesInARow() > 0) {
-            return [];
+    public function convertAgainstGameToHomeAway(AgainstGame $againstGame): OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway {
+        $homeGamePlaces = $againstGame->getSideGamePlaces(AgainstSide::Home);
+        $homePlaceNrs = array_map(fn(AgainstGamePlace $gamePlace) => $gamePlace->placeNr, $homeGamePlaces);
+        $awayGamePlaces = $againstGame->getSideGamePlaces(AgainstSide::Away);
+        $awayPlaceNrs = array_map(fn(AgainstGamePlace $gamePlace) => $gamePlace->placeNr, $awayGamePlaces);
+        $sportWithNrAndFields = $this->getSport($againstGame->getField()->sportNr);
+        if( $sportWithNrAndFields->sport instanceof AgainstOneVsOne ) {
+            return new OneVsOneHomeAway($homePlaceNrs[0], $awayPlaceNrs[0]);
+        } else if( $sportWithNrAndFields->sport instanceof AgainstOneVsTwo ) {
+            return new OneVsTwoHomeAway($homePlaceNrs[0], new DuoPlaceNr($awayPlaceNrs[0], $awayPlaceNrs[1]));
+        } else { // TwoVsTwoHomeAway
+            return new TwoVsTwoHomeAway(
+                new DuoPlaceNr($homePlaceNrs[0], $homePlaceNrs[1]),
+                new DuoPlaceNr($awayPlaceNrs[0], $awayPlaceNrs[1]));
         }
-        $range = $this->getNrOfBatchGames();
-        $gamesInARowPlannings = $this->getInput()->getPlannings()->filter(
-            function (Planning $planning) use ($range, $state): bool {
-                return $planning->getMinNrOfBatchGames() === $range->getMin()
-                    && $planning->getMaxNrOfBatchGames() === $range->getMax()
-                    && $planning->getMaxNrOfGamesInARow() > 0
-                    && ($state === null || (($planning->getState()->value & $state->value) > 0));
-            }
-        );
-        return $this->orderGamesInARowPlannings($gamesInARowPlannings);
+    }
+
+    public function removeGames(): void
+    {
+        foreach( $this->poules as $poule) {
+            $poule->removeGames();
+        }
     }
 
     public function createFilter(): Filter
@@ -292,40 +286,107 @@ class Planning extends Identifiable
 
     // from most efficient to less efficient
 
-    /**
-     * @param Collection<int|string,Planning> $gamesInARowPlannings
-     * @return list<Planning>
-     */
-    protected function orderGamesInARowPlannings(Collection $gamesInARowPlannings): array
-    {
-        $plannings = $gamesInARowPlannings->toArray();
-        uasort($plannings, function (Planning $first, Planning $second) {
-            if ($first->getMaxNrOfGamesInARow() === $second->getMaxNrOfGamesInARow()) {
-                return $first->getNrOfBatchGames()->difference() > $second->getNrOfBatchGames()->difference() ? -1 : 1;
-            }
-            return $first->getMaxNrOfGamesInARow() - $second->getMaxNrOfGamesInARow();
-        });
-        return array_values($plannings);
-    }
 
-    public function getBestGamesInARowPlanning(): Planning|null
-    {
-        $succeededGamesInARowPlannings = $this->getGamesInARowPlannings(PlanningState::Succeeded);
-        return array_shift($succeededGamesInARowPlannings);
-    }
 
     public function getMaxNrOfBatches(): int
     {
-        $totalNrOfGames = $this->input->createPlanningPouleStructure()->calculateNrOfGames();
-        return (int)ceil($totalNrOfGames / $this->getMinNrOfBatchGames());
+        $totalNrOfGames = $this->getConfiguration()->planningPouleStructure->calculateNrOfGames();
+        return (int)ceil($totalNrOfGames / $this->minNrOfBatchGames);
     }
 
-    public function createInputConfiguration(): InputConfiguration {
-        return new InputConfiguration(
-            $this->input->createPouleStructure(),
-            $this->input->createSportsWithNrOfFieldsAndNrOfCycles(),
-            $this->input->getRefereeInfo(),
-            $this->input->getPerPoule()
-        );
+    /*public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function getPoulesOrderedBySize(): array
+    {
+        foreach ($this->getPoules() as $poule) {
+            if ($poule->getNumber() === $pouleNr) {
+                return $poule;
+            }
+        }
+        throw new Exception('de poule kan niet gevonden worden', E_ERROR);
+    }
+    */
+
+    public function getSport(int $sportNr): TogetherSportWithNrAndFields|AgainstOneVsOneWithNrAndFields|AgainstOneVsTwoWithNrAndFields|AgainstTwoVsTwoWithNrAndFields
+    {
+        foreach ($this->sports as $sport) {
+            if ($sport->sportNr === $sportNr) {
+                return $sport;
+            }
+        }
+        throw new Exception('de sport kan niet gevonden worden', E_ERROR);
+    }
+
+    public function getPoule(int $pouleNr): Poule
+    {
+        foreach ($this->poules as $poule) {
+            if ($poule->pouleNr === $pouleNr) {
+                return $poule;
+            }
+        }
+        throw new Exception('de poule kan niet gevonden worden', E_ERROR);
+    }
+
+    public function getFirstPoule(): Poule
+    {
+        return $this->getPoule(1);
+    }
+
+    public function getLastPoule(): Poule
+    {
+        return $this->getPoule(count($this->poules));
+    }
+
+    /**
+     * @return list<Place>
+     */
+    public function getPlaces(): array
+    {
+        $places = [];
+        foreach ($this->poules as $poule) {
+            $places = array_merge($places, $poule->places);
+        }
+        return $places;
+    }
+
+    public function getPlace(string $location): Place
+    {
+        $pos = strpos($location, ".");
+        if ($pos === false) {
+            throw new Exception('geen punt gevonden in locatie', E_ERROR);
+        }
+        $pouleNr = (int)substr($location, 0, $pos);
+        $placeNr = (int)substr($location, $pos + 1);
+        return $this->getPoule($pouleNr)->getPlace($placeNr);
+    }
+
+    public function getNrOfPlaces(): int
+    {
+        return $this->getConfiguration()->pouleStructure->getNrOfPlaces();
+    }
+
+    /**
+     * @return list<Field>
+     */
+    public function getFields(): array
+    {
+        $fields = [];
+        foreach ($this->sports as $sport) {
+            $fields = array_merge($fields, $sport->fields);
+        }
+        return $fields;
+    }
+
+    public function getReferee(int $refereeNr): Referee
+    {
+        foreach ($this->referees as $referee) {
+            if ($referee->refereeNr === $refereeNr) {
+                return $referee;
+            }
+        }
+        throw new Exception('de scheidsrechter kan niet gevonden worden', E_ERROR);
     }
 }

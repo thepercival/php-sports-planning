@@ -15,13 +15,13 @@ class SelfRefereeBatchSamePoule extends SelfRefereeBatchAbstract
         }
     }
 
-    public function getFirst(): SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule
+    public function getFirst(): SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoules
     {
         $previous = $this->getPrevious();
         return $previous !== null ? $previous->getFirst() : $this;
     }
 
-    public function getLeaf(): SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule
+    public function getLeaf(): SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoules
     {
         $next = $this->getNext();
         return $next !== null ? $next->getLeaf() : $this;
@@ -42,12 +42,12 @@ class SelfRefereeBatchSamePoule extends SelfRefereeBatchAbstract
         foreach ($this->getPouleCounters() as $pouleCounter) {
             $poule = $pouleCounter->getPoule();
 
-            if ($this->pouleCounterMap[$poule->getNumber()]->calculateNrOfAssignedGamePlaces() !== $poule->getPlaces()->count()) {
+            if ($this->pouleCounterMap[$poule->pouleNr]->calculateNrOfAssignedGamePlaces() !== count($poule->places)) {
                 continue;
             }
             $forcedRefereePlaces = $this->getPlacesNotParticipating($poule);
             foreach ($forcedRefereePlaces as $forcedRefereePlace) {
-                $forcedRefereePlacesMap[(string)$forcedRefereePlace] = 1;
+                $forcedRefereePlacesMap[$forcedRefereePlace->getUniqueIndex()] = 1;
             }
         }
         return $forcedRefereePlacesMap;

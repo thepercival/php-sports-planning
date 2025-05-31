@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\SportRange;
 use SportsPlanning\Batches\Batch;
-use SportsPlanning\Batches\SelfRefereeBatchOtherPoule;
+use SportsPlanning\Batches\SelfRefereeBatchOtherPoules;
 use SportsPlanning\Batches\SelfRefereeBatchSamePoule;
 use SportsPlanning\Game\AgainstGame;
 use SportsPlanning\Game\TogetherGame;
@@ -27,7 +27,7 @@ class BatchOutput extends OutputHelper
     }
 
     public function output(
-        Batch|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule  $batch,
+        Batch|SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule $batch,
         string                                                      $title = null,
         SportRange|null                                             $numberRange = null,
         bool                                                        $showUnassigned = false
@@ -43,7 +43,7 @@ class BatchOutput extends OutputHelper
     }
 
     protected function outputHelper(
-        Batch|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule  $batch,
+        Batch|SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule $batch,
         SportRange|null                                             $numberRange = null,
         bool                                                        $showUnassigned = false
     ): void {
@@ -70,19 +70,19 @@ class BatchOutput extends OutputHelper
 
     /**
      * @param list<AgainstGame|TogetherGame> $games
-     * @param Batch|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule|null $batch
+     * @param Batch|SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule|null $batch
      * @return void
      */
     public function outputGames(
         array $games,
-        Batch|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule|null $batch = null
+        Batch|SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule|null $batch = null
     ): void {
         foreach ($games as $game) {
             $this->gameOutput->output($game, $batch);
         }
     }
 
-    protected function outputUnassigned(Batch|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch): void {
+    protected function outputUnassigned(Batch|SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule $batch): void {
         $useColors = $this->useColors();
         $unassignedPlaces = $batch instanceof Batch ? $batch->getUnassignedPlaces() : $batch->getUnassignedPlaces(
             true

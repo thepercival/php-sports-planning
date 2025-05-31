@@ -37,14 +37,12 @@ class SelfRefereeBatchSamePouleTest extends TestCase
             $input, new SportRange(2,2),
             2
         );
-        $poule = $input->getPoule(1);
-        $place1 = $poule->getPlace(1);
-        $place2 = $poule->getPlace(2);
-        $sport = $input->getSport(1);
+        $poule = $planning->getPoule(1);
+        $sport = $planning->getSport(1);
         $field = $sport->getField(1);
-        $againstGame = new AgainstGame($planning, $poule, $field, 1, 1);
-        new AgainstGamePlace($againstGame, $place1, AgainstSide::Home);
-        new AgainstGamePlace($againstGame, $place2, AgainstSide::Away);
+        $againstGame = new AgainstGame($poule, $field, 1, 1);
+        $againstGame->addGamePlace(AgainstSide::Home, 1);
+        $againstGame->addGamePlace( AgainstSide::Away, 2);
 
         $batch = new SelfRefereeBatchSamePoule(new Batch());
         $batch->add($againstGame);

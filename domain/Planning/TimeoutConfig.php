@@ -4,6 +4,7 @@ namespace SportsPlanning\Planning;
 
 use SportsPlanning\Input;
 use SportsPlanning\Planning;
+use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\PlanningPouleStructure;
 
 class TimeoutConfig
@@ -11,9 +12,9 @@ class TimeoutConfig
     public const int MINIMUM_TIMEOUTSECONDS = 5;
     public const int MAXIMUM_TIMEOUTSECONDS = 15;
 
-    public function getTimeoutSeconds(Input $input, TimeoutState|null $timeoutState): int
+    public function getTimeoutSeconds(PlanningConfiguration $configuration, TimeoutState|null $timeoutState): int
     {
-        $timeoutSeconds = $this->getDefaultTimeoutSeconds($input);
+        $timeoutSeconds = $this->getDefaultTimeoutSeconds($configuration);
         if ($timeoutState === null || $timeoutState === TimeoutState::Time1xNoSort) {
             return $timeoutSeconds;
         }
@@ -23,9 +24,9 @@ class TimeoutConfig
         return $timeoutSeconds * 10;
     }
 
-    public function getDefaultTimeoutSeconds(Input $input): int
+    public function getDefaultTimeoutSeconds(PlanningConfiguration $configuration): int
     {
-        $totalNrOfGames = $input->createPlanningPouleStructure()->calculateNrOfGames();
+        $totalNrOfGames = $configuration->planningPouleStructure->calculateNrOfGames();
         $nrOfGamesPerSecond = 10;
         $nrOfSeconds = (int)ceil($totalNrOfGames / $nrOfGamesPerSecond);
         if ($nrOfSeconds < self::MINIMUM_TIMEOUTSECONDS) {

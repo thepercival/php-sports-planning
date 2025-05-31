@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Resource\GameCounter;
 
-use SportsPlanning\Place as PlaceBase;
+use SportsPlanning\Place;
 use SportsPlanning\Resource\GameCounter;
 
-readonly class Place extends GameCounter
+readonly class GameCounterForPlace extends GameCounter
 {
-    public function __construct(protected PlaceBase $place, int $nrOfGames = 0)
+    public function __construct(public Place $place, int $nrOfGames = 0)
     {
         parent::__construct($place, $nrOfGames);
     }
 
     public function getIndex(): string
     {
-        return (string)$this->place;
-    }
-
-    public function getPlace(): PlaceBase
-    {
-        return $this->place;
+        return $this->place->getUniqueIndex();
     }
 
     public function increment(): self

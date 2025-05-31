@@ -4,45 +4,18 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Game;
 
-use Doctrine\Common\Collections\Collection;
-use SportsHelpers\Identifiable;
-use SportsHelpers\PlaceLocationInterface;
 use SportsPlanning\Field;
 use SportsPlanning\Place;
-use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Referee;
 
-abstract class GameAbstract extends Identifiable
+abstract class GameAbstract
 {
     protected int $batchNr = 0;
-    protected Place|null $refereePlace = null;
-    protected Referee|null $referee = null;
-    /**
-     * @var Collection<int|string,Place>|null
-     */
-    protected Collection|null $poulePlaces = null;
+    protected string|null $refereePlaceUniqueIndex = null;
+    protected int|null $refereeNr = null;
 
-    public const int ORDER_BY_BATCH = 1;
-    // public const ORDER_BY_GAMENUMBER = 2;
-
-    public function __construct(protected Planning $planning, protected Poule $poule, protected Field $field)
+    public function __construct(public readonly Poule $poule, protected Field $field)
     {
-    }
-
-    public function getPlanning(): Planning
-    {
-        return $this->planning;
-    }
-
-    public function getPoule(): Poule
-    {
-        return $this->poule;
-    }
-
-    public function getPouleNr(): int
-    {
-        return $this->poule->getNumber();
     }
 
     public function getBatchNr(): int
@@ -58,37 +31,32 @@ abstract class GameAbstract extends Identifiable
         $this->batchNr = $batchNr;
     }
 
-    public function getRefereePlace(): ?Place
+    public function getRefereePlaceUniqueIndex(): string|null
     {
-        return $this->refereePlace;
+        return $this->refereePlaceUniqueIndex;
     }
 
-    public function getRefereePlaceLocation(): string|null
+//    public function getRefereePlaceLocation(): string|null
+//    {
+//        if( $this->refereePlace instanceof PlaceLocationInterface ) {
+//            return $this->refereePlace->getUniqueIndex();
+//        }
+//        return null;
+//    }
+
+    public function setRefereePlaceUniqueIndex(string|null $refereePlaceUniqueIndex): void
     {
-        if( $this->refereePlace instanceof PlaceLocationInterface ) {
-            return $this->refereePlace->getUniqueIndex();
-        }
-        return null;
+        $this->refereePlaceUniqueIndex = $refereePlaceUniqueIndex;
     }
 
-    public function setRefereePlace(Place $refereePlace = null): void
+    public function getRefereeNr(): int|null
     {
-        $this->refereePlace = $refereePlace;
+        return $this->refereeNr;
     }
 
-    public function getReferee(): ?Referee
+    public function setRefereeNr(int|null $refereeNr): void
     {
-        return $this->referee;
-    }
-
-    public function setReferee(Referee $referee): void
-    {
-        $this->referee = $referee;
-    }
-
-    public function emptyReferee(): void
-    {
-        $this->referee = null;
+        $this->refereeNr = $refereeNr;
     }
 
     public function getField(): Field
@@ -99,9 +67,5 @@ abstract class GameAbstract extends Identifiable
     public function setField(Field $field): void
     {
         $this->field = $field;
-    }
-
-    public function getFieldUniqueIndex(): string {
-        return $this->getField()->getUniqueIndex();
     }
 }

@@ -8,6 +8,7 @@ use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
+use SportsPlanning\Exceptions\SportsIncompatibleWithPerPouleException;
 use SportsPlanning\Exceptions\SportsIncompatibleWithPouleStructureException;
 use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfCycles;
@@ -16,6 +17,7 @@ use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 readonly class PlanningConfiguration
 {
     private string $name;
+    public readonly PlanningPouleStructure $planningPouleStructure;
 
     /**
      * @param PouleStructure $pouleStructure
@@ -39,7 +41,15 @@ readonly class PlanningConfiguration
         if( !$pouleStructure->isCompatibleWithSports( $sports ) ) {
             throw new SportsIncompatibleWithPouleStructureException($pouleStructure, $sports);
         }
+        if( count( $sportsWithNrOfFieldsAndNrOfCycles ) > 1 && $this->perPoule ) {
+            throw new SportsIncompatibleWithPerPouleException($sports);
+        }
         $this->name = $this->setNameFromProperties();
+        $this->planningPouleStructure = new PlanningPouleStructure(
+            $pouleStructure,
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            $refereeInfo
+        );
     }
 
     /**

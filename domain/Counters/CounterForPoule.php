@@ -37,6 +37,6 @@ readonly class CounterForPoule extends Counter
 
     public function __toString(): string
     {
-        return $this->getPoule()->getNumber() . ' ' . $this->count() . 'x';
+        return $this->getPoule()->pouleNr . ' ' . $this->count() . 'x';
     }
 }

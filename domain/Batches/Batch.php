@@ -19,15 +19,16 @@ class Batch extends ListNode
      * @var list<TogetherGame|AgainstGame>
      */
     protected array $games = [];
+
     /**
      * @var array<int|string,Place>
      */
     protected array $placeMap = [];
+
     /**
      * @var array<string,int>
      */
     protected array $previousGamesInARowMap = [];
-
     public function __construct(Batch|null $previous = null)
     {
         parent::__construct($previous);
@@ -40,7 +41,7 @@ class Batch extends ListNode
     {
         $map = [];
         foreach ($this->placeMap as $place) {
-            $map[(string)$place] = 1;
+            $map[$place->getUniqueIndex()] = 1;
         }
         return $map;
     }
@@ -83,17 +84,17 @@ class Batch extends ListNode
 
     public function getPreviousGamesInARow(Place $place): int
     {
-        if (!array_key_exists((string)$place, $this->previousGamesInARowMap)) {
+        if (!array_key_exists($place->getUniqueIndex(), $this->previousGamesInARowMap)) {
             return 0;
         }
-        return $this->previousGamesInARowMap[(string)$place];
+        return $this->previousGamesInARowMap[$place->getUniqueIndex()];
     }
 
     public function add(TogetherGame|AgainstGame $game): void
     {
         $this->games[] = $game;
-        foreach ($game->getPlaces() as $gamePlace) {
-            $this->placeMap[(string)$gamePlace->getPlace()] = $gamePlace->getPlace();
+        foreach ($game->getPlaces() as $place) {
+            $this->placeMap[$place->getUniqueIndex()] = $place;
         }
     }
 
@@ -103,8 +104,8 @@ class Batch extends ListNode
         if ($index !== false) {
             array_splice($this->games, $index, 1);
         }
-        foreach ($game->getPlaces() as $gamePlace) {
-            unset($this->placeMap[$gamePlace->getPlaceLocation()]);
+        foreach ($game->getPlaces() as $place) {
+            unset($this->placeMap[$place->getUniqueIndex()]);
         }
     }
 
@@ -126,14 +127,14 @@ class Batch extends ListNode
             return $this->games;
         }
         $games = array_filter($this->games, function (TogetherGame|AgainstGame $game) use ($poule): bool {
-            return $game->getPoule() === $poule;
+            return $game->poule === $poule;
         });
         return array_values($games);
     }
 
     public function isParticipating(Place $place): bool
     {
-        return array_key_exists((string)$place, $this->placeMap);
+        return array_key_exists($place->getUniqueIndex(), $this->placeMap);
     }
 
     /**
@@ -151,12 +152,12 @@ class Batch extends ListNode
     /**
      * @return list<Poule>
      */
-    public function getPoules(): array
+    public function getPoulesParticipating(): array
     {
         $poules = [];
         foreach ($this->getGames() as $game) {
-            if (array_search($game->getPoule(), $poules, true) === false) {
-                $poules[] = $game->getPoule();
+            if (array_search($game->poule, $poules, true) === false) {
+                $poules[] = $game->poule;
             }
         }
         return $poules;
@@ -168,9 +169,9 @@ class Batch extends ListNode
     public function getUnassignedPlaces(): array
     {
         $unassignedPlaces = [];
-        foreach ($this->getPoules() as $poule) {
-            foreach ($poule->getPlaces() as $place) {
-                if (!isset($this->placeMap[(string)$place])) {
+        foreach ($this->getPoulesParticipating() as $poule) {
+            foreach ($poule->places as $place) {
+                if (!array_key_exists($place->getUniqueIndex(), $this->placeMap)) {
                     $unassignedPlaces[] = $place;
                 }
             }

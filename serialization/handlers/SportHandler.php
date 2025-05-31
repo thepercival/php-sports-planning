@@ -50,7 +50,7 @@ class SportHandler extends Handler // implements SubscribingHandlerInterface
 //
 //        $sport = new PlannableSport($fieldValue['input'], $sportVariant);
 //        foreach ($fieldValue['fields'] as $arrField) {
-//            new Field($sport, $arrField['number']);
+//            new Field($arrField['number'], $sport);
 //        }
 //        return $sport;
 //    }

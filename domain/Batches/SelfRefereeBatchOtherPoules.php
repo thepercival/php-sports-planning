@@ -5,38 +5,38 @@ namespace SportsPlanning\Batches;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
-class SelfRefereeBatchOtherPoule extends SelfRefereeBatchAbstract
+class SelfRefereeBatchOtherPoules extends SelfRefereeBatchAbstract
 {
     /**
      * @param list<Poule> $poules
      * @param Batch $batch
-     * @param SelfRefereeBatchOtherPoule|null $previous
+     * @param SelfRefereeBatchOtherPoules|null $previous
      */
-    public function __construct(protected array $poules, Batch $batch, SelfRefereeBatchOtherPoule|null $previous = null)
+    public function __construct(protected array $poules, Batch $batch, SelfRefereeBatchOtherPoules|null $previous = null)
     {
         parent::__construct($batch, $previous);
 
         $nextBatch = $this->getBase()->getNext();
         if ($nextBatch !== null) {
-            $this->next = new SelfRefereeBatchOtherPoule($poules, $nextBatch, $this);
+            $this->next = new SelfRefereeBatchOtherPoules($poules, $nextBatch, $this);
         }
     }
 
-    public function getFirst(): SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule
+    public function getFirst(): SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule
     {
         $previous = $this->getPrevious();
         return $previous !== null ? $previous->getFirst() : $this;
     }
 
-    public function getLeaf(): SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule
+    public function getLeaf(): SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule
     {
         $next = $this->getNext();
         return $next !== null ? $next->getLeaf() : $this;
     }
 
-    public function createNext(): SelfRefereeBatchOtherPoule
+    public function createNext(): SelfRefereeBatchOtherPoules
     {
-        $this->next = new SelfRefereeBatchOtherPoule($this->poules, $this->getBase()->createNext(), $this);
+        $this->next = new SelfRefereeBatchOtherPoules($this->poules, $this->getBase()->createNext(), $this);
         return $this->next;
     }
 
@@ -49,15 +49,15 @@ class SelfRefereeBatchOtherPoule extends SelfRefereeBatchAbstract
         $otherPlacesMap = $this->getOtherPlacesMap();
         foreach ($this->getPouleCounters() as $pouleCounter) {
             $poule = $pouleCounter->getPoule();
-            $nrOfGames = $this->pouleCounterMap[$poule->getNumber()]->getNrOfGames();
+            $nrOfGames = $this->pouleCounterMap[$poule->pouleNr]->getNrOfGames();
             $availableRefereePlaces = $this->getAvailableRefereePlaces(
-                $otherPlacesMap[$poule->getNumber()]
+                $otherPlacesMap[$poule->pouleNr]
             );
             if ($nrOfGames < count($availableRefereePlaces)) {
                 continue;
             }
             foreach ($availableRefereePlaces as $availableRefereePlace) {
-                $forcedRefereePlacesMap[(string)$availableRefereePlace] = 1;
+                $forcedRefereePlacesMap[$availableRefereePlace->getUniqueIndex()] = 1;
             }
         }
         return $forcedRefereePlacesMap;
@@ -70,16 +70,16 @@ class SelfRefereeBatchOtherPoule extends SelfRefereeBatchAbstract
     {
         $otherPoulePlacesMap = [];
         foreach ($this->poules as $poule) {
-            $otherPoulePlacesMap[$poule->getNumber()] = [];
+            $otherPoulePlacesMap[$poule->pouleNr] = [];
             $otherPoules = $this->poules;
             foreach ($otherPoules as $otherPoule) {
                 if ($otherPoule === $poule) {
                     continue;
                 }
-                $otherPoulePlacesMap[$poule->getNumber()] = array_values(array_merge(
-                    $otherPoulePlacesMap[$poule->getNumber()],
-                    $otherPoule->getPlaces()->toArray()
-                ));
+                $otherPoulePlacesMap[$poule->pouleNr] = array_merge(
+                    $otherPoulePlacesMap[$poule->pouleNr],
+                    $otherPoule->places
+                );
             }
         }
         return $otherPoulePlacesMap;

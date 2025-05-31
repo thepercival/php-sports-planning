@@ -4,33 +4,33 @@ declare(strict_types=1);
 
 namespace SportsPlanning;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Exception;
-use SportsHelpers\Identifiable;
+use SportsPlanning\Game\AgainstGame;
+use SportsPlanning\Game\TogetherGame;
 
-class Poule extends Identifiable
+class Poule
 {
-    protected int $number;
     /**
-     * @var Collection<int|string, Place>
+     * @var list<Place>
      */
-    protected Collection $places;
+    public readonly array $places;
 
-    public function __construct(protected Input $input, int $pouleNr = null /* Category $category*/)
+    /**
+     * @var list<AgainstGame>
+     */
+    protected array $againstGames = [];
+    /**
+     * @psalm-var list<TogetherGame>
+     */
+    protected array $togetherGames = [];
+
+    public function __construct(public readonly int $pouleNr, int $nrOfPlaces /* Category $category*/)
     {
-        if( $pouleNr === null ) {
-            $pouleNr = /*$category*/$input->getPoules()->count() + 1;
+        $places = [];
+        for ($placeNr = 1; $placeNr <= $nrOfPlaces; $placeNr++) {
+            $places[] = new Place($placeNr, $pouleNr);
         }
-        $this->number = $pouleNr;
-        /*$category*/$input->getPoules()->add($this);
-        $this->places = new ArrayCollection();
-    }
-
-    public function getInput(): Input
-    {
-        return $this->input;
-        // return $this->getCategory()->getInput();
+        $this->places = $places;
     }
 
     /*public function getCategory(): Category
@@ -38,34 +38,53 @@ class Poule extends Identifiable
         return $this->category;
     }*/
 
-    public function getNumber(): int
-    {
-        return $this->number;
-    }
 
-    /**
-     * @return Collection<int|string, Place>
-     */
-    public function getPlaces(): Collection
+    public function getPlace(int $placeNr): Place
     {
-        return $this->places;
-    }
-
-    /**
-     * @return list<Place>
-     */
-    public function getPlaceList(): array
-    {
-        return array_values($this->places->toArray());
-    }
-
-    public function getPlace(int $number): Place
-    {
-        foreach ($this->getPlaces() as $place) {
-            if ($place->getPlaceNr() === $number) {
+        foreach ($this->places as $place) {
+            if ($place->placeNr === $placeNr) {
                 return $place;
             }
         }
         throw new Exception('de plek kan niet gevonden worden', E_ERROR);
+    }
+
+    /**
+     * @return list<AgainstGame>
+     */
+    public function getAgainstGames(): array
+    {
+        return $this->againstGames;
+    }
+
+    /**
+     * @return list<TogetherGame>
+     */
+    public function getTogetherGames(): array
+    {
+        return $this->togetherGames;
+    }
+
+    public function addGame(TogetherGame|AgainstGame $game): void
+    {
+        if( $game instanceof TogetherGame) {
+            $this->togetherGames[] = $game;
+        } else {
+            $this->againstGames[] = $game;
+        }
+    }
+
+    /**
+     * @return list<AgainstGame|TogetherGame>
+     */
+    public function getGames(): array
+    {
+        return array_merge($this->againstGames, $this->togetherGames);
+    }
+
+    public function removeGames(): void
+    {
+        $this->againstGames = [];
+        $this->togetherGames = [];
     }
 }

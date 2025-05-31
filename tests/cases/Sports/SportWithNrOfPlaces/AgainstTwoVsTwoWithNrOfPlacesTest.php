@@ -11,7 +11,7 @@ use SportsPlanning\Input;
 use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
-use SportsPlanning\Sports\Plannable\PlannableTogetherSport;
+use SportsPlanning\Sports\Plannable\TogetherSportWithNrAndFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 use SportsPlanning\TestHelper\PlanningCreator;

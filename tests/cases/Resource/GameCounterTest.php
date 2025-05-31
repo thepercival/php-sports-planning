@@ -3,18 +3,16 @@
 namespace SportsPlanning\Tests\Resource;
 
 use PHPUnit\Framework\TestCase;
+use SportsPlanning\Referee;
 use SportsPlanning\Resource\GameCounter;
-use SportsPlanning\TestHelper\PlanningCreator;
 
 class GameCounterTest extends TestCase
 {
-    use PlanningCreator;
+
 
     public function testCalculations(): void
     {
-        $input = $this->createInput([3]);
-
-        $referee = $input->getReferee(1);
+        $referee = new Referee(1);
         $gameCounter = new GameCounter($referee);
 
         self::assertSame("1", $gameCounter->getIndex());

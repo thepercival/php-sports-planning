@@ -27,7 +27,7 @@ class InputOutput extends OutputHelper
             PlanningBase\Type::BatchGames, null, null, null
         );
 
-        $this->planningOutput->outputInputConfig($input->createConfiguration());
+        $this->planningOutput->outputInputConfig($input->configuration);
         $filteredPlannings = $input->getFilteredPlannings($planningFilter);
         foreach ($filteredPlannings as $filteredPlanning) {
             $equalBatchGames = $filteredPlanning->getBatchGamesType() === PlanningBase\BatchGamesType::RangeIsZero ? '*' : ' ';
@@ -41,7 +41,7 @@ class InputOutput extends OutputHelper
             }
             $this->planningOutput->outputState($filteredPlanning, $extra, $prefix, $suffix, $color);
 
-            $gamesInARowPlannings = $filteredPlanning->getGamesInARowPlannings();
+            $gamesInARowPlannings = $input->getGamesInARowPlannings($filteredPlanning);
             foreach ($gamesInARowPlannings as $gamesInARowPlanning) {
                 $prefix = '    ' . '  ';
                 $color = $this->getColor($gamesInARowPlanning->getState());
