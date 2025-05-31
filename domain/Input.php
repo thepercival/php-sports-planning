@@ -11,10 +11,10 @@ use SportsHelpers\Identifiable;
 use SportsHelpers\SportRange;
 use SportsPlanning\Exceptions\NoBestPlanningException;
 use SportsPlanning\Planning\Comparer;
-use SportsPlanning\Planning\Filter as PlanningFilter;
+use SportsPlanning\Planning\PlanningFilter as PlanningFilter;
 use SportsPlanning\Planning\HistoricalBestPlanning;
 use SportsPlanning\Planning\PlanningState;
-use SportsPlanning\Planning\Type as PlanningType;
+use SportsPlanning\Planning\PlanningType as PlanningType;
 use SportsPlanning\PlanningPouleStructure;
 use SportsPlanning\Referee\PlanningRefereeInfo;
 
@@ -46,25 +46,6 @@ class Input extends Identifiable
 
         $this->name = $configuration->getName();
     }
-
-    public function caluclateBetterNrOfBatchGames(PlanningType $planningType, SportRange $batchGamesRange): int|null
-    {
-        try {
-            if ($planningType === PlanningType::BatchGames) {
-                // -1 because needs to be less nrOfBatches
-                return $this->getBestPlanning(null)->getNrOfBatches() - 1;
-            } else {
-                $planningFilter = new PlanningFilter( null, null, $batchGamesRange, 0);
-                $batchGamePlanning = $this->getPlanning($planningFilter);
-                if ($batchGamePlanning !== null) {
-                    return $batchGamePlanning->getNrOfBatches();
-                }
-            }
-        } catch (NoBestPlanningException $e) {
-        }
-        return null;
-    }
-
 
     public function getMaxNrOfBatchGames(): int
     {
@@ -160,7 +141,7 @@ class Input extends Identifiable
      */
     public function getGamesInARowPlannings(Planning $planning, PlanningState|null $state = null): array
     {
-        if ($planning->getMaxNrOfGamesInARow() > 0) {
+        if ($planning->maxNrOfGamesInARow > 0) {
             return [];
         }
         $range = $planning->getNrOfBatchGames();
@@ -168,7 +149,7 @@ class Input extends Identifiable
             function (Planning $planning) use ($range, $state): bool {
                 return $planning->minNrOfBatchGames === $range->getMin()
                     && $planning->maxNrOfBatchGames === $range->getMax()
-                    && $planning->getMaxNrOfGamesInARow() > 0
+                    && $planning->maxNrOfGamesInARow > 0
                     && ($state === null || (($planning->getState()->value & $state->value) > 0));
             }
         ) );
@@ -182,10 +163,10 @@ class Input extends Identifiable
     protected function orderGamesInARowPlannings(array $gamesInARowPlannings): array
     {
         uasort($gamesInARowPlannings, function (Planning $first, Planning $second) {
-            if ($first->getMaxNrOfGamesInARow() === $second->getMaxNrOfGamesInARow()) {
+            if ($first->maxNrOfGamesInARow === $second->maxNrOfGamesInARow) {
                 return $first->getNrOfBatchGames()->difference() > $second->getNrOfBatchGames()->difference() ? -1 : 1;
             }
-            return $first->getMaxNrOfGamesInARow() - $second->getMaxNrOfGamesInARow();
+            return $first->maxNrOfGamesInARow - $second->maxNrOfGamesInARow;
         });
         return array_values($gamesInARowPlannings);
     }

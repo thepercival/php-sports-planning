@@ -8,7 +8,7 @@ use SportsHelpers\Output\Color;
 use SportsPlanning\Input;
 use SportsPlanning\Output\PlanningOutput\Extra as PlanningOutputExtra;
 use SportsPlanning\Planning as PlanningBase;
-use SportsPlanning\Planning\Filter as PlanningFilter;
+use SportsPlanning\Planning\PlanningFilter as PlanningFilter;
 use SportsPlanning\Planning\PlanningState as PlanningState;
 
 class InputOutput extends OutputHelper
@@ -24,7 +24,7 @@ class InputOutput extends OutputHelper
     public function output(Input $input, bool $withHistory): void
     {
         $planningFilter = new PlanningFilter(
-            PlanningBase\Type::BatchGames, null, null, null
+            PlanningBase\PlanningType::BatchGames, null, null, null
         );
 
         $this->planningOutput->outputInputConfig($input->configuration);

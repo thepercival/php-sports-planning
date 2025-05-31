@@ -13,16 +13,16 @@ class Comparer
         if ($first->getNrOfBatches() !== $second->getNrOfBatches()) {
             return $first->getNrOfBatches() - $second->getNrOfBatches();
         }
-        if( $first->getMaxNrOfGamesInARow() === $second->getMaxNrOfGamesInARow()  ) {
+        if( $first->maxNrOfGamesInARow === $second->maxNrOfGamesInARow  ) {
             $diff = $first->getNrOfBatchGames()->difference() - $second->getNrOfBatchGames()->difference();
             if( $diff === 0 ) {
                 return $second->getNrOfBatchGames()->getMin() - $first->getNrOfBatchGames()->getMin();
             }
             return $diff;
         }
-        if ($first->getMaxNrOfGamesInARow() > 0 && $second->getMaxNrOfGamesInARow() > 0) {
-            return $first->getMaxNrOfGamesInARow() - $second->getMaxNrOfGamesInARow();
+        if ($first->maxNrOfGamesInARow > 0 && $second->maxNrOfGamesInARow > 0) {
+            return $first->maxNrOfGamesInARow - $second->maxNrOfGamesInARow;
         }
-        return $first->getMaxNrOfGamesInARow() === 0 ? 1 : -1;
+        return $first->maxNrOfGamesInARow === 0 ? 1 : -1;
     }
 }

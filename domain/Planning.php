@@ -25,10 +25,10 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Planning\BatchGamesType;
-use SportsPlanning\Planning\Filter;
+use SportsPlanning\Planning\PlanningFilter;
 use SportsPlanning\Planning\PlanningState as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
-use SportsPlanning\Planning\Type as PlanningType;
+use SportsPlanning\Planning\PlanningType as PlanningType;
 use SportsPlanning\Sports\Plannable\AgainstOneVsOneWithNrAndFields;
 use SportsPlanning\Sports\Plannable\AgainstOneVsTwoWithNrAndFields;
 use SportsPlanning\Sports\Plannable\AgainstTwoVsTwoWithNrAndFields;
@@ -60,7 +60,7 @@ class Planning extends Identifiable
     public const int ORDER_GAMES_BY_BATCH = 1;
     // public const ORDER_GAMES_BY_GAMENUMBER = 2;
 
-    public function __construct(protected Input $input, SportRange $nrOfBatchGames, protected int $maxNrOfGamesInARow)
+    public function __construct(protected Input $input, SportRange $nrOfBatchGames, public readonly int $maxNrOfGamesInARow)
     {
         $this->input->getPlannings()->add($this);
 
@@ -124,11 +124,6 @@ class Planning extends Identifiable
     public function isNrOfBatchGamesUnequal(): bool
     {
         return $this->getNrOfBatchGames()->difference() > 0;
-    }
-
-    public function getMaxNrOfGamesInARow(): int
-    {
-        return $this->maxNrOfGamesInARow;
     }
 
     public function getBatchGamesType(): BatchGamesType
@@ -279,20 +274,12 @@ class Planning extends Identifiable
         }
     }
 
-    public function createFilter(): Filter
+    public function createFilter(): PlanningFilter
     {
-        return new Filter(null, null, $this->getNrOfBatchGames(), $this->getMaxNrOfGamesInARow());
+        return new PlanningFilter(null, null, $this->getNrOfBatchGames(), $this->maxNrOfGamesInARow);
     }
 
     // from most efficient to less efficient
-
-
-
-    public function getMaxNrOfBatches(): int
-    {
-        $totalNrOfGames = $this->getConfiguration()->planningPouleStructure->calculateNrOfGames();
-        return (int)ceil($totalNrOfGames / $this->minNrOfBatchGames);
-    }
 
     /*public function getCategories(): Collection
     {

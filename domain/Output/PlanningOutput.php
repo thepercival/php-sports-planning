@@ -44,7 +44,7 @@ class PlanningOutput extends OutputHelper
             $outputs[] = 'batchGames ' . $planning->getNrOfBatchGames()->getMin() . '->' . $planning->getNrOfBatchGames()->getMax();
         }
         if (($extra & Extra::MaxNrOfGamesInARow->value) === Extra::MaxNrOfGamesInARow->value) {
-            $outputs[] = 'gamesInARow ' . $planning->getMaxNrOfGamesInARow();
+            $outputs[] = 'gamesInARow ' . $planning->maxNrOfGamesInARow;
         }
         $timeoutState = $planning->getTimeoutState();
         if( $timeoutState !== null ) {

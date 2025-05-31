@@ -8,18 +8,18 @@ use DateTimeImmutable;
 use SportsHelpers\Identifiable;
 use SportsHelpers\SportRange;
 use SportsPlanning\Input;
-use SportsPlanning\Planning\Type as PlanningType;
+use SportsPlanning\Planning\PlanningType as PlanningType;
 
 class HistoricalBestPlanning extends Identifiable
 {
-    protected int $minNrOfBatchGames;
-    protected int $maxNrOfBatchGames;
+    public readonly int $minNrOfBatchGames;
+    protected readonly int $maxNrOfBatchGames;
     protected DateTimeImmutable $removalDateTime;
 
     public function __construct(
         protected Input $input,
         SportRange $nrOfBatchGames,
-        protected int $maxNrOfGamesInARow,
+        public readonly int $maxNrOfGamesInARow,
         protected string $recalculateReason,
         protected int $nrOfBatches )
     {
