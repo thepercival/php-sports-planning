@@ -26,7 +26,8 @@ class TimeoutConfig
 
     public function getDefaultTimeoutSeconds(PlanningConfiguration $configuration): int
     {
-        $totalNrOfGames = $configuration->planningPouleStructure->calculateNrOfGames();
+        $planningPouleStructure = $configuration->createPlanningPouleStructure();
+        $totalNrOfGames = $planningPouleStructure->calculateNrOfGames();
         $nrOfGamesPerSecond = 10;
         $nrOfSeconds = (int)ceil($totalNrOfGames / $nrOfGamesPerSecond);
         if ($nrOfSeconds < self::MINIMUM_TIMEOUTSECONDS) {

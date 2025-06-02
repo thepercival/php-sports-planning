@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Sports\Plannable;
+namespace SportsPlanning\Sports\SportsWithNrAndFields;
 
 use Exception;
 use SportsPlanning\Field;
 
-abstract class SportWithNrAndFields
+abstract class SportWithNrAndFieldsAbstract
 {
     /**
      * @var list<Field>

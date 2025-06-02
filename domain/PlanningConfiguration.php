@@ -16,8 +16,7 @@ use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 readonly class PlanningConfiguration
 {
-    private string $name;
-    public readonly PlanningPouleStructure $planningPouleStructure;
+//    private const int MaxNrOfGamesInARow = 5;
 
     /**
      * @param PouleStructure $pouleStructure
@@ -44,11 +43,14 @@ readonly class PlanningConfiguration
         if( count( $sportsWithNrOfFieldsAndNrOfCycles ) > 1 && $this->perPoule ) {
             throw new SportsIncompatibleWithPerPouleException($sports);
         }
-        $this->name = $this->setNameFromProperties();
-        $this->planningPouleStructure = new PlanningPouleStructure(
-            $pouleStructure,
-            $sportsWithNrOfFieldsAndNrOfCycles,
-            $refereeInfo
+    }
+
+    public function createPlanningPouleStructure(): PlanningPouleStructure
+    {
+        return new PlanningPouleStructure(
+            $this->pouleStructure,
+            $this->sportsWithNrOfFieldsAndNrOfCycles,
+            $this->refereeInfo
         );
     }
 
@@ -70,23 +72,17 @@ readonly class PlanningConfiguration
         }, $this->sportsWithNrOfFieldsAndNrOfCycles );
     }
 
-    private function setNameFromProperties(): string {
-
-        $nameParts = [
-            '[' . $this->pouleStructure . ']',
-            '[' . join(' & ', $this->sportsWithNrOfFieldsAndNrOfCycles) . ']',
-            'ref=>' . $this->refereeInfo
-        ];
-        if( $this->perPoule ) {
-            $nameParts[] =  'pp';
-        }
-        return join(' - ', $nameParts);
-    }
-
-    public function getName(): string {
-
-        return $this->name;
-    }
+//    public function calculateMaxNrOfGamesInARow(): int
+//    {
+//        if ($this->maxNrOfGamesInARow === null) {
+//            $planningPouleStructure = $this->configuration->createPlanningPouleStructure();
+//            $this->maxNrOfGamesInARow = $planningPouleStructure->getMaxNrOfGamesInARow();
+//            if ($this->maxNrOfGamesInARow > self::MaxNrOfGamesInARow) {
+//                $this->maxNrOfGamesInARow = self::MaxNrOfGamesInARow;
+//            }
+//        }
+//        return $this->maxNrOfGamesInARow;
+//    }
 
 //    /**
 //     * @return list<Single|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|AllInOneGame>

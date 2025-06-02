@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace SportsPlanning\Sports\Plannable;
+namespace SportsPlanning\Sports\SportsWithNrAndFields;
 
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 
-class AgainstTwoVsTwoWithNrAndFields extends SportWithNrAndFields
+class AgainstTwoVsTwoWithNrAndFields extends SportWithNrAndFieldsAbstract
 {
     public function __construct(int $sportNr, public readonly AgainstTwoVsTwo $sport, int $nrOfFields)
     {

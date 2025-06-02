@@ -8,24 +8,16 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use SportsHelpers\Identifiable;
-use SportsHelpers\SportRange;
 use SportsPlanning\Exceptions\NoBestPlanningException;
 use SportsPlanning\Planning\Comparer;
 use SportsPlanning\Planning\PlanningFilter as PlanningFilter;
 use SportsPlanning\Planning\HistoricalBestPlanning;
 use SportsPlanning\Planning\PlanningState;
 use SportsPlanning\Planning\PlanningType as PlanningType;
-use SportsPlanning\PlanningPouleStructure;
-use SportsPlanning\Referee\PlanningRefereeInfo;
 
 class Input extends Identifiable
 {
-    private const int MaxNrOfGamesInARow = 5;
-
-    protected string $name;
     protected DateTimeImmutable $createdAt;
-//    protected bool|null $hasBalancedStructure = null;
-//    protected int $nrOfSimSelfRefs;
     protected int $seekingPercentage = -1;
 
     /**
@@ -36,7 +28,7 @@ class Input extends Identifiable
      * @var Collection<int|string, HistoricalBestPlanning>
      */
     protected Collection $historicalBestPlannings;
-    protected int|null $maxNrOfGamesInARow = null;
+    public readonly string $configContent;
 
     public function __construct(public readonly PlanningConfiguration $configuration) {
 
@@ -44,23 +36,11 @@ class Input extends Identifiable
         $this->historicalBestPlannings = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
 
-        $this->name = $configuration->getName();
-    }
-
-    public function getMaxNrOfBatchGames(): int
-    {
-        return $this->configuration->planningPouleStructure->getMaxNrOfGamesPerBatch();
-    }
-
-    public function getMaxNrOfGamesInARow(): int
-    {
-        if ($this->maxNrOfGamesInARow === null) {
-            $this->maxNrOfGamesInARow = $this->configuration->planningPouleStructure->getMaxNrOfGamesInARow();
-            if ($this->maxNrOfGamesInARow > self::MaxNrOfGamesInARow) {
-                $this->maxNrOfGamesInARow = self::MaxNrOfGamesInARow;
-            }
+        $configContent = json_encode($this->configuration);
+        if( $configContent === false) {
+            throw new \Exception("invalid json for planningconfiguration");
         }
-        return $this->maxNrOfGamesInARow;
+        $this->configContent = $configContent;
     }
 
     /**

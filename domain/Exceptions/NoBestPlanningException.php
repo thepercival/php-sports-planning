@@ -12,7 +12,7 @@ class NoBestPlanningException extends \Exception
         if( $planningType !== null) {
             $msg .= ' and type "' . $planningType->value . '"';
         }
-        $msg .= ' found for input "' . $input->configuration->getName() . '"';
+        $msg .= ' found for input "' . $input->configContent . '"';
         parent::__construct( $msg, E_ERROR );
     }
 }

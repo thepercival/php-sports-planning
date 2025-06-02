@@ -29,7 +29,7 @@ class SelfRefereeIncompatibleWithPouleStructureException extends \Exception
                 return "a(".$sport->nrOfHomePlaces."vs".$sport->nrOfAwayPlaces.")";
         }, $sports );
         $sportVariantsAsString = 'sports "[' . join(',', $sportDescriptions ) . ']"';
-        $pouleStructureAsString = 'poulestructure "[' . $pouleStructure . ']"';
+        $pouleStructureAsString = 'poulestructure: '. json_encode($pouleStructure);
         $selfRefereeAsString = 'selfReferee "'.$selfReferee->value.'"';
         parent::__construct($selfRefereeAsString . ' is not compatible with ' .
             $pouleStructureAsString . ' and ' . $sportVariantsAsString, E_ERROR);

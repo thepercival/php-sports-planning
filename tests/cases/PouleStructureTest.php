@@ -67,25 +67,24 @@ class PouleStructureTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstTwoVsTwo(), 1, 1),
         ];
-        $PouleStructure = new PouleStructure(4);
+        $pouleStructure = new PouleStructure(4);
         $refereeInfo = new PlanningRefereeInfo(new SelfRefereeInfo(SelfReferee::Disabled));
         self::expectNotToPerformAssertions();
-        new PlanningPouleStructure($PouleStructure, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
+        new PlanningPouleStructure($pouleStructure, $sportsWithNrOfFieldsAndNrOfCycles, $refereeInfo);
     }
 
     public function testMaxNrOfGamesPerBatchSimple(): void
     {
         $sportsWithNrOfFieldsAndNrOfCycles = [
-            new SportWithNrOfFieldsAndNrOfCycles(new AgainstTwoVsTwo(), 4, 1),
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 4, 1),
         ];
-        self::expectException(\Exception::class);
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(3, 2, 2),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo());
 
-        $maxNrOfGamesSim = $pouleStructure->getMaxNrOfGamesPerBatch();
-        self::assertSame(3, $maxNrOfGamesSim);
+        $maxNrOfGamesPerBatch = $planningPouleStructure->calculateMaxNrOfGamesPerBatch();
+        self::assertSame(3, $maxNrOfGamesPerBatch);
     }
 
     public function testMaxNrOfGamesPerBatch6Places3Fields1Referee(): void
@@ -93,12 +92,12 @@ class PouleStructureTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 3, 1),
         ];
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(6),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo(1));
 
-        $maxNrOfGamesInARow = $pouleStructure->getMaxNrOfGamesPerBatch();
+        $maxNrOfGamesInARow = $planningPouleStructure->calculateMaxNrOfGamesPerBatch();
         self::assertSame(1, $maxNrOfGamesInARow);
     }
 
@@ -108,13 +107,13 @@ class PouleStructureTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1),
         ];
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(2, 2, 2, 2, 2, 2),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules))
         );
 
-        $maxNrOfGamesPerBatch = $pouleStructure->getMaxNrOfGamesPerBatch();
+        $maxNrOfGamesPerBatch = $planningPouleStructure->calculateMaxNrOfGamesPerBatch();
         self::assertSame(4, $maxNrOfGamesPerBatch);
     }
 
@@ -124,13 +123,13 @@ class PouleStructureTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1),
         ];
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(2, 2, 2, 2),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo(new SelfRefereeInfo(SelfReferee::OtherPoules))
         );
 
-        $maxNrOfGamesPerBatch = $pouleStructure->getMaxNrOfGamesPerBatch();
+        $maxNrOfGamesPerBatch = $planningPouleStructure->calculateMaxNrOfGamesPerBatch();
         self::assertSame(2, $maxNrOfGamesPerBatch);
     }
 
@@ -139,12 +138,12 @@ class PouleStructureTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 3, 1),
         ];
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(6),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo(2));
 
-        $maxNrOfGamesPerBatch = $pouleStructure->getMaxNrOfGamesPerBatch();
+        $maxNrOfGamesPerBatch = $planningPouleStructure->calculateMaxNrOfGamesPerBatch();
         self::assertSame(2, $maxNrOfGamesPerBatch);
     }
 
@@ -154,12 +153,12 @@ class PouleStructureTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new TogetherSport(1), 2, 1),
         ];
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(3, 2, 2, 2),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo());
 
-        $maxNrOfGamesPerBatch = $pouleStructure->getMaxNrOfGamesPerBatch();
+        $maxNrOfGamesPerBatch = $planningPouleStructure->calculateMaxNrOfGamesPerBatch();
         self::assertSame(2, $maxNrOfGamesPerBatch);
     }
 
@@ -169,12 +168,12 @@ class PouleStructureTest extends TestCase
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1),
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1),
         ];
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(5),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo());
 
-        $maxNrOfGamesPerBatch = $pouleStructure->getMaxNrOfGamesPerBatch();
+        $maxNrOfGamesPerBatch = $planningPouleStructure->calculateMaxNrOfGamesPerBatch();
         self::assertSame(2, $maxNrOfGamesPerBatch);
     }
 
@@ -183,12 +182,12 @@ class PouleStructureTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1),
         ];
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(6),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo());
 
-        $maxNrOfGamesInARow = $pouleStructure->getMaxNrOfGamesInARow();
+        $maxNrOfGamesInARow = $planningPouleStructure->calculateMaxNrOfGamesInARow();
         self::assertSame(3, $maxNrOfGamesInARow);
     }
 
@@ -209,12 +208,12 @@ class PouleStructureTest extends TestCase
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 7),
         ];
 
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(8),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo());
 
-        $maxNrOfGamesInARow = $pouleStructure->getMaxNrOfGamesInARow();
+        $maxNrOfGamesInARow = $planningPouleStructure->calculateMaxNrOfGamesInARow();
         self::assertSame(7, $maxNrOfGamesInARow);
     }
 
@@ -224,12 +223,12 @@ class PouleStructureTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 20, 2)
         ];
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(10, 10, 10, 10),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo());
 
-        $maxNrOfGamesInARow = $pouleStructure->getMaxNrOfGamesInARow();
+        $maxNrOfGamesInARow = $planningPouleStructure->calculateMaxNrOfGamesInARow();
         self::assertSame(9, $maxNrOfGamesInARow);
     }
 
@@ -240,13 +239,13 @@ class PouleStructureTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 3, 1)
         ];
-        $pouleStructure = new PlanningPouleStructure(
+        $planningPouleStructure = new PlanningPouleStructure(
             new PouleStructure(6),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo(2)
         );
 
-        $maxNrOfGamesPerBatch = $pouleStructure->getMaxNrOfGamesPerBatch();
+        $maxNrOfGamesPerBatch = $planningPouleStructure->calculateMaxNrOfGamesPerBatch();
         self::assertSame(2, $maxNrOfGamesPerBatch);
     }
 }

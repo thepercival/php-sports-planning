@@ -111,7 +111,7 @@ class PlanningConfigurationModerator
             $sportsWithNrOfFieldsAndNrOfCycles,
             $refereeInfo
         );
-        $maxNrOfGamesPerBatch = $planningPouleStructure->getMaxNrOfGamesPerBatch();
+        $maxNrOfGamesPerBatch = $planningPouleStructure->calculateMaxNrOfGamesPerBatch();
         $reducedSportsWithNrOfFieldsAndNrOfCycles = [];
         foreach ($sportsWithNrOfFieldsAndNrOfCycles as $sportWithNrOfFieldsAndNrOfCycles) {
             $reducedNrOfFields = $sportWithNrOfFieldsAndNrOfCycles->nrOfFields;

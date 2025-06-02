@@ -11,7 +11,7 @@ use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsTwoWithNrOfPlaces;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
 
-class SportWithNrOfFieldsAndNrOfCycles extends SportWithNrOfFields implements \Stringable
+class SportWithNrOfFieldsAndNrOfCycles extends SportWithNrOfFields
 {
     public function __construct(
         AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport $sport,
@@ -39,15 +39,4 @@ class SportWithNrOfFieldsAndNrOfCycles extends SportWithNrOfFields implements \S
     public function createSportWithNrOfFields(): SportWithNrOfFields {
         return new SportWithNrOfFields($this->sport, $this->nrOfFields);
     }
-
-    public function __toString(): string
-    {
-        if( $this->sport instanceof TogetherSport) {
-            $sport = 'together(' . ($this->sport->getNrOfGamePlaces() ?? 'null') . ')';
-        } else {
-            $sport = 'against(' . $this->sport->nrOfHomePlaces . 'vs' . $this->sport->nrOfAwayPlaces . ')';
-        }
-        return $sport . ' f(' . $this->nrOfFields . ') c(' . $this->nrOfCycles . ')';
-    }
-
 }

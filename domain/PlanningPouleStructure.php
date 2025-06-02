@@ -57,7 +57,7 @@ readonly class PlanningPouleStructure
 
 
 
-    public function getMaxNrOfGamesPerBatch(): int {
+    public function calculateMaxNrOfGamesPerBatch(): int {
 
         $sortedSportsWithNrOfFieldsAndNrOfCycles = $this->sortSportsByNrOfGamePlaces();
 
@@ -124,7 +124,7 @@ readonly class PlanningPouleStructure
     }
 
 
-    public function getMaxNrOfGamesInARow(): int
+    public function calculateMaxNrOfGamesInARow(): int
     {
         $pouleStructure = $this->pouleStructure;
         $biggestPouleNrOfPlaces = $pouleStructure->getBiggestPoule();

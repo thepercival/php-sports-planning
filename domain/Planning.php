@@ -29,10 +29,10 @@ use SportsPlanning\Planning\PlanningFilter;
 use SportsPlanning\Planning\PlanningState as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\PlanningType as PlanningType;
-use SportsPlanning\Sports\Plannable\AgainstOneVsOneWithNrAndFields;
-use SportsPlanning\Sports\Plannable\AgainstOneVsTwoWithNrAndFields;
-use SportsPlanning\Sports\Plannable\AgainstTwoVsTwoWithNrAndFields;
-use SportsPlanning\Sports\Plannable\TogetherSportWithNrAndFields;
+use SportsPlanning\Sports\SportsWithNrAndFields\AgainstOneVsOneWithNrAndFields;
+use SportsPlanning\Sports\SportsWithNrAndFields\AgainstOneVsTwoWithNrAndFields;
+use SportsPlanning\Sports\SportsWithNrAndFields\AgainstTwoVsTwoWithNrAndFields;
+use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 class Planning extends Identifiable
@@ -59,6 +59,8 @@ class Planning extends Identifiable
 
     public const int ORDER_GAMES_BY_BATCH = 1;
     // public const ORDER_GAMES_BY_GAMENUMBER = 2;
+
+    public string|null $content = null;
 
     public function __construct(protected Input $input, SportRange $nrOfBatchGames, public readonly int $maxNrOfGamesInARow)
     {

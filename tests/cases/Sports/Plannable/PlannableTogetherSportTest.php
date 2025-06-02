@@ -7,7 +7,7 @@ use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Input;
 use SportsPlanning\Referee\PlanningRefereeInfo;
-use SportsPlanning\Sports\Plannable\TogetherSportWithNrAndFields;
+use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\TestHelper\PlanningCreator;
 

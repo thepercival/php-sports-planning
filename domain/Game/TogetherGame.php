@@ -13,7 +13,7 @@ use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Sports\Plannable\TogetherSportWithNrAndFields;
+use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
 
 class TogetherGame extends GameAbstract
 {

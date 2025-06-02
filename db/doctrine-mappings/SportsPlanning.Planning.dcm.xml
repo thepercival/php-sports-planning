@@ -10,23 +10,12 @@
            unique="false"/>
     <field name="nrOfBatches" column="nrOfBatches" type="smallint" nullable="false" unique="false"/>
     <field name="validity" column="validity" type="integer" nullable="false" unique="false"/>
+    <field name="content" column="content" type="string" nullable="false" unique="false"/>
     <many-to-one field="input" target-entity="SportsPlanning\Input" inversed-by="plannings">
       <join-columns>
         <join-column name="inputId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>
     </many-to-one>
-    <one-to-many field="againstGames" target-entity="SportsPlanning\Game\Against" mapped-by="planning">
-      <cascade>
-        <cascade-persist/>
-        <cascade-remove/>
-      </cascade>
-    </one-to-many>
-    <one-to-many field="togetherGames" target-entity="SportsPlanning\Game\Together" mapped-by="planning">
-      <cascade>
-        <cascade-persist/>
-        <cascade-remove/>
-      </cascade>
-    </one-to-many>
     <unique-constraints>
       <unique-constraint columns="inputId,minNrOfBatchGames,maxNrOfBatchGames,maxNrOfGamesInARow" name="number_v_idx" />
     </unique-constraints>

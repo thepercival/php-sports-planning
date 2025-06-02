@@ -23,7 +23,7 @@ class SportsIncompatibleWithPouleStructureException  extends \Exception
                 return "a(".$sport->nrOfHomePlaces."vs".$sport->nrOfAwayPlaces.")";
             }, $sports );
         $sportVariantsAsString = 'sports "[' . join(',', $sportDescriptions ) . ']"';
-        $pouleStructureAsString = 'poulestructure "[' . $pouleStructure . ']"';
+        $pouleStructureAsString = 'poulestructure: '. json_encode($pouleStructure);
         parent::__construct(' maxNrOfGamePlaces > nrOfPoulePlaces with ' .
             $pouleStructureAsString . ' and ' . $sportVariantsAsString, E_ERROR);
     }

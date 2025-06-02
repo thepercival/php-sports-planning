@@ -7,10 +7,10 @@ namespace SportsPlanning\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
-use SportsPlanning\PlanningConfiguration as InputConfiguration;
-use SportsPlanning\Output\BatchOutput as BatchOutput;
+use SportsPlanning\PlanningConfiguration;
+use SportsPlanning\Output\BatchOutput;
 use SportsPlanning\Output\PlanningOutput\Extra;
-use SportsPlanning\Planning as PlanningBase;
+use SportsPlanning\Planning;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
 use SportsPlanning\Resource\ResourceType;
@@ -22,18 +22,18 @@ class PlanningOutput extends OutputHelper
         parent::__construct($logger);
     }
 
-    public function output(PlanningBase $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
+    public function output(Planning $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
     {
         $this->outputHelper($planning, $extra, $prefix, $suffix, $color);
     }
 
-    public function outputState(PlanningBase $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
+    public function outputState(Planning $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
     {
         $this->outputHelper($planning, $extra, $prefix, $suffix, $color);
     }
 
     protected function outputHelper(
-        PlanningBase $planning,
+        Planning $planning,
         int $extra,
         string $prefix = null,
         string $suffix = null,
@@ -69,16 +69,18 @@ class PlanningOutput extends OutputHelper
         }
     }
 
-    public function outputInputConfig(InputConfiguration $inputConfiguration, string $prefix = null, string $suffix = null): void
+    public function outputInputConfig(PlanningConfiguration $planningConfig, string $prefix = null, string $suffix = null): void
     {
-        $output = $this->getInputConfigurationAsString($inputConfiguration, $prefix, $suffix);
+        $output = $this->getInputConfigurationAsString($planningConfig, $prefix, $suffix);
         $this->logger->info($output);
     }
 
-    public function getInputConfigurationAsString(InputConfiguration $inputConfiguration,
+    public function getInputConfigurationAsString(PlanningConfiguration $planningConfig,
                                                   string $prefix = null, string $suffix = null): string
     {
-        return ($prefix ?? '') . $inputConfiguration->getName() . ($suffix ?? '');
+        $configAsString = json_encode($planningConfig);
+        $configAsString = $configAsString === false ? '?' : $configAsString;
+        return ($prefix ?? '') . $configAsString . ($suffix ?? '');
     }
 
     /**
