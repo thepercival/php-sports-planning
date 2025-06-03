@@ -8,12 +8,12 @@ use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
 use SportsPlanning\Field;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 // use SportsPlanning\Sports\Plannable\PlannableSport;
 
 /**
  * @psalm-type _Field = array{number: int}
- * @psalm-type _FieldValue = array{input: Input, fields: list<_Field>}
+ * @psalm-type _FieldValue = array{input: PlanningOrchestration, fields: list<_Field>}
  */
 class SportHandler extends Handler // implements SubscribingHandlerInterface
 {

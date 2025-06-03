@@ -7,7 +7,7 @@ namespace SportsPlanning\Planning;
 use DateTimeImmutable;
 use SportsHelpers\Identifiable;
 use SportsHelpers\SportRange;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Planning\PlanningType as PlanningType;
 
 class HistoricalBestPlanning extends Identifiable
@@ -17,11 +17,11 @@ class HistoricalBestPlanning extends Identifiable
     protected DateTimeImmutable $removalDateTime;
 
     public function __construct(
-        protected Input $input,
-        SportRange $nrOfBatchGames,
-        public readonly int $maxNrOfGamesInARow,
-        protected string $recalculateReason,
-        protected int $nrOfBatches )
+        protected PlanningOrchestration $input,
+        SportRange                      $nrOfBatchGames,
+        public readonly int             $maxNrOfGamesInARow,
+        protected string                $recalculateReason,
+        protected int                   $nrOfBatches )
     {
         $this->minNrOfBatchGames = $nrOfBatchGames->getMin();
         $this->maxNrOfBatchGames = $nrOfBatchGames->getMax();
@@ -77,7 +77,7 @@ class HistoricalBestPlanning extends Identifiable
         return $this->nrOfBatches;
     }
 
-    public function getInput(): Input
+    public function getInput(): PlanningOrchestration
     {
         return $this->input;
     }

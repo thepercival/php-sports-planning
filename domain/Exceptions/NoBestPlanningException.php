@@ -2,12 +2,12 @@
 
 namespace SportsPlanning\Exceptions;
 
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Planning\PlanningState;
 use SportsPlanning\Planning\PlanningType;
 class NoBestPlanningException extends \Exception
 {
-    public function __construct(Input $input, PlanningType|null $planningType) {
+    public function __construct(PlanningOrchestration $input, PlanningType|null $planningType) {
         $msg = 'no planning with state "' . PlanningState::Succeeded->value . '"';
         if( $planningType !== null) {
             $msg .= ' and type "' . $planningType->value . '"';

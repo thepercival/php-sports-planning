@@ -2,7 +2,7 @@
 
 namespace SportsPlanning\Planning;
 
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Planning;
 use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\PlanningPouleStructure;

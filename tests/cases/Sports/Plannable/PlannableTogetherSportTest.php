@@ -5,7 +5,7 @@ namespace SportsPlanning\Tests\Sports\Plannable;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\TogetherSport;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
@@ -19,7 +19,7 @@ class PlannableTogetherSportTest extends TestCase
     {
         $togetherSport = new TogetherSport(2);
         $nrOfFields = 1;
-        $input = new Input(
+        $input = new PlanningOrchestration(
             new \SportsPlanning\PlanningConfiguration(
                 new PouleStructure(3),
                 [new SportWithNrOfFieldsAndNrOfCycles($togetherSport, $nrOfFields, 1)],

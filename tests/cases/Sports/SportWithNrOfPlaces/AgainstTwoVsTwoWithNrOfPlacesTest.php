@@ -7,7 +7,7 @@ use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;

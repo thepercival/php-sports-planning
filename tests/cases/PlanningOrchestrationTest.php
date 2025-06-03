@@ -12,7 +12,7 @@ use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class InputTest extends TestCase
+class PlanningOrchestrationTest extends TestCase
 {
     use PlanningCreator;
 

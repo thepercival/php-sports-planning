@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-  	<entity name="SportsPlanning\Input" table="planningInputs">
+  	<entity name="SportsPlanning\PlanningOrchestration" table="planningOrchestrations">
 		<field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
 	  	<field name="seekingPercentage" column="seekingPercentage" type="smallint" nullable="false" unique="false"/>
-	  	<field name="configContent" column="configContent" type="string" nullable="false" unique="true"/>
+	  	<field name="configContent" column="configContent" type="text" length="700" nullable="false" unique="false"/>
+		<field name="configHash" column="configHash" type="string" length="256" nullable="false" unique="true"/>
 	  	<one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="input">
 			<cascade>
 				<cascade-remove/>
@@ -19,7 +20,7 @@
 			</order-by>
 		</one-to-many>
 		<indexes>
-	  		<index columns="configContent,createdAt"/>
+	  		<index columns="createdAt,configHash"/>
 		</indexes>
   	</entity>
 </doctrine-mapping>

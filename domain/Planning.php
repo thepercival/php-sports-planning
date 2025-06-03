@@ -62,9 +62,12 @@ class Planning extends Identifiable
 
     public string|null $content = null;
 
-    public function __construct(protected Input $input, SportRange $nrOfBatchGames, public readonly int $maxNrOfGamesInARow)
+    public function __construct(
+        protected PlanningOrchestration $orchestration,
+        SportRange $nrOfBatchGames,
+        public readonly int $maxNrOfGamesInARow)
     {
-        $this->input->getPlannings()->add($this);
+        $this->orchestration->getPlannings()->add($this);
 
         $this->minNrOfBatchGames = $nrOfBatchGames->getMin();
         $this->maxNrOfBatchGames = $nrOfBatchGames->getMax();
@@ -72,7 +75,7 @@ class Planning extends Identifiable
         $this->createdDateTime = new DateTimeImmutable();
         $this->state = PlanningState::NotProcessed;
 
-        $configuration = $input->configuration;
+        $configuration = $orchestration->configuration;
         $pouleStructure = $configuration->pouleStructure;
         $pouleNr = 1;
         $this->poules = array_map( function (int $nrOfPoulePlaces) use(&$pouleNr): Poule {
@@ -205,7 +208,7 @@ class Planning extends Identifiable
 
     public function getConfiguration(): PlanningConfiguration
     {
-        return $this->input->configuration;
+        return $this->orchestration->configuration;
     }
 
     public function createFirstBatch(): Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoules

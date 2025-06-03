@@ -5,7 +5,7 @@ namespace SportsPlanning\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Output\PlanningOutput\Extra as PlanningOutputExtra;
 use SportsPlanning\Planning as PlanningBase;
 use SportsPlanning\Planning\PlanningFilter as PlanningFilter;
@@ -21,7 +21,7 @@ class InputOutput extends OutputHelper
         $this->planningOutput = new PlanningOutput($logger);
     }
 
-    public function output(Input $input, bool $withHistory): void
+    public function output(PlanningOrchestration $input, bool $withHistory): void
     {
         $planningFilter = new PlanningFilter(
             PlanningBase\PlanningType::BatchGames, null, null, null

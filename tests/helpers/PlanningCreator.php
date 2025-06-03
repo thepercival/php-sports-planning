@@ -9,7 +9,7 @@ use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\AgainstOneVsOne;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
@@ -44,7 +44,7 @@ trait PlanningCreator
      * @param list<int> $pouleStructureAsArray
      * @param list<SportWithNrOfFieldsAndNrOfCycles>|null $sportsWithNrOfFieldsAndNrOfCycles
      * @param PlanningRefereeInfo|null $refereeInfo
-     * @return Input
+     * @return PlanningOrchestration
      */
     protected function createInput(
         array $pouleStructureAsArray,
@@ -67,7 +67,7 @@ trait PlanningCreator
             $refereeInfo,
             $perPoule
         );
-        $input = new Input( $configuration );
+        $input = new PlanningOrchestration( $configuration );
 
         return $input;
     }

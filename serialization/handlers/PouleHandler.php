@@ -7,14 +7,14 @@ namespace SportsPlanning\SerializationHandler;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\Context;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
 /**
  * @psalm-type _Place = array{placeNr: int}
- * @psalm-type _FieldValue = array{input: Input, number: int, places: list<_Place>}
+ * @psalm-type _FieldValue = array{input: PlanningOrchestration, number: int, places: list<_Place>}
  */
 class PouleHandler extends Handler implements SubscribingHandlerInterface
 {

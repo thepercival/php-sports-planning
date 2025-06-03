@@ -9,7 +9,7 @@ use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SportRange;
 use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\Counters\GamePlacesCounterForPoule;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Planning;
 use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\Poule;
@@ -69,7 +69,7 @@ class GamePlacesCounterForPouleTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
         ];
-        $input = new Input( new PlanningConfiguration(
+        $input = new PlanningOrchestration( new PlanningConfiguration(
             new PouleStructure(3),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo(),

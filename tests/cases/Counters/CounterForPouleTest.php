@@ -9,7 +9,7 @@ use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SportRange;
 use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\Counters\CounterForPoule;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Referee\PlanningRefereeInfo;
@@ -68,7 +68,7 @@ class CounterForPouleTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
         ];
-        $input = new Input( new \SportsPlanning\PlanningConfiguration(
+        $input = new PlanningOrchestration( new \SportsPlanning\PlanningConfiguration(
             new PouleStructure(3),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo(),

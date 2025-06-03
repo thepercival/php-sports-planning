@@ -7,12 +7,12 @@ namespace SportsPlanning\SerializationHandler;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\Context;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 
 use SportsPlanning\Referee;
 
 /**
- * @psalm-type _FieldValue = array{input: Input, number: int, priority: int}
+ * @psalm-type _FieldValue = array{input: PlanningOrchestration, number: int, priority: int}
  */
 class RefereeHandler extends Handler implements SubscribingHandlerInterface
 {

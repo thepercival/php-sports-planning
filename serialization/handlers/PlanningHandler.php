@@ -15,7 +15,7 @@ use SportsPlanning\PlanningConfiguration as InputConfiguration;
 use SportsPlanning\Field;
 use SportsPlanning\Game\AgainstGame as AgainstGame;
 use SportsPlanning\Game\TogetherGame as TogetherGame;
-use SportsPlanning\Input;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
@@ -63,7 +63,7 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
             throw new \Exception('malformd json => no valid inputConfiguration', E_ERROR);
         }
 
-        $input = new Input($inputConfiguration);
+        $input = new PlanningOrchestration($inputConfiguration);
         $nrOfBatchGamesRange = new SportRange($fieldValue['minNrOfBatchGames'], $fieldValue['maxNrOfBatchGames']);
         $planning = new Planning($input, $nrOfBatchGamesRange, $fieldValue['maxNrOfGamesInARow']);
 
