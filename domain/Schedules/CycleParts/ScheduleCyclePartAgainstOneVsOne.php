@@ -19,7 +19,7 @@ use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
 /**
  * @template-extends ListNode<ScheduleCyclePartAgainstOneVsOne>
  */
-class ScheduleCyclePartAgainstOneVsOne extends ListNode
+final class ScheduleCyclePartAgainstOneVsOne extends ListNode
 {
     protected AmountNrCounterMap $placeNrCounterMap;
 

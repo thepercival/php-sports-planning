@@ -2,7 +2,7 @@
 
 namespace SportsPlanning\Game;
 
-readonly class TogetherGamePlace extends GamePlaceAbstract
+final readonly class TogetherGamePlace extends GamePlaceAbstract
 {
     public function __construct(int $placeNr, public int $cycleNr)
     {

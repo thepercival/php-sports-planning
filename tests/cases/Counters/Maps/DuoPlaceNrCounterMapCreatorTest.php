@@ -7,7 +7,7 @@ namespace SportsPlanning\Tests\Counters\Maps;
 use PHPUnit\Framework\TestCase;
 use SportsPlanning\Counters\Maps\DuoPlaceNrCounterMapCreator;
 
-class DuoPlaceNrCounterMapCreatorTest extends TestCase
+final class DuoPlaceNrCounterMapCreatorTest extends TestCase
 {
     public function testItOne(): void
     {

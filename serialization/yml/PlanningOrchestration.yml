@@ -1,0 +1,6 @@
+SportsPlanning\PlanningOrchestration:
+  exclusion_policy: ALL
+  exclude: false
+  properties:
+    configuration:
+      type: SportsPlanning\PlanningConfiguration

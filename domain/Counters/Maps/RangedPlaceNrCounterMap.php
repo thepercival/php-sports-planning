@@ -11,7 +11,7 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-class RangedPlaceNrCounterMap extends RangedNrCounterMapAbstract
+final class RangedPlaceNrCounterMap extends RangedNrCounterMapAbstract
 {
     public function __construct(
         protected AmountNrCounterMap|SideNrCounterMap $map, AmountRange $allowedRange) {
@@ -49,6 +49,7 @@ class RangedPlaceNrCounterMap extends RangedNrCounterMapAbstract
 //        return $this->map->getPlaceNrsSmallerThan($minAmount);
 //    }
 
+    #[\Override]
     public function createPerAmountReport(): PlaceNrCountersPerAmountReport
     {
         return new PlaceNrCountersPerAmountReport($this->map);

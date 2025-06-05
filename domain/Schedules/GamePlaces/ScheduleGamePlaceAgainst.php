@@ -9,7 +9,7 @@ use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsTwo;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
 
-class ScheduleGamePlaceAgainst
+final class ScheduleGamePlaceAgainst
 {
 
     public function __construct(

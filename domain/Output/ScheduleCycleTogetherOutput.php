@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsPlanning\Schedules\Cycles\ScheduleCycleTogether;
 
-class ScheduleCycleTogetherOutput extends OutputHelper
+final class ScheduleCycleTogetherOutput extends OutputHelper
 {
     private GameOutput $gameOutput;
 

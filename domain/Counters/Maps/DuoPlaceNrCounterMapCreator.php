@@ -5,7 +5,7 @@ namespace SportsPlanning\Counters\Maps;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
 
-class DuoPlaceNrCounterMapCreator
+final class DuoPlaceNrCounterMapCreator
 {
     /**
      * @param int $nrOfPlaces

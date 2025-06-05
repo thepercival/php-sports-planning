@@ -4,7 +4,7 @@ namespace SportsPlanning\Combinations;
 
 use SportsPlanning\Counters\CounterForAmount;
 
-readonly class AmountRange implements \Stringable
+final readonly class AmountRange implements \Stringable
 {
     public function __construct(public AmountBoundary $min, public AmountBoundary $max) {
         if( $min->getAmount() > $max->getAmount() ) {
@@ -19,8 +19,9 @@ readonly class AmountRange implements \Stringable
         return $this->max->getAmount() - $this->min->getAmount();
     }
 
+    #[\Override]
     public function __toString(): string
     {
-        return '[' . $this->min . ' -> ' . $this->max . ']';
+        return '[' . (string)$this->min . ' -> ' . (string)$this->max . ']';
     }
 }

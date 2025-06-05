@@ -8,7 +8,7 @@ use SportsHelpers\RefereeInfo;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SelfRefereeInfo;
 
-class PlanningRefereeInfo extends RefereeInfo implements \Stringable
+final readonly class PlanningRefereeInfo extends RefereeInfo implements \Stringable
 {
     public function __construct(RefereeInfo|SelfRefereeInfo|int|null $selfRefereeInfoOrNrOfReferees = null)
     {
@@ -24,6 +24,7 @@ class PlanningRefereeInfo extends RefereeInfo implements \Stringable
     }
 
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->nrOfReferees . ':' . $this->getSelfRefereeAsString();

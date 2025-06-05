@@ -9,7 +9,7 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-class AllScheduleMaps
+final class AllScheduleMaps
 {
     protected AmountNrCounterMap $amountCounterMap;
 

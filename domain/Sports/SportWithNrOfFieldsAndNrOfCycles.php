@@ -11,7 +11,7 @@ use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsTwoWithNrOfPlaces;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
 
-class SportWithNrOfFieldsAndNrOfCycles extends SportWithNrOfFields
+final class SportWithNrOfFieldsAndNrOfCycles extends SportWithNrOfFields
 {
     public function __construct(
         AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport $sport,

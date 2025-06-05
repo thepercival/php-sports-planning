@@ -12,7 +12,7 @@ use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsTwo;
 /**
  * @template-extends ListNode<ScheduleCycleAgainstOneVsTwo>
  */
-class ScheduleCycleAgainstOneVsTwo extends ListNode
+final class ScheduleCycleAgainstOneVsTwo extends ListNode
 {
     public readonly ScheduleCyclePartAgainstOneVsTwo $firstPart;
 

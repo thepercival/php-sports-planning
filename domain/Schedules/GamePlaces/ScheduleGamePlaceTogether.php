@@ -7,7 +7,7 @@ namespace SportsPlanning\Schedules\GamePlaces;
 
 use SportsPlanning\Schedules\Games\ScheduleGameTogether;
 
-class ScheduleGamePlaceTogether
+final class ScheduleGamePlaceTogether
 {
     public function __construct(
         public readonly ScheduleGameTogether $game,

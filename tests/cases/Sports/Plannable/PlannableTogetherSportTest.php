@@ -3,15 +3,11 @@
 namespace SportsPlanning\Tests\Sports\Plannable;
 
 use PHPUnit\Framework\TestCase;
-use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\TogetherSport;
-use SportsPlanning\PlanningOrchestration;
-use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
-use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class PlannableTogetherSportTest extends TestCase
+final class PlannableTogetherSportTest extends TestCase
 {
     use PlanningCreator;
 
@@ -19,14 +15,14 @@ class PlannableTogetherSportTest extends TestCase
     {
         $togetherSport = new TogetherSport(2);
         $nrOfFields = 1;
-        $input = new PlanningOrchestration(
-            new \SportsPlanning\PlanningConfiguration(
-                new PouleStructure(3),
-                [new SportWithNrOfFieldsAndNrOfCycles($togetherSport, $nrOfFields, 1)],
-                new PlanningRefereeInfo(),
-                false
-            )
-        );
+//        new PlanningOrchestration(
+//            new PlanningConfiguration(
+//                new PouleStructure(3),
+//                [new SportWithNrOfFieldsAndNrOfCycles($togetherSport, $nrOfFields, 1)],
+//                new PlanningRefereeInfo(),
+//                false
+//            )
+//        );
 
         $plannableTogetherSport = new TogetherSportWithNrAndFields(1, $togetherSport, $nrOfFields);
         self::assertSame($togetherSport, $plannableTogetherSport->sport);

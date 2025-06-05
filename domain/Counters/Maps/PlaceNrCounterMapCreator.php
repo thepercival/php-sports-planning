@@ -4,7 +4,7 @@ namespace SportsPlanning\Counters\Maps;
 
 use SportsPlanning\Counters\CounterForPlaceNr;
 
-class PlaceNrCounterMapCreator
+final class PlaceNrCounterMapCreator
 {
     /**
      * @param int $nrOfPlaces

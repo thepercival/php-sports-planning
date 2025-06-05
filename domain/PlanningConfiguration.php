@@ -14,7 +14,7 @@ use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
-readonly class PlanningConfiguration
+final readonly class PlanningConfiguration
 {
 //    private const int MaxNrOfGamesInARow = 5;
 

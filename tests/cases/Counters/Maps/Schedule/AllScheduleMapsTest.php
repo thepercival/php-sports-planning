@@ -16,7 +16,7 @@ use SportsPlanning\Counters\Maps\Schedule\TogetherNrCounterMap;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 
-class AllScheduleMapsTest extends TestCase
+final class AllScheduleMapsTest extends TestCase
 {
     public function testCountItOne(): void
     {

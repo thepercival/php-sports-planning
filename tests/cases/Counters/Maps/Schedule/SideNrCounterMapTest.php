@@ -13,7 +13,7 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-class SideNrCounterMapTest extends TestCase
+final class SideNrCounterMapTest extends TestCase
 {
 
     public function testWithNrOfPlaces(): void

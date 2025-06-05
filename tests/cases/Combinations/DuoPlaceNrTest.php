@@ -7,7 +7,7 @@ namespace SportsPlanning\Tests\Combinations;
 use PHPUnit\Framework\TestCase;
 use SportsPlanning\Combinations\DuoPlaceNr;
 
-class DuoPlaceNrTest extends TestCase
+final class DuoPlaceNrTest extends TestCase
 {
 
     public function testHomePlaceNrSmallerThanOne(): void

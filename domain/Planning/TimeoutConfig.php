@@ -7,7 +7,7 @@ use SportsPlanning\Planning;
 use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\PlanningPouleStructure;
 
-class TimeoutConfig
+final class TimeoutConfig
 {
     public const int MINIMUM_TIMEOUTSECONDS = 5;
     public const int MAXIMUM_TIMEOUTSECONDS = 15;

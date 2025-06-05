@@ -23,7 +23,7 @@ use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsOne;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstOneVsTwo;
 use SportsPlanning\Schedules\Games\ScheduleGameAgainstTwoVsTwo;
 
-class ScheduleOutput extends OutputHelper
+final class ScheduleOutput extends OutputHelper
 {
 
     public function __construct(LoggerInterface $logger = null)
@@ -53,9 +53,11 @@ class ScheduleOutput extends OutputHelper
             if ($sportNumber !== null && $sportNumber !== $cycle->sportSchedule->number) {
                 continue;
             }
+            $sportJson = json_encode($cycle->sportSchedule->sport);
+            $sportJson = $sportJson === false ? '?' : $sportJson;
             $this->logger->info( $prefix . ' nrOfPlaces: ' . $cycle->sportSchedule->scheduleWithNrOfPlaces->nrOfPlaces );
             $this->logger->info( $prefix . ' sportNr: ' . $cycle->sportSchedule->number );
-            $this->logger->info( $prefix . ' sport  : ' . json_encode($cycle->sportSchedule->sport) );
+            $this->logger->info( $prefix . ' sport  : ' . $sportJson);
             $this->logger->info( $prefix . ' cycle  : ' . $cycle->getNumber() . '/' . $cycle->getLeaf()->getNumber() );
 
             if( $cycle instanceof ScheduleCycleTogether ) {
@@ -189,7 +191,7 @@ class ScheduleOutput extends OutputHelper
     {
         $amountPerLine = 8; $counter = 0; $line = '';
         foreach( $assignedAgainstMap as $duoPlaceCounter ) {
-            $line .= $duoPlaceCounter . 'x, ';
+            $line .= ((string)$duoPlaceCounter) . 'x, ';
             if( ++$counter === $amountPerLine ) {
                 $this->logger->info($prefix . $line);
                 $counter = 0;

@@ -10,14 +10,14 @@ use SportsHelpers\SportRange;
 use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Planning\PlanningType as PlanningType;
 
-class HistoricalBestPlanning extends Identifiable
+final class HistoricalBestPlanning extends Identifiable
 {
     public readonly int $minNrOfBatchGames;
     protected readonly int $maxNrOfBatchGames;
     protected DateTimeImmutable $removalDateTime;
 
     public function __construct(
-        protected PlanningOrchestration $input,
+        protected PlanningOrchestration $orchestration,
         SportRange                      $nrOfBatchGames,
         public readonly int             $maxNrOfGamesInARow,
         protected string                $recalculateReason,
@@ -26,7 +26,7 @@ class HistoricalBestPlanning extends Identifiable
         $this->minNrOfBatchGames = $nrOfBatchGames->getMin();
         $this->maxNrOfBatchGames = $nrOfBatchGames->getMax();
         $this->removalDateTime = new DateTimeImmutable();
-        $this->input->getHistoricalBestPlannings()->add($this);
+        $this->orchestration->getHistoricalBestPlannings()->add($this);
     }
 
     public function getMinNrOfBatchGames(): int
@@ -77,9 +77,9 @@ class HistoricalBestPlanning extends Identifiable
         return $this->nrOfBatches;
     }
 
-    public function getInput(): PlanningOrchestration
+    public function getOrchestration(): PlanningOrchestration
     {
-        return $this->input;
+        return $this->orchestration;
     }
 
 //    public function createInputConfiguration(): InputConfiguration {

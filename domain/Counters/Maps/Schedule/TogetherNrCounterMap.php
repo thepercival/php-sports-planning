@@ -17,6 +17,7 @@ final class TogetherNrCounterMap extends DuoPlaceNrCounterMapAbstract
         parent::__construct($nrOfPlaces);
     }
 
+    #[\Override]
     public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         if( $homeAway instanceof OneVsOneHomeAway ) {

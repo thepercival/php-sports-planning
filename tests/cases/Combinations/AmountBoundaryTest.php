@@ -9,7 +9,7 @@ use SportsPlanning\Combinations\AmountBoundary;
 use SportsPlanning\Combinations\AmountRange;
 use SportsPlanning\Counters\CounterForAmount;
 
-class AmountBoundaryTest extends TestCase
+final class AmountBoundaryTest extends TestCase
 {
     public function testCountIs0(): void
     {

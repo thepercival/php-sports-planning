@@ -15,7 +15,7 @@ use SportsPlanning\Planning\HistoricalBestPlanning;
 use SportsPlanning\Planning\PlanningState;
 use SportsPlanning\Planning\PlanningType as PlanningType;
 
-class PlanningOrchestration extends Identifiable
+final class PlanningOrchestration extends Identifiable
 {
     protected DateTimeImmutable $createdAt;
     protected int $seekingPercentage = -1;
@@ -28,7 +28,6 @@ class PlanningOrchestration extends Identifiable
      * @var Collection<int|string, HistoricalBestPlanning>
      */
     protected Collection $historicalBestPlannings;
-    public readonly string $configContent;
     private readonly string $configHash;
 
     public function __construct(public readonly PlanningConfiguration $configuration) {
@@ -41,10 +40,13 @@ class PlanningOrchestration extends Identifiable
         if( $configContent === false) {
             throw new \Exception("invalid json for planningconfiguration");
         }
-        $this->configContent = $configContent;
         $this->configHash = hash('sha256', $configContent);
     }
 
+    public function getConfiguration(): PlanningConfiguration
+    {
+        return $this->configuration; //  ?? json_decode($this->configContent);
+    }
     /**
      * @return Collection<int|string, Planning>
      */

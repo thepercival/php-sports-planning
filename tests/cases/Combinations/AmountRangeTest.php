@@ -9,7 +9,7 @@ use SportsPlanning\Combinations\AmountBoundary;
 use SportsPlanning\Combinations\AmountRange;
 use SportsPlanning\Counters\CounterForAmount;
 
-class AmountRangeTest extends TestCase
+final class AmountRangeTest extends TestCase
 {
 
     public function testAmountMinimumAmountSmallerThanMaximumAmountItOne(): void

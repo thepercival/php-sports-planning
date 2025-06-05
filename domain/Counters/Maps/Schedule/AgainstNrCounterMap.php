@@ -22,6 +22,7 @@ final class AgainstNrCounterMap extends DuoPlaceNrCounterMapAbstract
 
 
 
+    #[\Override]
     public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         if( $homeAway instanceof OneVsOneHomeAway ) {

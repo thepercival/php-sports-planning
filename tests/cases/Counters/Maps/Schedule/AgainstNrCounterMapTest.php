@@ -12,7 +12,7 @@ use SportsPlanning\Counters\Maps\Schedule\AgainstNrCounterMap;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 
-class AgainstNrCounterMapTest extends TestCase
+final class AgainstNrCounterMapTest extends TestCase
 {
     public function testZeroPlacesException(): void
     {

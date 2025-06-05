@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Combinations;
 
-readonly class DuoPlaceNr implements \Stringable
+final readonly class DuoPlaceNr implements \Stringable
 {
     private string $index;
     public int $placeNrOne;
@@ -42,7 +42,7 @@ readonly class DuoPlaceNr implements \Stringable
         }, $this->getPlaceNrs() ));
     }
 
-    private function createPoweredPlaceNumber(int $placeNr): int|float
+    private function createPoweredPlaceNumber(int $placeNr): int
     {
         return pow(2, $placeNr - 1);
     }
@@ -62,6 +62,7 @@ readonly class DuoPlaceNr implements \Stringable
         return ($this->createUniqueNumber() === $duoPlace->createUniqueNumber());
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return join(' & ', $this->getPlaceNrs() );

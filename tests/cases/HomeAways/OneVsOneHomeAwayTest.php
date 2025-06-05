@@ -11,7 +11,7 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
 
-class OneVsOneHomeAwayTest extends TestCase
+final class OneVsOneHomeAwayTest extends TestCase
 {
     public function testCreateException(): void
     {

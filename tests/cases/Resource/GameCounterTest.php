@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use SportsPlanning\Referee;
 use SportsPlanning\Resource\GameCounter;
 
-class GameCounterTest extends TestCase
+final class GameCounterTest extends TestCase
 {
 
 

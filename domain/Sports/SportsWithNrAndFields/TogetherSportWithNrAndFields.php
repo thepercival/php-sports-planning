@@ -8,7 +8,7 @@ use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
 
-class TogetherSportWithNrAndFields extends SportWithNrAndFieldsAbstract
+final class TogetherSportWithNrAndFields extends SportWithNrAndFieldsAbstract
 {
     public function __construct(int $sportNr, public readonly TogetherSport $sport, int $nrOfFields)
     {

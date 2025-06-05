@@ -7,7 +7,7 @@ namespace SportsPlanning\SerializationHandler;
 use JMS\Serializer\Handler\HandlerRegistry;
 use SportsPlanning\SerializationHandler\PlanningHandler as PlanningHandler;
 
-class Subscriber
+final class Subscriber
 {
     public function __construct(/*protected DummyCreator $dummyCreator*/)
     {
@@ -16,9 +16,7 @@ class Subscriber
     public function subscribeHandlers(HandlerRegistry $registry): void
     {
         $registry->registerSubscribingHandler(new PouleHandler());
-//        $registry->registerSubscribingHandler(new SportHandler());
-        $registry->registerSubscribingHandler(new RefereeHandler());
-
+        $registry->registerSubscribingHandler(new SportWithNrOfFieldsAndNrOfCyclesHandler());
         $registry->registerSubscribingHandler(new PlanningHandler());
         $registry->registerSubscribingHandler(new AgainstGameHandler());
         $registry->registerSubscribingHandler(new TogetherGameHandler());

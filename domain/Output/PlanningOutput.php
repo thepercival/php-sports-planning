@@ -15,7 +15,7 @@ use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
 use SportsPlanning\Resource\ResourceType;
 
-class PlanningOutput extends OutputHelper
+final class PlanningOutput extends OutputHelper
 {
     public function __construct(LoggerInterface $logger = null)
     {
@@ -50,8 +50,8 @@ class PlanningOutput extends OutputHelper
         if( $timeoutState !== null ) {
             $outputs[] = 'timeoutState "' . $timeoutState->value . '"';
         }
-        if (($extra & Extra::Input->value) === Extra::Input->value) {
-            $outputs[] = $this->getInputConfigurationAsString($planning->getConfiguration());
+        if (($extra & Extra::Orchestration->value) === Extra::Orchestration->value) {
+            $outputs[] = $this->getConfigurationAsString($planning->getConfiguration());
         }
         $output = ($prefix ?? '') . join(', ', $outputs) . ($suffix ?? '');
         if( $color !== null ){
@@ -69,13 +69,13 @@ class PlanningOutput extends OutputHelper
         }
     }
 
-    public function outputInputConfig(PlanningConfiguration $planningConfig, string $prefix = null, string $suffix = null): void
+    public function outputConfiguration(PlanningConfiguration $planningConfig, string $prefix = null, string $suffix = null): void
     {
-        $output = $this->getInputConfigurationAsString($planningConfig, $prefix, $suffix);
+        $output = $this->getConfigurationAsString($planningConfig, $prefix, $suffix);
         $this->logger->info($output);
     }
 
-    public function getInputConfigurationAsString(PlanningConfiguration $planningConfig,
+    public function getConfigurationAsString(PlanningConfiguration $planningConfig,
                                                   string $prefix = null, string $suffix = null): string
     {
         $configAsString = json_encode($planningConfig);

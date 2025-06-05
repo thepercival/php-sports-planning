@@ -8,7 +8,7 @@ use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 
-class AgainstTwoVsTwoWithNrAndFields extends SportWithNrAndFieldsAbstract
+final class AgainstTwoVsTwoWithNrAndFields extends SportWithNrAndFieldsAbstract
 {
     public function __construct(int $sportNr, public readonly AgainstTwoVsTwo $sport, int $nrOfFields)
     {

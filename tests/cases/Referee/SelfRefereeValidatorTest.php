@@ -11,7 +11,7 @@ use SportsPlanning\Referee\SelfRefereeValidator;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class SelfRefereeValidatorTest extends TestCase
+final class SelfRefereeValidatorTest extends TestCase
 {
     use PlanningCreator;
 
@@ -20,14 +20,14 @@ class SelfRefereeValidatorTest extends TestCase
         $validator = new SelfRefereeValidator();
         $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $input = $this->createInput(
+        $orchestration = $this->createOrchestration(
             [3, 2, 2],
             [$sportWithNrOfFieldsAndNrOfCycles],
             $refereeInfo
         );
 
         self::assertTrue(
-            $validator->canSelfRefereeBeAvailable($input->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
+            $validator->canSelfRefereeBeAvailable($orchestration->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
         );
     }
 
@@ -36,10 +36,10 @@ class SelfRefereeValidatorTest extends TestCase
         $validator = new SelfRefereeValidator();
         $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $input = $this->createInput([2], [$sportWithNrOfFieldsAndNrOfCycles], $refereeInfo);
+        $orchestration = $this->createOrchestration([2], [$sportWithNrOfFieldsAndNrOfCycles], $refereeInfo);
 
         self::assertFalse(
-            $validator->canSelfRefereeBeAvailable($input->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
+            $validator->canSelfRefereeBeAvailable($orchestration->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
         );
     }
 
@@ -48,14 +48,14 @@ class SelfRefereeValidatorTest extends TestCase
         $validator = new SelfRefereeValidator();
         $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $input = $this->createInput(
+        $orchestration = $this->createOrchestration(
             [2, 2],
             [$sportWithNrOfFieldsAndNrOfCycles],
             $refereeInfo
         );
 
         self::assertFalse(
-            $validator->canSelfRefereeSamePouleBeAvailable($input->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
+            $validator->canSelfRefereeSamePouleBeAvailable($orchestration->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
         );
     }
 
@@ -64,14 +64,14 @@ class SelfRefereeValidatorTest extends TestCase
         $validator = new SelfRefereeValidator();
         $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $input = $this->createInput(
+        $orchestration = $this->createOrchestration(
             [3, 2],
             [$sportWithNrOfFieldsAndNrOfCycles],
             $refereeInfo
         );
 
         self::assertFalse(
-            $validator->canSelfRefereeSamePouleBeAvailable($input->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
+            $validator->canSelfRefereeSamePouleBeAvailable($orchestration->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
         );
     }
 
@@ -80,14 +80,14 @@ class SelfRefereeValidatorTest extends TestCase
         $validator = new SelfRefereeValidator();
         $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $input = $this->createInput(
+        $orchestration = $this->createOrchestration(
             [3, 3],
             [$sportWithNrOfFieldsAndNrOfCycles],
             $refereeInfo
         );
 
         self::assertTrue(
-            $validator->canSelfRefereeSamePouleBeAvailable($input->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
+            $validator->canSelfRefereeSamePouleBeAvailable($orchestration->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
         );
     }
 
@@ -96,10 +96,10 @@ class SelfRefereeValidatorTest extends TestCase
         $validator = new SelfRefereeValidator();
         $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $input = $this->createInput([3], [$sportWithNrOfFieldsAndNrOfCycles], $refereeInfo);
+        $orchestration = $this->createOrchestration([3], [$sportWithNrOfFieldsAndNrOfCycles], $refereeInfo);
 
         self::assertFalse(
-            $validator->canSelfRefereeOtherPoulesBeAvailable($input->configuration->pouleStructure)
+            $validator->canSelfRefereeOtherPoulesBeAvailable($orchestration->configuration->pouleStructure)
         );
     }
 
@@ -108,14 +108,14 @@ class SelfRefereeValidatorTest extends TestCase
         $validator = new SelfRefereeValidator();
         $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $input = $this->createInput(
+        $orchestration = $this->createOrchestration(
             [2, 2],
             [$sportWithNrOfFieldsAndNrOfCycles],
             $refereeInfo
         );
 
         self::assertTrue(
-            $validator->canSelfRefereeOtherPoulesBeAvailable($input->configuration->pouleStructure)
+            $validator->canSelfRefereeOtherPoulesBeAvailable($orchestration->configuration->pouleStructure)
         );
     }
 }

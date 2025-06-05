@@ -13,10 +13,18 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
+          extensions: xdebug intl
+          tools: phpunit
+          coverage: xdebug
 
-      - uses: php-actions/composer@v6
-        with:
-          php_version: "8.3"
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: View Version
+        run: composer -V
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: PHPUnit Tests
         uses: php-actions/phpunit@v4

@@ -2,7 +2,7 @@
 
 namespace SportsPlanning\Planning;
 
-class PlanningValidity
+final class PlanningValidity
 {
     public const int NOT_VALIDATED = -1;
     public const int VALID = 0;

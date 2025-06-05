@@ -6,7 +6,7 @@ namespace SportsPlanning\Game;
 
 use SportsHelpers\Against\AgainstSide;
 
-readonly class AgainstGamePlace extends GamePlaceAbstract
+final readonly class AgainstGamePlace extends GamePlaceAbstract
 {
     public function __construct(public AgainstSide $side, int $placeNr )
     {

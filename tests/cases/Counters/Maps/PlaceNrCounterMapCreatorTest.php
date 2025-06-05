@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 use SportsPlanning\Counters\Maps\PlaceNrCounterMapCreator;
 
-class PlaceNrCounterMapCreatorTest extends TestCase
+final class PlaceNrCounterMapCreatorTest extends TestCase
 {
     public function testItOne(): void
     {

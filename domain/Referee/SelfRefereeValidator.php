@@ -10,7 +10,7 @@ use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 
-class SelfRefereeValidator
+final class SelfRefereeValidator
 {
     public function __construct()
     {

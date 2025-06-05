@@ -10,7 +10,7 @@ use SportsPlanning\Combinations\DuoPlaceNr;
 /**
  * @template-extends Counter<DuoPlaceNr>
  */
-readonly class CounterForDuoPlaceNr extends Counter implements \Stringable
+final readonly class CounterForDuoPlaceNr extends Counter implements \Stringable
 {
     public function __construct(DuoPlaceNr $duoPlace, int $count = 0)
     {
@@ -40,8 +40,9 @@ readonly class CounterForDuoPlaceNr extends Counter implements \Stringable
         return $this->getDuoPlaceNr()->getIndex();
     }
 
+    #[\Override]
     public function __toString(): string
     {
-        return $this->countedObject . ' ' . $this->count() . 'x';
+        return (string)$this->countedObject . ' ' . $this->count() . 'x';
     }
 }

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use SportsPlanning\Counters\CounterForPlaceNr;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class PlaceTest extends TestCase
+final class PlaceTest extends TestCase
 {
     use PlanningCreator;
 

@@ -5,7 +5,7 @@ namespace SportsPlanning\Batches;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
-class SelfRefereeBatchOtherPoules extends SelfRefereeBatchAbstract
+final class SelfRefereeBatchOtherPoules extends SelfRefereeBatchAbstract
 {
     /**
      * @param list<Poule> $poules
@@ -43,6 +43,7 @@ class SelfRefereeBatchOtherPoules extends SelfRefereeBatchAbstract
     /**
      * @return array<string,int>
      */
+    #[\Override]
     protected function getForcedRefereePlacesMap(): array
     {
         $forcedRefereePlacesMap = [];

@@ -16,7 +16,7 @@ use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class AgainstTwoVsTwoWithNrOfPlacesTest extends TestCase
+ final class AgainstTwoVsTwoWithNrOfPlacesTest extends TestCase
 {
     use PlanningCreator;
 

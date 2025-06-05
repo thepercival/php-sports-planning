@@ -16,7 +16,7 @@ use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
 use SportsPlanning\Sports\SportWithNrOfCycles;
 
-class ScheduleCyclePartAgainstOneVsOneTest extends TestCase
+final class ScheduleCyclePartAgainstOneVsOneTest extends TestCase
 {
     public function testCyclePartNr(): void
     {

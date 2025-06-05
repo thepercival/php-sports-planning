@@ -10,7 +10,7 @@ use SportsPlanning\Field;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
-class AgainstGame extends GameAbstract
+final class AgainstGame extends GameAbstract
 {
     /**
      * @psalm-var list<AgainstGamePlace>

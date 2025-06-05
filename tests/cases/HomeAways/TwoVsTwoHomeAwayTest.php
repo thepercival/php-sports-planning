@@ -11,7 +11,7 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-class TwoVsTwoHomeAwayTest extends TestCase
+final class TwoVsTwoHomeAwayTest extends TestCase
 {
 
     public function testGetHomeAndGetAway(): void

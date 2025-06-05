@@ -9,14 +9,14 @@ use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
-use SportsPlanning\PlanningConfiguration as InputConfiguration;
-use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
+use SportsPlanning\PlanningConfiguration;
+use SportsPlanning\PlanningPouleStructure;
 use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Referee\SelfRefereeValidator;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
-class PlanningConfigurationModerator
+final class PlanningConfigurationModerator
 {
     public function __construct()
     {
@@ -28,12 +28,12 @@ class PlanningConfigurationModerator
      * @param PlanningRefereeInfo $refereeInfo
      * @param bool $perPoule
      */
-    public function createReducedAndValidatedInputConfiguration(
+    public function createReducedAndValidatedConfiguration(
         PouleStructure $pouleStructure,
         array $sportsWithNrOfFieldsAndNrOfCycles,
         PlanningRefereeInfo $refereeInfo,
         bool $perPoule
-        ): InputConfiguration
+        ): PlanningConfiguration
     {
         $sports = array_map( function(SportWithNrOfFieldsAndNrOfCycles $sportWithNrOfFieldsAndNrOfCycles): AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo|TogetherSport{
                 return $sportWithNrOfFieldsAndNrOfCycles->sport;
@@ -42,7 +42,7 @@ class PlanningConfigurationModerator
         $validatedRefereeInfo = $this->getValidatedRefereeInfo($refereeInfo, $pouleStructure, $sports);
 
         $efficientSports = $this->reduceFields($pouleStructure, $sportsWithNrOfFieldsAndNrOfCycles, $validatedRefereeInfo);
-        return new InputConfiguration(
+        return new PlanningConfiguration(
             $pouleStructure,
             $efficientSports,
             $validatedRefereeInfo,

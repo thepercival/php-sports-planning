@@ -12,7 +12,7 @@ use SportsPlanning\Sports\SportWithNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfPlaces\SportWithNrOfPlacesInterface;
 use SportsPlanning\Sports\SportWithNrOfPlaces\TogetherSportWithNrOfPlaces;
 
-class ScheduleTogetherSport extends ScheduleSportAbstract
+final class ScheduleTogetherSport extends ScheduleSportAbstract
 {
     public function __construct(
         ScheduleWithNrOfPlaces $scheduleWithNrOfPlaces,

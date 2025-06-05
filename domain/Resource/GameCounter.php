@@ -35,6 +35,7 @@ readonly class GameCounter extends Counter implements \Stringable
         return $this->count();
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->getIndex() . ':' . $this->getNrOfGames();

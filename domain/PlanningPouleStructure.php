@@ -14,7 +14,7 @@ use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
-readonly class PlanningPouleStructure
+final readonly class PlanningPouleStructure
 {
     /**
      * @param PouleStructure $pouleStructure
@@ -130,7 +130,9 @@ readonly class PlanningPouleStructure
         $biggestPouleNrOfPlaces = $pouleStructure->getBiggestPoule();
         $nrOfPoulesByNrOfPlaces = $pouleStructure->getNrOfPoulesByNrOfPlaces();
         $nrOfPlaces = key($nrOfPoulesByNrOfPlaces);
-        $nrOfPlaces *= $nrOfPoulesByNrOfPlaces[$nrOfPlaces];
+        if( $nrOfPlaces === null) {
+            throw new \Exception('unknown nrOfPoulesByNrOfPlaces');
+        }
         $maxNrOfBatchPlaces = $this->getMaxNrOfPlacesPerBatch();
 
         $nrOfRestPlaces = $nrOfPlaces - $maxNrOfBatchPlaces;

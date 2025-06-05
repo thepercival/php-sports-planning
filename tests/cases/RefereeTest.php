@@ -7,7 +7,7 @@ namespace SportsPlanning\Tests;
 use PHPUnit\Framework\TestCase;
 use SportsPlanning\Referee;
 
-class RefereeTest extends TestCase
+final class RefereeTest extends TestCase
 {
 
 

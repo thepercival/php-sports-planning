@@ -7,7 +7,7 @@ namespace SportsPlanning\Tests\Combinations;
 use PHPUnit\Framework\TestCase;
 use SportsPlanning\Counters\CounterForAmount;
 
-class AmountTest extends TestCase
+final class AmountTest extends TestCase
 {
 
     public function testAmountSmallerThanOne(): void

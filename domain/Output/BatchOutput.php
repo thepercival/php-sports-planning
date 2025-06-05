@@ -14,7 +14,7 @@ use SportsPlanning\Game\AgainstGame;
 use SportsPlanning\Game\TogetherGame;
 use SportsPlanning\Place;
 
-class BatchOutput extends OutputHelper
+final class BatchOutput extends OutputHelper
 {
     private GameOutput $gameOutput;
     private PlaceOutput $placeOutput;

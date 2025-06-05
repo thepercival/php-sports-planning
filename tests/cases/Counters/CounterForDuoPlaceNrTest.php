@@ -9,7 +9,7 @@ use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Counters\CounterForDuoPlaceNr;
 use SportsPlanning\Counters\CounterForPlaceNr;
 
-class CounterForDuoPlaceNrTest extends TestCase
+final class CounterForDuoPlaceNrTest extends TestCase
 {
     public function testCountSmallerThanZero(): void
     {

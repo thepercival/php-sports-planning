@@ -11,7 +11,7 @@ use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
 use SportsHelpers\SportRange;
-use SportsPlanning\PlanningConfiguration as InputConfiguration;
+use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\Field;
 use SportsPlanning\Game\AgainstGame as AgainstGame;
 use SportsPlanning\Game\TogetherGame as TogetherGame;
@@ -23,9 +23,9 @@ use SportsPlanning\Poule;
 /**
  * @psalm-type _AgainstGame = array{fieldUniqueIndex: string, pouleNr: int, refereePlaceLocation: string|null}
  * @psalm-type _TogetherGame = array{fieldUniqueIndex: string, pouleNr: int}
- * @psalm-type _FieldValue = array{inputConfiguration: InputConfiguration, againstGames: list<_AgainstGame>, togetherGames: list<_TogetherGame>, minNrOfBatchGames: int, maxNrOfBatchGames: int, maxNrOfGamesInARow: int, createdDateTime: string, nrOfBatches: int, state: string, validity: int}
+ * @psalm-type _FieldValue = array{planningConfiguration: PlanningConfiguration, againstGames: list<_AgainstGame>, togetherGames: list<_TogetherGame>, minNrOfBatchGames: int, maxNrOfBatchGames: int, maxNrOfGamesInARow: int, createdDateTime: string, nrOfBatches: int, state: string, validity: int}
  */
-class PlanningHandler extends Handler implements SubscribingHandlerInterface
+final class PlanningHandler extends Handler implements SubscribingHandlerInterface
 {
     public function __construct(/*protected DummyCreator $dummyCreator*/)
     {
@@ -34,6 +34,7 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
     /**
      * @psalm-return list<array<string, int|string>>
      */
+    #[\Override]
     public static function getSubscribingMethods(): array
     {
         return static::getDeserializationMethods(Planning::class);
@@ -52,29 +53,29 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
         array $type,
         Context $context
     ): Planning {
-        /** @var InputConfiguration|null $inputConfiguration */
-        $inputConfiguration = $this->getProperty(
+        /** @var PlanningConfiguration|null $planningConfiguration */
+        $planningConfiguration = $this->getProperty(
             $visitor,
             $fieldValue,
-            'inputConfiguration',
-            InputConfiguration::class
+            'planningConfiguration',
+            PlanningConfiguration::class
         );
-        if ($inputConfiguration === null ) {
-            throw new \Exception('malformd json => no valid inputConfiguration', E_ERROR);
+        if ($planningConfiguration === null ) {
+            throw new \Exception('malformd json => no valid planningConfiguration', E_ERROR);
         }
 
-        $input = new PlanningOrchestration($inputConfiguration);
+        $orchestration = new PlanningOrchestration($planningConfiguration);
         $nrOfBatchGamesRange = new SportRange($fieldValue['minNrOfBatchGames'], $fieldValue['maxNrOfBatchGames']);
-        $planning = new Planning($input, $nrOfBatchGamesRange, $fieldValue['maxNrOfGamesInARow']);
+        $planning = new Planning($orchestration, $nrOfBatchGamesRange, $fieldValue['maxNrOfGamesInARow']);
 
         $planning->setCreatedDateTime(new DateTimeImmutable($fieldValue['createdDateTime']));
         $planning->setNrOfBatches($fieldValue['nrOfBatches']);
         $planning->setState(Planning\PlanningState::from($fieldValue['state']));
         $planning->setValidity($fieldValue['validity']);
 
-        $pouleMap = $this->getPouleMap($input->getPoules());
-        $placeLocationMap = $this->getPlaceLocationMap($input->getPoules());
-        $fieldMap = $this->getFieldMap($input->getFields());
+        $pouleMap = $this->getPouleMap($planning->poules);
+        $placeLocationMap = $this->getPlaceLocationMap($planning->poules);
+        $fieldMap = $this->getFieldMap($planning->getFields());
 
         foreach ($fieldValue["againstGames"] as $arrAgainstGame) {
             $fieldValue["againstGame"] = $arrAgainstGame;
@@ -111,25 +112,25 @@ class PlanningHandler extends Handler implements SubscribingHandlerInterface
     }
 
     /**
-     * @param Collection<int|string, Poule> $poules
+     * @param list<Poule> $poules
      * @return array<int, Poule>
      */
-    private function getPouleMap(Collection $poules): array {
+    private function getPouleMap(array $poules): array {
         $pouleMap = [];
         foreach ( $poules as $poule ) {
-            $pouleMap[$poule->getNumber()] = $poule;
+            $pouleMap[$poule->pouleNr] = $poule;
         }
         return $pouleMap;
     }
 
     /**
-     * @param Collection<int|string, Poule> $poules
+     * @param list<Poule> $poules
      * @return array<string, Place>
      */
-    private function getPlaceLocationMap(Collection $poules): array {
+    private function getPlaceLocationMap(array $poules): array {
         $placeLocationMap = [];
         foreach ( $poules as $poule ) {
-            foreach ( $poule->getPlaces() as $place ) {
+            foreach ( $poule->places as $place ) {
                 $placeLocationMap[$place->getUniqueIndex()] = $place;
             }
         }

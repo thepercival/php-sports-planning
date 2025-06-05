@@ -10,7 +10,7 @@ use SportsPlanning\Combinations\AmountCalculator;
 use SportsPlanning\Combinations\AmountRange;
 use SportsPlanning\Counters\CounterForAmount;
 
-class AmountCalculatorTest extends TestCase
+final class AmountCalculatorTest extends TestCase
 {
     public function testSmallerThanMinItOne(): void
     {

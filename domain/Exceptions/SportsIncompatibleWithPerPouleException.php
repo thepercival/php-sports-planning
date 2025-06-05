@@ -8,7 +8,7 @@ use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 
-class SportsIncompatibleWithPerPouleException  extends \Exception
+final class SportsIncompatibleWithPerPouleException  extends \Exception
 {
     /**
      * @param PouleStructure $pouleStructure

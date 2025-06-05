@@ -8,7 +8,7 @@ use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 
-class SportsIncompatibleWithPouleStructureException  extends \Exception
+final class SportsIncompatibleWithPouleStructureException  extends \Exception
 {
     /**
      * @param PouleStructure $pouleStructure
@@ -23,7 +23,9 @@ class SportsIncompatibleWithPouleStructureException  extends \Exception
                 return "a(".$sport->nrOfHomePlaces."vs".$sport->nrOfAwayPlaces.")";
             }, $sports );
         $sportVariantsAsString = 'sports "[' . join(',', $sportDescriptions ) . ']"';
-        $pouleStructureAsString = 'poulestructure: '. json_encode($pouleStructure);
+        $pouleStructureJson = json_encode($pouleStructure);
+        $pouleStructureJson = $pouleStructureJson === false ? '?' : $pouleStructureJson;
+        $pouleStructureAsString = 'poulestructure: '. $pouleStructureJson;
         parent::__construct(' maxNrOfGamePlaces > nrOfPoulePlaces with ' .
             $pouleStructureAsString . ' and ' . $sportVariantsAsString, E_ERROR);
     }

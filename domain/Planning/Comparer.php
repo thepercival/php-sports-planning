@@ -6,7 +6,7 @@ namespace SportsPlanning\Planning;
 
 use SportsPlanning\Planning;
 
-class Comparer
+final class Comparer
 {
     public function compare(Planning|HistoricalBestPlanning $first, Planning|HistoricalBestPlanning $second): int
     {

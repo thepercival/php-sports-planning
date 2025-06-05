@@ -20,6 +20,7 @@ final class AmountNrCounterMap extends PlaceNrCounterMapAbstract
         parent::__construct($nrOfPlaces);
     }
 
+    #[\Override]
     public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         foreach( $homeAway->convertToPlaceNrs() as $placeNr ) {

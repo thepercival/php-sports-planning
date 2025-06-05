@@ -14,7 +14,7 @@ use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
 use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsTwo;
 use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstTwoVsTwo;
 
-class ScheduleCyclePartAgainstOutput extends OutputHelper
+final class ScheduleCyclePartAgainstOutput extends OutputHelper
 {
     private HomeAwayOutput $homeAwayOutput;
 

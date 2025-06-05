@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\TestHelper;
 
 use Monolog\Handler\StreamHandler;
+use Monolog\Level;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\PouleStructures\PouleStructure;
@@ -30,7 +31,7 @@ trait PlanningCreator
 //        $processor = new UidProcessor();
 //        $logger->pushProcessor($processor);
 
-        $handler = new StreamHandler('php://stdout', Logger::INFO);
+        $handler = new StreamHandler('php://stdout', Level::Info);
         $logger->pushHandler($handler);
         return $logger;
     }
@@ -46,12 +47,12 @@ trait PlanningCreator
      * @param PlanningRefereeInfo|null $refereeInfo
      * @return PlanningOrchestration
      */
-    protected function createInput(
+    protected function createOrchestration(
         array $pouleStructureAsArray,
         array $sportsWithNrOfFieldsAndNrOfCycles = null,
         PlanningRefereeInfo|null $refereeInfo = null,
         bool $perPoule = false
-    ) {
+    ): PlanningOrchestration {
         if ($sportsWithNrOfFieldsAndNrOfCycles === null) {
             $sportsWithNrOfFieldsAndNrOfCycles = [
                 new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1)
@@ -61,19 +62,19 @@ trait PlanningCreator
             $refereeInfo = new PlanningRefereeInfo($this->getDefaultNrOfReferees());
         }
         $configurationValidator = new \SportsPlanning\PlanningConfigurationModerator();
-        $configuration = $configurationValidator->createReducedAndValidatedInputConfiguration(
+        $configuration = $configurationValidator->createReducedAndValidatedConfiguration(
             new PouleStructure(...$pouleStructureAsArray),
             $sportsWithNrOfFieldsAndNrOfCycles,
             $refereeInfo,
             $perPoule
         );
-        $input = new PlanningOrchestration( $configuration );
+        $orchestration = new PlanningOrchestration( $configuration );
 
-        return $input;
+        return $orchestration;
     }
 
 //    protected function createPlanning(
-//        Input $input,
+//        Input $orchestration,
 //        SportRange $nrOfGamesPerBatchRange = null,
 //        int $maxNrOfGamesInARow = 0,
 //        bool $disableThrowOnTimeout = false,

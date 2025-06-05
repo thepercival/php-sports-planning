@@ -35,7 +35,7 @@ use SportsPlanning\Sports\SportsWithNrAndFields\AgainstTwoVsTwoWithNrAndFields;
 use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
-class Planning extends Identifiable
+final class Planning extends Identifiable
 {
     public readonly int $minNrOfBatchGames;
     public readonly int $maxNrOfBatchGames;

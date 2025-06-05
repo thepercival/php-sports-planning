@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 
-class AmountNrCounterMapTest extends TestCase
+final class AmountNrCounterMapTest extends TestCase
 {
 
     public function testWithNrOfPlaces(): void

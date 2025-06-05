@@ -36,6 +36,7 @@ readonly abstract class HomeAwayAbstract implements \Stringable
        return $this->index;
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->index;

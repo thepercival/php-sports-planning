@@ -21,7 +21,7 @@ use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class SelfRefereeBatchSamePouleTest extends TestCase
+final class SelfRefereeBatchSamePouleTest extends TestCase
 {
     use PlanningCreator;
 
@@ -31,12 +31,9 @@ class SelfRefereeBatchSamePouleTest extends TestCase
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1)
         ];
         $planningRefereeInfo = new PlanningRefereeInfo();
-        $input = $this->createInput([5],$sportsWithNrOfFieldsAndNrOfCycles, $planningRefereeInfo);
+        $orchestration = $this->createOrchestration([5],$sportsWithNrOfFieldsAndNrOfCycles, $planningRefereeInfo);
 
-        $planning = new Planning(
-            $input, new SportRange(2,2),
-            2
-        );
+        $planning = new Planning($orchestration, new SportRange(2,2),2);
         $poule = $planning->getPoule(1);
         $sport = $planning->getSport(1);
         $field = $sport->getField(1);

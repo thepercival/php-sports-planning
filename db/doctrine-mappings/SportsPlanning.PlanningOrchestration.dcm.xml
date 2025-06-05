@@ -3,15 +3,15 @@
   	<entity name="SportsPlanning\PlanningOrchestration" table="planningOrchestrations">
 		<field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
 	  	<field name="seekingPercentage" column="seekingPercentage" type="smallint" nullable="false" unique="false"/>
-	  	<field name="configContent" column="configContent" type="text" length="700" nullable="false" unique="false"/>
+	  	<field name="configContent" column="configContent" type="json" nullable="false" unique="false"/>
 		<field name="configHash" column="configHash" type="string" length="256" nullable="false" unique="true"/>
-	  	<one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="input">
+	  	<one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="orchestration">
 			<cascade>
 				<cascade-remove/>
 		  	</cascade>
 	  	</one-to-many>
 
-		<one-to-many field="historicalBestPlannings" target-entity="SportsPlanning\Planning\HistoricalBestPlanning" mapped-by="input">
+		<one-to-many field="historicalBestPlannings" target-entity="SportsPlanning\Planning\HistoricalBestPlanning" mapped-by="orchestration">
 			<cascade>
 				<cascade-remove/>
 			</cascade>

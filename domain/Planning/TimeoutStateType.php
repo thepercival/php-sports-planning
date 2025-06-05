@@ -5,13 +5,15 @@ namespace SportsPlanning\Planning;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use SportsHelpers\DbEnums\EnumDbType;
 
-class TimeoutStateType extends EnumDbType
+final class TimeoutStateType extends EnumDbType
 {
+    #[\Override]
     public static function getNameHelper(): string
     {
         return 'enum_PlanningTimeoutState';
     }
 
+    #[\Override]
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === TimeoutState::Time1xNoSort->value) {
@@ -32,7 +34,8 @@ class TimeoutStateType extends EnumDbType
         return null;
     }
 
-    public function getSQLDeclaration(array $column, AbstractPlatform $platform)
+    #[\Override]
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return 'varchar(20)';
     }

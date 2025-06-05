@@ -7,7 +7,7 @@ namespace SportsPlanning\Tests\Counters;
 use PHPUnit\Framework\TestCase;
 use SportsPlanning\Counters\CounterForAmount;
 
-class CounterForAmountTest extends TestCase
+final class CounterForAmountTest extends TestCase
 {
 
     public function testIncrement(): void

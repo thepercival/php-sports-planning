@@ -3,8 +3,8 @@ SportsPlanning\PlanningConfiguration:
   exclude: false
   properties:
     pouleStructure:
-      type: SportsHelpers\PouleStructure
-    sportVariantsWithFields:
+      type: SportsHelpers\PouleStructures\PouleStructure
+    sportsWithNrOfFieldsAndNrOfCycles:
       type: array<SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles>
     refereeInfo:
       type: SportsPlanning\Referee\PlanningRefereeInfo

@@ -5,14 +5,16 @@ namespace SportsPlanning\Exceptions;
 use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Planning\PlanningState;
 use SportsPlanning\Planning\PlanningType;
-class NoBestPlanningException extends \Exception
+final class NoBestPlanningException extends \Exception
 {
-    public function __construct(PlanningOrchestration $input, PlanningType|null $planningType) {
+    public function __construct(PlanningOrchestration $orchestration, PlanningType|null $planningType) {
         $msg = 'no planning with state "' . PlanningState::Succeeded->value . '"';
         if( $planningType !== null) {
             $msg .= ' and type "' . $planningType->value . '"';
         }
-        $msg .= ' found for input "' . $input->configContent . '"';
+        $configurationJson = json_encode($orchestration->configuration);
+        $configurationJson = $configurationJson === false ? '?' : $configurationJson;
+        $msg .= ' found for config "' . $configurationJson . '"';
         parent::__construct( $msg, E_ERROR );
     }
 }

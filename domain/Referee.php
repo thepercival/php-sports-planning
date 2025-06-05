@@ -4,7 +4,7 @@ namespace SportsPlanning;
 
 use SportsHelpers\Identifiable;
 
-class Referee extends Identifiable implements Resource
+final class Referee extends Identifiable implements Resource
 {
     public int $priority;
 
@@ -13,6 +13,7 @@ class Referee extends Identifiable implements Resource
         $this->priority = 1;
     }
 
+    #[\Override]
     public function getUniqueIndex(): string
     {
         return (string)$this->refereeNr;

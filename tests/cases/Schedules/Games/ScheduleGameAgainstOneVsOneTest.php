@@ -13,7 +13,7 @@ use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
 use SportsPlanning\Sports\SportWithNrOfCycles;
 
-class ScheduleGameAgainstOneVsOneTest extends TestCase
+final class ScheduleGameAgainstOneVsOneTest extends TestCase
 {
     public function testGetSidePlaceNrs(): void
     {

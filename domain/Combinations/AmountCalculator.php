@@ -4,7 +4,7 @@ namespace SportsPlanning\Combinations;
 
 use SportsPlanning\Counters\CounterForAmount;
 
-readonly class AmountCalculator
+final readonly class AmountCalculator
 {
     public function __construct() {
 

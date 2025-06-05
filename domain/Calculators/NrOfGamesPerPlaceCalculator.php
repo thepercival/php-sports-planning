@@ -7,7 +7,7 @@ use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 
-class NrOfGamesPerPlaceCalculator
+final class NrOfGamesPerPlaceCalculator
 {
     public function calculate(
         int $nrOfPlaces,

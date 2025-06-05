@@ -11,7 +11,7 @@ use SportsPlanning\Schedules\Sports\ScheduleTogetherSport;
 /**
  * @template-extends ListNode<ScheduleCycleTogether>
  */
-class ScheduleCycleTogether extends ListNode
+final class ScheduleCycleTogether extends ListNode
 {
     /**
      * @var list<ScheduleGameTogether>

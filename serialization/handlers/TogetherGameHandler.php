@@ -4,24 +4,19 @@ declare(strict_types=1);
 
 namespace SportsPlanning\SerializationHandler;
 
-//use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Context;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
 use SportsPlanning\Field;
 use SportsPlanning\Game\TogetherGame as TogetherGame;
 use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
-use SportsPlanning\Place;
-use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Referee;
 
 /**
- * @psalm-type _TogetherGamePlace = array{side: string, placeLocation: string, gameRoundNumber: int}
- * @psalm-type _Referee = array{number: int, priority: int}
- * @psalm-type _TogetherGame = array{planning: Planning, poule: Poule, places: list<_TogetherGamePlace> ,field: Field, refereePlaceLocation: string|null, referee: _Referee|null, batchNr: int, placeLocationMap : array<string, Place>}
+ * @psalm-type _TogetherGamePlace = array{placeNr: int, cycleNr: int}
+ * @psalm-type _TogetherGame = array{poule: Poule, gamePlaces: list<_TogetherGamePlace>, field: Field, refereePlaceUniqueIndex: string|null, refereeNr: int|null, batchNr: int}
  */
-class TogetherGameHandler extends Handler implements SubscribingHandlerInterface
+final class TogetherGameHandler extends Handler implements SubscribingHandlerInterface
 {
     public function __construct(/*protected DummyCreator $dummyCreator*/)
     {
@@ -30,6 +25,7 @@ class TogetherGameHandler extends Handler implements SubscribingHandlerInterface
     /**
      * @psalm-return list<array<string, int|string>>
      */
+    #[\Override]
     public static function getSubscribingMethods(): array
     {
         return static::getDeserializationMethods(TogetherGame::class);
@@ -49,38 +45,19 @@ class TogetherGameHandler extends Handler implements SubscribingHandlerInterface
         Context $context
     ): TogetherGame {
 
-        $togetherGame = new TogetherGame(
-            $fieldValue['planning'],
-            $fieldValue['poule'],
-            $fieldValue['field']);
+        $togetherGame = new TogetherGame($fieldValue['poule'],$fieldValue['field']);
 
         $togetherGame->setBatchNr($fieldValue['batchNr']);
 
-        $placeLocationMap = $fieldValue['placeLocationMap'];
-        $refereePlace = null;
-        if( isset($fieldValue['refereePlaceLocation'])) {
-            $refereePlace = $placeLocationMap[ $fieldValue['refereePlaceLocation'] ];
+        if( isset($fieldValue['refereePlaceUniqueIndex'])) {
+            $togetherGame->setRefereePlaceUniqueIndex( $fieldValue['refereePlaceUniqueIndex'] );
+        }
+        if( isset($fieldValue['refereeNr'])) {
+            $togetherGame->setRefereeNr( $fieldValue['refereeNr'] );
         }
 
-        $togetherGame->setRefereePlace($refereePlace);
-
-        if( isset($fieldValue['referee'])) {
-            $fieldValue["referee"]["input"] = $togetherGame->getPlanning()->getInput();
-            /** @var Referee|null $referee */
-            $referee = $this->getProperty(
-                $visitor,
-                $fieldValue,
-                'referee',
-                Referee::class
-            );
-            if( $referee !== null) {
-                $togetherGame->setReferee($referee);
-            }
-        }
-
-        foreach ($fieldValue['places'] as $arrGamePlace) {
-            $place = $placeLocationMap[ $arrGamePlace['placeLocation'] ];
-            new TogetherGamePlace($togetherGame, $place, $arrGamePlace['gameRoundNumber']);
+        foreach ($fieldValue['gamePlaces'] as $arrGamePlace) {
+            $togetherGame->addGamePlace(new TogetherGamePlace($arrGamePlace['placeNr'], $arrGamePlace['cycleNr']));
         }
         return $togetherGame;
     }

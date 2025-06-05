@@ -12,7 +12,7 @@ use SportsPlanning\Sports\SportWithNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstOneVsTwoWithNrOfPlaces;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 
-class ScheduleAgainstTwoVsTwo extends ScheduleSportAbstract
+final class ScheduleAgainstTwoVsTwo extends ScheduleSportAbstract
 {
     public function __construct(ScheduleWithNrOfPlaces $schedule, int $number, public readonly AgainstTwoVsTwo $sport,
                                 int $nrOfCycles)

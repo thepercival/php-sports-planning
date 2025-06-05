@@ -12,7 +12,7 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-class RangedDuoPlaceNrCounterMap extends RangedNrCounterMapAbstract
+final class RangedDuoPlaceNrCounterMap extends RangedNrCounterMapAbstract
 {
     // private int|null $shortage = null;
     // private bool|null $overAssigned = null;
@@ -48,6 +48,7 @@ class RangedDuoPlaceNrCounterMap extends RangedNrCounterMapAbstract
         return $this->map->count($duoPlaceNr);
     }
 
+    #[\Override]
     public function createPerAmountReport(): DuoPlaceNrCountersPerAmountReport
     {
         return new DuoPlaceNrCountersPerAmountReport($this->map);

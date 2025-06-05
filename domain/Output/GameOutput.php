@@ -18,7 +18,7 @@ use SportsPlanning\Game\TogetherGame;
 use SportsPlanning\Output\PlaceOutput;
 use SportsPlanning\Place;
 
-class GameOutput extends OutputHelper
+final class GameOutput extends OutputHelper
 {
     private PlaceOutput $placeOutput;
 

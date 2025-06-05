@@ -8,12 +8,12 @@ use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Place;
 
-readonly class TwoVsTwoHomeAway extends HomeAwayAbstract
+final readonly class TwoVsTwoHomeAway extends HomeAwayAbstract
 {
 
     public function __construct(private DuoPlaceNr $home, private DuoPlaceNr $away)
     {
-        parent::__construct( $home . ' vs ' . $away);
+        parent::__construct( (string)$home . ' vs ' . (string)$away);
     }
 
     public function get(AgainstSide $side): DuoPlaceNr
@@ -112,6 +112,7 @@ readonly class TwoVsTwoHomeAway extends HomeAwayAbstract
      * @param AgainstSide|null $side
      * @return list<int>
      */
+    #[\Override]
     public function convertToPlaceNrs(AgainstSide|null $side = null): array {
         if( $side === AgainstSide::Home ) {
             return $this->home->getPlaceNrs();

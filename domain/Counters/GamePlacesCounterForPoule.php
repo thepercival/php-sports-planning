@@ -7,7 +7,7 @@ namespace SportsPlanning\Counters;
 use SportsHelpers\Counter;
 use SportsPlanning\Poule;
 
-readonly class GamePlacesCounterForPoule
+final readonly class GamePlacesCounterForPoule
 {
     /**
      * @var Counter<Poule>

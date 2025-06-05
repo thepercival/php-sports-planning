@@ -10,7 +10,7 @@ use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 
-class OneVsTwoHomeAwayTest extends TestCase
+final class OneVsTwoHomeAwayTest extends TestCase
 {
 
     public function testGetHomeAndGetAway(): void

@@ -15,7 +15,7 @@ use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
 use SportsPlanning\Schedules\Sports\ScheduleTogetherSport;
 use SportsPlanning\Sports\SportWithNrOfCycles;
 
-class ScheduleCycleTogetherTest extends TestCase
+final class ScheduleCycleTogetherTest extends TestCase
 {
 
     public function testCreateNext(): void

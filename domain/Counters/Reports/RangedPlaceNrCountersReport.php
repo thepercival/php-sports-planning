@@ -8,7 +8,7 @@ use SportsPlanning\Counters\Maps\PlaceNrCounterMapAbstract;
 use SportsPlanning\Counters\Maps\Schedule\AmountNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\SideNrCounterMap;
 
-readonly class RangedPlaceNrCountersReport
+final readonly class RangedPlaceNrCountersReport
 {
     // private int|null $shortage = null;
     // private bool|null $overAssigned = null;

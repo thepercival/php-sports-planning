@@ -9,14 +9,14 @@ use SportsPlanning\Counters\GamePlacesCounterForPoule;
 use SportsPlanning\Planning;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class PouleCounterTest extends \PHPUnit\Framework\TestCase
+final class PouleCounterTest extends \PHPUnit\Framework\TestCase
 {
     use PlanningCreator;
 
     public function testCalculations(): void
     {
-        $input = $this->createInput([3]);
-        $planning = new Planning($input, new SportRange(1,1),2);
+        $orchestration = $this->createOrchestration([3]);
+        $planning = new Planning($orchestration, new SportRange(1,1),2);
 
         $pouleOne = $planning->getPoule(1);
         $gamePlacesCounter = new GamePlacesCounterForPoule($pouleOne);

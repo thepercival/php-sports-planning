@@ -21,6 +21,7 @@ final class SideNrCounterMap extends PlaceNrCounterMapAbstract
      * @param list<OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway> $homeAways
      * @return void
      */
+    #[\Override]
     public function addHomeAways(array $homeAways): void
     {
         foreach ($homeAways as $homeAway) {
@@ -28,6 +29,7 @@ final class SideNrCounterMap extends PlaceNrCounterMapAbstract
         }
     }
 
+    #[\Override]
     public function addHomeAway(OneVsOneHomeAway|OneVsTwoHomeAway|TwoVsTwoHomeAway $homeAway): void
     {
         if( $homeAway instanceof OneVsOneHomeAway ) {

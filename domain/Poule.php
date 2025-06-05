@@ -8,7 +8,7 @@ use Exception;
 use SportsPlanning\Game\AgainstGame;
 use SportsPlanning\Game\TogetherGame;
 
-class Poule
+final class Poule
 {
     /**
      * @var list<Place>

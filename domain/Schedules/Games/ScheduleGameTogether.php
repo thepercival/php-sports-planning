@@ -9,7 +9,7 @@ use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Schedules\Cycles\ScheduleCycleTogether;
 use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceTogether;
 
-class ScheduleGameTogether
+final class ScheduleGameTogether
 {
     /**
      * @var list<ScheduleGamePlaceTogether>

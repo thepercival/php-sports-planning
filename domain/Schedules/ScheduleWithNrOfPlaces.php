@@ -14,7 +14,7 @@ use SportsPlanning\Schedules\Sports\ScheduleAgainstTwoVsTwo;
 use SportsPlanning\Schedules\Sports\ScheduleTogetherSport;
 use SportsPlanning\Sports\SportWithNrOfCycles;
 
-readonly class ScheduleWithNrOfPlaces
+final readonly class ScheduleWithNrOfPlaces
 {
     /**
      * @var array<int, ScheduleTogetherSport|ScheduleAgainstOneVsOne|ScheduleAgainstOneVsTwo|ScheduleAgainstTwoVsTwo>

@@ -4,7 +4,7 @@ namespace SportsPlanning\Combinations;
 
 use SportsPlanning\Counters\CounterForAmount;
 
-readonly class AmountBoundary extends CounterForAmount
+final readonly class AmountBoundary extends CounterForAmount
 {
     public function __construct(int $amount, int $count)
     {

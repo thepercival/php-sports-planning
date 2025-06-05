@@ -17,7 +17,7 @@ use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class GamePlacesCounterForPouleTest extends TestCase
+final class GamePlacesCounterForPouleTest extends TestCase
 {
     use PlanningCreator;
     public function testCountSmallerThanZero(): void
@@ -69,13 +69,13 @@ class GamePlacesCounterForPouleTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
         ];
-        $input = new PlanningOrchestration( new PlanningConfiguration(
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
             new PouleStructure(3),
             $sportsWithNrOfFieldsAndNrOfCycles,
             new PlanningRefereeInfo(),
             false
         ));
-        $planning = new Planning($input, new SportRange(1,1),2);
+        $planning = new Planning($orchestration, new SportRange(1,1),2);
         return $planning->getFirstPoule();
     }
 

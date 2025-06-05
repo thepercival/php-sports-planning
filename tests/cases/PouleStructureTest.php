@@ -14,7 +14,7 @@ use SportsHelpers\SelfReferee;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class PouleStructureTest extends TestCase
+final class PouleStructureTest extends TestCase
 {
     use PlanningCreator;
 

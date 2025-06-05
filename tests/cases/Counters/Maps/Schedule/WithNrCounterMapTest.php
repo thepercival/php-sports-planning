@@ -15,7 +15,7 @@ use SportsPlanning\HomeAways\OneVsOneHomeAway;
 use SportsPlanning\HomeAways\OneVsTwoHomeAway;
 use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 
-class WithNrCounterMapTest extends TestCase
+final class WithNrCounterMapTest extends TestCase
 {
     public function testAddHomeAways(): void
     {

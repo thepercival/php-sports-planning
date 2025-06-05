@@ -15,7 +15,7 @@ use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
 
-class TogetherGame extends GameAbstract
+final class TogetherGame extends GameAbstract
 {
     /**
      * @var list<TogetherGamePlace>

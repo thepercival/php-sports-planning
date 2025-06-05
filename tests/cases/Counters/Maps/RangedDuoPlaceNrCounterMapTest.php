@@ -15,7 +15,7 @@ use SportsPlanning\Counters\Maps\Schedule\AgainstNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\WithNrCounterMap;
 use SportsPlanning\HomeAways\OneVsOneHomeAway;
 
-class RangedDuoPlaceNrCounterMapTest extends TestCase
+final class RangedDuoPlaceNrCounterMapTest extends TestCase
 {
     public function testGetAllowedRange(): void
     {

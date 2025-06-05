@@ -10,7 +10,7 @@ use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstTwoVsTwo;
 use SportsPlanning\Schedules\GamePlaces\ScheduleGamePlaceAgainst;
 
-class ScheduleGameAgainstTwoVsTwo extends ScheduleGameAgainstAbstract
+final class ScheduleGameAgainstTwoVsTwo extends ScheduleGameAgainstAbstract
 {
     public function __construct(ScheduleCyclePartAgainstTwoVsTwo $cyclePart, TwoVsTwoHomeAway|null $homeAway = null)
     {
@@ -53,7 +53,7 @@ class ScheduleGameAgainstTwoVsTwo extends ScheduleGameAgainstAbstract
 
     public function __toString(): string
     {
-        return 'cy ' . $this->cyclePart->getNumber(). '.' . $this->cyclePart->cycle->getNumber(). ' : ' . $this->convertToHomeAway();
+        return 'cy ' . $this->cyclePart->getNumber(). '.' . $this->cyclePart->cycle->getNumber(). ' : ' . (string)$this->convertToHomeAway();
     }
 
 }

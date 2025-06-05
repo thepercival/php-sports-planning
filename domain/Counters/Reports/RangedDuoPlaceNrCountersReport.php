@@ -9,7 +9,7 @@ use SportsPlanning\Counters\Maps\Schedule\AgainstNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\TogetherNrCounterMap;
 use SportsPlanning\Counters\Maps\Schedule\WithNrCounterMap;
 
-readonly class RangedDuoPlaceNrCountersReport
+final readonly class RangedDuoPlaceNrCountersReport
 {
     // private int|null $shortage = null;
     // private bool|null $overAssigned = null;

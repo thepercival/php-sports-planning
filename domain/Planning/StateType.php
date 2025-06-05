@@ -5,13 +5,15 @@ namespace SportsPlanning\Planning;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use SportsHelpers\DbEnums\EnumDbType;
 
-class StateType extends EnumDbType
+final class StateType extends EnumDbType
 {
+    #[\Override]
     public static function getNameHelper(): string
     {
         return 'enum_PlanningState';
     }
 
+    #[\Override]
     public function convertToPHPValue($value, AbstractPlatform $platform)
     {
         if ($value === PlanningState::NotProcessed->value) {
@@ -29,7 +31,8 @@ class StateType extends EnumDbType
         return null;
     }
 
-    public function getSQLDeclaration(array $column, AbstractPlatform $platform)
+    #[\Override]
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return 'varchar(13)';
     }

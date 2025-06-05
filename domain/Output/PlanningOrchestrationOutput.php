@@ -11,7 +11,7 @@ use SportsPlanning\Planning as PlanningBase;
 use SportsPlanning\Planning\PlanningFilter as PlanningFilter;
 use SportsPlanning\Planning\PlanningState as PlanningState;
 
-class InputOutput extends OutputHelper
+final class PlanningOrchestrationOutput extends OutputHelper
 {
     private PlanningOutput $planningOutput;
 
@@ -21,14 +21,14 @@ class InputOutput extends OutputHelper
         $this->planningOutput = new PlanningOutput($logger);
     }
 
-    public function output(PlanningOrchestration $input, bool $withHistory): void
+    public function output(PlanningOrchestration $orchestration, bool $withHistory): void
     {
         $planningFilter = new PlanningFilter(
             PlanningBase\PlanningType::BatchGames, null, null, null
         );
 
-        $this->planningOutput->outputInputConfig($input->configuration);
-        $filteredPlannings = $input->getFilteredPlannings($planningFilter);
+        $this->planningOutput->outputConfiguration($orchestration->configuration);
+        $filteredPlannings = $orchestration->getFilteredPlannings($planningFilter);
         foreach ($filteredPlannings as $filteredPlanning) {
             $equalBatchGames = $filteredPlanning->getBatchGamesType() === PlanningBase\BatchGamesType::RangeIsZero ? '*' : ' ';
             $prefix = $equalBatchGames . ' ';
@@ -41,7 +41,7 @@ class InputOutput extends OutputHelper
             }
             $this->planningOutput->outputState($filteredPlanning, $extra, $prefix, $suffix, $color);
 
-            $gamesInARowPlannings = $input->getGamesInARowPlannings($filteredPlanning);
+            $gamesInARowPlannings = $orchestration->getGamesInARowPlannings($filteredPlanning);
             foreach ($gamesInARowPlannings as $gamesInARowPlanning) {
                 $prefix = '    ' . '  ';
                 $color = $this->getColor($gamesInARowPlanning->getState());
@@ -56,11 +56,11 @@ class InputOutput extends OutputHelper
         if( $withHistory === false ) {
             return;
         }
-        $historicalBestPlannings = $input->getHistoricalBestPlannings();
+        $historicalBestPlannings = $orchestration->getHistoricalBestPlannings();
         foreach ($historicalBestPlannings as $historicalBestPlanning) {
 
             $output = 'removal ' . $historicalBestPlanning->getRemovalDateTime()->format('Y-m-d');
-            $output .= ', batchGames: ' . $historicalBestPlanning->getNrOfBatchGames();
+            $output .= ', batchGames: ' . (string)$historicalBestPlanning->getNrOfBatchGames();
             $output .= ', maxNrOfGamesInARow: ' . $historicalBestPlanning->getMaxNrOfGamesInARow();
             $output .= ', nrOfBatches: ' . $historicalBestPlanning->getNrOfBatches();
             $output = Color::getColored(Color::Blue, $output);

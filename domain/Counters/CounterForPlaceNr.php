@@ -9,7 +9,7 @@ use SportsHelpers\Counter;
 /**
  * @template-extends Counter<int>
  */
-readonly class CounterForPlaceNr extends Counter
+final readonly class CounterForPlaceNr extends Counter
 {
     public function __construct(int $placeNr, int $count = 0)
     {

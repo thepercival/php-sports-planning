@@ -9,7 +9,7 @@ use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 
-class SelfRefereeIncompatibleWithPouleStructureException extends \Exception
+final class SelfRefereeIncompatibleWithPouleStructureException extends \Exception
 {
     /**
      * @param PouleStructure $pouleStructure
@@ -29,7 +29,9 @@ class SelfRefereeIncompatibleWithPouleStructureException extends \Exception
                 return "a(".$sport->nrOfHomePlaces."vs".$sport->nrOfAwayPlaces.")";
         }, $sports );
         $sportVariantsAsString = 'sports "[' . join(',', $sportDescriptions ) . ']"';
-        $pouleStructureAsString = 'poulestructure: '. json_encode($pouleStructure);
+        $pouleStructureJson = json_encode($pouleStructure);
+        $pouleStructureJson = $pouleStructureJson === false ? '?' : $pouleStructureJson;
+        $pouleStructureAsString = 'poulestructure: '. $pouleStructureJson;
         $selfRefereeAsString = 'selfReferee "'.$selfReferee->value.'"';
         parent::__construct($selfRefereeAsString . ' is not compatible with ' .
             $pouleStructureAsString . ' and ' . $sportVariantsAsString, E_ERROR);

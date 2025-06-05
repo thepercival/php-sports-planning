@@ -7,7 +7,7 @@ namespace SportsPlanning\HomeAways;
 use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\DuoPlaceNr;
 
-readonly class OneVsOneHomeAway extends HomeAwayAbstract
+final readonly class OneVsOneHomeAway extends HomeAwayAbstract
 {
     public function __construct(private int $home, private int $away)
     {
@@ -80,6 +80,7 @@ readonly class OneVsOneHomeAway extends HomeAwayAbstract
      * @param AgainstSide|null $side
      * @return list<int>
      */
+    #[\Override]
     public function convertToPlaceNrs(AgainstSide|null $side = null): array {
         if( $side === AgainstSide::Home ) {
             return [$this->home];

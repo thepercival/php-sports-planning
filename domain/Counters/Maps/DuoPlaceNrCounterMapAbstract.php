@@ -83,7 +83,7 @@ abstract class DuoPlaceNrCounterMapAbstract
         $prefix = $prefix . '    ';
         $amountPerLine = 4; $counter = 0; $line = '';
         foreach( $this->map as $counterIt ) {
-            $line .= $counterIt->getDuoPlaceNr() . ' ' . $counterIt->count() . 'x, ';
+            $line .= (string)$counterIt->getDuoPlaceNr() . ' ' . (string)$counterIt->count() . 'x, ';
             if( ++$counter === $amountPerLine ) {
                 $logger->info($prefix . $line);
                 $counter = 0;

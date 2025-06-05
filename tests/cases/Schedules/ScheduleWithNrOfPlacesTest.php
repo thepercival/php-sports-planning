@@ -7,7 +7,7 @@ use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
 use SportsPlanning\Sports\SportWithNrOfCycles;
 
-class ScheduleWithNrOfPlacesTest extends TestCase
+final class ScheduleWithNrOfPlacesTest extends TestCase
 {
     public function testGetNrOfPlaces(): void
     {

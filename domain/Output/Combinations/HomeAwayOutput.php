@@ -18,7 +18,7 @@ use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsOne;
 use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstOneVsTwo;
 use SportsPlanning\Schedules\CycleParts\ScheduleCyclePartAgainstTwoVsTwo;
 
-class HomeAwayOutput extends OutputHelper
+final class HomeAwayOutput extends OutputHelper
 {
     public function __construct(LoggerInterface $logger = null)
     {
@@ -108,7 +108,7 @@ class HomeAwayOutput extends OutputHelper
                     'cy ' . $cyclePart->getNumber()
                 ) . ', ' : '')
             // . 'substr(' . $game->getRoundNumber(), 2 ) . substr( $game->getSubNumber(), 2 ) . ") "
-            . $homeAway
+            . (string)$homeAway
         );
     }
 }
