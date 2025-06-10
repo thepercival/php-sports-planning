@@ -13,7 +13,6 @@ use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 final class CounterForPouleTest extends TestCase
@@ -67,13 +66,14 @@ final class CounterForPouleTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
         ];
-        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+        $configuration = new PlanningConfiguration(
             new PouleStructure([3]),
             $sportsWithNrOfFieldsAndNrOfCycles,
             null,
             false
-        ));
-        $planning = new Planning($orchestration, new SportRange(1,1),2);
+        );
+        $planning = Planning::fromConfiguration($configuration);
+
         return $planning->getFirstPoule();
     }
 }

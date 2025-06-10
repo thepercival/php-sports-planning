@@ -13,6 +13,7 @@ use SportsPlanning\Batches\SelfRefereeBatchSamePoule;
 use SportsPlanning\Game\AgainstGame;
 use SportsPlanning\Game\TogetherGame;
 use SportsPlanning\Place;
+use SportsPlanning\Poule;
 
 final class BatchOutput extends OutputHelper
 {
@@ -58,7 +59,7 @@ final class BatchOutput extends OutputHelper
             return;
         }
 
-        $this->outputGames($batch->getGames(), $batch);
+        $this->outputGames($batch);
         if ($showUnassigned) {
             $this->outputUnassigned($batch);
         }
@@ -68,17 +69,10 @@ final class BatchOutput extends OutputHelper
         }
     }
 
-    /**
-     * @param list<AgainstGame|TogetherGame> $games
-     * @param Batch|SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule|null $batch
-     * @return void
-     */
-    public function outputGames(
-        array $games,
-        Batch|SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule|null $batch = null
-    ): void {
-        foreach ($games as $game) {
-            $this->gameOutput->output($game, $batch);
+    public function outputGames(Batch|SelfRefereeBatchOtherPoules|SelfRefereeBatchSamePoule $batch): void {
+        foreach ($batch->getGames() as $game) {
+            $gamePoule = $batch->getPoule($game->pouleNr);
+            $this->gameOutput->output($gamePoule, $game, $batch);
         }
     }
 

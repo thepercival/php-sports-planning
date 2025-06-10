@@ -13,7 +13,7 @@ use SportsPlanning\Planning\Comparer;
 use SportsPlanning\Planning\PlanningFilter as PlanningFilter;
 use SportsPlanning\Planning\HistoricalBestPlanning;
 use SportsPlanning\Planning\PlanningState;
-use SportsPlanning\Planning\PlanningType as PlanningType;
+use SportsPlanning\Planning\PlanningType;
 
 final class PlanningOrchestration extends Identifiable
 {
@@ -21,9 +21,9 @@ final class PlanningOrchestration extends Identifiable
     protected int $seekingPercentage = -1;
 
     /**
-     * @var Collection<int|string, Planning>
+     * @var Collection<int|string, PlanningWithMeta>
      */
-    protected Collection $plannings;
+    protected Collection $planningsWithMeta;
     /**
      * @var Collection<int|string, HistoricalBestPlanning>
      */
@@ -32,7 +32,7 @@ final class PlanningOrchestration extends Identifiable
 
     public function __construct(public readonly PlanningConfiguration $configuration) {
 
-        $this->plannings = new ArrayCollection();
+        $this->planningsWithMeta = new ArrayCollection();
         $this->historicalBestPlannings = new ArrayCollection();
         $this->createdAt = new DateTimeImmutable();
 
@@ -48,26 +48,26 @@ final class PlanningOrchestration extends Identifiable
         return $this->configuration; //  ?? json_decode($this->configContent);
     }
     /**
-     * @return Collection<int|string, Planning>
+     * @return Collection<int|string, PlanningWithMeta>
      */
-    public function getPlannings(): Collection
+    public function getPlanningsWithMeta(): Collection
     {
-        return $this->plannings;
+        return $this->planningsWithMeta;
     }
 
     /**
      * @param PlanningFilter|null $filter
-     * @return list<Planning>
+     * @return list<PlanningWithMeta>
      */
-    public function getFilteredPlannings(PlanningFilter|null $filter = null): array
+    public function getFilteredPlanningsWithMeta(PlanningFilter|null $filter = null): array
     {
         if( $filter === null ) {
-            return array_values( $this->plannings->toArray() );
+            return array_values( $this->planningsWithMeta->toArray() );
         }
-        $filtered = $this->plannings->filter( function(Planning $planning) use($filter):  bool {
+        $filtered = $this->planningsWithMeta->filter( function(PlanningWithMeta $planning) use($filter):  bool {
             return $filter->equals($planning);
         })->toArray();
-        uasort($filtered, function (Planning $first, Planning $second) {
+        uasort($filtered, function (PlanningWithMeta $first, PlanningWithMeta $second) {
             if ($first->maxNrOfBatchGames === $second->maxNrOfBatchGames) {
                 return $second->minNrOfBatchGames - $first->minNrOfBatchGames;
             }
@@ -77,21 +77,21 @@ final class PlanningOrchestration extends Identifiable
         return array_values($filtered);
     }
 
-    public function getPlanning(PlanningFilter $filter): Planning|null
+    public function getPlanningWithMeta(PlanningFilter $filter): PlanningWithMeta|null
     {
-        $plannings = $this->getFilteredPlannings($filter);
+        $plannings = $this->getFilteredPlanningsWithMeta($filter);
         $planning = reset($plannings);
         return $planning === false ? null : $planning;
     }
 
-    public function getBestPlanning(PlanningType|null $type): Planning
+    public function getBestPlanning(PlanningType|null $type): PlanningWithMeta
     {
         $filter = new PlanningFilter(
             $type, PlanningState::Succeeded, null, null
         );
-        $succeededPlannings = $this->getFilteredPlannings($filter);
+        $succeededPlannings = $this->getFilteredPlanningsWithMeta($filter);
 
-        uasort($succeededPlannings, function (Planning|HistoricalBestPlanning $first, Planning|HistoricalBestPlanning $second): int {
+        uasort($succeededPlannings, function (PlanningWithMeta $first, PlanningWithMeta $second): int {
             return (new Comparer())->compare($first, $second);
         });
         $bestPlanning = array_shift($succeededPlannings);
@@ -112,25 +112,25 @@ final class PlanningOrchestration extends Identifiable
     public function getHistoricalVeryBestPlanning(): HistoricalBestPlanning|null
     {
         $historicalBestPlannings = $this->getHistoricalBestPlannings()->toArray();
-        uasort($historicalBestPlannings, function (Planning|HistoricalBestPlanning $first, Planning|HistoricalBestPlanning $second): int {
+        uasort($historicalBestPlannings, function (HistoricalBestPlanning $first, HistoricalBestPlanning $second): int {
             return (new Comparer())->compare($first, $second);
         });
         return array_shift($historicalBestPlannings);
     }
 
     /**
-     * @param Planning $planning
+     * @param PlanningWithMeta $planning
      * @param PlanningState|null $state
-     * @return list<Planning>
+     * @return list<PlanningWithMeta>
      */
-    public function getGamesInARowPlannings(Planning $planning, PlanningState|null $state = null): array
+    public function getGamesInARowPlannings(PlanningWithMeta $planning, PlanningState|null $state = null): array
     {
         if ($planning->maxNrOfGamesInARow > 0) {
             return [];
         }
         $range = $planning->getNrOfBatchGames();
-        $gamesInARowPlannings = array_values( array_filter( $this->getPlannings()->toArray(),
-            function (Planning $planning) use ($range, $state): bool {
+        $gamesInARowPlannings = array_values( array_filter( $this->getPlanningsWithMeta()->toArray(),
+            function (PlanningWithMeta $planning) use ($range, $state): bool {
                 return $planning->minNrOfBatchGames === $range->getMin()
                     && $planning->maxNrOfBatchGames === $range->getMax()
                     && $planning->maxNrOfGamesInARow > 0
@@ -141,12 +141,12 @@ final class PlanningOrchestration extends Identifiable
     }
 
     /**
-     * @param list<Planning> $gamesInARowPlannings
-     * @return list<Planning>
+     * @param list<PlanningWithMeta> $gamesInARowPlannings
+     * @return list<PlanningWithMeta>
      */
     protected function orderGamesInARowPlannings(array $gamesInARowPlannings): array
     {
-        uasort($gamesInARowPlannings, function (Planning $first, Planning $second) {
+        uasort($gamesInARowPlannings, function (PlanningWithMeta $first, PlanningWithMeta $second) {
             if ($first->maxNrOfGamesInARow === $second->maxNrOfGamesInARow) {
                 return $first->getNrOfBatchGames()->difference() > $second->getNrOfBatchGames()->difference() ? -1 : 1;
             }
@@ -155,7 +155,7 @@ final class PlanningOrchestration extends Identifiable
         return array_values($gamesInARowPlannings);
     }
 
-    public function getBestGamesInARowPlanning(Planning $plannning): Planning|null
+    public function getBestGamesInARowPlanning(PlanningWithMeta $plannning): PlanningWithMeta|null
     {
         $succeededGamesInARowPlannings = $this->getGamesInARowPlannings($plannning, PlanningState::Succeeded);
         return array_shift($succeededGamesInARowPlannings);

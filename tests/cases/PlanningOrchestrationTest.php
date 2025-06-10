@@ -12,6 +12,7 @@ use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\Planning;
 use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\PlanningOrchestration;
+use SportsPlanning\PlanningWithMeta;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 final class PlanningOrchestrationTest extends TestCase
@@ -22,18 +23,20 @@ final class PlanningOrchestrationTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1)
         ];
-        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+        $configuration = new PlanningConfiguration(
             new PouleStructure([5]),
             $sportsWithNrOfFieldsAndNrOfCycles,
             null,
             false
-        ));
+        );
+        $planningBase = Planning::fromConfiguration($configuration);
+        $orchestration = new PlanningOrchestration($configuration);
         $batchGamesRange = new SportRange(2, 2);
-        $planningA = new Planning($orchestration, $batchGamesRange, 0);
+        $planningA = new PlanningWithMeta($orchestration, $batchGamesRange, 0, $planningBase);
         $planningA->setState(Planning\PlanningState::Succeeded);
         $planningA->setNrOfBatches(5);
 
-        $planningB = new Planning($orchestration, $batchGamesRange, 0);
+        $planningB = new PlanningWithMeta($orchestration, $batchGamesRange, 0, $planningBase);
         $planningB->setState(Planning\PlanningState::Succeeded);
         $planningB->setNrOfBatches(4);
 
@@ -45,18 +48,20 @@ final class PlanningOrchestrationTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1)
         ];
-        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+        $configuration = new PlanningConfiguration(
             new PouleStructure([5]),
             $sportsWithNrOfFieldsAndNrOfCycles,
             null,
             false
-        ));
+        );
+        $planningBase = Planning::fromConfiguration($configuration);
+        $orchestration = new PlanningOrchestration($configuration);
         $batchGamesRange = new SportRange(2, 2);
-        $planningA = new Planning($orchestration, $batchGamesRange, 0);
+        $planningA = new PlanningWithMeta($orchestration, $batchGamesRange, 0, $planningBase);
         $planningA->setState(Planning\PlanningState::Succeeded);
         $planningA->setNrOfBatches(5);
 
-        $planningB = new Planning($orchestration, $batchGamesRange, 1);
+        $planningB = new PlanningWithMeta($orchestration, $batchGamesRange, 1, $planningBase);
         $planningB->setState(Planning\PlanningState::Failed);
         $planningB->setNrOfBatches(5);
 
@@ -69,18 +74,20 @@ final class PlanningOrchestrationTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1)
         ];
-        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+        $configuration = new PlanningConfiguration(
             new PouleStructure([5]),
             $sportsWithNrOfFieldsAndNrOfCycles,
             null,
             false
-        ));
+        );
+        $planningBase = Planning::fromConfiguration($configuration);
+        $orchestration = new PlanningOrchestration($configuration);
         $batchGamesRange = new SportRange(2, 2);
-        $planningA = new Planning($orchestration, $batchGamesRange, 0);
+        $planningA = new PlanningWithMeta($orchestration, $batchGamesRange, 0, $planningBase);
         $planningA->setState(Planning\PlanningState::Succeeded);
         $planningA->setNrOfBatches(5);
 
-        $planningB = new Planning($orchestration, $batchGamesRange, 1);
+        $planningB = new PlanningWithMeta($orchestration, $batchGamesRange, 1, $planningBase);
         $planningB->setState(Planning\PlanningState::Succeeded);
         $planningB->setNrOfBatches(5);
 
@@ -92,18 +99,20 @@ final class PlanningOrchestrationTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1)
         ];
-        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+        $configuration = new PlanningConfiguration(
             new PouleStructure([5]),
             $sportsWithNrOfFieldsAndNrOfCycles,
             null,
             false
-        ));
+        );
+        $planningBase = Planning::fromConfiguration($configuration);
+        $orchestration = new PlanningOrchestration($configuration);
         $batchGamesRange = new SportRange(2, 2);
-        $planningA = new Planning($orchestration, $batchGamesRange, 1);
+        $planningA = new PlanningWithMeta($orchestration, $batchGamesRange, 1, $planningBase);
         $planningA->setState(Planning\PlanningState::Succeeded);
         $planningA->setNrOfBatches(5);
 
-        $planningB = new Planning($orchestration, $batchGamesRange, 2);
+        $planningB = new PlanningWithMeta($orchestration, $batchGamesRange, 2, $planningBase);
         $planningB->setState(Planning\PlanningState::Succeeded);
         $planningB->setNrOfBatches(5);
 

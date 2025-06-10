@@ -50,7 +50,7 @@ final class AgainstGameHandler extends Handler implements SubscribingHandlerInte
         Context $context
     ): AgainstGame {
 
-        $againstGame = new AgainstGame(
+        $againstGame = AgainstGame::fromPoule(
             $fieldValue['poule'],
             $fieldValue['field'],
             $fieldValue['cyclePartNr'],

@@ -66,13 +66,13 @@ final class GamePlacesCounterForPouleTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
         ];
-        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+        $configuration = new PlanningConfiguration(
             new PouleStructure([3]),
             $sportsWithNrOfFieldsAndNrOfCycles,
             null,
             false
-        ));
-        $planning = new Planning($orchestration, new SportRange(1,1),2);
+        );
+        $planning = Planning::fromConfiguration($configuration);
         return $planning->getFirstPoule();
     }
 

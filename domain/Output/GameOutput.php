@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Output;
 
-use Doctrine\Common\Collections\Collection;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\AgainstSide;
 use SportsHelpers\Output as OutputHelper;
@@ -17,6 +16,7 @@ use SportsPlanning\Game\AgainstGamePlace;
 use SportsPlanning\Game\TogetherGame;
 use SportsPlanning\Output\PlaceOutput;
 use SportsPlanning\Place;
+use SportsPlanning\Poule;
 
 final class GameOutput extends OutputHelper
 {
@@ -29,18 +29,20 @@ final class GameOutput extends OutputHelper
     }
 
     /**
+     * @param Poule $poule
      * @param list<TogetherGame|AgainstGame> $games
      * @param string|null $prefix
      * @return void
      */
-    public function outputGames(array $games, string $prefix = null): void
+    public function outputGames(Poule $poule, array $games, string $prefix = null): void
     {
         foreach ($games as $game) {
-            $this->output($game, null, $prefix);
+            $this->output($poule, $game, null, $prefix);
         }
     }
 
     public function output(
+        Poule $poule,
         AgainstGame|TogetherGame                                         $game,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoules|null $batch = null,
         string|null                                                      $prefix = null
@@ -61,8 +63,8 @@ final class GameOutput extends OutputHelper
             ($prefix !== null ? $prefix : '') .
             Color::getColored($batchColor, 'batch ' . $batchNr . '(' . $cyclePartNr . ')') . " " .
             // . 'substr(' . $game->getRoundNumber(), 2 ) . substr( $game->getSubNumber(), 2 ) . ") "
-            'poule ' . $game->poule->pouleNr
-            . ', ' . $this->outputGamePlaces($game, $batch)
+            'poule ' . $game->pouleNr
+            . ', ' . $this->outputGamePlaces($poule, $game, $batch)
             . ' , ' . $this->getReferee($game)
             . ', ' . Color::getColored($fieldColor, 'field ' . $fieldNr)
             . ', ' . Color::getColored($sportColor, 'sport ' . $sportNr)
@@ -78,32 +80,35 @@ final class GameOutput extends OutputHelper
 //    }
 
     protected function outputGamePlaces(
+        Poule $poule,
         AgainstGame|TogetherGame                                        $game,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoules|null $batch = null
     ): string {
-        $useColors = $this->useColors() && $game->poule->pouleNr === 1;
+        $useColors = $this->useColors() && $game->pouleNr === 1;
         if ($game instanceof AgainstGame) {
-            $home =  $this->outputAgainstGamePlaces($game, AgainstSide::Home, $batch, $useColors);
-            $away =  $this->outputAgainstGamePlaces($game, AgainstSide::Away, $batch, $useColors);
+            $home =  $this->outputAgainstGamePlaces($poule, $game, AgainstSide::Home, $batch, $useColors);
+            $away =  $this->outputAgainstGamePlaces($poule, $game, AgainstSide::Away, $batch, $useColors);
             return $home . ' vs ' . $away;
         }
-        return $this->outputTogetherGamePlaces($game, $batch, $useColors);
+        return $this->outputTogetherGamePlaces($poule, $game, $batch, $useColors);
     }
 
     /**
+     * @param Poule $poule
      * @param TogetherGame                                                    $game
      * @param Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoules|null $batch
      * @param bool $useColors
      * @return string
      */
     protected function outputTogetherGamePlaces(
+        Poule                                                            $poule,
         TogetherGame                                                     $game,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoules|null $batch,
         bool                                                             $useColors
     ): string {
         $placesAsArrayOfStrings = array_map(
-            function (int $placeNr) use ($game, $useColors, $batch): string {
-                $place = $game->poule->getPlace($placeNr);
+            function (int $placeNr) use ($poule, $game, $useColors, $batch): string {
+                $place = $poule->getPlace($placeNr);
                 $gamesInARow = $batch?->getGamesInARow($place);
                 return $this->outputGamePlace($place, $gamesInARow, $useColors);
             } , $game->getPlaceNrs() );
@@ -113,20 +118,22 @@ final class GameOutput extends OutputHelper
     }
 
     /**
+     * @param Poule                                                           $poule
      * @param AgainstGame                                                     $game
      * @param Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoules|null $batch
      * @param bool $useColors
      * @return string
      */
     protected function outputAgainstGamePlaces(
+        Poule                                                            $poule,
         AgainstGame                                                      $game,
         AgainstSide                                                      $side,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoules|null $batch,
         bool                                                             $useColors
     ): string {
         $placesAsArrayOfStrings = array_map(
-            function (AgainstGamePlace $againstGamePlace) use ($game, $useColors, $batch): string {
-                $place = $game->poule->getPlace($againstGamePlace->placeNr);
+            function (AgainstGamePlace $againstGamePlace) use ($poule, $game, $useColors, $batch): string {
+                $place = $poule->getPlace($againstGamePlace->placeNr);
                 $gamesInARow = $batch?->getGamesInARow($place);
                 return $this->outputGamePlace($place, $gamesInARow, $useColors);
             } , $game->getSideGamePlaces($side) );
@@ -148,7 +155,7 @@ final class GameOutput extends OutputHelper
 
     protected function getReferee(AgainstGame|TogetherGame $game): string
     {
-        $useColors = $this->useColors() && $game->poule->pouleNr === 1;
+        $useColors = $this->useColors() && $game->pouleNr === 1;
         $refereePlaceUniqueIndex = $game->getRefereePlaceUniqueIndex();
         if ($refereePlaceUniqueIndex !== null) {
             // $refColor = $this->convertNumberToColor($useColors ? $refereePlace->placeNr : -1);

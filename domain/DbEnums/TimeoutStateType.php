@@ -1,9 +1,10 @@
 <?php
 
-namespace SportsPlanning\Planning;
+namespace SportsPlanning\DbEnums;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use SportsHelpers\DbEnums\EnumDbType;
+use SportsPlanning\Planning\TimeoutState;
 
 final class TimeoutStateType extends EnumDbType
 {

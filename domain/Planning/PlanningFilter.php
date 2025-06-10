@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Planning;
 
 use SportsHelpers\SportRange;
-use SportsPlanning\Planning;
+use SportsPlanning\PlanningWithMeta;
 
 final class PlanningFilter implements \Stringable
 {
@@ -17,7 +17,7 @@ final class PlanningFilter implements \Stringable
     {
     }
 
-    public function equals(Planning $planning): bool
+    public function equals(PlanningWithMeta $planning): bool
     {
         return ($this->type === null ||  $this->type === $planning->getType())
             && ($this->state === null || $this->state === $planning->getState())

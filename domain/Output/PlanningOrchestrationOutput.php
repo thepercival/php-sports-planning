@@ -28,20 +28,20 @@ final class PlanningOrchestrationOutput extends OutputHelper
         );
 
         $this->planningOutput->outputConfiguration($orchestration->configuration);
-        $filteredPlannings = $orchestration->getFilteredPlannings($planningFilter);
-        foreach ($filteredPlannings as $filteredPlanning) {
-            $equalBatchGames = $filteredPlanning->getBatchGamesType() === PlanningBase\BatchGamesType::RangeIsZero ? '*' : ' ';
+        $filteredPlanningsWithMeta = $orchestration->getFilteredPlanningsWithMeta($planningFilter);
+        foreach ($filteredPlanningsWithMeta as $filteredPlanningWithMeta) {
+            $equalBatchGames = $filteredPlanningWithMeta->getBatchGamesType() === PlanningBase\BatchGamesType::RangeIsZero ? '*' : ' ';
             $prefix = $equalBatchGames . ' ';
 
-            $color = $this->getColor($filteredPlanning->getState());
+            $color = $this->getColor($filteredPlanningWithMeta->getState());
             $extra = PlanningOutputExtra::NrOfBatchGamesRange->value;
             $suffix = null;
-            if( $filteredPlanning->getState() === PlanningBase\PlanningState::Succeeded ) {
-                $suffix = ', nrOfBatches: ' . $filteredPlanning->getNrOfBatches();
+            if( $filteredPlanningWithMeta->getState() === PlanningBase\PlanningState::Succeeded ) {
+                $suffix = ', nrOfBatches: ' . $filteredPlanningWithMeta->getNrOfBatches();
             }
-            $this->planningOutput->outputState($filteredPlanning, $extra, $prefix, $suffix, $color);
+            $this->planningOutput->outputState($filteredPlanningWithMeta, $extra, $prefix, $suffix, $color);
 
-            $gamesInARowPlannings = $orchestration->getGamesInARowPlannings($filteredPlanning);
+            $gamesInARowPlannings = $orchestration->getGamesInARowPlannings($filteredPlanningWithMeta);
             foreach ($gamesInARowPlannings as $gamesInARowPlanning) {
                 $prefix = '    ' . '  ';
                 $color = $this->getColor($gamesInARowPlanning->getState());

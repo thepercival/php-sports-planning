@@ -7,7 +7,6 @@ namespace SportsPlanning\Game;
 use Exception;
 use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Field;
-use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
 final class AgainstGame extends GameAbstract
@@ -17,14 +16,20 @@ final class AgainstGame extends GameAbstract
      */
     protected array $gamePlaces = [];
 
-    public function __construct(
-        Poule $poule,
+    private function __construct(
+        int $pouleNr,
         Field $field,
         public int $cyclePartNr,
         public int $cycleNr
     ) {
-        parent::__construct($poule, $field);
-        $this->poule->addGame($this);
+        parent::__construct($pouleNr, $field);
+
+    }
+
+    public static function fromPoule(Poule $poule, Field $field, int $cyclePartNr, int $cycleNr ): self {
+        $game = new self($poule->pouleNr, $field, $cyclePartNr, $cycleNr);
+        $poule->addGame($game);
+        return $game;
     }
 
     /**
@@ -75,16 +80,6 @@ final class AgainstGame extends GameAbstract
             return AgainstSide::Away;
         }
         throw new Exception('kan kant niet vinden', E_ERROR);
-    }
-
-    /**
-     * @return list<Place>
-     */
-    public function getPlaces(): array
-    {
-        return array_map(function(AgainstGamePlace $gamePlace): Place {
-            return $this->poule->getPlace($gamePlace->placeNr);
-        }, $this->getGamePlaces() );
     }
 
     /**

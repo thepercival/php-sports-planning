@@ -5,7 +5,7 @@
 	  	<field name="seekingPercentage" column="seekingPercentage" type="smallint" nullable="false" unique="false"/>
 	  	<field name="configuration" column="configuration" type="json_document" nullable="false" unique="false"/>
 		<field name="configHash" column="configHash" type="string" length="256" nullable="false" unique="true"/>
-	  	<one-to-many field="plannings" target-entity="SportsPlanning\Planning" mapped-by="orchestration">
+	  	<one-to-many field="planningsWithMeta" target-entity="SportsPlanning\PlanningWithMeta" mapped-by="orchestration">
 			<cascade>
 				<cascade-remove/>
 		  	</cascade>

@@ -4,16 +4,10 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Game;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use SportsPlanning\Combinations\DuoPlaceNr;
 use SportsPlanning\Field;
-use SportsPlanning\Game\GameAbstract;
 use SportsPlanning\Game\TogetherGamePlace as TogetherGamePlace;
-use SportsPlanning\Place;
-use SportsPlanning\Planning;
 use SportsPlanning\Poule;
-use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
 
 final class TogetherGame extends GameAbstract
 {
@@ -22,10 +16,15 @@ final class TogetherGame extends GameAbstract
      */
     protected array $gamePlaces = [];
 
-    public function __construct(Poule $poule, Field $field)
+    private function __construct(int $pouleNr, Field $field)
     {
-        parent::__construct($poule, $field);
-        $this->poule->addGame($this);
+        parent::__construct($pouleNr, $field);
+    }
+
+    public static function fromPoule(Poule $poule, Field $field): self {
+        $game = new self($poule->pouleNr, $field);
+        $poule->addGame($game);
+        return $game;
     }
 
     /**
@@ -101,16 +100,6 @@ final class TogetherGame extends GameAbstract
     {
         return array_map(function(TogetherGamePlace $gamePlace): int {
             return $gamePlace->placeNr;
-        }, $this->getGamePlaces() );
-    }
-
-    /**
-     * @return list<Place>
-     */
-    public function getPlaces(): array
-    {
-        return array_map(function(TogetherGamePlace $gamePlace): Place {
-            return $this->poule->getPlace($gamePlace->placeNr);
         }, $this->getGamePlaces() );
     }
 

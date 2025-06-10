@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Planning;
 
-use SportsPlanning\Planning;
+
+use SportsPlanning\PlanningWithMeta;
 
 final class Comparer
 {
-    public function compare(Planning|HistoricalBestPlanning $first, Planning|HistoricalBestPlanning $second): int
+    public function compare(PlanningWithMeta|HistoricalBestPlanning $first, PlanningWithMeta|HistoricalBestPlanning $second): int
     {
         if ($first->getNrOfBatches() !== $second->getNrOfBatches()) {
             return $first->getNrOfBatches() - $second->getNrOfBatches();

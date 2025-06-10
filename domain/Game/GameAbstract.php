@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace SportsPlanning\Game;
 
 use SportsPlanning\Field;
-use SportsPlanning\Place;
-use SportsPlanning\Poule;
 
 abstract class GameAbstract
 {
@@ -14,7 +12,7 @@ abstract class GameAbstract
     protected string|null $refereePlaceUniqueIndex = null;
     protected int|null $refereeNr = null;
 
-    public function __construct(public readonly Poule $poule, protected Field $field)
+    public function __construct(public int $pouleNr, protected Field $field)
     {
     }
 

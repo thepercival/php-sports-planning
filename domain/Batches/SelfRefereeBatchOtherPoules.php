@@ -8,17 +8,16 @@ use SportsPlanning\Poule;
 final class SelfRefereeBatchOtherPoules extends SelfRefereeBatchAbstract
 {
     /**
-     * @param list<Poule> $poules
      * @param Batch $batch
      * @param SelfRefereeBatchOtherPoules|null $previous
      */
-    public function __construct(protected array $poules, Batch $batch, SelfRefereeBatchOtherPoules|null $previous = null)
+    public function __construct(Batch $batch, SelfRefereeBatchOtherPoules|null $previous = null)
     {
         parent::__construct($batch, $previous);
 
         $nextBatch = $this->getBase()->getNext();
         if ($nextBatch !== null) {
-            $this->next = new SelfRefereeBatchOtherPoules($poules, $nextBatch, $this);
+            $this->next = new SelfRefereeBatchOtherPoules($nextBatch, $this);
         }
     }
 
@@ -36,7 +35,7 @@ final class SelfRefereeBatchOtherPoules extends SelfRefereeBatchAbstract
 
     public function createNext(): SelfRefereeBatchOtherPoules
     {
-        $this->next = new SelfRefereeBatchOtherPoules($this->poules, $this->getBase()->createNext(), $this);
+        $this->next = new SelfRefereeBatchOtherPoules($this->getBase()->createNext(), $this);
         return $this->next;
     }
 
@@ -47,7 +46,7 @@ final class SelfRefereeBatchOtherPoules extends SelfRefereeBatchAbstract
     protected function getForcedRefereePlacesMap(): array
     {
         $forcedRefereePlacesMap = [];
-        $otherPlacesMap = $this->getOtherPlacesMap();
+        $otherPlacesMap = $this->batch->createPlacesOtherPoulesMap();
         foreach ($this->getPouleCounters() as $pouleCounter) {
             $poule = $pouleCounter->getPoule();
             $nrOfGames = $this->pouleCounterMap[$poule->pouleNr]->getNrOfGames();
@@ -62,28 +61,6 @@ final class SelfRefereeBatchOtherPoules extends SelfRefereeBatchAbstract
             }
         }
         return $forcedRefereePlacesMap;
-    }
-
-    /**
-     * @return array<int, list<Place>>
-    */
-    protected function getOtherPlacesMap(): array
-    {
-        $otherPoulePlacesMap = [];
-        foreach ($this->poules as $poule) {
-            $otherPoulePlacesMap[$poule->pouleNr] = [];
-            $otherPoules = $this->poules;
-            foreach ($otherPoules as $otherPoule) {
-                if ($otherPoule === $poule) {
-                    continue;
-                }
-                $otherPoulePlacesMap[$poule->pouleNr] = array_merge(
-                    $otherPoulePlacesMap[$poule->pouleNr],
-                    $otherPoule->places
-                );
-            }
-        }
-        return $otherPoulePlacesMap;
     }
 
     /**

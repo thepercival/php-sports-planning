@@ -6,6 +6,7 @@ use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Planning;
 use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\PlanningPouleStructure;
+use SportsPlanning\PlanningWithMeta;
 
 final class TimeoutConfig
 {
@@ -39,12 +40,12 @@ final class TimeoutConfig
         return $nrOfSeconds;
     }
 
-    public function nextTimeoutState(Planning|null $planning): TimeoutState
+    public function nextTimeoutState(PlanningWithMeta|null $planningWithMeta): TimeoutState
     {
-        if ($planning === null) {
+        if ($planningWithMeta === null) {
             return TimeoutState::Time1xNoSort;
         }
-        $timeoutState = $planning->getTimeoutState();
+        $timeoutState = $planningWithMeta->getTimeoutState();
         if ($timeoutState === null) {
             return TimeoutState::Time1xNoSort;
         }

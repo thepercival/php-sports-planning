@@ -2,9 +2,7 @@
 
 namespace SportsPlanning\Resource;
 
-use SportsHelpers\SelfReferee;
-use SportsPlanning\Game\GameAbstract;
-use SportsPlanning\Planning;
+use SportsPlanning\PlanningWithMeta;
 use SportsPlanning\Resource\GameCounter\GameCounterForPlace;
 
 final class ResourceCounter
@@ -22,7 +20,7 @@ final class ResourceCounter
      */
     protected array $refereePlaceMap;
 
-    public function __construct(protected Planning $planning)
+    public function __construct(protected PlanningWithMeta $planningWithMeta)
     {
         $this->fieldMap = [];
         $this->refereeMap = [];
@@ -32,28 +30,28 @@ final class ResourceCounter
 
     protected function init(): void
     {
-        $selfRefereeInfo = $this->planning->getConfiguration()->refereeInfo?->selfRefereeInfo;
+        $selfRefereeInfo = $this->planningWithMeta->getConfiguration()->refereeInfo?->selfRefereeInfo;
         $selfRefereeEnabled = $selfRefereeInfo !== null;
 
-        foreach ($this->planning->sports as $sport) {
+        foreach ($this->planningWithMeta->planning->sports as $sport) {
             foreach ($sport->fields as $field) {
                 $this->fieldMap[$field->getUniqueIndex()] = new GameCounter($field);
             }
         }
 
         if ($selfRefereeEnabled) {
-            foreach ($this->planning->poules as $poule) {
+            foreach ($this->planningWithMeta->planning->poules as $poule) {
                 foreach ($poule->places as $place) {
                     $this->refereePlaceMap[$place->getUniqueIndex()] = new GameCounterForPlace($place);
                 }
             }
         } else {
-            foreach ($this->planning->referees as $referee) {
+            foreach ($this->planningWithMeta->planning->referees as $referee) {
                 $this->refereeMap[$referee->getUniqueIndex()] = new GameCounter($referee);
             }
         }
 
-        $games = $this->planning->getGames(Planning::ORDER_GAMES_BY_BATCH);
+        $games = $this->planningWithMeta->planning->getGames(PlanningWithMeta::ORDER_GAMES_BY_BATCH);
         foreach ($games as $game) {
             $fieldGameCounter = $this->fieldMap[$game->getField()->getUniqueIndex()];
             $this->fieldMap[$game->getField()->getUniqueIndex()] = $fieldGameCounter->increment();

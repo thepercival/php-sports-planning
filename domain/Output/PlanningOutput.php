@@ -11,6 +11,7 @@ use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\Output\BatchOutput;
 use SportsPlanning\Output\PlanningOutput\Extra;
 use SportsPlanning\Planning;
+use SportsPlanning\PlanningWithMeta;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
 use SportsPlanning\Resource\ResourceType;
@@ -22,18 +23,18 @@ final class PlanningOutput extends OutputHelper
         parent::__construct($logger);
     }
 
-    public function output(Planning $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
+    public function output(PlanningWithMeta $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
     {
         $this->outputHelper($planning, $extra, $prefix, $suffix, $color);
     }
 
-    public function outputState(Planning $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
+    public function outputState(PlanningWithMeta $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
     {
         $this->outputHelper($planning, $extra, $prefix, $suffix, $color);
     }
 
     protected function outputHelper(
-        Planning $planning,
+        PlanningWithMeta $planningWithMeta,
         int $extra,
         string $prefix = null,
         string $suffix = null,
@@ -41,17 +42,17 @@ final class PlanningOutput extends OutputHelper
     ): void {
         $outputs = [];
         if (($extra & Extra::NrOfBatchGamesRange->value) === Extra::NrOfBatchGamesRange->value) {
-            $outputs[] = 'batchGames ' . $planning->getNrOfBatchGames()->getMin() . '->' . $planning->getNrOfBatchGames()->getMax();
+            $outputs[] = 'batchGames ' . (string)$planningWithMeta->getNrOfBatchGames();
         }
         if (($extra & Extra::MaxNrOfGamesInARow->value) === Extra::MaxNrOfGamesInARow->value) {
-            $outputs[] = 'gamesInARow ' . $planning->maxNrOfGamesInARow;
+            $outputs[] = 'gamesInARow ' . $planningWithMeta->maxNrOfGamesInARow;
         }
-        $timeoutState = $planning->getTimeoutState();
+        $timeoutState = $planningWithMeta->getTimeoutState();
         if( $timeoutState !== null ) {
             $outputs[] = 'timeoutState "' . $timeoutState->value . '"';
         }
         if (($extra & Extra::Orchestration->value) === Extra::Orchestration->value) {
-            $outputs[] = $this->getConfigurationAsString($planning->getConfiguration());
+            $outputs[] = $this->getConfigurationAsString($planningWithMeta->getConfiguration());
         }
         $output = ($prefix ?? '') . join(', ', $outputs) . ($suffix ?? '');
         if( $color !== null ){
@@ -61,10 +62,10 @@ final class PlanningOutput extends OutputHelper
 
         if (($extra & Extra::Games->value) === Extra::Games->value) {
             $batchOutput = new BatchOutput($this->logger);
-            $batchOutput->output($planning->createFirstBatch());
+            $batchOutput->output($planningWithMeta->createFirstBatch());
         }
         if (($extra & Extra::Totals->value) === Extra::Totals->value) {
-            $resourceCounter = new ResourceCounter($planning);
+            $resourceCounter = new ResourceCounter($planningWithMeta);
             $this->outputTotals($resourceCounter->getCounters());
         }
     }

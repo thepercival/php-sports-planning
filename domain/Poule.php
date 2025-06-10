@@ -6,14 +6,12 @@ namespace SportsPlanning;
 
 use Exception;
 use SportsPlanning\Game\AgainstGame;
+use SportsPlanning\Game\AgainstGamePlace;
 use SportsPlanning\Game\TogetherGame;
+use SportsPlanning\Game\TogetherGamePlace;
 
 final class Poule
 {
-    /**
-     * @var list<Place>
-     */
-    public readonly array $places;
 
     /**
      * @var list<AgainstGame>
@@ -24,15 +22,22 @@ final class Poule
      */
     protected array $togetherGames = [];
 
-    public function __construct(public readonly int $pouleNr, int $nrOfPlaces /* Category $category*/)
+    /**
+     * @param int $pouleNr
+     * @param list<Place> $places
+     * @throws Exception
+     */
+    private function __construct(public readonly int $pouleNr, public readonly array $places)
     {
+    }
+
+    public static function fromNrOfPlaces(int $pouleNr, int $nrOfPlaces): self {
         $places = [];
         for ($placeNr = 1; $placeNr <= $nrOfPlaces; $placeNr++) {
             $places[] = new Place($placeNr, $pouleNr);
         }
-        $this->places = $places;
+        return new self($pouleNr, $places);
     }
-
     /*public function getCategory(): Category
     {
         return $this->category;
@@ -80,6 +85,16 @@ final class Poule
     public function getGames(): array
     {
         return array_merge($this->againstGames, $this->togetherGames);
+    }
+
+    /**
+     * @return list<Place>
+     */
+    public function getPlaces(AgainstGame|TogetherGame $game): array
+    {
+        return array_map(function(AgainstGamePlace|TogetherGamePlace $gamePlace): Place {
+            return $this->getPlace($gamePlace->placeNr);
+        }, $game->getGamePlaces() );
     }
 
     public function removeGames(): void

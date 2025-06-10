@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Batches;
 
+use Exception;
 use SportsPlanning\Game\AgainstGame;
 use SportsPlanning\Game\TogetherGame;
 use SportsPlanning\Place;
@@ -29,7 +30,12 @@ final class Batch extends ListNode
      * @var array<string,int>
      */
     protected array $previousGamesInARowMap = [];
-    public function __construct(Batch|null $previous = null)
+
+    /**
+     * @param array<int,Poule> $allPoulesMap
+     * @param Batch|null $previous
+     */
+    public function __construct(private array $allPoulesMap, Batch|null $previous = null)
     {
         parent::__construct($previous);
     }
@@ -48,7 +54,7 @@ final class Batch extends ListNode
 
     public function createNext(): Batch
     {
-        $this->next = new Batch($this);
+        $this->next = new Batch($this->allPoulesMap, $this);
         $this->next->setPreviousGamesInARow($this->previousGamesInARowMap, $this->createMapGamesInARowMap());
         return $this->next;
     }
@@ -93,7 +99,8 @@ final class Batch extends ListNode
     public function add(TogetherGame|AgainstGame $game): void
     {
         $this->games[] = $game;
-        foreach ($game->getPlaces() as $place) {
+        $poule = $this->getPoule($game->pouleNr);
+        foreach ($poule->getPlaces($game) as $place) {
             $this->placeMap[$place->getUniqueIndex()] = $place;
         }
     }
@@ -104,9 +111,18 @@ final class Batch extends ListNode
         if ($index !== false) {
             array_splice($this->games, $index, 1);
         }
-        foreach ($game->getPlaces() as $place) {
+        $poule = $this->getPoule($game->pouleNr);
+        foreach ($poule->getPlaces($game) as $place) {
             unset($this->placeMap[$place->getUniqueIndex()]);
         }
+    }
+
+    public function getPoule(int $pouleNr): Poule
+    {
+        if( false === array_key_exists($pouleNr, $this->allPoulesMap) ) {
+            throw new Exception('poule does not exists in batches');
+        }
+        return $this->allPoulesMap[$pouleNr];
     }
 
     /**
@@ -127,7 +143,7 @@ final class Batch extends ListNode
             return $this->games;
         }
         $games = array_filter($this->games, function (TogetherGame|AgainstGame $game) use ($poule): bool {
-            return $game->poule === $poule;
+            return $game->pouleNr === $poule->pouleNr;
         });
         return array_values($games);
     }
@@ -154,13 +170,14 @@ final class Batch extends ListNode
      */
     public function getPoulesParticipating(): array
     {
-        $poules = [];
-        foreach ($this->getGames() as $game) {
-            if (array_search($game->poule, $poules, true) === false) {
-                $poules[] = $game->poule;
+        $poulesParticipating = [];
+        foreach($this->getGames() as $game) {
+            if( array_key_exists($game->pouleNr, $poulesParticipating)) {
+                continue;
             }
+            $poulesParticipating[$game->pouleNr] = $this->getPoule($game->pouleNr);
         }
-        return $poules;
+        return array_values($poulesParticipating);
     }
 
     /**
@@ -177,5 +194,27 @@ final class Batch extends ListNode
             }
         }
         return $unassignedPlaces;
+    }
+
+    /**
+     * @return array<int, list<Place>>
+     */
+    public function createPlacesOtherPoulesMap(): array
+    {
+        $otherPoulePlacesMap = [];
+        foreach ($this->allPoulesMap as $poule) {
+            $otherPoulePlacesMap[$poule->pouleNr] = [];
+            $otherPoules = $this->allPoulesMap;
+            foreach ($otherPoules as $otherPoule) {
+                if ($otherPoule === $poule) {
+                    continue;
+                }
+                $otherPoulePlacesMap[$poule->pouleNr] = array_merge(
+                    $otherPoulePlacesMap[$poule->pouleNr],
+                    $otherPoule->places
+                );
+            }
+        }
+        return $otherPoulePlacesMap;
     }
 }

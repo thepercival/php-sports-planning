@@ -267,7 +267,7 @@ abstract class SelfRefereeBatchAbstract
             $this->addRefereeUniqueIndex($refereePlaceUniqueIndex);
         }
 
-        $poule = $game->poule;
+        $poule = $this->batch->getPoule($game->pouleNr);
         $pouleNr = $poule->pouleNr;
         if (!array_key_exists($pouleNr, $this->pouleCounterMap)) {
             $this->pouleCounterMap[$pouleNr] = new GamePlacesCounterForPoule($poule);
@@ -283,7 +283,7 @@ abstract class SelfRefereeBatchAbstract
             $this->removeReferee($refereePlaceUniqueIndex);
         }
 
-        $poule = $game->poule;
+        $poule = $this->batch->getPoule($game->pouleNr);
         $this->pouleCounterMap[$poule->pouleNr] = $this->pouleCounterMap[$poule->pouleNr]->remove(
             count($game->getGamePlaces())
         );
@@ -311,6 +311,11 @@ abstract class SelfRefereeBatchAbstract
     public function getGamesInARow(Place $place): int
     {
         return $this->getBase()->getGamesInARow($place);
+    }
+
+    public function getPoule(int $pouleNr): Poule
+    {
+        return $this->getBase()->getPoule($pouleNr);
     }
 
     /**

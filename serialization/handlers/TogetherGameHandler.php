@@ -45,7 +45,7 @@ final class TogetherGameHandler extends Handler implements SubscribingHandlerInt
         Context $context
     ): TogetherGame {
 
-        $togetherGame = new TogetherGame($fieldValue['poule'],$fieldValue['field']);
+        $togetherGame = TogetherGame::fromPoule($fieldValue['poule'],$fieldValue['field']);
 
         $togetherGame->setBatchNr($fieldValue['batchNr']);
 

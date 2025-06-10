@@ -16,6 +16,7 @@ use SportsPlanning\Game\AgainstGame;
 use SportsPlanning\Planning;
 use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\PlanningOrchestration;
+use SportsPlanning\PlanningWithMeta;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 final class SelfRefereeBatchSamePouleTest extends TestCase
@@ -26,22 +27,22 @@ final class SelfRefereeBatchSamePouleTest extends TestCase
         $sportsWithNrOfFieldsAndNrOfCycles = [
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 6, 1)
         ];
-        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+        $configuration = new PlanningConfiguration(
             new PouleStructure([5]),
             $sportsWithNrOfFieldsAndNrOfCycles,
             null,
             false
-        ));
+        );
+        $planning = Planning::fromConfiguration($configuration);
 
-        $planning = new Planning($orchestration, new SportRange(2,2),2);
         $poule = $planning->getPoule(1);
         $sport = $planning->getSport(1);
         $field = $sport->getField(1);
-        $againstGame = new AgainstGame($poule, $field, 1, 1);
+        $againstGame = AgainstGame::fromPoule($poule, $field, 1, 1);
         $againstGame->addGamePlace(AgainstSide::Home, 1);
         $againstGame->addGamePlace( AgainstSide::Away, 2);
 
-        $batch = new SelfRefereeBatchSamePoule(new Batch());
+        $batch = new SelfRefereeBatchSamePoule(new Batch($planning->createPouleMap()));
         $batch->add($againstGame);
 
         self::assertSame(3, $batch->getNrOfPlacesParticipating($poule, 1));

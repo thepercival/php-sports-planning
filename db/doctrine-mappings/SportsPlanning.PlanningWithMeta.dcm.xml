@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
-  <entity name="SportsPlanning\Planning" table="plannings">
+  <entity name="SportsPlanning\PlanningWithMeta" table="plannings">
     <field name="minNrOfBatchGames" column="minNrOfBatchGames" type="smallint" nullable="false" unique="false"/>
     <field name="maxNrOfBatchGames" column="maxNrOfBatchGames" type="smallint" nullable="false" unique="false"/>
     <field name="maxNrOfGamesInARow" column="maxNrOfGamesInARow" type="smallint" nullable="false" unique="false"/>
@@ -10,7 +10,7 @@
            unique="false"/>
     <field name="nrOfBatches" column="nrOfBatches" type="smallint" nullable="false" unique="false"/>
     <field name="validity" column="validity" type="integer" nullable="false" unique="false"/>
-    <field name="content" column="content" type="text" nullable="false" unique="false"/>
+    <field name="planning" column="planning" type="json_document" nullable="false" unique="false"/>
     <many-to-one field="orchestration" target-entity="SportsPlanning\PlanningOrchestration" inversed-by="plannings">
       <join-columns>
         <join-column name="orchestrationId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>

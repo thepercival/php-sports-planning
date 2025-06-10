@@ -63,7 +63,7 @@ final readonly class PlanningPouleStructure
         $nrOfBatchGames = 0;
         $poules = array_reverse($this->pouleStructure->toArray());
         $nrOfReferees = $this->refereeInfo?->nrOfReferees ?? 0;
-        $selfReferee = $this->refereeInfo?->selfRefereeInfo->selfReferee;
+        $selfReferee = $this->refereeInfo?->selfRefereeInfo?->selfReferee;
         $doSelfRefereeOtherPouleCheck = $selfReferee === SelfReferee::OtherPoules;
         $doRefereeCheck = $nrOfReferees > 0;
         $sportWithNrOfFieldsAndNrOfCycles = array_shift($sortedSportsWithNrOfFieldsAndNrOfCycles);

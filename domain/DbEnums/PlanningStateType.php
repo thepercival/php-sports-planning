@@ -1,9 +1,10 @@
 <?php
 
-namespace SportsPlanning\Planning;
+namespace SportsPlanning\DbEnums;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use SportsHelpers\DbEnums\EnumDbType;
+use SportsPlanning\Planning\PlanningState;
 
 final class PlanningStateType extends EnumDbType
 {
@@ -31,12 +32,13 @@ final class PlanningStateType extends EnumDbType
         return null;
     }
 
+
+    #[\Override]
     /**
      * @param array<string, mixed> $column
      * @param AbstractPlatform $platform
      * @return string
-     */
-    #[\Override]
+     **/
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return 'varchar(13)';
