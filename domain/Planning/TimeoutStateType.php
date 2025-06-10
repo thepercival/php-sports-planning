@@ -14,7 +14,7 @@ final class TimeoutStateType extends EnumDbType
     }
 
     #[\Override]
-    public function convertToPHPValue($value, AbstractPlatform $platform)
+    public function convertToPHPValue($value, AbstractPlatform $platform): TimeoutState|null
     {
         if ($value === TimeoutState::Time1xNoSort->value) {
             return TimeoutState::Time1xNoSort;
@@ -34,6 +34,11 @@ final class TimeoutStateType extends EnumDbType
         return null;
     }
 
+    /**
+     * @param array<string, mixed> $column
+     * @param AbstractPlatform $platform
+     * @return string
+     */
     #[\Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

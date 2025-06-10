@@ -5,11 +5,9 @@ namespace SportsPlanning\Tests\Sports\Plannable;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
-use SportsPlanning\TestHelper\PlanningCreator;
 
 final class PlannableTogetherSportTest extends TestCase
 {
-    use PlanningCreator;
 
     public function testConstruct(): void
     {

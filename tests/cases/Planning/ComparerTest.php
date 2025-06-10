@@ -5,20 +5,32 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\Planning;
 
 use PHPUnit\Framework\TestCase;
+use SportsHelpers\PouleStructures\PouleStructure;
+use SportsHelpers\RefereeInfo;
 use SportsHelpers\SportRange;
-use SportsPlanning\Planning as PlanningBase;
+use SportsHelpers\Sports\AgainstOneVsOne;
+use SportsPlanning\Planning;
 use SportsPlanning\Planning\Comparer;
 use SportsPlanning\Planning\HistoricalBestPlanning;
-use SportsPlanning\TestHelper\PlanningCreator;
+use SportsPlanning\PlanningConfiguration;
+use SportsPlanning\PlanningOrchestration;
+use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 final class ComparerTest extends TestCase
 {
-    use PlanningCreator;
 
     public function testNrOfBatchesBetterCurrent(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 2, 2), 0);
         $planning->setNrOfBatches(2);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -28,9 +40,16 @@ final class ComparerTest extends TestCase
 
     public function testNrOfBatchesBetterHistorical(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
-            $orchestration, new SportRange( 2, 2), 0);
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning($orchestration, new SportRange( 2, 2), 0);
         $planning->setNrOfBatches(4);
         $historicalBestPlanning = new HistoricalBestPlanning(
             $orchestration, new SportRange( 2, 2), 0, 'test', 3);
@@ -39,8 +58,16 @@ final class ComparerTest extends TestCase
 
     public function testEqual(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 2, 2), 0);
         $planning->setNrOfBatches(3);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -50,8 +77,16 @@ final class ComparerTest extends TestCase
 
     public function testGamesInARowEqualBatcheGamesRangeBetterCurrent(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 2, 3), 0);
         $planning->setNrOfBatches(3);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -61,8 +96,16 @@ final class ComparerTest extends TestCase
 
     public function testGamesInARowEqualBatcheGamesMinBetterCurrent(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 3, 3), 0);
         $planning->setNrOfBatches(3);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -72,8 +115,16 @@ final class ComparerTest extends TestCase
 
     public function testEqualMaxGamesInARowGreaterThanZero(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 2, 2), 1);
         $planning->setNrOfBatches(3);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -83,8 +134,16 @@ final class ComparerTest extends TestCase
 
     public function testMaxNrOfGamesInARowBetterCurrent(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 2, 2), 1);
         $planning->setNrOfBatches(3);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -94,8 +153,16 @@ final class ComparerTest extends TestCase
 
     public function testMaxNrOfGamesInARowBetterHistorical(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 2, 2), 0);
         $planning->setNrOfBatches(3);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -105,8 +172,16 @@ final class ComparerTest extends TestCase
 
     public function testMaxNrOfGamesInARowBetterCurrentNoZeroes(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 2, 2), 1);
         $planning->setNrOfBatches(3);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -116,8 +191,16 @@ final class ComparerTest extends TestCase
 
     public function testMaxNrOfGamesInARowBetterHistoricalNoZeroes(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 2, 2), 2);
         $planning->setNrOfBatches(3);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -127,8 +210,16 @@ final class ComparerTest extends TestCase
 
     public function testIntegrationBestCurrent(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 2, 2), 0);
         $planning->setNrOfBatches(2);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -136,7 +227,7 @@ final class ComparerTest extends TestCase
 
         $plannings = [$historicalBestPlanning];
         array_push( $plannings, $planning );
-        uasort($plannings, function (PlanningBase|HistoricalBestPlanning $first, PlanningBase|HistoricalBestPlanning $second): int {
+        uasort($plannings, function (Planning|HistoricalBestPlanning $first, Planning|HistoricalBestPlanning $second): int {
             return (new Comparer())->compare($first, $second);
         });
         $firstPlanning = array_shift($plannings);
@@ -144,8 +235,16 @@ final class ComparerTest extends TestCase
     }
     public function testIntegrationEqual(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning(
             $orchestration, new SportRange( 2, 2), 0);
         $planning->setNrOfBatches(3);
         $historicalBestPlanning = new HistoricalBestPlanning(
@@ -153,7 +252,7 @@ final class ComparerTest extends TestCase
 
         $plannings = [$historicalBestPlanning];
         array_push( $plannings, $planning );
-        uasort($plannings, function (PlanningBase|HistoricalBestPlanning $first, PlanningBase|HistoricalBestPlanning $second): int {
+        uasort($plannings, function (Planning|HistoricalBestPlanning $first, Planning|HistoricalBestPlanning $second): int {
             return (new Comparer())->compare($first, $second);
         });
         $firstPlanning = array_shift($plannings);
@@ -161,7 +260,7 @@ final class ComparerTest extends TestCase
 
         $plannings = [$planning];
         array_push( $plannings, $historicalBestPlanning );
-        uasort($plannings, function (PlanningBase|HistoricalBestPlanning $first, PlanningBase|HistoricalBestPlanning $second): int {
+        uasort($plannings, function (Planning|HistoricalBestPlanning $first, Planning|HistoricalBestPlanning $second): int {
             return (new Comparer())->compare($first, $second);
         });
         $firstPlanning = array_shift($plannings);
@@ -170,16 +269,23 @@ final class ComparerTest extends TestCase
 
     public function testIntegrationCurrentSecond(): void
     {
-        $orchestration = $this->createOrchestration([4]);
-        $planning = new PlanningBase(
-            $orchestration, new SportRange( 2, 2), 0);
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([4]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
+        $planning = new Planning($orchestration, new SportRange( 2, 2), 0);
         $planning->setNrOfBatches(4);
         $historicalBestPlanning = new HistoricalBestPlanning(
             $orchestration, new SportRange( 2, 2), 0, 'test', 3);
 
         $plannings = [$historicalBestPlanning];
         array_push( $plannings, $planning );
-        uasort($plannings, function (PlanningBase|HistoricalBestPlanning $first, PlanningBase|HistoricalBestPlanning $second): int {
+        uasort($plannings, function (Planning|HistoricalBestPlanning $first, Planning|HistoricalBestPlanning $second): int {
             return (new Comparer())->compare($first, $second);
         });
         $firstPlanning = array_shift($plannings);

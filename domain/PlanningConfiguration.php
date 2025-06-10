@@ -3,6 +3,7 @@
 namespace SportsPlanning;
 
 use SportsHelpers\PouleStructures\PouleStructure;
+use SportsHelpers\RefereeInfo;
 use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
@@ -10,7 +11,6 @@ use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
 use SportsPlanning\Exceptions\SportsIncompatibleWithPerPouleException;
 use SportsPlanning\Exceptions\SportsIncompatibleWithPouleStructureException;
-use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
@@ -21,20 +21,20 @@ final readonly class PlanningConfiguration
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
-     * @param PlanningRefereeInfo $refereeInfo
+     * @param RefereeInfo|null $refereeInfo
      * @param bool $perPoule
      * @throws \Exception
      */
     public function __construct(
         public PouleStructure $pouleStructure,
         public array $sportsWithNrOfFieldsAndNrOfCycles,
-        public PlanningRefereeInfo $refereeInfo,
+        public RefereeInfo|null $refereeInfo,
         public bool $perPoule )
     {
-        $selfReferee = $refereeInfo->selfRefereeInfo->selfReferee;
+        $selfReferee = $refereeInfo?->selfRefereeInfo?->selfReferee;
 
         $sports = $this->createSports();
-        if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee( $sports, $selfReferee ) ) {
+        if( $selfReferee !== null && !$pouleStructure->isCompatibleWithSportsAndSelfReferee( $sports, $selfReferee ) ) {
             throw new SelfRefereeIncompatibleWithPouleStructureException($pouleStructure, $sports, $selfReferee);
         }
         if( !$pouleStructure->isCompatibleWithSports( $sports ) ) {

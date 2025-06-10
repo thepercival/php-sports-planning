@@ -100,8 +100,9 @@ final class Planning extends Identifiable
         }, $configuration->sportsWithNrOfFieldsAndNrOfCycles );
 
         $referees = [];
-        if ($configuration->refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::Disabled) {
-            for ($refNr = 1; $refNr <= $configuration->refereeInfo->nrOfReferees; $refNr++) {
+        $nrOfReferees = $configuration->refereeInfo?->nrOfReferees;
+        if ($nrOfReferees !== null) {
+            for ($refNr = 1; $refNr <= $nrOfReferees; $refNr++) {
                 $referees[] = new Referee($refNr);
             }
         }
@@ -216,7 +217,7 @@ final class Planning extends Identifiable
         $games = $this->getGames(Planning::ORDER_GAMES_BY_BATCH);
         $batch = new Batch();
         $configuration = $this->getConfiguration();
-        $selfReferee = $configuration->refereeInfo->selfRefereeInfo->selfReferee;
+        $selfReferee = $configuration->refereeInfo?->selfRefereeInfo?->selfReferee;
         if ($selfReferee === SelfReferee::SamePoule) {
             $batch = new SelfRefereeBatchSamePoule($batch);
         } else if( $selfReferee === SelfReferee::OtherPoules) {

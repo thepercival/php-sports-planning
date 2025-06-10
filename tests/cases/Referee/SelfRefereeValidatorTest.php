@@ -5,25 +5,27 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests\Referee;
 
 use PHPUnit\Framework\TestCase;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\AgainstOneVsOne;
-use SportsPlanning\Referee\PlanningRefereeInfo;
+use SportsPlanning\PlanningConfiguration;
+use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Referee\SelfRefereeValidator;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
-use SportsPlanning\TestHelper\PlanningCreator;
 
 final class SelfRefereeValidatorTest extends TestCase
 {
-    use PlanningCreator;
 
     public function test332(): void
     {
         $validator = new SelfRefereeValidator();
-        $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $orchestration = $this->createOrchestration(
-            [3, 2, 2],
-            [$sportWithNrOfFieldsAndNrOfCycles],
-            $refereeInfo
+        $orchestration = new PlanningOrchestration(
+            new PlanningConfiguration(
+                new PouleStructure([3, 2, 2]),
+                [$sportWithNrOfFieldsAndNrOfCycles],
+                null,
+                false
+            )
         );
 
         self::assertTrue(
@@ -34,9 +36,15 @@ final class SelfRefereeValidatorTest extends TestCase
     public function test2(): void
     {
         $validator = new SelfRefereeValidator();
-        $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $orchestration = $this->createOrchestration([2], [$sportWithNrOfFieldsAndNrOfCycles], $refereeInfo);
+        $orchestration = new PlanningOrchestration(
+            new PlanningConfiguration(
+                new PouleStructure([2]),
+                [$sportWithNrOfFieldsAndNrOfCycles],
+                null,
+                false
+            )
+        );
 
         self::assertFalse(
             $validator->canSelfRefereeBeAvailable($orchestration->configuration->pouleStructure, [$sportWithNrOfFieldsAndNrOfCycles->sport])
@@ -46,12 +54,14 @@ final class SelfRefereeValidatorTest extends TestCase
     public function test22SamePoule(): void
     {
         $validator = new SelfRefereeValidator();
-        $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $orchestration = $this->createOrchestration(
-            [2, 2],
-            [$sportWithNrOfFieldsAndNrOfCycles],
-            $refereeInfo
+        $orchestration = new PlanningOrchestration(
+            new PlanningConfiguration(
+                new PouleStructure([2,2]),
+                [$sportWithNrOfFieldsAndNrOfCycles],
+                null,
+                false
+            )
         );
 
         self::assertFalse(
@@ -62,12 +72,14 @@ final class SelfRefereeValidatorTest extends TestCase
     public function test32SamePoule(): void
     {
         $validator = new SelfRefereeValidator();
-        $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $orchestration = $this->createOrchestration(
-            [3, 2],
-            [$sportWithNrOfFieldsAndNrOfCycles],
-            $refereeInfo
+        $orchestration = new PlanningOrchestration(
+            new PlanningConfiguration(
+                new PouleStructure([3,2]),
+                [$sportWithNrOfFieldsAndNrOfCycles],
+                null,
+                false
+            )
         );
 
         self::assertFalse(
@@ -78,12 +90,14 @@ final class SelfRefereeValidatorTest extends TestCase
     public function test33SamePoule(): void
     {
         $validator = new SelfRefereeValidator();
-        $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $orchestration = $this->createOrchestration(
-            [3, 3],
-            [$sportWithNrOfFieldsAndNrOfCycles],
-            $refereeInfo
+        $orchestration = new PlanningOrchestration(
+            new PlanningConfiguration(
+                new PouleStructure([3,3]),
+                [$sportWithNrOfFieldsAndNrOfCycles],
+                null,
+                false
+            )
         );
 
         self::assertTrue(
@@ -94,9 +108,15 @@ final class SelfRefereeValidatorTest extends TestCase
     public function test3OtherPoule(): void
     {
         $validator = new SelfRefereeValidator();
-        $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $orchestration = $this->createOrchestration([3], [$sportWithNrOfFieldsAndNrOfCycles], $refereeInfo);
+        $orchestration = new PlanningOrchestration(
+            new PlanningConfiguration(
+                new PouleStructure([3]),
+                [$sportWithNrOfFieldsAndNrOfCycles],
+                null,
+                false
+            )
+        );
 
         self::assertFalse(
             $validator->canSelfRefereeOtherPoulesBeAvailable($orchestration->configuration->pouleStructure)
@@ -106,12 +126,14 @@ final class SelfRefereeValidatorTest extends TestCase
     public function test22OtherPoule(): void
     {
         $validator = new SelfRefereeValidator();
-        $refereeInfo = new PlanningRefereeInfo();
         $sportWithNrOfFieldsAndNrOfCycles = new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1);
-        $orchestration = $this->createOrchestration(
-            [2, 2],
-            [$sportWithNrOfFieldsAndNrOfCycles],
-            $refereeInfo
+        $orchestration = new PlanningOrchestration(
+            new PlanningConfiguration(
+                new PouleStructure([2, 2]),
+                [$sportWithNrOfFieldsAndNrOfCycles],
+                null,
+                false
+            )
         );
 
         self::assertTrue(

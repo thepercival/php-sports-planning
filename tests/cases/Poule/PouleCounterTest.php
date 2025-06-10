@@ -4,18 +4,31 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Tests\Poule;
 
+use SportsHelpers\PouleStructures\PouleStructure;
+use SportsHelpers\RefereeInfo;
 use SportsHelpers\SportRange;
+use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsPlanning\Counters\GamePlacesCounterForPoule;
 use SportsPlanning\Planning;
+use SportsPlanning\PlanningConfiguration;
+use SportsPlanning\PlanningOrchestration;
+use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 final class PouleCounterTest extends \PHPUnit\Framework\TestCase
 {
-    use PlanningCreator;
 
     public function testCalculations(): void
     {
-        $orchestration = $this->createOrchestration([3]);
+        $sportsWithNrOfFieldsAndNrOfCycles = [
+            new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 2, 1)
+        ];
+        $orchestration = new PlanningOrchestration( new PlanningConfiguration(
+            new PouleStructure([3]),
+            $sportsWithNrOfFieldsAndNrOfCycles,
+            RefereeInfo::fromNrOfReferees(2),
+            false
+        ));
         $planning = new Planning($orchestration, new SportRange(1,1),2);
 
         $pouleOne = $planning->getPoule(1);

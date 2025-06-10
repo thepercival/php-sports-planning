@@ -13,13 +13,10 @@ use SportsPlanning\PlanningOrchestration;
 use SportsPlanning\Planning;
 use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\Poule;
-use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
-use SportsPlanning\TestHelper\PlanningCreator;
 
 final class GamePlacesCounterForPouleTest extends TestCase
 {
-    use PlanningCreator;
     public function testCountSmallerThanZero(): void
     {
         self::expectException(\Exception::class);
@@ -70,9 +67,9 @@ final class GamePlacesCounterForPouleTest extends TestCase
             new SportWithNrOfFieldsAndNrOfCycles(new AgainstOneVsOne(), 1, 1)
         ];
         $orchestration = new PlanningOrchestration( new PlanningConfiguration(
-            new PouleStructure(3),
+            new PouleStructure([3]),
             $sportsWithNrOfFieldsAndNrOfCycles,
-            new PlanningRefereeInfo(),
+            null,
             false
         ));
         $planning = new Planning($orchestration, new SportRange(1,1),2);

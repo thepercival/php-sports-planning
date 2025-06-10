@@ -8,17 +8,14 @@ use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\PlanningOrchestration;
-use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Schedules\ScheduleWithNrOfPlaces;
 use SportsPlanning\Schedules\Sports\ScheduleAgainstOneVsOne;
 use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
-use SportsPlanning\TestHelper\PlanningCreator;
 
  final class AgainstTwoVsTwoWithNrOfPlacesTest extends TestCase
 {
-    use PlanningCreator;
 
     public function testCalculateNrOfGamesPerPlace(): void {
         $sportWithNrOfPlaces = new AgainstTwoVsTwoWithNrOfPlaces(4, new AgainstTwoVsTwo());

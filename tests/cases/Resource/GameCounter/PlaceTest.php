@@ -6,11 +6,9 @@ namespace SportsPlanning\Tests\Resource\GameCounter;
 
 use PHPUnit\Framework\TestCase;
 use SportsPlanning\Counters\CounterForPlaceNr;
-use SportsPlanning\TestHelper\PlanningCreator;
 
 final class PlaceTest extends TestCase
 {
-    use PlanningCreator;
 
     public function testCalculations(): void
     {

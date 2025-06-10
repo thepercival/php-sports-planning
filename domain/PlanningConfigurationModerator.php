@@ -3,6 +3,7 @@
 namespace SportsPlanning;
 
 use SportsHelpers\PouleStructures\PouleStructure;
+use SportsHelpers\RefereeInfo;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SelfRefereeInfo;
 use SportsHelpers\Sports\AgainstOneVsOne;
@@ -11,7 +12,6 @@ use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\PlanningConfiguration;
 use SportsPlanning\PlanningPouleStructure;
-use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Referee\SelfRefereeValidator;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
@@ -25,13 +25,13 @@ final class PlanningConfigurationModerator
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
-     * @param PlanningRefereeInfo $refereeInfo
+     * @param RefereeInfo $refereeInfo
      * @param bool $perPoule
      */
     public function createReducedAndValidatedConfiguration(
         PouleStructure $pouleStructure,
         array $sportsWithNrOfFieldsAndNrOfCycles,
-        PlanningRefereeInfo $refereeInfo,
+        RefereeInfo $refereeInfo,
         bool $perPoule
         ): PlanningConfiguration
     {
@@ -51,21 +51,24 @@ final class PlanningConfigurationModerator
     }
 
     /**
-     * @param PlanningRefereeInfo $refereeInfo
+     * @param RefereeInfo $refereeInfo
      * @param list<TogetherSport|AgainstOneVsOne|AgainstOneVsTwo|AgainstTwoVsTwo> $sports
      * @param PouleStructure $pouleStructure
-     * @return PlanningRefereeInfo
+     * @return RefereeInfo
      */
     protected function getValidatedRefereeInfo(
-        PlanningRefereeInfo $refereeInfo, PouleStructure $pouleStructure, array $sports
-        ): PlanningRefereeInfo
+        RefereeInfo $refereeInfo, PouleStructure $pouleStructure, array $sports
+        ): RefereeInfo
     {
         $selfRefereeInfo = $refereeInfo->selfRefereeInfo;
-        $newSelfReferee = $this->getValidatedSelfReferee($selfRefereeInfo->selfReferee, $pouleStructure, $sports);
-        if( $newSelfReferee === SelfReferee::Disabled ) {
-            return new PlanningRefereeInfo( $refereeInfo->nrOfReferees );
+        if( $selfRefereeInfo === null ) {
+            return RefereeInfo::fromNrOfReferees( $refereeInfo->nrOfReferees );
         }
-        return new PlanningRefereeInfo( new SelfRefereeInfo( $newSelfReferee, $selfRefereeInfo->nrIfSimSelfRefs ) );
+        $newSelfReferee = $this->getValidatedSelfReferee($selfRefereeInfo->selfReferee, $pouleStructure, $sports);
+        if( $newSelfReferee === null ) {
+            return RefereeInfo::fromNrOfReferees( $refereeInfo->nrOfReferees );
+        }
+        return RefereeInfo::fromSelfRefereeInfo( new SelfRefereeInfo( $newSelfReferee, $selfRefereeInfo->nrOfSimSelfRefs ) );
     }
 
     /**
@@ -78,13 +81,13 @@ final class PlanningConfigurationModerator
         SelfReferee $selfReferee,
         PouleStructure $pouleStructure,
         array $sports,
-        ): SelfReferee
+        ): SelfReferee|null
     {
         $validatorSelfRef = new SelfRefereeValidator();
         $otherPoulesAvailable = $validatorSelfRef->canSelfRefereeOtherPoulesBeAvailable($pouleStructure);
         $samePouleAvailable = $validatorSelfRef->canSelfRefereeSamePouleBeAvailable($pouleStructure, $sports);
         if (!$otherPoulesAvailable && !$samePouleAvailable) {
-            return SelfReferee::Disabled;
+            return null;
         }
         if ($selfReferee === SelfReferee::OtherPoules && !$otherPoulesAvailable) {
             return SelfReferee::SamePoule;
@@ -98,13 +101,13 @@ final class PlanningConfigurationModerator
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
-     * @param PlanningRefereeInfo $refereeInfo
+     * @param RefereeInfo $refereeInfo
      * @return list<SportWithNrOfFieldsAndNrOfCycles>
      */
     protected function reduceFields(
         PouleStructure $pouleStructure,
         array $sportsWithNrOfFieldsAndNrOfCycles,
-        PlanningRefereeInfo $refereeInfo
+        RefereeInfo $refereeInfo
     ): array {
         $planningPouleStructure = new PlanningPouleStructure(
             $pouleStructure,

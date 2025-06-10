@@ -32,8 +32,8 @@ final class ResourceCounter
 
     protected function init(): void
     {
-        $configuration = $this->planning->getConfiguration();
-        $selfRefereeEnabled = $configuration->refereeInfo->selfRefereeInfo->selfReferee !== SelfReferee::Disabled;
+        $selfRefereeInfo = $this->planning->getConfiguration()->refereeInfo?->selfRefereeInfo;
+        $selfRefereeEnabled = $selfRefereeInfo !== null;
 
         foreach ($this->planning->sports as $sport) {
             foreach ($sport->fields as $field) {

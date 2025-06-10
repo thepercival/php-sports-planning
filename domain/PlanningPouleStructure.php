@@ -3,6 +3,7 @@
 namespace SportsPlanning;
 
 use SportsHelpers\PouleStructures\PouleStructure;
+use SportsHelpers\RefereeInfo;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
@@ -10,7 +11,6 @@ use SportsHelpers\Sports\AgainstTwoVsTwo;
 use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
 use SportsPlanning\Exceptions\SportsIncompatibleWithPouleStructureException;
-use SportsPlanning\Referee\PlanningRefereeInfo;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
@@ -19,20 +19,19 @@ final readonly class PlanningPouleStructure
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
-     * @param PlanningRefereeInfo $refereeInfo
+     * @param RefereeInfo|null $refereeInfo
      * @throws \Exception
      */
     public function __construct(
         public PouleStructure $pouleStructure,
         public array $sportsWithNrOfFieldsAndNrOfCycles,
-        public PlanningRefereeInfo $refereeInfo )
+        public RefereeInfo|null $refereeInfo )
     {
+        $selfReferee = $refereeInfo?->selfRefereeInfo?->selfReferee;
         $sports = $this->createSports();
-        if( !$pouleStructure->isCompatibleWithSportsAndSelfReferee($sports, $refereeInfo->selfRefereeInfo->selfReferee) ) {
-            throw new SelfRefereeIncompatibleWithPouleStructureException(
-                $pouleStructure, $sports,
-                $refereeInfo->selfRefereeInfo->selfReferee
-            );
+        if( $selfReferee !== null
+            && !$pouleStructure->isCompatibleWithSportsAndSelfReferee($sports, $selfReferee) ) {
+            throw new SelfRefereeIncompatibleWithPouleStructureException($pouleStructure, $sports, $selfReferee);
         }
         if( !$pouleStructure->isCompatibleWithSports( $sports ) ) {
             throw new SportsIncompatibleWithPouleStructureException($pouleStructure, $sports);
@@ -63,8 +62,9 @@ final readonly class PlanningPouleStructure
 
         $nrOfBatchGames = 0;
         $poules = array_reverse($this->pouleStructure->toArray());
-        $nrOfReferees = $this->refereeInfo->nrOfReferees;
-        $doSelfRefereeOtherPouleCheck = $this->refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::OtherPoules;
+        $nrOfReferees = $this->refereeInfo?->nrOfReferees ?? 0;
+        $selfReferee = $this->refereeInfo?->selfRefereeInfo->selfReferee;
+        $doSelfRefereeOtherPouleCheck = $selfReferee === SelfReferee::OtherPoules;
         $doRefereeCheck = $nrOfReferees > 0;
         $sportWithNrOfFieldsAndNrOfCycles = array_shift($sortedSportsWithNrOfFieldsAndNrOfCycles);
         // $singleSportVariantWithFields = count($sortedSportVariantsWithFields) === 0 ? $sportVariantWithFields : null;
@@ -76,7 +76,7 @@ final readonly class PlanningPouleStructure
             // be
             $nrOfGamePlaces = $sportWithNrOfFieldsAndNrOfCycles->sport->getNrOfGamePlaces() ?? $currentPouleNrOfPlaces;
             // SelfRef::SamePoule
-            $nrOfGamePlaces += ($this->refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::SamePoule ? 1 : 0);
+            $nrOfGamePlaces += ($selfReferee === SelfReferee::SamePoule ? 1 : 0);
 
             // BIJ SAMEPOULE, METEEN HET AANTAL ERAF HALEN
             // BIJ OTHERPOULES, KIJKEN ALS DE OVERIGE
@@ -115,10 +115,13 @@ final readonly class PlanningPouleStructure
 
 
     protected function enoughSelfRefereesLeft(int $nrOfPlacesToGo, int $nrOfGamePlaces, int $nrOfBatchGames): bool {
-        $nrOfSelfRefSim = $this->refereeInfo->selfRefereeInfo->nrIfSimSelfRefs;
+        $selfRefereeInfo = $this->refereeInfo?->selfRefereeInfo;
+        if( $selfRefereeInfo === null ) {
+            return true;
+        }
         $newNrOfBatchGames = $nrOfBatchGames + 1;
         $newNrOfPlacesToGo = $nrOfPlacesToGo - $nrOfGamePlaces;
-        $newNrOfSelfRefereePlacesUsed = (int)ceil($newNrOfBatchGames / $nrOfSelfRefSim);
+        $newNrOfSelfRefereePlacesUsed = (int)ceil($newNrOfBatchGames / $selfRefereeInfo->nrOfSimSelfRefs);
 
         return $newNrOfPlacesToGo >= $newNrOfSelfRefereePlacesUsed;
     }
@@ -138,7 +141,7 @@ final readonly class PlanningPouleStructure
         $nrOfRestPlaces = $nrOfPlaces - $maxNrOfBatchPlaces;
         if ($nrOfRestPlaces <= 0) {
             $nrOfPlacesPouleStructure = new PlanningPouleStructure(
-                new PouleStructure($nrOfPlaces),
+                new PouleStructure([$nrOfPlaces]),
                 $this->sportsWithNrOfFieldsAndNrOfCycles,
                 $this->refereeInfo );
 
@@ -192,7 +195,7 @@ final readonly class PlanningPouleStructure
     protected function getMaxNrOfPlacesPerBatch(): int
     {
         $sortedSportsWithNrofFieldsAndNrOfCycles = $this->sortSportsByNrOfGamePlaces();
-        $selfReferee = $this->refereeInfo->selfRefereeInfo->selfReferee !== SelfReferee::Disabled;
+        $selfReferee = $this->refereeInfo?->selfRefereeInfo?->selfReferee !== null;
         $nrOfBatchPlaces = 0;
         $nrOfPlaces = $this->pouleStructure->getNrOfPlaces();
         while ($nrOfPlaces > 0 && count($sortedSportsWithNrofFieldsAndNrOfCycles) > 0) {
