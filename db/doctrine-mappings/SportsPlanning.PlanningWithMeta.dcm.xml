@@ -11,7 +11,7 @@
     <field name="nrOfBatches" column="nrOfBatches" type="smallint" nullable="false" unique="false"/>
     <field name="validity" column="validity" type="integer" nullable="false" unique="false"/>
     <field name="planning" column="planning" type="json_document" nullable="false" unique="false"/>
-    <many-to-one field="orchestration" target-entity="SportsPlanning\PlanningOrchestration" inversed-by="plannings">
+    <many-to-one field="orchestration" target-entity="SportsPlanning\PlanningOrchestration" inversed-by="planningsWithMeta">
       <join-columns>
         <join-column name="orchestrationId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>

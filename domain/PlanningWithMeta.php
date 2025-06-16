@@ -5,35 +5,17 @@ declare(strict_types=1);
 namespace SportsPlanning;
 
 use DateTimeImmutable;
-use Exception;
-use SportsHelpers\Against\AgainstSide;
 use SportsHelpers\Identifiable;
-use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SportRange;
-use SportsHelpers\Sports\AgainstOneVsOne;
-use SportsHelpers\Sports\AgainstOneVsTwo;
-use SportsHelpers\Sports\TogetherSport;
 use SportsPlanning\Batches\Batch;
 use SportsPlanning\Batches\SelfRefereeBatchOtherPoules;
 use SportsPlanning\Batches\SelfRefereeBatchSamePoule;
-use SportsPlanning\Combinations\DuoPlaceNr;
-use SportsPlanning\Game\AgainstGame;
-use SportsPlanning\Game\AgainstGamePlace;
-use SportsPlanning\Game\TogetherGame;
-use SportsPlanning\HomeAways\OneVsOneHomeAway;
-use SportsPlanning\HomeAways\OneVsTwoHomeAway;
-use SportsPlanning\HomeAways\TwoVsTwoHomeAway;
 use SportsPlanning\Planning\BatchGamesType;
 use SportsPlanning\Planning\PlanningFilter;
 use SportsPlanning\Planning\PlanningState as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\PlanningType as PlanningType;
-use SportsPlanning\Sports\SportsWithNrAndFields\AgainstOneVsOneWithNrAndFields;
-use SportsPlanning\Sports\SportsWithNrAndFields\AgainstOneVsTwoWithNrAndFields;
-use SportsPlanning\Sports\SportsWithNrAndFields\AgainstTwoVsTwoWithNrAndFields;
-use SportsPlanning\Sports\SportsWithNrAndFields\TogetherSportWithNrAndFields;
-use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 
 final class PlanningWithMeta extends Identifiable
 {

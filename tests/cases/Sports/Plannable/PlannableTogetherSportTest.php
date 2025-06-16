@@ -22,7 +22,7 @@ final class PlannableTogetherSportTest extends TestCase
 //            )
 //        );
 
-        $plannableTogetherSport = new TogetherSportWithNrAndFields(1, $togetherSport, $nrOfFields);
+        $plannableTogetherSport =  TogetherSportWithNrAndFields::fromNrOfFields(1, $togetherSport, $nrOfFields);
         self::assertSame($togetherSport, $plannableTogetherSport->sport);
         self::assertSame($nrOfFields, count($plannableTogetherSport->fields));
     }

@@ -51,13 +51,13 @@ final class Planning
             $baseSport = $sportWithNrOfFieldsAndNrOfCycles->sport;
             $nrOfFields = $sportWithNrOfFieldsAndNrOfCycles->nrOfFields;
             if( $baseSport instanceof TogetherSport ) {
-                $sport = new TogetherSportWithNrAndFields($sportNr, $baseSport, $nrOfFields);
+                $sport = TogetherSportWithNrAndFields::fromNrOfFields($sportNr, $baseSport, $nrOfFields);
             } else if( $baseSport instanceof AgainstOneVsOne ) {
-                $sport = new AgainstOneVsOneWithNrAndFields($sportNr, $baseSport, $nrOfFields);
+                $sport = AgainstOneVsOneWithNrAndFields::fromNrOfFields($sportNr, $baseSport, $nrOfFields);
             } else if( $baseSport instanceof AgainstOneVsTwo ) {
-                $sport = new AgainstOneVsTwoWithNrAndFields($sportNr, $baseSport, $nrOfFields);
+                $sport = AgainstOneVsTwoWithNrAndFields::fromNrOfFields($sportNr, $baseSport, $nrOfFields);
             } else /*if( $baseSport instanceof AgainstTwoVsTwo )*/ {
-                $sport = new AgainstTwoVsTwoWithNrAndFields($sportNr, $baseSport, $nrOfFields);
+                $sport = AgainstTwoVsTwoWithNrAndFields::fromNrOfFields($sportNr, $baseSport, $nrOfFields);
             }
             $sportNr++;
             return $sport;

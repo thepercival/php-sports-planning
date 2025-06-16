@@ -10,17 +10,11 @@ use SportsPlanning\Field;
 abstract class SportWithNrAndFieldsAbstract
 {
     /**
-     * @var list<Field>
+     * @param int $sportNr
+     * @param list<Field> $fields
      */
-    public readonly array $fields;
-
-    public function __construct(public readonly int $sportNr, int $nrOfFields)
+    protected function __construct(public readonly int $sportNr, public readonly array $fields)
     {
-        $fields = [];
-        for ($fieldNr = 1; $fieldNr <= $nrOfFields; $fieldNr++) {
-            $fields[] = new Field($fieldNr, $sportNr);
-        }
-        $this->fields = $fields;
     }
 
     public function getField(int $fieldNr): Field
