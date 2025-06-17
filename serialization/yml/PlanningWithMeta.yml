@@ -1,4 +1,4 @@
-SportsPlanning\Planning:
+SportsPlanning\PlanningWithMeta:
   exclusion_policy: ALL
   exclude: false
   properties:
@@ -23,13 +23,3 @@ SportsPlanning\Planning:
       read_only: true
     validity:
       read_only: true
-    againstGames:
-      type: ArrayCollection<SportsPlanning\Game\Against>
-      read_only: true
-    togetherGames:
-      type: ArrayCollection<SportsPlanning\Game\Together>
-      read_only: true
-  virtual_properties:
-    createPlanningConfiguration:
-      type: SportsPlanning\PlanningConfiguration
-      serialized_name: planningConfiguration

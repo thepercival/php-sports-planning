@@ -9,16 +9,18 @@ use SportsPlanning\Field;
 use SportsPlanning\Sports\SportWithNrOfFields;
 use SportsPlanning\Sports\SportWithNrOfPlaces\AgainstTwoVsTwoWithNrOfPlaces;
 
-final class AgainstTwoVsTwoWithNrAndFields extends SportWithNrAndFieldsAbstract
+final class AgainstTwoVsTwoWithNrAndFields
 {
+    use SportWithNrAndFieldsTrait;
+
     /**
      * @param int $sportNr
      * @param AgainstTwoVsTwo $sport
      * @param list<Field> $fields
      */
-    private function __construct(int $sportNr, public readonly AgainstTwoVsTwo $sport, array $fields)
+    private function __construct(public int $sportNr, public AgainstTwoVsTwo $sport, public array $fields)
     {
-        parent::__construct($sportNr, $fields);
+
     }
 
     public static function fromNrOfFields(int $sportNr, AgainstTwoVsTwo $sport, int $nrOfFields): self {
@@ -31,10 +33,6 @@ final class AgainstTwoVsTwoWithNrAndFields extends SportWithNrAndFieldsAbstract
 
     public function createSportWithNrOfPlaces(int $nrOfPlaces): AgainstTwoVsTwoWithNrOfPlaces {
         return new AgainstTwoVsTwoWithNrOfPlaces( $nrOfPlaces, $this->sport );
-    }
-
-    public function createSportWithNrOfFields(): SportWithNrOfFields {
-        return new SportWithNrOfFields( $this->sport, count($this->fields) );
     }
 
 //    public function __toString(): string

@@ -1,8 +1,0 @@
-SportsPlanning\Game\Against:
-  exclusion_policy: ALL
-  exclude: false
-  properties:
-    places:
-      type: ArrayCollection<SportsPlanning\Game\Place\Against>
-    gameRoundNumber:
-      type: integer

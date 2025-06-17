@@ -6,15 +6,12 @@ namespace SportsPlanning\Sports\SportsWithNrAndFields;
 
 use Exception;
 use SportsPlanning\Field;
+use SportsPlanning\Sports\SportWithNrOfFields;
 
-abstract class SportWithNrAndFieldsAbstract
+trait SportWithNrAndFieldsTrait
 {
-    /**
-     * @param int $sportNr
-     * @param list<Field> $fields
-     */
-    protected function __construct(public readonly int $sportNr, public readonly array $fields)
-    {
+    public function createSportWithNrOfFields(): SportWithNrOfFields {
+        return new SportWithNrOfFields( $this->sport, count($this->fields) );
     }
 
     public function getField(int $fieldNr): Field

@@ -1,5 +1,0 @@
-SportsPlanning\Game\Place\Against:
-  exclusion_policy: ALL
-  exclude: false
-  properties:
-    side:
