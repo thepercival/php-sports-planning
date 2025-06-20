@@ -36,7 +36,7 @@ final class PlanningWithMeta extends Identifiable
         protected PlanningOrchestration $orchestration,
         SportRange $nrOfBatchGames,
         public readonly int $maxNrOfGamesInARow,
-        public readonly Planning $planning)
+        protected Planning $planning)
     {
         $this->orchestration->getPlanningsWithMeta()->add($this);
 
@@ -133,6 +133,14 @@ final class PlanningWithMeta extends Identifiable
     public function setNrOfBatches(int $nrOfBatches): void
     {
         $this->nrOfBatches = $nrOfBatches;
+    }
+
+    public function getPlanning(): Planning {
+        return $this->planning;
+    }
+
+    public function setPlanning(Planning $planning): void {
+        $this->planning = $planning;
     }
 
     public function getValidity(): int
