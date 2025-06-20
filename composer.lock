@@ -2120,16 +2120,16 @@
         },
         {
             "name": "thepercival/php-sports-helpers",
-            "version": "v1.2.79",
+            "version": "v1.2.80",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thepercival/php-sports-helpers.git",
-                "reference": "5843846a7b97347a495d8bfb800c60b4bfed3e22"
+                "reference": "48671ce9cb504b02daa8932316871eadcfca8893"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/5843846a7b97347a495d8bfb800c60b4bfed3e22",
-                "reference": "5843846a7b97347a495d8bfb800c60b4bfed3e22",
+                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/48671ce9cb504b02daa8932316871eadcfca8893",
+                "reference": "48671ce9cb504b02daa8932316871eadcfca8893",
                 "shasum": ""
             },
             "require": {
@@ -2181,9 +2181,9 @@
             "support": {
                 "email": "coendunnink@gmail.com",
                 "issues": "https://github.com/thepercival/php-sports-helpers/issues",
-                "source": "https://github.com/thepercival/php-sports-helpers/tree/v1.2.79"
+                "source": "https://github.com/thepercival/php-sports-helpers/tree/v1.2.80"
             },
-            "time": "2025-06-16T18:24:20+00:00"
+            "time": "2025-06-20T16:49:49+00:00"
         }
     ],
     "packages-dev": [
@@ -4982,16 +4982,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "10.5.46",
+            "version": "10.5.47",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "8080be387a5be380dda48c6f41cee4a13aadab3d"
+                "reference": "3637b3e50d32ab3a0d1a33b3b6177169ec3d95a3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/8080be387a5be380dda48c6f41cee4a13aadab3d",
-                "reference": "8080be387a5be380dda48c6f41cee4a13aadab3d",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/3637b3e50d32ab3a0d1a33b3b6177169ec3d95a3",
+                "reference": "3637b3e50d32ab3a0d1a33b3b6177169ec3d95a3",
                 "shasum": ""
             },
             "require": {
@@ -5063,7 +5063,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.46"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.47"
             },
             "funding": [
                 {
@@ -5087,7 +5087,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2025-05-02T06:46:24+00:00"
+            "time": "2025-06-20T11:29:11+00:00"
         },
         {
             "name": "psalm/plugin-phpunit",

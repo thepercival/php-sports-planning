@@ -30,8 +30,6 @@ final class PlanningWithMeta extends Identifiable
     public const int ORDER_GAMES_BY_BATCH = 1;
     // public const ORDER_GAMES_BY_GAMENUMBER = 2;
 
-    public string|null $content = null;
-
     public function __construct(
         protected PlanningOrchestration $orchestration,
         SportRange $nrOfBatchGames,
