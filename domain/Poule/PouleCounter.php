@@ -7,7 +7,7 @@ namespace SportsPlanning\Poule;
 use SportsPlanning\Poule;
 use SportsHelpers\Counter;
 
-class PouleCounter
+final class PouleCounter
 {
     /**
      * @var Counter<Poule>

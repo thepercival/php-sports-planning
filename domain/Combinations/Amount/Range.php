@@ -4,7 +4,7 @@ namespace SportsPlanning\Combinations\Amount;
 
 use SportsPlanning\Combinations\Amount as AmountBase;
 
-class Range implements \Stringable
+final class Range implements \Stringable
 {
     private readonly AmountBase $minimum;
     private readonly AmountBase $maximum;
@@ -29,8 +29,9 @@ class Range implements \Stringable
         return $this->maximum->amount - $this->minimum->amount;
     }
 
+    #[\Override]
     public function __toString(): string
     {
-        return '[' . $this->minimum . ' -> ' . $this->maximum . ']';
+        return '[' . ((string)$this->minimum) . ' -> ' . ((string)$this->maximum) . ']';
     }
 }

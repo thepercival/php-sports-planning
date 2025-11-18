@@ -15,7 +15,7 @@ use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
 use SportsPlanning\Resource\ResourceType;
 
-class PlanningOutput extends OutputHelper
+final class PlanningOutput extends OutputHelper
 {
     public function __construct(LoggerInterface $logger = null)
     {

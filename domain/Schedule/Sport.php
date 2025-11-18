@@ -12,7 +12,7 @@ use SportsHelpers\Sport\Variant\WithPoule\Against\GamesPerPlace as AgainstGppWit
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Schedule;
 
-class Sport extends PersistVariant
+final class Sport extends PersistVariant
 {
     /**
      * @var Collection<int|string, Game>

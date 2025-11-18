@@ -9,7 +9,7 @@ use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
 use SportsPlanning\Place as PlaceBase;
 
-class PlaceOutput extends OutputHelper
+final class PlaceOutput extends OutputHelper
 {
     public function __construct(LoggerInterface $logger = null)
     {
@@ -23,6 +23,6 @@ class PlaceOutput extends OutputHelper
     ): string {
         $color = $this->convertNumberToColor($useColors ? $place->getPlaceNr() : -1);
         // $gamesInARowSuffix = $gamesInARow !== null ? '(' . $gamesInARow . ')' : '';
-        return Color::getColored($color, $place . ($suffix ?? ''));
+        return Color::getColored($color, ((string)$place) . ($suffix ?? ''));
     }
 }

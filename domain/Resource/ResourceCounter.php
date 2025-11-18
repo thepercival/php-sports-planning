@@ -9,7 +9,7 @@ use SportsPlanning\Planning;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\GameCounter\Place as PlaceGameCounter;
 
-class ResourceCounter
+final class ResourceCounter
 {
     /**
      * @var array<string,GameCounter>

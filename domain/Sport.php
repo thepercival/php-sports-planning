@@ -10,7 +10,7 @@ use Exception;
 use SportsHelpers\Sport\PersistVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 
-class Sport extends PersistVariant implements \Stringable
+final class Sport extends PersistVariant implements \Stringable
 {
     /**
      * @var Collection<int|string, Field>
@@ -71,8 +71,9 @@ class Sport extends PersistVariant implements \Stringable
         return new SportVariantWithFields($this->createVariant(), $this->getNrOfFields());
     }
 
+    #[\Override]
     public function __toString(): string
     {
-        return $this->createVariant() . ' f(' . $this->getNrOfFields() . ')';
+        return ((string)$this->createVariant()) . ' f(' . ((string)$this->getNrOfFields()) . ')';
     }
 }

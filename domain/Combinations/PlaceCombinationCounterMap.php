@@ -8,7 +8,7 @@ use Psr\Log\LoggerInterface;
 use SportsHelpers\SportRange;
 use SportsPlanning\Combinations\Amount\Range as AmountRange;
 
-class PlaceCombinationCounterMap
+final class PlaceCombinationCounterMap
 {
     /**
      * @var array<string, PlaceCombinationCounter>
@@ -186,7 +186,7 @@ class PlaceCombinationCounterMap
         $prefix = $prefix . '    ';
         $amountPerLine = 4; $counter = 0; $line = '';
         foreach( $this->getPlaceCombinationCounters() as $counterIt ) {
-            $line .= $counterIt->getPlaceCombination() . ' ' . $counterIt->count() . 'x, ';
+            $line .= ((string)$counterIt->getPlaceCombination()) . ' ' . $counterIt->count() . 'x, ';
             if( ++$counter === $amountPerLine ) {
                 $logger->info($prefix . $line);
                 $counter = 0;

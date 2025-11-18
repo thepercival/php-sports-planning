@@ -10,7 +10,7 @@ use SportsPlanning\Combinations\HomeAway as HomeAwayBase;
 use SportsPlanning\Output\Combinations\HomeAwayOutput as HomeAwayOutput;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 
-class GameRoundOutput extends OutputHelper
+final class GameRoundOutput extends OutputHelper
 {
     private HomeAwayOutput $homeAwayOutput;
 

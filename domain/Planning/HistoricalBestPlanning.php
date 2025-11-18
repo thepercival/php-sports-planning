@@ -10,7 +10,7 @@ use SportsPlanning\Identifiable;
 use SportsPlanning\Input;
 use SportsPlanning\Planning\Type as PlanningType;use SportsPlanning\Poule;
 
-class HistoricalBestPlanning extends Identifiable
+final class HistoricalBestPlanning extends Identifiable
 {
     protected int $minNrOfBatchGames;
     protected int $maxNrOfBatchGames;

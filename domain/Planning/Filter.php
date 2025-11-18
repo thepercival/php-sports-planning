@@ -7,7 +7,7 @@ namespace SportsPlanning\Planning;
 use SportsHelpers\SportRange;
 use SportsPlanning\Planning;
 
-class Filter implements \Stringable
+final class Filter implements \Stringable
 {
     public function __construct(
         readonly public Type|null $type,
@@ -27,6 +27,7 @@ class Filter implements \Stringable
             && ($this->maxNrOfGamesInARow === null || $this->maxNrOfGamesInARow === $planning->getMaxNrOfGamesInARow());
     }
 
+    #[\Override]
     public function __toString(): string
     {
         if( $this->batchGamesRange === null ){

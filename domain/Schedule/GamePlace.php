@@ -7,7 +7,7 @@ namespace SportsPlanning\Schedule;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Identifiable;
 
-class GamePlace extends Identifiable
+final class GamePlace extends Identifiable
 {
     protected int|null $gameRoundNumber = null;
     protected AgainstSide|null $againstSide = null;

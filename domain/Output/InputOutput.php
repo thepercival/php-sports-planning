@@ -16,7 +16,7 @@ use SportsPlanning\Output\PlanningOutput\Extra as PlanningOutputExtra;
 use SportsPlanning\Input;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 
-class InputOutput extends OutputHelper
+final class InputOutput extends OutputHelper
 {
     private PlanningOutput $planningOutput;
 
@@ -65,7 +65,7 @@ class InputOutput extends OutputHelper
         foreach ($historicalBestPlannings as $historicalBestPlanning) {
 
             $output = 'removal ' . $historicalBestPlanning->getRemovalDateTime()->format('Y-m-d');
-            $output .= ', batchGames: ' . $historicalBestPlanning->getNrOfBatchGames();
+            $output .= ', batchGames: ' . ((string)$historicalBestPlanning->getNrOfBatchGames());
             $output .= ', maxNrOfGamesInARow: ' . $historicalBestPlanning->getMaxNrOfGamesInARow();
             $output .= ', nrOfBatches: ' . $historicalBestPlanning->getNrOfBatches();
             $output = Color::getColored(Color::Blue, $output);

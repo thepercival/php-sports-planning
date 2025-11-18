@@ -2,12 +2,12 @@
 
 namespace SportsPlanning;
 
-class Referee extends Identifiable implements Resource
+final class Referee extends Identifiable implements Resource
 {
     protected int $number;
     protected int $priority;
 
-    public function __construct(protected Input $input, int $number = null)
+    public function __construct(protected Input $input, int|null $number)
     {
         if( $number === null ) {
             $number = $input->getReferees()->count() + 1;
@@ -27,6 +27,7 @@ class Referee extends Identifiable implements Resource
         return $this->number;
     }
 
+    #[\Override]
     public function getUniqueIndex(): string
     {
         return (string)$this->getNumber();

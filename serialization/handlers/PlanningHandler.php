@@ -26,12 +26,13 @@ use SportsPlanning\Poule;
  * @psalm-type _TogetherGame = array{fieldUniqueIndex: string, pouleNr: int}
  * @psalm-type _FieldValue = array{inputConfiguration: InputConfiguration, againstGames: list<_AgainstGame>, togetherGames: list<_TogetherGame>, minNrOfBatchGames: int, maxNrOfBatchGames: int, maxNrOfGamesInARow: int, createdDateTime: string, nrOfBatches: int, state: string, validity: int}
  */
-class PlanningHandler extends Handler implements SubscribingHandlerInterface
+final class PlanningHandler extends Handler implements SubscribingHandlerInterface
 {
     public function __construct(/*protected DummyCreator $dummyCreator*/)
     {
     }
 
+    #[\Override]
     /**
      * @psalm-return list<array<string, int|string>>
      */

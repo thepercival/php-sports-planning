@@ -9,7 +9,7 @@ use SportsHelpers\Sport\Variant\WithPoule\Against\H2h as AgainstH2hWithPoule;
 use SportsPlanning\Poule;
 use SportsPlanning\SportVariant\WithPoule as VariantWithPoule;
 
-class H2h extends AgainstH2hWithPoule
+final class H2h extends AgainstH2hWithPoule
 {
     use VariantWithPoule;
 

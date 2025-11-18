@@ -10,7 +10,7 @@ use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Single;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 
-class SelfRefereeIncompatibleWithPouleStructureException extends \Exception
+final class SelfRefereeIncompatibleWithPouleStructureException extends \Exception
 {
     /**
      * @param PouleStructure $pouleStructure
@@ -26,7 +26,7 @@ class SelfRefereeIncompatibleWithPouleStructureException extends \Exception
             return (string)$sportVariantWithFields->getSportVariant();
         }, $sportVariantsWithFields );
         $sportVariantsAsString = 'sports "[' . join(',', $sportVariantStrings ) . ']"';
-        $pouleStructureAsString = 'poulestructure "[' . $pouleStructure . ']"';
+        $pouleStructureAsString = 'poulestructure "[' . ((string)$pouleStructure) . ']"';
         $selfRefereeAsString = 'selfReferee "'.$selfReferee->value.'"';
         parent::__construct($selfRefereeAsString . ' is not compatible with ' .
             $pouleStructureAsString . ' and ' . $sportVariantsAsString, E_ERROR);

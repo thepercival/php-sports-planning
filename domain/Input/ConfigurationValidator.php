@@ -15,7 +15,7 @@ use SportsPlanning\Input\Service as PlanningInputService;
 use SportsPlanning\PouleStructure as PlanningPouleStructure;
 use SportsPlanning\Referee\Info as RefereeInfo;
 
-class ConfigurationValidator
+final class ConfigurationValidator
 {
     public function __construct()
     {

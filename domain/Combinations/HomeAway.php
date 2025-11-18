@@ -7,7 +7,7 @@ namespace SportsPlanning\Combinations;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Place;
 
-class HomeAway implements \Stringable
+final class HomeAway implements \Stringable
 {
     private string|null $index = null;
 
@@ -113,8 +113,9 @@ class HomeAway implements \Stringable
         return new HomeAway($this->getAway(), $this->getHome());
     }
 
+    #[\Override]
     public function __toString(): string
     {
-        return $this->get(AgainstSide::Home) . ' vs ' . $this->get(AgainstSide::Away);
+        return ((string)$this->get(AgainstSide::Home)) . ' vs ' . ((string)$this->get(AgainstSide::Away));
     }
 }

@@ -16,7 +16,7 @@ use SportsHelpers\SportRange;
 use SportsPlanning\Exceptions\SelfRefereeIncompatibleWithPouleStructureException;
 use SportsPlanning\Referee\Info as RefereeInfo;
 
-class PouleStructure
+final class PouleStructure
 {
     /**
      * @param PouleStructureBase $pouleStructureBase
@@ -127,6 +127,9 @@ class PouleStructure
         $biggestPouleNrOfPlaces = $pouleStructure->getBiggestPoule();
         $nrOfPoulesByNrOfPlaces = $pouleStructure->getNrOfPoulesByNrOfPlaces();
         $nrOfPlaces = key($nrOfPoulesByNrOfPlaces);
+        if( $nrOfPlaces === null ) {
+            throw new \Exception("nrOfPlaces was not set", E_ERROR);
+        }
         $nrOfPlaces *= $nrOfPoulesByNrOfPlaces[$nrOfPlaces];
         $maxNrOfBatchPlaces = $this->getMaxNrOfPlacesPerBatch();
 

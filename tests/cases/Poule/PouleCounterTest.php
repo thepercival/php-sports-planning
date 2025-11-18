@@ -7,7 +7,7 @@ namespace SportsPlanning\Tests\Poule;
 use SportsPlanning\Poule\PouleCounter;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class PouleCounterTest extends \PHPUnit\Framework\TestCase
+final class PouleCounterTest extends \PHPUnit\Framework\TestCase
 {
     use PlanningCreator;
 

@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class PlaceCombinationTest extends TestCase
+final class PlaceCombinationTest extends TestCase
 {
     use PlanningCreator;
 

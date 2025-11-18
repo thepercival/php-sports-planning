@@ -13,7 +13,7 @@ use SportsPlanning\Combinations\PlaceCombinationCounter;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 use SportsPlanning\Place;
 
-class HomeAwayOutput extends OutputHelper
+final class HomeAwayOutput extends OutputHelper
 {
     public function __construct(LoggerInterface $logger = null)
     {
@@ -119,7 +119,7 @@ class HomeAwayOutput extends OutputHelper
     public function outputTotalsHelpers(array $map): void {
         $amountPerLine = 4; $counter = 0; $line = '';
         foreach( $map as $counterIt ) {
-            $line .= $counterIt->getPlaceCombination() . ' ' . $counterIt->count() . 'x, ';
+            $line .= ((string)$counterIt->getPlaceCombination()) . ' ' . $counterIt->count() . 'x, ';
             if( ++$counter === $amountPerLine ) {
                 $this->logger->info('    ' . $line);
                 $counter = 0;

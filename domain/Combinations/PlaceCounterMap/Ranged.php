@@ -8,7 +8,7 @@ use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\Amount\Calculator as AmountCalculator;
 use SportsPlanning\Combinations\PlaceCounterMap as PlaceCounterMapBase;
 
-class Ranged
+final class Ranged
 {
     // private int|null $shortage = null;
     // private bool|null $overAssigned = null;

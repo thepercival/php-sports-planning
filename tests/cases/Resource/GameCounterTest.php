@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class GameCounterTest extends TestCase
+final class GameCounterTest extends TestCase
 {
     use PlanningCreator;
 

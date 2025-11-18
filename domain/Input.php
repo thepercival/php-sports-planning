@@ -29,7 +29,7 @@ use SportsPlanning\Planning\Type as PlanningType;
 use SportsPlanning\PouleStructure as PlanningPouleStructure;
 use SportsPlanning\Referee\Info as RefereeInfo;
 
-class Input extends Identifiable
+final class Input extends Identifiable
 {
     private const int MaxNrOfGamesInARow = 5;
 
@@ -79,9 +79,9 @@ class Input extends Identifiable
 
         $pouleStructure = $configuration->pouleStructure;
         foreach ($pouleStructure->toArray() as $nrOfPoulePlaces) {
-            $poule = new Poule($this);
+            $poule = new Poule($this, null);
             for ($placeNr = 1; $placeNr <= $nrOfPoulePlaces; $placeNr++) {
-                new Place($poule);
+                new Place($poule, null);
             }
         }
         /*
@@ -110,7 +110,7 @@ class Input extends Identifiable
             }
             $sport = new Sport($this, $sportVariant->toPersistVariant());
             for ($fieldNr = 1; $fieldNr <= $sportVariantWithFields->getNrOfFields(); $fieldNr++) {
-                new Field($sport);
+                new Field($sport,null);
             }
         }
         if ($this->hasMultipleSports()) {
@@ -128,7 +128,7 @@ class Input extends Identifiable
         $this->nrOfSimSelfRefs = $refereeInfo->selfRefereeInfo->nrIfSimSelfRefs;
         if ($this->selfReferee === SelfReferee::Disabled) {
             for ($refNr = 1; $refNr <= $refereeInfo->nrOfReferees; $refNr++) {
-                new Referee($this);
+                new Referee($this, null);
             }
         }
 

@@ -16,7 +16,7 @@ use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Output\PlaceOutput as PlaceOutput;
 
-class BatchOutput extends OutputHelper
+final class BatchOutput extends OutputHelper
 {
     private GameOutput $gameOutput;
     private PlaceOutput $placeOutput;

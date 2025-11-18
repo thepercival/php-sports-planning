@@ -16,7 +16,7 @@ use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 
-class Together extends GameBase
+final class Together extends GameBase
 {
     /**
      * @var Collection<int|string, TogetherGamePlace>

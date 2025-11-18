@@ -20,7 +20,7 @@ use SportsPlanning\Place;
 use SportsPlanning\Planning;
 use SportsPlanning\Poule;
 
-class Against extends Game
+final class Against extends Game
 {
     /**
      * @psalm-var Collection<int|string, AgainstGamePlace>

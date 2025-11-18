@@ -10,7 +10,7 @@ use SportsPlanning\Planning;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class InputTest extends TestCase
+final class InputTest extends TestCase
 {
     use PlanningCreator;
 

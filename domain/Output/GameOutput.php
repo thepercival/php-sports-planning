@@ -18,7 +18,7 @@ use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Output\PlaceOutput as PlaceOutput;
 
-class GameOutput extends OutputHelper
+final class GameOutput extends OutputHelper
 {
     private PlaceOutput $placeOutput;
 
@@ -127,7 +127,7 @@ class GameOutput extends OutputHelper
         $refereePlace = $game->getRefereePlace();
         if ($refereePlace !== null) {
             $refColor = $this->convertNumberToColor($useColors ? $refereePlace->getPlaceNr() : -1);
-            return Color::getColored($refColor, 'ref ' . $refereePlace);
+            return Color::getColored($refColor, 'ref ' . ((string)$refereePlace));
         }
         $referee = $game->getReferee();
         if ($referee === null) {

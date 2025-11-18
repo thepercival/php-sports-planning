@@ -7,7 +7,7 @@ namespace SportsPlanning\SerializationHandler;
 use JMS\Serializer\Handler\HandlerRegistry;
 use SportsPlanning\SerializationHandler\PlanningHandler as PlanningHandler;
 
-class Subscriber
+final class Subscriber
 {
     public function __construct(/*protected DummyCreator $dummyCreator*/)
     {

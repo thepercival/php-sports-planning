@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
 
-class Poule extends Identifiable
+final class Poule extends Identifiable
 {
     protected int $number;
     /**
@@ -16,7 +16,7 @@ class Poule extends Identifiable
      */
     protected Collection $places;
 
-    public function __construct(protected Input $input, int $pouleNr = null /* Category $category*/)
+    public function __construct(protected Input $input, int|null $pouleNr /* Category $category*/)
     {
         if( $pouleNr === null ) {
             $pouleNr = /*$category*/$input->getPoules()->count() + 1;

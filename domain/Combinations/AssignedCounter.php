@@ -15,7 +15,7 @@ use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
 use SportsPlanning\Poule;
 
-class AssignedCounter
+final class AssignedCounter
 {
     protected PlaceCounterMap $assignedMap;
     protected PlaceCombinationCounterMap $assignedAgainstMap;

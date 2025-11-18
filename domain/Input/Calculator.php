@@ -23,7 +23,7 @@ use SportsPlanning\Input;
 use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsPlanning\Sport;
 
-class Calculator
+final class Calculator
 {
     // protected GamePlaceCalculator $sportGamePlaceCalculator;
 

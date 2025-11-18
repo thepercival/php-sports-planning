@@ -11,7 +11,7 @@ use SportsPlanning\Planning\Comparer;
 use SportsPlanning\Planning\HistoricalBestPlanning;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class ComparerTest extends TestCase
+final class ComparerTest extends TestCase
 {
     use PlanningCreator;
 

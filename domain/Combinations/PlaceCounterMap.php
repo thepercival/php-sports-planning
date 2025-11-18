@@ -10,7 +10,7 @@ use SportsPlanning\Combinations\Amount\Range as AmountRange;
 use SportsPlanning\Place;
 use SportsPlanning\PlaceCounter;
 
-class PlaceCounterMap
+final class PlaceCounterMap
 {
     /**
      * @var array<int, PlaceCounter>
@@ -173,7 +173,7 @@ class PlaceCounterMap
 
         $amountPerLine = 4; $counter = 0; $line = '';
         foreach( $this->getPlaceCounters() as $counterIt ) {
-            $line .= $counterIt->getPlace() . ' ' . $counterIt->count() . 'x, ';
+            $line .= ((string)$counterIt->getPlace()) . ' ' . $counterIt->count() . 'x, ';
             if( ++$counter === $amountPerLine ) {
                 $logger->info($prefix . $line);
                 $counter = 0;

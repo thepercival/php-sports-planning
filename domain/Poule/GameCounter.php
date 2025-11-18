@@ -10,7 +10,7 @@ use SportsPlanning\Poule;
 /**
  * @template-extends Counter<Poule>
  */
-class GameCounter extends Counter
+final class GameCounter extends Counter
 {
     public function __construct(Poule $poule, int $nrOfGames = 0)
     {

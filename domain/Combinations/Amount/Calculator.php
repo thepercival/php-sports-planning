@@ -4,7 +4,7 @@ namespace SportsPlanning\Combinations\Amount;
 
 use SportsPlanning\Combinations\Amount;
 
-class Calculator
+final class Calculator
 {
 
     public function __construct(private int $maxCount, private Range $range)

@@ -9,6 +9,9 @@ use SportsHelpers\Sport\Variant\WithPoule\Against\GamesPerPlace as AgainstGppWit
 use SportsPlanning\Poule;
 use SportsPlanning\SportVariant\WithPoule as VariantWithPoule;
 
+/**
+ * @api
+ */
 class GamesPerPlace extends AgainstGppWithPoule
 {
     use VariantWithPoule;

@@ -11,7 +11,7 @@ use SportsPlanning\Referee\Info as RefereeInfo;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsPlanning\Sport;
 
-class Configuration
+final class Configuration
 {
     private string|null $name = null;
 
@@ -37,9 +37,9 @@ class Configuration
     public function getName(): string {
         if( $this->name === null ) {
             $nameParts = [
-                '[' . $this->pouleStructure . ']',
+                '[' . ((string)$this->pouleStructure) . ']',
                 '[' . join(' & ', $this->sportVariantsWithFields) . ']',
-                'ref=>' . $this->refereeInfo
+                'ref=>' . ((string)$this->refereeInfo)
             ];
             if( $this->perPoule ) {
                 $nameParts[] =  'pp';

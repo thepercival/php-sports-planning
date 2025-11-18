@@ -9,7 +9,7 @@ use SportsHelpers\Counter;
 /**
  * @template-extends Counter<PlaceCombination>
  */
-class PlaceCombinationCounter extends Counter implements \Stringable
+final class PlaceCombinationCounter extends Counter implements \Stringable
 {
     public function __construct(PlaceCombination $placeCombination, int $count = 0)
     {
@@ -36,8 +36,9 @@ class PlaceCombinationCounter extends Counter implements \Stringable
         return $this->getPlaceCombination()->getIndex();
     }
 
+    #[\Override]
     public function __toString(): string
     {
-        return $this->countedObject . ' ' . $this->count() . 'x';
+        return ((string)$this->countedObject) . ' ' . $this->count() . 'x';
     }
 }

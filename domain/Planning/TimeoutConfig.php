@@ -8,7 +8,7 @@ use SportsHelpers\SportMath;
 use SportsPlanning\Input;
 use SportsPlanning\Planning;
 
-class TimeoutConfig
+final class TimeoutConfig
 {
     public const MINIMUM_TIMEOUTSECONDS = 5;
     public const MAXIMUM_TIMEOUTSECONDS = 15;

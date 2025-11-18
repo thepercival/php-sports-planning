@@ -8,7 +8,7 @@ use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\GameRound\Together as GameRound;
 use SportsPlanning\Place;
 
-class Game implements \Stringable
+final class Game implements \Stringable
 {
     /**
      * @param list<GamePlace> $gamePlaces
@@ -62,6 +62,7 @@ class Game implements \Stringable
         return new PlaceCombination($places);
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return join(' & ', $this->gamePlaces);

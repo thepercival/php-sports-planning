@@ -2,7 +2,7 @@
 
 namespace SportsPlanning\Combinations;
 
-class Amount implements \Stringable
+final class Amount implements \Stringable
 {
     public readonly int $amount;
     public readonly int $count;
@@ -17,6 +17,7 @@ class Amount implements \Stringable
         $this->count = $count;
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->amount . '.' . $this->count;

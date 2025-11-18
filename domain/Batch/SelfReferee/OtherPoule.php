@@ -6,7 +6,7 @@ use SportsPlanning\Batch;
 use SportsPlanning\Place;
 use SportsPlanning\Poule;
 
-class OtherPoule extends Batch\SelfReferee
+final class OtherPoule extends Batch\SelfReferee
 {
     /**
      * @param list<Poule> $poules
@@ -41,6 +41,7 @@ class OtherPoule extends Batch\SelfReferee
         return $this->next;
     }
 
+    #[\Override]
     /**
      * @return array<string,int>
      */

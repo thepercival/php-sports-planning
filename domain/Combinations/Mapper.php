@@ -8,7 +8,7 @@ use SportsPlanning\Place;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 
-class Mapper
+final class Mapper
 {
     /**
      * @param Poule $poule

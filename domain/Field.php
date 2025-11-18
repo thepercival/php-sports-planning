@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace SportsPlanning;
 
-class Field extends Identifiable implements Resource
+final class Field extends Identifiable implements Resource
 {
     protected int $number;
 
-    public function __construct(protected Sport $sport, int $number = null)
+    public function __construct(protected Sport $sport, int|null $number)
     {
         if( $number === null ) {
             $number = $sport->getFields()->count() + 1;
@@ -22,6 +22,7 @@ class Field extends Identifiable implements Resource
         return $this->number;
     }
 
+    #[\Override]
     public function getUniqueIndex(): string
     {
         return $this->getSport()->getNumber() . '.' . $this->getNumber();

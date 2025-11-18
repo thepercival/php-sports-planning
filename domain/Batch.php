@@ -11,7 +11,7 @@ use SportsPlanning\Planning\ListNode;
 /**
  * @template-extends ListNode<Batch>
  */
-class Batch extends ListNode
+final class Batch extends ListNode
 {
     /**
      * @var list<TogetherGame|AgainstGame>

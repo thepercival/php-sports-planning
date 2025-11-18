@@ -17,8 +17,9 @@ use SportsPlanning\Sport;
  * @psalm-type _Field = array{number: int}
  * @psalm-type _FieldValue = array{input: Input, fields: list<_Field>}
  */
-class SportHandler extends Handler implements SubscribingHandlerInterface
+final class SportHandler extends Handler implements SubscribingHandlerInterface
 {
+    #[\Override]
     /**
      * @psalm-return list<array<string, int|string>>
      */

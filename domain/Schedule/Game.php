@@ -14,7 +14,7 @@ use SportsPlanning\Place;
 use SportsPlanning\Poule;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 
-class Game extends Identifiable
+final class Game extends Identifiable
 {
     /**
      * @var Collection<int|string, GamePlace>

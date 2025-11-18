@@ -9,7 +9,7 @@ use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
 use SportsHelpers\Sport\Variant\Single as Single;
-class Name implements \Stringable
+final class Name implements \Stringable
 {
     protected string|null $name = null;
 
@@ -20,6 +20,7 @@ class Name implements \Stringable
     {
     }
 
+    #[\Override]
     public function __toString(): string
     {
         if ($this->name !== null) {

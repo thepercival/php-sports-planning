@@ -22,7 +22,7 @@ use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\TimeoutConfig;
 use SportsPlanning\Planning\Type as PlanningType;
 
-class Planning extends Identifiable
+final class Planning extends Identifiable
 {
     protected int $minNrOfBatchGames;
     protected int $maxNrOfBatchGames;

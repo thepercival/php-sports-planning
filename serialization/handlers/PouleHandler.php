@@ -16,8 +16,9 @@ use SportsPlanning\Poule;
  * @psalm-type _Place = array{placeNr: int}
  * @psalm-type _FieldValue = array{input: Input, number: int, places: list<_Place>}
  */
-class PouleHandler extends Handler implements SubscribingHandlerInterface
+final class PouleHandler extends Handler implements SubscribingHandlerInterface
 {
+    #[\Override]
     /**
      * @psalm-return list<array<string, int|string>>
      */

@@ -12,7 +12,7 @@ use SportsPlanning\Planning\ListNode;
 /**
  * @template-extends ListNode<Together>
  */
-class Together extends ListNode
+final class Together extends ListNode
 {
     use GameRound;
 

@@ -23,7 +23,7 @@ use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Schedule\Sport as SportSchedule;
 use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
 
-class Schedule extends Identifiable implements \Stringable
+final class Schedule extends Identifiable implements \Stringable
 {
     protected string $sportsConfigName;
     protected int $succeededMargin = -1;
@@ -132,6 +132,7 @@ class Schedule extends Identifiable implements \Stringable
 //        return $this->poule;
 //    }
 
+    #[\Override]
     public function __toString(): string
     {
         $XYZ = 'XYZ';

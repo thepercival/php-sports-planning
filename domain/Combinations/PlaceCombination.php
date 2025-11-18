@@ -6,7 +6,7 @@ namespace SportsPlanning\Combinations;
 
 use SportsPlanning\Place;
 
-class PlaceCombination implements \Stringable
+final class PlaceCombination implements \Stringable
 {
     private string|null $index = null;
     /**
@@ -75,6 +75,7 @@ class PlaceCombination implements \Stringable
         return ($this->getNumber() === $placeCombination->getNumber());
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return join(' & ', $this->places);

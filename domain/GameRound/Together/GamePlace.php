@@ -6,7 +6,7 @@ namespace SportsPlanning\GameRound\Together;
 
 use SportsPlanning\Place;
 
-class GamePlace implements \Stringable
+final class GamePlace implements \Stringable
 {
     public function __construct(protected int $gameRoundNumber, protected Place $place)
     {
@@ -22,6 +22,7 @@ class GamePlace implements \Stringable
         return $this->place;
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return $this->getPlace()->getPlaceNr() . '(' .$this->getGameRoundNumber() . ')';

@@ -7,13 +7,14 @@ namespace SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Place as PlaceBase;
 use SportsPlanning\Resource\GameCounter;
 
-class Place extends GameCounter
+final class Place extends GameCounter
 {
     public function __construct(protected PlaceBase $place, int $nrOfGames = 0)
     {
         parent::__construct($place, $nrOfGames);
     }
 
+    #[\Override]
     public function getIndex(): string
     {
         return (string)$this->place;

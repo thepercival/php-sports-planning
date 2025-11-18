@@ -9,7 +9,7 @@ use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Place as GamePlace;
 use SportsPlanning\Place as PoulePlace;
 
-class Against extends GamePlace
+final class Against extends GamePlace
 {
     public function __construct(protected AgainstGame $game, PoulePlace $place, private AgainstSide $side)
     {

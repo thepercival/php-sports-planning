@@ -14,8 +14,9 @@ use SportsPlanning\Referee;
 /**
  * @psalm-type _FieldValue = array{input: Input, number: int, priority: int}
  */
-class RefereeHandler extends Handler implements SubscribingHandlerInterface
+final class RefereeHandler extends Handler implements SubscribingHandlerInterface
 {
+    #[\Override]
     /**
      * @psalm-return list<array<string, int|string>>
      */

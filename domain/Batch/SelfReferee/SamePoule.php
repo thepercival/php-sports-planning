@@ -5,7 +5,7 @@ namespace SportsPlanning\Batch\SelfReferee;
 use SportsPlanning\Batch;
 use SportsPlanning\Poule;
 
-class SamePoule extends Batch\SelfReferee
+final class SamePoule extends Batch\SelfReferee
 {
     public function __construct(Batch $batch, SamePoule $previous = null)
     {
@@ -34,6 +34,7 @@ class SamePoule extends Batch\SelfReferee
         return $this->next;
     }
 
+    #[\Override]
     /**
      * @return array<string,int>
      */

@@ -26,7 +26,7 @@ use SportsPlanning\Game\Against as AgainstGame;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Schedule\Name;
 
-class ScheduleOutput extends OutputHelper
+final class ScheduleOutput extends OutputHelper
 {
 
     public function __construct(LoggerInterface $logger = null)
@@ -43,14 +43,17 @@ class ScheduleOutput extends OutputHelper
         foreach ($schedules as $schedule) {
             $prefix = '    ';
             $name = new Name($schedule->createSportVariants());
-            $this->logger->info( $prefix . ' schedule => nrOfPlaces: ' . $schedule->getNrOfPlaces() . ' , name: "' . $name . '"');
+            $this->logger->info( $prefix . ' schedule => nrOfPlaces: ' . $schedule->getNrOfPlaces() . ' , name: "' . ((string)$name) . '"');
             foreach ($schedule->getSportSchedules() as $sportSchedule) {
                 if ($sportNumber !== null && $sportNumber !== $sportSchedule->getNumber()) {
                     continue;
                 }
-                $this->logger->info( $prefix . '    sportschedule => sportNr: ' . $sportSchedule->getNumber() . ' , variant: "' . $sportSchedule->createVariant() . '"');
+                $this->logger->info(
+                    $prefix . '    sportschedule => sportNr: ' . $sportSchedule->getNumber() .
+                    ' , variant: "' . ((string)$sportSchedule->createVariant()) . '"'
+                );
                 foreach ($sportSchedule->getGames() as $gameRoundGame) {
-                    $this->logger->info('            ' . $gameRoundGame);
+                    $this->logger->info('            ' . ((string)$gameRoundGame));
                 }
             }
         }
@@ -198,7 +201,8 @@ class ScheduleOutput extends OutputHelper
     {
         $amountPerLine = 8; $counter = 0; $line = '';
         foreach( $assignedAgainstMap as $placeCombinationCounter ) {
-            $line .= $placeCombinationCounter->getPlaceCombination() . ' ' . $placeCombinationCounter->count() . 'x, ';
+            $line .= ((string)$placeCombinationCounter->getPlaceCombination()) .
+                ' ' . $placeCombinationCounter->count() . 'x, ';
             if( ++$counter === $amountPerLine ) {
                 $this->logger->info($prefix . $line);
                 $counter = 0;

@@ -24,12 +24,13 @@ use SportsPlanning\Referee;
  * @psalm-type _Referee = array{number: int, priority: int}
  * @psalm-type _TogetherGame = array{planning: Planning, poule: Poule, places: list<_TogetherGamePlace> ,field: Field, refereePlaceLocation: string|null, referee: _Referee|null, batchNr: int, placeLocationMap : array<string, Place>}
  */
-class TogetherGameHandler extends Handler implements SubscribingHandlerInterface
+final class TogetherGameHandler extends Handler implements SubscribingHandlerInterface
 {
     public function __construct(/*protected DummyCreator $dummyCreator*/)
     {
     }
 
+    #[\Override]
     /**
      * @psalm-return list<array<string, int|string>>
      */

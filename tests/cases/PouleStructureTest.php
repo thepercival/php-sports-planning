@@ -15,7 +15,7 @@ use SportsHelpers\Sport\VariantWithFields;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGppSportVariant;
 use SportsPlanning\TestHelper\PlanningCreator;
 
-class PouleStructureTest extends TestCase
+final class PouleStructureTest extends TestCase
 {
     use PlanningCreator;
 

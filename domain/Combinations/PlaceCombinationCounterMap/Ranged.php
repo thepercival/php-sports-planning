@@ -9,7 +9,7 @@ use SportsPlanning\Combinations\Amount\Calculator as AmountCalculator;
 use SportsPlanning\Combinations\PlaceCombinationCounterMap;
 use SportsPlanning\Combinations\PlaceCombinationCounterMap as PlaceCombinationCounterMapBase;
 
-class Ranged
+final class Ranged
 {
     // private int|null $shortage = null;
     // private bool|null $overAssigned = null;
