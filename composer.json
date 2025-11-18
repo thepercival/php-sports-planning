@@ -16,14 +16,20 @@
     "support": {
         "email": "coendunnink@gmail.com"
     },
+    "repositories": [
+      {
+        "type": "vcs",
+        "url": "https://github.com/thepercival/php-sports-helpers"
+      }
+    ],
     "require": {
         "php": ">=8.3",
+        "ext-json": "*",
         "league/period": "^5.0",
         "doctrine/orm": "^3.0",
         "monolog/monolog": "^3.0",
         "jms/serializer": "^3.0",
-        "thepercival/php-sports-helpers": "^1.0",
-        "ext-json": "*"
+        "thepercival/php-sports-helpers": "deprecated"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0",

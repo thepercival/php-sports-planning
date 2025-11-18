@@ -17,25 +17,40 @@ use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 final readonly class PlanningPouleStructure
 {
     /**
-     * @param PouleStructure $pouleStructure
+     * @param list<PouleStructureWithCategoryNr> $pouleStructuresWithCategoryNr
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
      * @param RefereeInfo|null $refereeInfo
      * @throws \Exception
      */
     public function __construct(
-        public PouleStructure $pouleStructure,
+        public array $pouleStructuresWithCategoryNr,
         public array $sportsWithNrOfFieldsAndNrOfCycles,
         public RefereeInfo|null $refereeInfo )
     {
-        $selfReferee = $refereeInfo?->selfRefereeInfo?->selfReferee;
+        $selfRefereeInfo = $refereeInfo?->selfRefereeInfo;
+
         $sports = $this->createSports();
-        if( $selfReferee !== null
-            && !$pouleStructure->isCompatibleWithSportsAndSelfReferee($sports, $selfReferee) ) {
-            throw new SelfRefereeIncompatibleWithPouleStructureException($pouleStructure, $sports, $selfReferee);
+        foreach( $pouleStructuresWithCategoryNr as $pouleStructureWithCategoryNr) {
+            if( $selfRefereeInfo === null ) {
+                continue;
+            }
+            $selfReferee = $selfRefereeInfo->selfReferee;
+            if( !$pouleStructureWithCategoryNr->isCompatibleWithSportsAndSelfReferee($sports, $selfReferee) ) {
+                throw new SelfRefereeIncompatibleWithPouleStructureException($pouleStructureWithCategoryNr, $sports, $selfReferee);
+            }
         }
-        if( !$pouleStructure->isCompatibleWithSports( $sports ) ) {
-            throw new SportsIncompatibleWithPouleStructureException($pouleStructure, $sports);
+        $mergedPouleStructure = $this->createMergedPouleStructure();
+        if( !$mergedPouleStructure->isCompatibleWithSports( $sports ) ) {
+            throw new SportsIncompatibleWithPouleStructureException($mergedPouleStructure, $sports);
         }
+    }
+
+    public function createMergedPouleStructure(): PouleStructure {
+        $poules = [];
+        foreach( $this->pouleStructuresWithCategoryNr as $pouleStructureWithCategoryNr) {
+            $poules = array_merge($poules, $pouleStructureWithCategoryNr->poules);
+        }
+        return new PouleStructure($poules);
     }
 
     // per sport kijken wat de maxNrOfGamesPerBatch is
@@ -61,7 +76,7 @@ final readonly class PlanningPouleStructure
         $sortedSportsWithNrOfFieldsAndNrOfCycles = $this->sortSportsByNrOfGamePlaces();
 
         $nrOfBatchGames = 0;
-        $poules = array_reverse($this->pouleStructure->toArray());
+        $poules = array_reverse($this->createMergedPouleStructure()->toArray());
         $nrOfReferees = $this->refereeInfo?->nrOfReferees ?? 0;
         $selfReferee = $this->refereeInfo?->selfRefereeInfo?->selfReferee;
         $doSelfRefereeOtherPouleCheck = $selfReferee === SelfReferee::OtherPoules;
@@ -129,7 +144,7 @@ final readonly class PlanningPouleStructure
 
     public function calculateMaxNrOfGamesInARow(): int
     {
-        $pouleStructure = $this->pouleStructure;
+        $pouleStructure = $this->createMergedPouleStructure();
         $biggestPouleNrOfPlaces = $pouleStructure->getBiggestPoule();
         $nrOfPoulesByNrOfPlaces = $pouleStructure->getNrOfPoulesByNrOfPlaces();
         $nrOfPlaces = key($nrOfPoulesByNrOfPlaces);
@@ -141,7 +156,7 @@ final readonly class PlanningPouleStructure
         $nrOfRestPlaces = $nrOfPlaces - $maxNrOfBatchPlaces;
         if ($nrOfRestPlaces <= 0) {
             $nrOfPlacesPouleStructure = new PlanningPouleStructure(
-                new PouleStructure([$nrOfPlaces]),
+                [new PouleStructureWithCategoryNr(1, [$nrOfPlaces])],
                 $this->sportsWithNrOfFieldsAndNrOfCycles,
                 $this->refereeInfo );
 
@@ -196,11 +211,12 @@ final readonly class PlanningPouleStructure
     {
         $sortedSportsWithNrofFieldsAndNrOfCycles = $this->sortSportsByNrOfGamePlaces();
         $selfReferee = $this->refereeInfo?->selfRefereeInfo?->selfReferee !== null;
+        $mergedPouleStructure = $this->createMergedPouleStructure();
         $nrOfBatchPlaces = 0;
-        $nrOfPlaces = $this->pouleStructure->getNrOfPlaces();
+        $nrOfPlaces = $mergedPouleStructure->getNrOfPlaces();
         while ($nrOfPlaces > 0 && count($sortedSportsWithNrofFieldsAndNrOfCycles) > 0) {
             $sportWithNrofFieldsAndNrOfCycles = array_shift($sortedSportsWithNrofFieldsAndNrOfCycles);
-            $sportNrOfGamePlaces = $sportWithNrofFieldsAndNrOfCycles->sport->getNrOfGamePlaces() ?? $this->pouleStructure->getBiggestPoule();
+            $sportNrOfGamePlaces = $sportWithNrofFieldsAndNrOfCycles->sport->getNrOfGamePlaces() ?? $mergedPouleStructure->getBiggestPoule();
             $sportNrOfGamePlaces = $sportNrOfGamePlaces + ($selfReferee ? 1 : 0);
             $nrOfFields = $sportWithNrofFieldsAndNrOfCycles->nrOfFields;
             while ($nrOfPlaces > 0 && $nrOfFields-- > 0) {
@@ -221,7 +237,7 @@ final readonly class PlanningPouleStructure
      */
     protected function sortSportsByNrOfGamePlaces(): array {
         $sportsWithNrOfFieldsAndNrOfCycles = array_slice( $this->sportsWithNrOfFieldsAndNrOfCycles, 0);
-        $nrOfPlaces = $this->pouleStructure->getBiggestPoule();
+        $nrOfPlaces = $this->createMergedPouleStructure()->getBiggestPoule();
 
         uasort(
             $sportsWithNrOfFieldsAndNrOfCycles,
@@ -300,7 +316,7 @@ final readonly class PlanningPouleStructure
 
                     }, $this->sportsWithNrOfFieldsAndNrOfCycles )
                 );
-            }, $this->pouleStructure->toArray()));
+            }, $this->createMergedPouleStructure()->toArray()));
     }
 
 //    public function getMaxNrOfGamesPerBatchForSportVariantWithFields(

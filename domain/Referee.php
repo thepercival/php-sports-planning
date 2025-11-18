@@ -8,7 +8,7 @@ final class Referee extends Identifiable implements Resource
 {
     public int $priority;
 
-    public function __construct(public readonly int $refereeNr)
+    public function __construct(public readonly int $refereeNr, public readonly array $categoryNrs)
     {
         $this->priority = 1;
     }

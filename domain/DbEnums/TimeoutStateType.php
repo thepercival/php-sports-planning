@@ -6,6 +6,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use SportsHelpers\DbEnums\EnumDbType;
 use SportsPlanning\Planning\TimeoutState;
 
+/**
+ * @psalm-suppress MethodSignatureMismatch
+ */
 final class TimeoutStateType extends EnumDbType
 {
     #[\Override]
@@ -35,11 +38,6 @@ final class TimeoutStateType extends EnumDbType
         return null;
     }
 
-    /**
-     * @param array<string, mixed> $column
-     * @param AbstractPlatform $platform
-     * @return string
-     */
     #[\Override]
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {

@@ -40,7 +40,7 @@ final class ResourceCounter
         }
 
         if ($selfRefereeEnabled) {
-            foreach ($this->planningWithMeta->getPlanning()->poules as $poule) {
+            foreach ($this->planningWithMeta->getPlanning()->createMergedPoules() as $poule) {
                 foreach ($poule->places as $place) {
                     $this->refereePlaceMap[$place->getUniqueIndex()] = new GameCounterForPlace($place);
                 }

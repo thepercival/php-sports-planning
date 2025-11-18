@@ -1,4 +1,4 @@
-# https://github.com/semantic-release/semantic-release
+ https://github.com/semantic-release/semantic-release
 name: Apply semantic-release conventions to commit message
 
 on:

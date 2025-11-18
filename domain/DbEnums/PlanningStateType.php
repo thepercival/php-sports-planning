@@ -6,6 +6,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 use SportsHelpers\DbEnums\EnumDbType;
 use SportsPlanning\Planning\PlanningState;
 
+/**
+ * @psalm-suppress MethodSignatureMismatch
+ */
 final class PlanningStateType extends EnumDbType
 {
     #[\Override]
@@ -34,11 +37,6 @@ final class PlanningStateType extends EnumDbType
 
 
     #[\Override]
-    /**
-     * @param array<string, mixed> $column
-     * @param AbstractPlatform $platform
-     * @return string
-     **/
     public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
     {
         return 'varchar(13)';

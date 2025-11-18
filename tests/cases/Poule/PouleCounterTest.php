@@ -11,7 +11,7 @@ final class PouleCounterTest extends \PHPUnit\Framework\TestCase
 {
     public function testCalculations(): void
     {
-        $pouleOne = Poule::fromNrOfPlaces(1, 2);
+        $pouleOne = Poule::fromNrOfPlaces(1, 1, 2);
         $gamePlacesCounter = new GamePlacesCounterForPoule($pouleOne);
 
         $nrOfPlacesAssigned = 3;

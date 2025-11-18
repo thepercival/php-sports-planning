@@ -3,7 +3,6 @@
 namespace SportsPlanning;
 
 use SportsHelpers\PouleStructures\PouleStructure;
-use SportsHelpers\RefereeInfo;
 use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\AgainstTwoVsTwo;
@@ -19,36 +18,42 @@ final readonly class PlanningConfiguration
 //    private const int MaxNrOfGamesInARow = 5;
 
     /**
-     * @param PouleStructure $pouleStructure
+     * @param list<PouleStructureWithCategoryNr> $pouleStructuresWithCategoryNr
      * @param list<SportWithNrOfFieldsAndNrOfCycles> $sportsWithNrOfFieldsAndNrOfCycles
      * @param RefereeInfo|null $refereeInfo
      * @param bool $perPoule
      * @throws \Exception
      */
     public function __construct(
-        public PouleStructure $pouleStructure,
+        public array $pouleStructuresWithCategoryNr,
         public array $sportsWithNrOfFieldsAndNrOfCycles,
         public RefereeInfo|null $refereeInfo,
         public bool $perPoule )
     {
-        $selfReferee = $refereeInfo?->selfRefereeInfo?->selfReferee;
+        $selfRefereeInfo = $refereeInfo?->selfRefereeInfo;
 
         $sports = $this->createSports();
-        if( $selfReferee !== null && !$pouleStructure->isCompatibleWithSportsAndSelfReferee( $sports, $selfReferee ) ) {
-            throw new SelfRefereeIncompatibleWithPouleStructureException($pouleStructure, $sports, $selfReferee);
-        }
-        if( !$pouleStructure->isCompatibleWithSports( $sports ) ) {
-            throw new SportsIncompatibleWithPouleStructureException($pouleStructure, $sports);
-        }
-        if( count( $sportsWithNrOfFieldsAndNrOfCycles ) > 1 && $this->perPoule ) {
-            throw new SportsIncompatibleWithPerPouleException($sports);
+
+        foreach( $pouleStructuresWithCategoryNr as $pouleStructureWithCategoryNr) {
+            if( $selfRefereeInfo !== null ) {
+                $selfReferee = $selfRefereeInfo->selfReferee;
+                if( false === $pouleStructureWithCategoryNr->isCompatibleWithSportsAndSelfReferee( $sports, $selfReferee ) ) {
+                    throw new SelfRefereeIncompatibleWithPouleStructureException($pouleStructureWithCategoryNr, $sports, $selfReferee);
+                }
+            }
+            if( !$pouleStructureWithCategoryNr->isCompatibleWithSports( $sports ) ) {
+                throw new SportsIncompatibleWithPouleStructureException($pouleStructureWithCategoryNr, $sports);
+            }
+            if( count( $sportsWithNrOfFieldsAndNrOfCycles ) > 1 && $this->perPoule ) {
+                throw new SportsIncompatibleWithPerPouleException($sports);
+            }
         }
     }
 
     public function createPlanningPouleStructure(): PlanningPouleStructure
     {
         return new PlanningPouleStructure(
-            $this->pouleStructure,
+            $this->pouleStructureWithCategoryNr,
             $this->sportsWithNrOfFieldsAndNrOfCycles,
             $this->refereeInfo
         );

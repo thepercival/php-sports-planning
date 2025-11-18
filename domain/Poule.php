@@ -23,20 +23,24 @@ final class Poule
     protected array $togetherGames = [];
 
     /**
+     * @param int $categoryNr
      * @param int $pouleNr
      * @param list<Place> $places
      * @throws Exception
      */
-    private function __construct(public readonly int $pouleNr, public readonly array $places)
+    private function __construct(
+        public readonly int $categoryNr,
+        public readonly int $pouleNr,
+        public readonly array $places)
     {
     }
 
-    public static function fromNrOfPlaces(int $pouleNr, int $nrOfPlaces): self {
+    public static function fromNrOfPlaces(int $categoryNr, int $pouleNr, int $nrOfPlaces): self {
         $places = [];
         for ($placeNr = 1; $placeNr <= $nrOfPlaces; $placeNr++) {
             $places[] = new Place($placeNr, $pouleNr);
         }
-        return new self($pouleNr, $places);
+        return new self($categoryNr, $pouleNr, $places);
     }
     /*public function getCategory(): Category
     {

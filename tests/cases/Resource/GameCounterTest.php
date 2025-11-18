@@ -12,7 +12,7 @@ final class GameCounterTest extends TestCase
 
     public function testCalculations(): void
     {
-        $referee = new Referee(1);
+        $referee = new Referee( 1, []);
         $gameCounter = new GameCounter($referee);
 
         self::assertSame("1", $gameCounter->getIndex());

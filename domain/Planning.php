@@ -6,6 +6,7 @@ namespace SportsPlanning;
 
 use Exception;
 use SportsHelpers\Against\AgainstSide;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sports\AgainstOneVsOne;
 use SportsHelpers\Sports\AgainstOneVsTwo;
 use SportsHelpers\Sports\TogetherSport;
@@ -25,12 +26,12 @@ use SportsPlanning\Sports\SportWithNrOfFieldsAndNrOfCycles;
 final class Planning
 {
     /**
-     * @param list<Poule> $poules
+     * @param list<Category> $categories
      * @param list<TogetherSportWithNrAndFields|AgainstOneVsOneWithNrAndFields|AgainstOneVsTwoWithNrAndFields|AgainstTwoVsTwoWithNrAndFields> $sports
      * @param list<Referee> $referees
      */
     private function __construct(
-        public readonly array $poules,
+        public readonly array $categories,
         public readonly array $sports,
         public readonly array $referees
     )
@@ -71,6 +72,18 @@ final class Planning
             }
         }
         return new self($poules, $sports, $referees );
+    }
+
+    /**
+     * @return list<Poule>
+     * @throws Exception
+     */
+    public function createMergedPoules(): array {
+        $poules = [];
+        foreach( $this->categories as $category) {
+            $poules = array_merge($poules, $category->poules);
+        }
+        return $poules;
     }
 
     /**

@@ -8,7 +8,13 @@ final class Field implements Resource
 {
     public const string SEPERATOR = '.';
 
-    public function __construct(public readonly int $fieldNr, public readonly int $sportNr)
+    /**
+     * @param list<int> $categoryNrs
+     * @param int $fieldNr
+     * @param int $sportNr
+     */
+    public function __construct(
+        public readonly array $categoryNrs, public readonly int $fieldNr, public readonly int $sportNr)
     {
     }
 

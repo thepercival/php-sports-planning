@@ -183,6 +183,10 @@ final class PlanningWithMeta extends Identifiable
 
     public function getNrOfPlaces(): int
     {
-        return $this->getConfiguration()->pouleStructure->getNrOfPlaces();
+        return array_sum(
+            array_map(function(PouleStructureWithCategoryNr $pouleStructure): int {
+                return $pouleStructure->getNrOfPlaces();
+            }, $this->getConfiguration()->pouleStructuresWithCategoryNr )
+        );
     }
 }
