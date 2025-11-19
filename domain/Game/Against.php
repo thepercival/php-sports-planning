@@ -55,7 +55,7 @@ final class Against extends Game
      * @param AgainstSide|null $side
      * @return Collection<int|string,AgainstGamePlace>
      */
-    public function getSidePlaces(AgainstSide $side = null): Collection
+    public function getSidePlaces(AgainstSide|null $side = null): Collection
     {
         if ($side === null) {
             return $this->getPlaces();

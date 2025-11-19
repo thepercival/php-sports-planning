@@ -17,17 +17,17 @@ use SportsPlanning\Resource\ResourceType;
 
 final class PlanningOutput extends OutputHelper
 {
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(LoggerInterface|null $logger = null)
     {
         parent::__construct($logger);
     }
 
-    public function output(PlanningBase $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
+    public function output(PlanningBase $planning, int $extra, string|null $prefix = null, string|null $suffix = null, Color|null $color = null): void
     {
         $this->outputHelper($planning, $extra, $prefix, $suffix, $color);
     }
 
-    public function outputState(PlanningBase $planning, int $extra, string $prefix = null, string $suffix = null, Color|null $color = null): void
+    public function outputState(PlanningBase $planning, int $extra, string|null $prefix , string|null $suffix, Color|null $color): void
     {
         $this->outputHelper($planning, $extra, $prefix, $suffix, $color);
     }
@@ -35,8 +35,8 @@ final class PlanningOutput extends OutputHelper
     protected function outputHelper(
         PlanningBase $planning,
         int $extra,
-        string $prefix = null,
-        string $suffix = null,
+        string|null $prefix = null,
+        string|null $suffix = null,
         Color|null $color = null
     ): void {
         $outputs = [];
@@ -69,14 +69,15 @@ final class PlanningOutput extends OutputHelper
         }
     }
 
-    public function outputInputConfig(InputConfiguration $inputConfiguration, string $prefix = null, string $suffix = null): void
+    public function outputInputConfig(InputConfiguration $inputConfiguration,
+                                      string|null $prefix = null, string|null $suffix = null): void
     {
         $output = $this->getInputConfigurationAsString($inputConfiguration, $prefix, $suffix);
         $this->logger->info($output);
     }
 
     public function getInputConfigurationAsString(InputConfiguration $inputConfiguration,
-                                                  string $prefix = null, string $suffix = null): string
+                                                  string|null $prefix = null, string|null $suffix = null): string
     {
         return ($prefix ?? '') . $inputConfiguration->getName() . ($suffix ?? '');
     }

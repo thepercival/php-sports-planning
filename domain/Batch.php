@@ -118,7 +118,7 @@ final class Batch extends ListNode
      * @param Poule|null $poule
      * @return list<TogetherGame|AgainstGame>
      */
-    public function getGames(Poule $poule = null): array
+    public function getGames(Poule|null $poule = null): array
     {
         if ($poule === null) {
             return $this->games;

@@ -22,7 +22,7 @@ final class GameOutput extends OutputHelper
 {
     private PlaceOutput $placeOutput;
 
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(LoggerInterface|null $logger = null)
     {
         parent::__construct($logger);
         $this->placeOutput = new PlaceOutput($logger);
@@ -33,7 +33,7 @@ final class GameOutput extends OutputHelper
      * @param string|null $prefix
      * @return void
      */
-    public function outputGames(array $games, string $prefix = null): void
+    public function outputGames(array $games, string|null $prefix = null): void
     {
         foreach ($games as $game) {
             $this->output($game, null, $prefix);

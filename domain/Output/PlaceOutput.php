@@ -11,7 +11,7 @@ use SportsPlanning\Place as PlaceBase;
 
 final class PlaceOutput extends OutputHelper
 {
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(LoggerInterface|null $logger = null)
     {
         parent::__construct($logger);
     }

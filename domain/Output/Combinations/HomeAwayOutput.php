@@ -15,7 +15,7 @@ use SportsPlanning\Place;
 
 final class HomeAwayOutput extends OutputHelper
 {
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(LoggerInterface|null $logger = null)
     {
         parent::__construct($logger);
     }
@@ -25,7 +25,7 @@ final class HomeAwayOutput extends OutputHelper
      * @param string|null $prefix
      * @return void
      */
-    public function outputHomeAways(array $homeAways, string $prefix = null): void
+    public function outputHomeAways(array $homeAways, string|null $prefix = null): void
     {
         foreach ($homeAways as $homeAway) {
             $this->output($homeAway, null, $prefix);

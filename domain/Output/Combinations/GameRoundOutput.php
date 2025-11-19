@@ -14,7 +14,7 @@ final class GameRoundOutput extends OutputHelper
 {
     private HomeAwayOutput $homeAwayOutput;
 
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(LoggerInterface|null $logger = null)
     {
         $this->homeAwayOutput = new HomeAwayOutput($logger);
         parent::__construct($logger);
@@ -23,9 +23,9 @@ final class GameRoundOutput extends OutputHelper
     public function output(
         AgainstGameRound $gameRound,
         bool $showGameRoundHeaderLine,
-        string $title = null,
-        int $max = null,
-        int $min = null
+        string|null $title = null,
+        int|null $max = null,
+        int|null $min = null
     ): void {
         if ($title !== null) {
             $this->logger->info('------ title: ' . $title . ' -------------');
@@ -65,6 +65,7 @@ final class GameRoundOutput extends OutputHelper
     /**
      * @param list<HomeAwayBase> $homeAways
      * @param AgainstGameRound|null $gameRound
+     * @param string|null $header
      * @return void
      */
     public function outputHomeAways(array $homeAways, AgainstGameRound|null $gameRound = null, string|null $header = null): void

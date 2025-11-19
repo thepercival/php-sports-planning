@@ -21,7 +21,7 @@ final class BatchOutput extends OutputHelper
     private GameOutput $gameOutput;
     private PlaceOutput $placeOutput;
 
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(LoggerInterface|null $logger = null)
     {
         $this->gameOutput = new GameOutput($logger);
         $this->placeOutput = new PlaceOutput($logger);
@@ -30,7 +30,7 @@ final class BatchOutput extends OutputHelper
 
     public function output(
         BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch,
-        string $title = null,
+        string|null $title = null,
         SportRange|null $numberRange = null,
         bool $showUnassigned = false
     ): void {

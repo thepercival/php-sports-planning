@@ -7,7 +7,7 @@ use SportsPlanning\Poule;
 
 final class SamePoule extends Batch\SelfReferee
 {
-    public function __construct(Batch $batch, SamePoule $previous = null)
+    public function __construct(Batch $batch, SamePoule|null $previous = null)
     {
         parent::__construct($batch, $previous);
         $next = $this->getBase()->getNext();
