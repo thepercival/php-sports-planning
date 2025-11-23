@@ -2,7 +2,10 @@
 
 namespace SportsPlanning;
 
-final class Referee extends Identifiable implements Resource
+/**
+ * @api
+ */
+class Referee extends Identifiable implements Resource
 {
     protected int $number;
     protected int $priority;

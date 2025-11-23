@@ -10,7 +10,10 @@ use Exception;
 use SportsHelpers\Sport\PersistVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 
-final class Sport extends PersistVariant implements \Stringable
+/**
+ * @api
+ */
+class Sport extends PersistVariant implements \Stringable
 {
     /**
      * @var Collection<int|string, Field>

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace SportsPlanning;
 
-final class Field extends Identifiable implements Resource
+/**
+ * @api
+ */
+class Field extends Identifiable implements Resource
 {
     protected int $number;
 

@@ -7,7 +7,7 @@ namespace SportsPlanning\Output;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
-use SportsPlanning\Output\BatchOutput as BatchOutput;
+use SportsPlanning\Output\BatchOutput;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Output\PlanningOutput\Extra;
 use SportsPlanning\Planning as PlanningBase;

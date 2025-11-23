@@ -23,7 +23,6 @@
       <directory suffix=".php">../domain</directory>
     </include>
     <exclude>
-      <directory suffix="Repository.php">../domain</directory>
       <directory suffix="Output.php">../domain</directory>
       <directory suffix="ProfileTest.php">../test/cases</directory>
       <file>../vendor/autoload.php</file>

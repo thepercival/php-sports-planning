@@ -4,7 +4,10 @@ namespace SportsPlanning;
 
 use SportsHelpers\PlaceLocationInterface;
 
-final class Place extends Identifiable implements Resource, PlaceLocationInterface, \Stringable
+/**
+ * @api
+ */
+class Place extends Identifiable implements Resource, PlaceLocationInterface, \Stringable
 {
     private int $placeNr;
 
