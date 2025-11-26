@@ -14,7 +14,7 @@ final class GameRoundOutput extends OutputHelper
 {
     private HomeAwayOutput $homeAwayOutput;
 
-    public function __construct(LoggerInterface|null $logger = null)
+    public function __construct(LoggerInterface $logger)
     {
         $this->homeAwayOutput = new HomeAwayOutput($logger);
         parent::__construct($logger);

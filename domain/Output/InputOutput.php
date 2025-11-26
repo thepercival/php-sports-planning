@@ -15,7 +15,7 @@ final class InputOutput extends OutputHelper
 {
     private PlanningOutput $planningOutput;
 
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(LoggerInterface $logger)
     {
         parent::__construct($logger);
         $this->planningOutput = new PlanningOutput($logger);

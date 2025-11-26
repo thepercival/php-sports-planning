@@ -21,7 +21,7 @@ final class BatchOutput extends OutputHelper
     private GameOutput $gameOutput;
     private PlaceOutput $placeOutput;
 
-    public function __construct(LoggerInterface|null $logger = null)
+    public function __construct(LoggerInterface $logger)
     {
         $this->gameOutput = new GameOutput($logger);
         $this->placeOutput = new PlaceOutput($logger);

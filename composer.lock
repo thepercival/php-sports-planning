@@ -2154,12 +2154,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thepercival/php-sports-helpers.git",
-                "reference": "7dbbd9c0628bba09fc66c08d68bd259a38cd0d22"
+                "reference": "fecf154480f87744a39ac2c9013cf2bd2c3cb986"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/7dbbd9c0628bba09fc66c08d68bd259a38cd0d22",
-                "reference": "7dbbd9c0628bba09fc66c08d68bd259a38cd0d22",
+                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/fecf154480f87744a39ac2c9013cf2bd2c3cb986",
+                "reference": "fecf154480f87744a39ac2c9013cf2bd2c3cb986",
                 "shasum": ""
             },
             "require": {
@@ -2272,7 +2272,7 @@
                 "source": "https://github.com/thepercival/php-sports-helpers/tree/deprecated",
                 "issues": "https://github.com/thepercival/php-sports-helpers/issues"
             },
-            "time": "2025-11-23T08:46:59+00:00"
+            "time": "2025-11-26T16:52:09+00:00"
         }
     ],
     "packages-dev": [
@@ -4416,16 +4416,16 @@
         },
         {
             "name": "phpdocumentor/type-resolver",
-            "version": "1.11.1",
+            "version": "1.12.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpDocumentor/TypeResolver.git",
-                "reference": "f626740b38009078de0dc8b2b9dc4e7f749c6eba"
+                "reference": "92a98ada2b93d9b201a613cb5a33584dde25f195"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/f626740b38009078de0dc8b2b9dc4e7f749c6eba",
-                "reference": "f626740b38009078de0dc8b2b9dc4e7f749c6eba",
+                "url": "https://api.github.com/repos/phpDocumentor/TypeResolver/zipball/92a98ada2b93d9b201a613cb5a33584dde25f195",
+                "reference": "92a98ada2b93d9b201a613cb5a33584dde25f195",
                 "shasum": ""
             },
             "require": {
@@ -4468,9 +4468,9 @@
             "description": "A PSR-5 based resolver of Class names, Types and Structural Element Names",
             "support": {
                 "issues": "https://github.com/phpDocumentor/TypeResolver/issues",
-                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.11.1"
+                "source": "https://github.com/phpDocumentor/TypeResolver/tree/1.12.0"
             },
-            "time": "2025-11-21T11:31:57+00:00"
+            "time": "2025-11-21T15:09:14+00:00"
         },
         {
             "name": "phpstan/extension-installer",

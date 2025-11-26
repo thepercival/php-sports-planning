@@ -17,7 +17,7 @@ use SportsPlanning\Resource\ResourceType;
 
 final class PlanningOutput extends OutputHelper
 {
-    public function __construct(LoggerInterface|null $logger = null)
+    public function __construct(LoggerInterface $logger)
     {
         parent::__construct($logger);
     }

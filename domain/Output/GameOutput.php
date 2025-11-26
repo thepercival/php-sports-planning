@@ -22,7 +22,7 @@ final class GameOutput extends OutputHelper
 {
     private PlaceOutput $placeOutput;
 
-    public function __construct(LoggerInterface|null $logger = null)
+    public function __construct(LoggerInterface $logger)
     {
         parent::__construct($logger);
         $this->placeOutput = new PlaceOutput($logger);

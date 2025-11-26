@@ -15,7 +15,7 @@ use SportsPlanning\Place;
 
 final class HomeAwayOutput extends OutputHelper
 {
-    public function __construct(LoggerInterface|null $logger = null)
+    public function __construct(LoggerInterface $logger)
     {
         parent::__construct($logger);
     }

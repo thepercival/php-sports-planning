@@ -29,7 +29,7 @@ use SportsPlanning\Schedule\Name;
 final class ScheduleOutput extends OutputHelper
 {
 
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(LoggerInterface $logger)
     {
         parent::__construct($logger);
     }
