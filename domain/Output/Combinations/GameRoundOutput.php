@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace SportsPlanning\Output\Combinations;
 
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Output as OutputHelper;
+use SportsHelpers\Output\OutputAbstract;
 use SportsPlanning\Combinations\HomeAway as HomeAwayBase;
 use SportsPlanning\Output\Combinations\HomeAwayOutput as HomeAwayOutput;
 use SportsPlanning\GameRound\Against as AgainstGameRound;
 
-final class GameRoundOutput extends OutputHelper
+final class GameRoundOutput extends OutputAbstract
 {
     private HomeAwayOutput $homeAwayOutput;
 

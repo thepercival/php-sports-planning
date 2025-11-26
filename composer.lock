@@ -2154,12 +2154,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/thepercival/php-sports-helpers.git",
-                "reference": "fecf154480f87744a39ac2c9013cf2bd2c3cb986"
+                "reference": "56d7eae5f3ec92ccca150eca60faea9013a361c7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/fecf154480f87744a39ac2c9013cf2bd2c3cb986",
-                "reference": "fecf154480f87744a39ac2c9013cf2bd2c3cb986",
+                "url": "https://api.github.com/repos/thepercival/php-sports-helpers/zipball/56d7eae5f3ec92ccca150eca60faea9013a361c7",
+                "reference": "56d7eae5f3ec92ccca150eca60faea9013a361c7",
                 "shasum": ""
             },
             "require": {
@@ -2272,7 +2272,7 @@
                 "source": "https://github.com/thepercival/php-sports-helpers/tree/deprecated",
                 "issues": "https://github.com/thepercival/php-sports-helpers/issues"
             },
-            "time": "2025-11-26T16:52:09+00:00"
+            "time": "2025-11-26T18:54:18+00:00"
         }
     ],
     "packages-dev": [
@@ -6946,16 +6946,16 @@
         },
         {
             "name": "spatie/array-to-xml",
-            "version": "3.4.1",
+            "version": "3.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/spatie/array-to-xml.git",
-                "reference": "6a740f39415aee8886aea10333403adc77d50791"
+                "reference": "66ea5657f6a7efbf498f21b6536a2fbc5a228a75"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/spatie/array-to-xml/zipball/6a740f39415aee8886aea10333403adc77d50791",
-                "reference": "6a740f39415aee8886aea10333403adc77d50791",
+                "url": "https://api.github.com/repos/spatie/array-to-xml/zipball/66ea5657f6a7efbf498f21b6536a2fbc5a228a75",
+                "reference": "66ea5657f6a7efbf498f21b6536a2fbc5a228a75",
                 "shasum": ""
             },
             "require": {
@@ -6998,7 +6998,7 @@
                 "xml"
             ],
             "support": {
-                "source": "https://github.com/spatie/array-to-xml/tree/3.4.1"
+                "source": "https://github.com/spatie/array-to-xml/tree/3.4.2"
             },
             "funding": [
                 {
@@ -7010,7 +7010,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-11-12T10:32:50+00:00"
+            "time": "2025-11-26T17:06:37+00:00"
         },
         {
             "name": "symfony/event-dispatcher",

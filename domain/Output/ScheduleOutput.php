@@ -6,7 +6,7 @@ namespace SportsPlanning\Output;
 
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Counter;
-use SportsHelpers\Output as OutputHelper;
+use SportsHelpers\Output\OutputAbstract;
 use SportsHelpers\PouleStructure;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
@@ -26,7 +26,7 @@ use SportsPlanning\Game\Against as AgainstGame;
 use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Schedule\Name;
 
-final class ScheduleOutput extends OutputHelper
+final class ScheduleOutput extends OutputAbstract
 {
 
     public function __construct(LoggerInterface $logger)

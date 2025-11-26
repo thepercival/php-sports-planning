@@ -5,11 +5,10 @@ declare(strict_types=1);
 namespace SportsPlanning\Output;
 
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Output as OutputHelper;
-use SportsHelpers\Output\Color;
+use SportsHelpers\Output\OutputAbstract;
 use SportsPlanning\Place as PlaceBase;
 
-final class PlaceOutput extends OutputHelper
+final class PlaceOutput extends OutputAbstract
 {
     public function __construct(LoggerInterface $logger)
     {
@@ -18,11 +17,10 @@ final class PlaceOutput extends OutputHelper
 
     public function getPlace(
         PlaceBase $place,
-        string|null $suffix,
-        bool $useColors
+        string|null $suffix
     ): string {
-        $color = $this->convertNumberToColor($useColors ? $place->getPlaceNr() : -1);
+        $color = $this->convertNumberToColor($place->getPlaceNr());
         // $gamesInARowSuffix = $gamesInARow !== null ? '(' . $gamesInARow . ')' : '';
-        return Color::getColored($color, ((string)$place) . ($suffix ?? ''));
+        return $this->getColoredString($color, ((string)$place) . ($suffix ?? ''));
     }
 }

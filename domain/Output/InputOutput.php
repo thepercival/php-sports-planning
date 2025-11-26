@@ -3,15 +3,15 @@
 namespace SportsPlanning\Output;
 
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
+use SportsHelpers\Output\OutputAbstract;
 use SportsPlanning\Planning as PlanningBase;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Output\PlanningOutput\Extra as PlanningOutputExtra;
 use SportsPlanning\Input;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 
-final class InputOutput extends OutputHelper
+final class InputOutput extends OutputAbstract
 {
     private PlanningOutput $planningOutput;
 
@@ -63,7 +63,7 @@ final class InputOutput extends OutputHelper
             $output .= ', batchGames: ' . ((string)$historicalBestPlanning->getNrOfBatchGames());
             $output .= ', maxNrOfGamesInARow: ' . $historicalBestPlanning->getMaxNrOfGamesInARow();
             $output .= ', nrOfBatches: ' . $historicalBestPlanning->getNrOfBatches();
-            $output = Color::getColored(Color::Blue, $output);
+            $output = $this->getColoredString(Color::Blue, $output);
             $this->logger->info($output);
 
 //            $this->planningOutput->outputState($filteredPlanning, $extra, $prefix, $suffix, $color);

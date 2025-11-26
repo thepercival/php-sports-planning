@@ -5,9 +5,8 @@ declare(strict_types=1);
 namespace SportsPlanning\Output;
 
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
-use SportsPlanning\Output\BatchOutput;
+use SportsHelpers\Output\OutputAbstract;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Output\PlanningOutput\Extra;
 use SportsPlanning\Planning as PlanningBase;
@@ -15,7 +14,7 @@ use SportsPlanning\Resource\GameCounter;
 use SportsPlanning\Resource\ResourceCounter;
 use SportsPlanning\Resource\ResourceType;
 
-final class PlanningOutput extends OutputHelper
+final class PlanningOutput extends OutputAbstract
 {
     public function __construct(LoggerInterface $logger)
     {
@@ -55,7 +54,7 @@ final class PlanningOutput extends OutputHelper
         }
         $output = ($prefix ?? '') . join(', ', $outputs) . ($suffix ?? '');
         if( $color !== null ){
-            $output = Color::getColored($color,$output );
+            $output = $this->getColoredString($color,$output);
         }
         $this->logger->info($output);
 

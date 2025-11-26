@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace SportsPlanning\Output;
 
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Output as OutputHelper;
+use SportsHelpers\Output\OutputAbstract;
 use SportsHelpers\SportRange;
 use SportsPlanning\Batch as BatchBase;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
@@ -16,7 +16,7 @@ use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Place;
 use SportsPlanning\Output\PlaceOutput as PlaceOutput;
 
-final class BatchOutput extends OutputHelper
+final class BatchOutput extends OutputAbstract
 {
     private GameOutput $gameOutput;
     private PlaceOutput $placeOutput;
@@ -87,18 +87,16 @@ final class BatchOutput extends OutputHelper
     protected function outputUnassigned(
         BatchBase|SelfRefereeBatchOtherPoule|SelfRefereeBatchSamePoule $batch
     ): void {
-        $useColors = $this->useColors();
         $unassignedPlaces = $batch instanceof BatchBase ? $batch->getUnassignedPlaces() : $batch->getUnassignedPlaces(
             true
         );
         $placesAsArrayOfStrings = array_map(
-            function (Place $place) use ($useColors, $batch): string {
+            function (Place $place) use ($batch): string {
                 $previous = $batch->getPrevious();
                 $gamesInARow = $previous?->getGamesInARow($place);
                 return $this->placeOutput->getPlace(
                     $place,
-                    $gamesInARow !== null ? '(' . $gamesInARow . ')' : '',
-                    $useColors
+                    $gamesInARow !== null ? '(' . $gamesInARow . ')' : ''
                 );
             },
             $unassignedPlaces

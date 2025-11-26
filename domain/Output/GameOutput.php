@@ -7,8 +7,8 @@ namespace SportsPlanning\Output;
 use Doctrine\Common\Collections\Collection;
 use Psr\Log\LoggerInterface;
 use SportsHelpers\Against\Side as AgainstSide;
-use SportsHelpers\Output as OutputHelper;
 use SportsHelpers\Output\Color;
+use SportsHelpers\Output\OutputAbstract;
 use SportsPlanning\Batch;
 use SportsPlanning\Batch\SelfReferee\OtherPoule as SelfRefereeBatchOtherPoule;
 use SportsPlanning\Batch\SelfReferee\SamePoule as SelfRefereeBatchSamePoule;
@@ -18,7 +18,7 @@ use SportsPlanning\Game\Place\Together as TogetherGamePlace;
 use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Output\PlaceOutput as PlaceOutput;
 
-final class GameOutput extends OutputHelper
+final class GameOutput extends OutputAbstract
 {
     private PlaceOutput $placeOutput;
 
@@ -45,27 +45,26 @@ final class GameOutput extends OutputHelper
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null,
         string|null $prefix = null
     ): void {
-        $useColors = $this->useColors();
         $batchNr = $game->getBatchNr();
         $gameRoundNumber = 0;
         if ($game instanceof AgainstGame) {
             $gameRoundNumber = $game->getGameRoundNumber();
         }
-        $batchColor = $this->convertNumberToColor($useColors ? ($batchNr % 10) : -1);
+        $batchColor = $this->convertNumberToColor($batchNr % 10);
         $fieldNr = $game->getField()->getNumber();
-        $fieldColor = $this->convertNumberToColor($useColors ? $fieldNr : -1);
+        $fieldColor = $this->convertNumberToColor($fieldNr);
         $sportNr = $game->getSport()->getNumber();
-        $sportColor = $this->convertNumberToColor($useColors ? $sportNr : -1);
+        $sportColor = $this->convertNumberToColor($sportNr);
 
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
-            Color::getColored($batchColor, 'batch ' . $batchNr . '(' . $gameRoundNumber . ')') . " " .
+            $this->getColoredString($batchColor, 'batch ' . $batchNr . '(' . $gameRoundNumber . ')') . " " .
             // . 'substr(' . $game->getRoundNumber(), 2 ) . substr( $game->getSubNumber(), 2 ) . ") "
             'poule ' . $game->getPoule()->getNumber()
             . ', ' . $this->getPlaces($game, $batch)
             . ' , ' . $this->getReferee($game)
-            . ', ' . Color::getColored($fieldColor, 'field ' . $fieldNr)
-            . ', ' . Color::getColored($sportColor, 'sport ' . $sportNr)
+            . ', ' . $this->getColoredString($fieldColor, 'field ' . $fieldNr)
+            . ', ' . $this->getColoredString($sportColor, 'sport ' . $sportNr)
         );
     }
 
@@ -81,13 +80,12 @@ final class GameOutput extends OutputHelper
         AgainstGame|TogetherGame $game,
         Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch = null
     ): string {
-        $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
         if ($game instanceof AgainstGame) {
-            $homeGamePlaces = $this->getPlacesHelper($game->getSidePlaces(AgainstSide::Home), $batch, $useColors);
-            $awayGamePlaces = $this->getPlacesHelper($game->getSidePlaces(AgainstSide::Away), $batch, $useColors);
+            $homeGamePlaces = $this->getPlacesHelper($game->getSidePlaces(AgainstSide::Home), $batch);
+            $awayGamePlaces = $this->getPlacesHelper($game->getSidePlaces(AgainstSide::Away), $batch);
             return $homeGamePlaces . ' vs ' . $awayGamePlaces;
         }
-        return $this->getPlacesHelper($game->getPlaces(), $batch, $useColors);
+        return $this->getPlacesHelper($game->getPlaces(), $batch);
     }
 
     /**
@@ -98,42 +96,38 @@ final class GameOutput extends OutputHelper
      */
     protected function getPlacesHelper(
         Collection $gamePlaces,
-        Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch,
-        bool $useColors
+        Batch|SelfRefereeBatchSamePoule|SelfRefereeBatchOtherPoule|null $batch
     ): string {
         $placesAsArrayOfStrings = array_map(
-            function (AgainstGamePlace|TogetherGamePlace $gamePlace) use ($useColors, $batch): string {
+            function (AgainstGamePlace|TogetherGamePlace $gamePlace) use ($batch): string {
                 $gamesInARow = $batch?->getGamesInARow($gamePlace->getPlace());
-                return $this->getPlace($gamePlace, $gamesInARow, $useColors);
+                return $this->getPlace($gamePlace, $gamesInARow);
             } , $gamePlaces->toArray() );
         return implode(' & ', $placesAsArrayOfStrings);
     }
 
     protected function getPlace(
         AgainstGamePlace|TogetherGamePlace $gamePlace,
-        int|null $gamesInARow,
-        bool $useColors
+        int|null $gamesInARow
     ): string {
         return $this->placeOutput->getPlace(
             $gamePlace->getPlace(),
-            $gamesInARow !== null ? '(' . $gamesInARow . ')' : '',
-            true
+            $gamesInARow !== null ? '(' . $gamesInARow . ')' : ''
         );
     }
 
     protected function getReferee(AgainstGame|TogetherGame $game): string
     {
-        $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
         $refereePlace = $game->getRefereePlace();
         if ($refereePlace !== null) {
-            $refColor = $this->convertNumberToColor($useColors ? $refereePlace->getPlaceNr() : -1);
-            return Color::getColored($refColor, 'ref ' . ((string)$refereePlace));
+            $refPlaceColor = $this->convertNumberToColor($refereePlace->getPlaceNr());
+            return $this->getColoredString($refPlaceColor, 'ref ' . ((string)$refereePlace));
         }
         $referee = $game->getReferee();
         if ($referee === null) {
             return 'ref ?';
         }
-        $refColor = $this->convertNumberToColor($useColors ? $referee->getNumber() : -1);
-        return Color::getColored($refColor, 'ref ' . $referee->getNumber());
+        $refColor = $this->convertNumberToColor($referee->getNumber());
+        return $this->getColoredString($refColor, 'ref ' . $referee->getNumber());
     }
 }
