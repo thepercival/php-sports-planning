@@ -13,7 +13,7 @@ class Referee extends Identifiable implements Resource
     public function __construct(protected Input $input, int|null $number)
     {
         if( $number === null ) {
-            $number = $input->getReferees()->count() + 1;
+            $number = $input->getReferees()->count() + 1; 
         }
         $this->number = $number;
         $input->getReferees()->add($this);
