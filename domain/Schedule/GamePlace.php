@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Schedule;
 
-use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Identifiable;
 
 final class GamePlace extends Identifiable

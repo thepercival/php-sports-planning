@@ -2,12 +2,8 @@
 
 namespace SportsPlanning\Exceptions;
 
-use SportsHelpers\PouleStructure;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SelfReferee;
-use SportsHelpers\Sport\Variant\AllInOneGame;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsHelpers\Sport\Variant\Single;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 
 final class SelfRefereeIncompatibleWithPouleStructureException extends \Exception

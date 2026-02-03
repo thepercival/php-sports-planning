@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Combinations;
 
-use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Place;
 
 final class HomeAway implements \Stringable

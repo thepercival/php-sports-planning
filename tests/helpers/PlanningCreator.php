@@ -4,24 +4,18 @@ declare(strict_types=1);
 
 namespace SportsPlanning\TestHelper;
 
-use Exception;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
-use SportsHelpers\PouleStructure;
-use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
+use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
-use SportsHelpers\SportRange;
 use SportsPlanning\Input;
-use SportsPlanning\Input\Configuration;
-use SportsPlanning\Planning;
-use SportsPlanning\Planning\State as PlanningState;
-use SportsPlanning\Planning\TimeoutState;
-use SportsPlanning\Referee\Info as RefereeInfo;
+use SportsPlanning\PlanningRefereeInfo;
 
 trait PlanningCreator
 {
@@ -112,20 +106,20 @@ trait PlanningCreator
     /**
      * @param list<int> $pouleStructureAsArray
      * @param list<SportVariantWithFields>|null $sportVariantsWithFields
-     * @param RefereeInfo|null $refereeInfo
+     * @param PlanningRefereeInfo|null $refereeInfo
      * @return Input
      */
     protected function createInput(
         array $pouleStructureAsArray,
-        array $sportVariantsWithFields = null,
-        RefereeInfo|null $refereeInfo = null,
+        array|null $sportVariantsWithFields = null,
+        PlanningRefereeInfo|null $refereeInfo = null,
         bool $perPoule = false
     ) {
         if ($sportVariantsWithFields === null) {
             $sportVariantsWithFields = [$this->getAgainstH2hSportVariantWithFields(2)];
         }
         if ($refereeInfo === null) {
-            $refereeInfo = new RefereeInfo($this->getDefaultNrOfReferees());
+            $refereeInfo = new PlanningRefereeInfo($this->getDefaultNrOfReferees());
         }
         $configurationValidator = new Input\ConfigurationValidator();
         $configuration = $configurationValidator->createReducedAndValidatedInputConfiguration(

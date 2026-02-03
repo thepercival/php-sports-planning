@@ -2,7 +2,7 @@
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\PouleStructure;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SelfReferee;
 use SportsHelpers\SelfRefereeInfo;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
@@ -12,8 +12,8 @@ use SportsHelpers\Sport\Variant\Single;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Input\Service as PlanningInputService;
-use SportsPlanning\PouleStructure as PlanningPouleStructure;
-use SportsPlanning\Referee\Info as RefereeInfo;
+use SportsPlanning\PlanningRefereeInfo ;
+use SportsPlanning\PlanningPouleStructure as PlanningPouleStructure;
 
 final class ConfigurationValidator
 {
@@ -24,13 +24,13 @@ final class ConfigurationValidator
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportVariantWithFields> $sportVariantsWithFields
-     * @param RefereeInfo $refereeInfo
+     * @param PlanningRefereeInfo $refereeInfo
      * @param bool $perPoule
      */
     public function createReducedAndValidatedInputConfiguration(
         PouleStructure $pouleStructure,
         array $sportVariantsWithFields,
-        RefereeInfo $refereeInfo,
+        PlanningRefereeInfo $refereeInfo,
         bool $perPoule
         ): InputConfiguration
     {
@@ -52,40 +52,43 @@ final class ConfigurationValidator
     }
 
     /**
-     * @param RefereeInfo $refereeInfo
+     * @param PlanningRefereeInfo $refereeInfo
      * @param list<AgainstH2h|AgainstGpp|Single|AllInOneGame> $sportVariants
      * @param PouleStructure $pouleStructure
-     * @return RefereeInfo
+     * @return PlanningRefereeInfo
      */
     protected function getValidatedRefereeInfo(
-        RefereeInfo $refereeInfo, PouleStructure $pouleStructure, array $sportVariants
-        ): RefereeInfo
+        PlanningRefereeInfo $refereeInfo, PouleStructure $pouleStructure, array $sportVariants
+        ): PlanningRefereeInfo
     {
         $selfRefereeInfo = $refereeInfo->selfRefereeInfo;
-        $newSelfReferee = $this->getValidatedSelfReferee($selfRefereeInfo->selfReferee, $pouleStructure, $sportVariants);
-        if( $newSelfReferee === SelfReferee::Disabled ) {
-            return new RefereeInfo( $refereeInfo->nrOfReferees );
+        if( $selfRefereeInfo === null) {
+            return new PlanningRefereeInfo($refereeInfo->nrOfReferees);
         }
-        return new RefereeInfo( new SelfRefereeInfo( $newSelfReferee, $selfRefereeInfo->nrIfSimSelfRefs ) );
+        $newSelfReferee = $this->getValidatedSelfReferee($selfRefereeInfo->selfReferee, $pouleStructure, $sportVariants);
+        if( $newSelfReferee === null ) {
+            return new PlanningRefereeInfo($refereeInfo->nrOfReferees);
+        }
+        return new PlanningRefereeInfo( new SelfRefereeInfo( $newSelfReferee, $selfRefereeInfo->nrOfSimSelfRefs ) );
     }
 
     /**
      * @param SelfReferee $selfReferee
      * @param PouleStructure $pouleStructure
      * @param list<AgainstH2h|AgainstGpp|Single|AllInOneGame> $sportVariants
-    * @return SelfReferee
+    * @return SelfReferee|null
      */
     protected function getValidatedSelfReferee(
         SelfReferee $selfReferee,
         PouleStructure $pouleStructure,
         array $sportVariants,
-        ): SelfReferee
+        ): SelfReferee|null
     {
         $planningInputService = new PlanningInputService();
         $otherPoulesAvailable = $planningInputService->canSelfRefereeOtherPoulesBeAvailable($pouleStructure);
         $samePouleAvailable = $planningInputService->canSelfRefereeSamePouleBeAvailable($pouleStructure, $sportVariants);
         if (!$otherPoulesAvailable && !$samePouleAvailable) {
-            return SelfReferee::Disabled;
+            return null;
         }
         if ($selfReferee === SelfReferee::OtherPoules && !$otherPoulesAvailable) {
             return SelfReferee::SamePoule;
@@ -99,13 +102,13 @@ final class ConfigurationValidator
     /**
      * @param PouleStructure $pouleStructure
      * @param list<SportVariantWithFields> $sportVariantsWithFields
-     * @param RefereeInfo $refereeInfo
+     * @param PlanningRefereeInfo $refereeInfo
      * @return list<SportVariantWithFields>
      */
     protected function reduceFields(
         PouleStructure $pouleStructure,
         array $sportVariantsWithFields,
-        RefereeInfo $refereeInfo
+        PlanningRefereeInfo $refereeInfo
     ): array {
         $planningPouleStructure = new PlanningPouleStructure(
             $pouleStructure,

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Game\Place;
 
-use SportsHelpers\Against\Side as AgainstSide;
+use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Game\Against as AgainstGame;
 use SportsPlanning\Game\Place as GamePlace;
 use SportsPlanning\Place as PoulePlace;

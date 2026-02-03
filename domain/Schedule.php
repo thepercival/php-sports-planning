@@ -7,21 +7,15 @@ namespace SportsPlanning;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
-use SportsPlanning\Identifiable;
-use SportsHelpers\PouleStructure;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
 use SportsHelpers\Sport\Variant\Single as Single;
 use SportsHelpers\Sport\VariantWithFields;
-// use SportsHelpers\Sport\VariantWithPoule;
-use SportsHelpers\SportRange;
-use SportsPlanning\Input\Configuration;
-use SportsPlanning\Referee\Info;
-use SportsPlanning\Schedule as BaseSchedule;
 use SportsPlanning\Schedule\Name as ScheduleName;
 use SportsPlanning\Schedule\Sport as SportSchedule;
-use SportsPlanning\SportVariant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
+
+// use SportsHelpers\Sport\VariantWithPoule;
 
 final class Schedule extends Identifiable implements \Stringable
 {
@@ -119,12 +113,12 @@ final class Schedule extends Identifiable implements \Stringable
 //    public function getPoule(): Poule {
 //        if( $this->poule === null ) {
 //            $input = new Input( new Configuration(
-//                new PouleStructure( $this->getNrOfPlaces() ),
+//                new PlanningPouleStructure( $this->getNrOfPlaces() ),
 //                array_values( array_map(
 //                    function(Single|AgainstH2h|AgainstGpp|AllInOneGame $variant): VariantWithFields {
 //                    return new VariantWithFields($variant, 1);
 //                }, $this->createSportVariants()->toArray() ) ),
-//                new Info(),
+//                new PlanningRefereeInfo(),
 //                false
 //            ) );
 //            $this->poule = $input->getPoule(1);

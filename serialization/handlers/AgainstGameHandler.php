@@ -9,7 +9,7 @@ use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\Context;
-use SportsHelpers\Against\Side;
+use SportsHelpers\Against\AgainstSide;
 use SportsHelpers\SportRange;
 use SportsPlanning\Field;
 use SportsPlanning\Game\Against as AgainstGame;
@@ -85,7 +85,7 @@ final class AgainstGameHandler extends Handler implements SubscribingHandlerInte
         }
 
         foreach ($fieldValue['places'] as $arrGamePlace) {
-            $side = Side::from($arrGamePlace['side']);
+            $side = AgainstSide::from($arrGamePlace['side']);
             $place = $placeLocationMap[ $arrGamePlace['placeLocation'] ];
             new AgainstGamePlace($againstGame, $place, $side);
         }
