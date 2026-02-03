@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\PouleStructure;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sport\Variant\Against as AgainstSportVariant;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGameSportVariant;
 use SportsHelpers\Sport\Variant\Single as SingleSportVariant;
@@ -16,7 +16,7 @@ final class Service
     }
 
 
-    /*public function canTeamupBeAvailable(PouleStructure $pouleStructure, array $sportConfigs): bool
+    /*public function canTeamupBeAvailable(PlanningPouleStructure $pouleStructure, array $sportConfigs): bool
     {
         if (count($sportConfigs) > 1) {
             return false;

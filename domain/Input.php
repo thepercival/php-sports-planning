@@ -8,26 +8,22 @@ use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Exception;
-use SportsHelpers\SelfRefereeInfo;
-use SportsPlanning\Exceptions\NoBestPlanningException;
-use SportsHelpers\PouleStructure;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\SelfReferee;
+use SportsHelpers\SelfRefereeInfo;
+use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
+use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame;
 use SportsHelpers\Sport\Variant\Single;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
-use SportsPlanning\Input\Calculator as InputCalculator;
+use SportsPlanning\Exceptions\NoBestPlanningException;
 use SportsPlanning\Input\Configuration;
 use SportsPlanning\Input\Configuration as InputConfiguration;
-use SportsPlanning\Planning\BatchGamesType;
 use SportsPlanning\Planning\Comparer;
 use SportsPlanning\Planning\Filter as PlanningFilter;
 use SportsPlanning\Planning\HistoricalBestPlanning;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\Type as PlanningType;
-use SportsPlanning\PouleStructure as PlanningPouleStructure;
-use SportsPlanning\Referee\Info as RefereeInfo;
 
 final class Input extends Identifiable
 {
@@ -124,8 +120,8 @@ final class Input extends Identifiable
         }
 
         $refereeInfo = $configuration->refereeInfo;
-        $this->selfReferee = $refereeInfo->selfRefereeInfo->selfReferee;
-        $this->nrOfSimSelfRefs = $refereeInfo->selfRefereeInfo->nrIfSimSelfRefs;
+        $this->selfReferee = $refereeInfo->selfRefereeInfo?->selfReferee ?? SelfReferee::Disabled;
+        $this->nrOfSimSelfRefs = $refereeInfo->selfRefereeInfo?->nrOfSimSelfRefs ?? 1;
         if ($this->selfReferee === SelfReferee::Disabled) {
             for ($refNr = 1; $refNr <= $refereeInfo->nrOfReferees; $refNr++) {
                 new Referee($this, null);
@@ -243,7 +239,7 @@ final class Input extends Identifiable
             foreach ($category->getPoules() as $poule) {
                 $poules[] = $poule->getPlaces()->count();
             }
-            $pouleStructures[] = new PouleStructure(...$poules);
+            $pouleStructures[] = new PlanningPouleStructure(...$poules);
         }
         return $pouleStructures;
     }*/
@@ -323,7 +319,7 @@ final class Input extends Identifiable
         return $this->sports->count() > 1;
     }
 
-    public function getSelfReferee(): SelfReferee
+    public function getSelfReferee(): SelfReferee|null
     {
         return $this->selfReferee;
     }
@@ -444,14 +440,14 @@ final class Input extends Identifiable
         return new SelfRefereeInfo($this->selfReferee, $this->nrOfSimSelfRefs);
     }
 
-    public function getRefereeInfo(): RefereeInfo
+    public function getRefereeInfo(): PlanningRefereeInfo
     {
         if( $this->selfReferee === SelfReferee::Disabled ) {
             $selfRefereeInfoOrNrOfReferees = count($this->getReferees());
         } else {
             $selfRefereeInfoOrNrOfReferees = $this->getSelfRefereeInfo();
         }
-        return new RefereeInfo($selfRefereeInfoOrNrOfReferees);
+        return new PlanningRefereeInfo($selfRefereeInfoOrNrOfReferees);
     }
 
     public function hasBalancedStructure(): bool

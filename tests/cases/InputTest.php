@@ -7,7 +7,7 @@ namespace SportsPlanning\Tests;
 use PHPUnit\Framework\TestCase;
 use SportsHelpers\SportRange;
 use SportsPlanning\Planning;
-use SportsPlanning\Referee\Info as RefereeInfo;
+use SportsPlanning\PlanningRefereeInfo ;
 use SportsPlanning\TestHelper\PlanningCreator;
 
 final class InputTest extends TestCase
@@ -20,7 +20,7 @@ final class InputTest extends TestCase
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
-            new RefereeInfo()
+            new PlanningRefereeInfo()
         );
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 0);
@@ -40,7 +40,7 @@ final class InputTest extends TestCase
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
-            new RefereeInfo()
+            new PlanningRefereeInfo()
         );
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 0);
@@ -61,7 +61,7 @@ final class InputTest extends TestCase
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
-            new RefereeInfo()
+            new PlanningRefereeInfo()
         );
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 0);
@@ -81,7 +81,7 @@ final class InputTest extends TestCase
         $input = $this->createInput(
             [5],
             [$sportVariantsWithFields],
-            new RefereeInfo()
+            new PlanningRefereeInfo()
         );
         $batchGamesRange = new SportRange(2, 2);
         $planningA = new Planning($input, $batchGamesRange, 1);

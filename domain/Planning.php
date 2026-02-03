@@ -16,7 +16,7 @@ use SportsPlanning\Game\Together as TogetherGame;
 use SportsPlanning\Input\Configuration as InputConfiguration;
 use SportsPlanning\Planning\BatchGamesType;
 use SportsPlanning\Planning\Filter;
-use SportsPlanning\Planning\State;
+use SportsHelpers\RefereeInfo;
 use SportsPlanning\Planning\State as PlanningState;
 use SportsPlanning\Planning\TimeoutState;
 use SportsPlanning\Planning\TimeoutConfig;

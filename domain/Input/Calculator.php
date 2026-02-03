@@ -4,24 +4,7 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Input;
 
-use SportsHelpers\PouleStructure;
-use SportsHelpers\SelfReferee;
-use SportsHelpers\SelfRefereeInfo;
 use SportsHelpers\Sport\GamePlaceCalculator;
-use SportsHelpers\Sport\Variant\Creator as VariantCreator;
-use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
-use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
-use SportsHelpers\Sport\Variant\AllInOneGame;
-use SportsHelpers\Sport\Variant\WithPoule\Against\GamesPerPlace as AgainstGppWithPoule;
-use SportsHelpers\Sport\Variant\WithPoule\Against\H2h as AgainstH2hWithPoule;
-use SportsHelpers\Sport\Variant\WithPoule\AllInOneGame as AllInOneGameWithPoule;
-use SportsHelpers\Sport\Variant\Single;
-use SportsHelpers\Sport\Variant\WithPoule\Single as SingleWithPoule;
-use SportsPlanning\PouleStructure as PlanningPouleStructure;
-use SportsHelpers\Sport\VariantWithFields as SportVariantWithFields;
-use SportsPlanning\Input;
-use SportsPlanning\Referee\Info as RefereeInfo;
-use SportsPlanning\Sport;
 
 final class Calculator
 {

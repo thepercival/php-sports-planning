@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace SportsPlanning\Output;
 
 use Psr\Log\LoggerInterface;
+use SportsHelpers\Against\AgainstSide;
 use SportsHelpers\Counter;
 use SportsHelpers\Output\OutputAbstract;
-use SportsHelpers\PouleStructure;
+use SportsHelpers\PouleStructures\PouleStructure;
 use SportsHelpers\Sport\Variant\Against\GamesPerPlace as AgainstGpp;
 use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\Creator as VariantCreator;
@@ -17,13 +18,9 @@ use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\PlaceCombination;
 use SportsPlanning\Combinations\PlaceCombinationCounter;
 use SportsPlanning\Input;
+use SportsPlanning\PlanningRefereeInfo;
 use SportsPlanning\Poule;
-use SportsPlanning\Referee\Info;
 use SportsPlanning\Schedule as ScheduleBase;
-use SportsPlanning\Output\GameOutput as GameOutput;
-use SportsPlanning\Game\Together as TogetherGame;
-use SportsPlanning\Game\Against as AgainstGame;
-use SportsHelpers\Against\Side as AgainstSide;
 use SportsPlanning\Schedule\Name;
 
 final class ScheduleOutput extends OutputAbstract
@@ -68,7 +65,7 @@ final class ScheduleOutput extends OutputAbstract
             $tmpInput = new Input(new Input\Configuration(
                 new PouleStructure($schedule->getNrOfPlaces()),
                 $schedule->createSportVariantWithFields(),
-                new Info(), false
+                new PlanningRefereeInfo(), false
             ));
             $this->outputScheduleTotals($tmpInput->getFirstPoule(), $schedule);
         }
