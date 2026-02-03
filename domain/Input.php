@@ -319,7 +319,7 @@ final class Input extends Identifiable
         return $this->sports->count() > 1;
     }
 
-    public function getSelfReferee(): SelfReferee|null
+    public function getSelfReferee(): SelfReferee
     {
         return $this->selfReferee;
     }
