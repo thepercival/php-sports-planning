@@ -16,7 +16,7 @@ jobs:
 
       - uses: php-actions/composer@v6
         with:
-          php_version: "8.4"
+          php-version: '8.4'
 
       - name: PHPUnit Tests
         uses: php-actions/phpunit@v3

@@ -1,33 +1,41 @@
 name: Coverage
 
-on: [ push ]
+on:
+  pull_request:
+    branches: [ main ]
+    types:
+      - opened
+      - closed
 
 jobs:
-  build-test:
+  Code-Coverage:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
       - name: Setup PHP 8.4
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
-          extensions: xdebug
+          extensions: xdebug intl
           tools: phpunit
           coverage: xdebug
 
       - name: Validate composer.json and composer.lock
         run: composer validate --strict
 
+      - name: View Version
+        run: composer -V
+
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: PHPUnit Coverage
-        uses: php-actions/phpunit@v3
+        uses: php-actions/phpunit@v4
         with:
           php_version: 8.4
-          php_extensions: xdebug
+          php_extensions: xdebug intl
           configuration: tests/phpunit.xml
           args: --coverage-text
         env:
