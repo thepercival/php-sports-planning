@@ -7,6 +7,6 @@ SportsPlanning\Input\Configuration:
     sportVariantsWithFields:
       type: array<SportsHelpers\Sport\VariantWithFields>
     refereeInfo:
-      type: SportsPlanning\Referee\Info
+      type: SportsPlanning\PlanningRefereeInfo
     perPoule:
       type: boolean
