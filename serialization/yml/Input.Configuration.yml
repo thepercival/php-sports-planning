@@ -3,7 +3,7 @@ SportsPlanning\Input\Configuration:
   exclude: false
   properties:
     pouleStructure:
-      type: SportsHelpers\PouleStructure
+      type: SportsHelpers\PouleStructures\PouleStructure
     sportVariantsWithFields:
       type: array<SportsHelpers\Sport\VariantWithFields>
     refereeInfo:
