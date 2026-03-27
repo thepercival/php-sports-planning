@@ -28,8 +28,7 @@ final class Configuration
         public bool $perPoule
     )
     {
-        if( $refereeInfo->selfRefereeInfo !== null &&
-            $refereeInfo->selfRefereeInfo->selfReferee === SelfReferee::Disabled &&
+        if( $refereeInfo->selfRefereeInfo->selfReferee !== SelfReferee::Disabled &&
             !$pouleStructure->sportsAndSelfRefereeAreCompatible(
                 $this->createSportVariants(), $refereeInfo->selfRefereeInfo->selfReferee) ) {
             throw new \Exception('selfReferee is not compatible with poulestructure', E_ERROR);

@@ -62,7 +62,7 @@ final class ConfigurationValidator
         ): PlanningRefereeInfo
     {
         $selfRefereeInfo = $refereeInfo->selfRefereeInfo;
-        if( $selfRefereeInfo === null) {
+        if( $selfRefereeInfo->selfReferee === SelfReferee::Disabled) {
             return new PlanningRefereeInfo($refereeInfo->nrOfReferees);
         }
         $newSelfReferee = $this->getValidatedSelfReferee($selfRefereeInfo->selfReferee, $pouleStructure, $sportVariants);

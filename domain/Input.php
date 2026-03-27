@@ -120,8 +120,8 @@ final class Input extends Identifiable
         }
 
         $refereeInfo = $configuration->refereeInfo;
-        $this->selfReferee = $refereeInfo->selfRefereeInfo?->selfReferee ?? SelfReferee::Disabled;
-        $this->nrOfSimSelfRefs = $refereeInfo->selfRefereeInfo?->nrOfSimSelfRefs ?? 1;
+        $this->selfReferee = $refereeInfo->selfRefereeInfo->selfReferee;
+        $this->nrOfSimSelfRefs = $refereeInfo->selfRefereeInfo->nrOfSimSelfRefs;
         if ($this->selfReferee === SelfReferee::Disabled) {
             for ($refNr = 1; $refNr <= $refereeInfo->nrOfReferees; $refNr++) {
                 new Referee($this, null);
