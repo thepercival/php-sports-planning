@@ -13,7 +13,7 @@ final readonly class PlanningRefereeInfo extends RefereeInfo implements \Stringa
     public function __construct(RefereeInfo|SelfRefereeInfo|int|null $selfRefereeInfoOrNrOfReferees = null)
     {
         if( $selfRefereeInfoOrNrOfReferees instanceof RefereeInfo) {
-            if( $selfRefereeInfoOrNrOfReferees->selfRefereeInfo !== null) {
+            if( $selfRefereeInfoOrNrOfReferees->selfRefereeInfo->selfReferee !== SelfReferee::Disabled) {
                 parent::__construct($selfRefereeInfoOrNrOfReferees->selfRefereeInfo);
             } else {
                 parent::__construct(null,$selfRefereeInfoOrNrOfReferees->nrOfReferees);
@@ -40,14 +40,14 @@ final readonly class PlanningRefereeInfo extends RefereeInfo implements \Stringa
     protected function getSelfRefereeAsString(): string
     {
         $key = '';
-        switch ($this->selfRefereeInfo?->selfReferee) {
+        switch ($this->selfRefereeInfo->selfReferee) {
             case SelfReferee::OtherPoules:
                 $key = 'OP';
                 break;
             case SelfReferee::SamePoule:
                 $key = 'SP';
         }
-        if ( $this->selfRefereeInfo !== null ) {
+        if ( $this->selfRefereeInfo->selfReferee !== SelfReferee::Disabled ) {
             $key .= '(' . $this->selfRefereeInfo->nrOfSimSelfRefs . ')';
         }
         return $key;
