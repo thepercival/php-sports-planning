@@ -5,26 +5,22 @@ declare(strict_types=1);
 namespace SportsPlanning\Tests;
 
 use PHPUnit\Framework\TestCase;
-use SportsPlanning\PlaceCounter;
-use SportsPlanning\TestHelper\PlanningCreator;
+use SportsPlanning\Combinations\PlaceNrCounter;
 
 final class PlaceCounterTest extends TestCase
 {
-    use PlanningCreator;
 
     public function testSimple(): void
     {
-        $input = $this->createInput([5]);
-        $place = $input->getPoule(1)->getPlace(1);
-        $placeCounter = new PlaceCounter($place);
+        $placeNr = 1;
+        $placeCounter = new PlaceNrCounter($placeNr);
         self::assertSame(1, $placeCounter->getPlaceNr());
     }
 
     public function testCounter(): void
     {
-        $input = $this->createInput([5]);
-        $place = $input->getPoule(1)->getPlace(1);
-        $placeCounter = new PlaceCounter($place);
+        $placeNr = 1;
+        $placeCounter = new PlaceNrCounter($placeNr);
         $placeCounter->increment();
         $placeCounter->increment();
         $placeCounter->increment();

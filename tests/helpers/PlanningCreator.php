@@ -22,9 +22,9 @@ trait PlanningCreator
     protected function getAgainstH2hSportVariant(
         int $nrOfHomePlaces = 1,
         int $nrOfAwayPlaces = 1,
-        int $nrOfH2H = 1
+        int $nrOfH2h = 1
     ): AgainstH2h {
-        return new AgainstH2h($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H);
+        return new AgainstH2h($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2h);
     }
 
     protected function getAgainstGppSportVariant(
@@ -49,10 +49,10 @@ trait PlanningCreator
         int $nrOfFields,
         int $nrOfHomePlaces = 1,
         int $nrOfAwayPlaces = 1,
-        int $nrOfH2H = 1
+        int $nrOfH2h = 1
     ): SportVariantWithFields {
         return new SportVariantWithFields(
-            $this->getAgainstH2hSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2H),
+            $this->getAgainstH2hSportVariant($nrOfHomePlaces, $nrOfAwayPlaces, $nrOfH2h),
             $nrOfFields
         );
     }

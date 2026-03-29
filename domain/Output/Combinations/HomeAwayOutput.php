@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace SportsPlanning\Output\Combinations;
 
+use old\GameRounds\AgainstGameRound;
 use Psr\Log\LoggerInterface;
-use SportsHelpers\Output\Color;
 use SportsHelpers\Output\OutputAbstract;
 use SportsPlanning\Combinations\HomeAway as HomeAwayBase;
-use SportsPlanning\Combinations\PlaceCombination;
-use SportsPlanning\Combinations\PlaceCombinationCounter;
-use SportsPlanning\GameRound\Against as AgainstGameRound;
+use SportsPlanning\Combinations\PlaceNrCombination;
+use SportsPlanning\Combinations\PlaceNrCombinationCounter;
 use SportsPlanning\Place;
+use SportsPlanning\Schedules\GameRounds\ScheduleAgainstGameRound;
 
 final class HomeAwayOutput extends OutputAbstract
 {
@@ -59,22 +59,22 @@ final class HomeAwayOutput extends OutputAbstract
     public function outputAgainstTotals(array $homeAways): void {
         $header = 'AgainstTotals';
         $this->logger->info($header);
-        $map = $this->convertToAgainstPlaceCombinationMap($homeAways);
+        $map = $this->convertToAgainstPlaceNrCombinationMap($homeAways);
         $this->outputTotalsHelpers($map);
     }
 
     /**
      * @param list<HomeAwayBase> $homeAways
-     * @return array<string, PlaceCombinationCounter> $map
+     * @return array<string, PlaceNrCombinationCounter> $map
      */
-    protected function convertToAgainstPlaceCombinationMap(array $homeAways): array {
+    protected function convertToAgainstPlaceNrCombinationMap(array $homeAways): array {
         $map = [];
         foreach ($homeAways as $homeAway) {
-            foreach( $homeAway->getAgainstPlaceCombinations() as $withPlaceCombincation ) {
-                if( !array_key_exists($withPlaceCombincation->getIndex(), $map)) {
-                    $map[$withPlaceCombincation->getIndex()] = new PlaceCombinationCounter($withPlaceCombincation);
+            foreach( $homeAway->getAgainstPlaceNrCombinations() as $withPlaceNrCombincation ) {
+                if( !array_key_exists($withPlaceNrCombincation->getIndex(), $map)) {
+                    $map[$withPlaceNrCombincation->getIndex()] = new PlaceNrCombinationCounter($withPlaceNrCombincation);
                 }
-                $map[$withPlaceCombincation->getIndex()]->increment();
+                $map[$withPlaceNrCombincation->getIndex()]->increment();
             }
         }
         return $map;
@@ -91,35 +91,35 @@ final class HomeAwayOutput extends OutputAbstract
         $header = '==== WithTotals ====';
         $this->logger->info($header);
 
-        $map = $this->convertToWithPlaceCombinationMap($homeAways);
+        $map = $this->convertToWithPlaceNrCombinationMap($homeAways);
         $this->outputTotalsHelpers($map);
     }
 
     /**
      * @param list<HomeAwayBase> $homeAways
-     * @return array<string, PlaceCombinationCounter> $map
+     * @return array<string, PlaceNrCombinationCounter> $map
      */
-    protected function convertToWithPlaceCombinationMap(array $homeAways): array {
+    protected function convertToWithPlaceNrCombinationMap(array $homeAways): array {
         $map = [];
         foreach ($homeAways as $homeAway) {
-            foreach( $homeAway->getWithPlaceCombinations() as $withPlaceCombincation ) {
-                if( !array_key_exists($withPlaceCombincation->getIndex(), $map)) {
-                    $map[$withPlaceCombincation->getIndex()] = new PlaceCombinationCounter($withPlaceCombincation);
+            foreach( $homeAway->getWithPlaceNrCombinations() as $withPlaceNrCombincation ) {
+                if( !array_key_exists($withPlaceNrCombincation->getIndex(), $map)) {
+                    $map[$withPlaceNrCombincation->getIndex()] = new PlaceNrCombinationCounter($withPlaceNrCombincation);
                 }
-                $map[$withPlaceCombincation->getIndex()]->increment();
+                $map[$withPlaceNrCombincation->getIndex()]->increment();
             }
         }
         return $map;
     }
 
     /**
-     * @param array<string, PlaceCombinationCounter> $map
+     * @param array<string, PlaceNrCombinationCounter> $map
      * @return void
      */
     public function outputTotalsHelpers(array $map): void {
         $amountPerLine = 4; $counter = 0; $line = '';
         foreach( $map as $counterIt ) {
-            $line .= ((string)$counterIt->getPlaceCombination()) . ' ' . $counterIt->count() . 'x, ';
+            $line .= ((string)$counterIt->getPlaceNrCombination()) . ' ' . $counterIt->count() . 'x, ';
             if( ++$counter === $amountPerLine ) {
                 $this->logger->info('    ' . $line);
                 $counter = 0;
@@ -139,11 +139,11 @@ final class HomeAwayOutput extends OutputAbstract
     {
         $map = [];
         foreach ($homeAways as $homeAway) {
-            foreach ($homeAway->getHome()->getPlaces() as $place) {
-                if (!isset($map[$place->getPlaceNr()])) {
-                    $map[$place->getPlaceNr()] = 0;
+            foreach ($homeAway->getHome()->getPlaceNrs() as $homePlaceNr) {
+                if (!isset($map[$homePlaceNr])) {
+                    $map[$homePlaceNr] = 0;
                 }
-                $map[$place->getPlaceNr()]++;
+                $map[$homePlaceNr]++;
             }
         }
         $output = 'places nr of home games:';
@@ -154,7 +154,7 @@ final class HomeAwayOutput extends OutputAbstract
     }
 
 
-    public function output(HomeAwayBase $homeAway, AgainstGameRound|null $gameRound = null, string|null $prefix = null): void
+    public function output(HomeAwayBase $homeAway, ScheduleAgainstGameRound|null $gameRound = null, string|null $prefix = null): void
     {
         $gameRoundColorNr = $gameRound !== null ? ($gameRound->getNumber() % 10) : -1;
         $gameRoundColor = $this->convertNumberToColor($gameRoundColorNr);
@@ -169,22 +169,16 @@ final class HomeAwayOutput extends OutputAbstract
         );
     }
 
-    protected function getPlaces(HomeAwayBase $homeAway, AgainstGameRound|null $gameRound = null): string
+    protected function getPlaces(HomeAwayBase $homeAway, ScheduleAgainstGameRound|null $gameRound = null): string
     {
         $homeGamePlaces = $this->getPlacesHelper($homeAway->getHome());
         $awayGamePlaces = $this->getPlacesHelper($homeAway->getAway());
         return $homeGamePlaces . ' vs ' . $awayGamePlaces;
     }
 
-    protected function getPlacesHelper(PlaceCombination $placeCombination): string
+    protected function getPlacesHelper(PlaceNrCombination $placeNrCombination): string
     {
-        $placesAsArrayOfStrings = array_map(
-            function (Place $place): string {
-                return $this->getPlace($place);
-            },
-            $placeCombination->getPlaces()
-        );
-        return implode(' & ', $placesAsArrayOfStrings);
+        return implode(' & ', $placeNrCombination->getPlaceNrs());
     }
 
     protected function getPlace(Place $place): string

@@ -52,7 +52,7 @@ final class Together extends GameBase
     }
 
 //    /**
-//     * @param ArrayCollection | GamePlace[] $places
+//     * @param ArrayCollection | ScheduleTogetherGameRoundGamePlace[] $places
 //     */
 //    public function setPlaces(ArrayCollection $places)
 //    {
@@ -62,11 +62,11 @@ final class Together extends GameBase
 //    /**
 //     * @param Place $place
 //     * @param bool $homeAway
-//     * @return GamePlace
+//     * @return ScheduleTogetherGameRoundGamePlace
 //     */
-//    public function addPlace(Place $place, bool $homeAway): GamePlace
+//    public function addPlace(Place $place, bool $homeAway): ScheduleTogetherGameRoundGamePlace
 //    {
-//        return new GamePlace($this, $place, $homeAway);
+//        return new ScheduleTogetherGameRoundGamePlace($this, $place, $homeAway);
 //    }
 //
 
@@ -82,11 +82,11 @@ final class Together extends GameBase
 //
 //    public function getHomeAway(Place $place): ?bool
 //    {
-//        if ($this->isParticipating($place, Game::HOME)) {
-//            return Game::HOME;
+//        if ($this->isParticipating($place, ScheduleTogetherGameRoundGame::HOME)) {
+//            return ScheduleTogetherGameRoundGame::HOME;
 //        }
-//        if ($this->isParticipating($place, Game::AWAY)) {
-//            return Game::AWAY;
+//        if ($this->isParticipating($place, ScheduleTogetherGameRoundGame::AWAY)) {
+//            return ScheduleTogetherGameRoundGame::AWAY;
 //        }
 //        return null;
 //    }
