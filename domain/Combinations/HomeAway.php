@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace SportsPlanning\Combinations;
 
 use SportsHelpers\Against\AgainstSide;
-use SportsPlanning\Place;
 
 final class HomeAway implements \Stringable
 {
     private string|null $index = null;
 
     public function __construct(
-        private PlaceCombination $home,
-        private PlaceCombination $away
+        private PlaceNrCombination $home,
+        private PlaceNrCombination $away
     ) {
     }
 
@@ -25,71 +24,70 @@ final class HomeAway implements \Stringable
         return $this->index;
     }
 
-    public function get(AgainstSide $side): PlaceCombination
+    public function get(AgainstSide $side): PlaceNrCombination
     {
         return $side === AgainstSide::Home ? $this->home : $this->away;
     }
 
-    public function getHome(): PlaceCombination
+    public function getHome(): PlaceNrCombination
     {
         return $this->home;
     }
 
-    public function getAway(): PlaceCombination
+    public function getAway(): PlaceNrCombination
     {
         return $this->away;
     }
 
-    public function hasPlace(Place $place): bool
+    public function hasPlaceNr(int $placeNr): bool
     {
-        return $this->home->has($place) || $this->away->has($place);
+        return $this->home->has($placeNr) || $this->away->has($placeNr);
     }
 
-    public function playAgainst(Place $place, Place $againstPlace): bool {
-        return ($this->getHome()->has($place) && $this->getAway()->has($againstPlace))
-            || ($this->getHome()->has($againstPlace) && $this->getAway()->has($place));
+    public function playAgainst(int $placeNr, int $againstPlaceNr): bool {
+        return ($this->getHome()->has($placeNr) && $this->getAway()->has($againstPlaceNr))
+            || ($this->getHome()->has($againstPlaceNr) && $this->getAway()->has($placeNr));
     }
 
     /**
      * @param AgainstSide|null $side
-     * @return list<Place>
+     * @return list<int>
      */
-    public function getPlaces(AgainstSide|null $side = null): array
+    public function getPlaceNrs(AgainstSide|null $side = null): array
     {
         if( $side === null ) {
-            return array_merge($this->home->getPlaces(), $this->away->getPlaces());
+            return array_merge($this->home->getPlaceNrs(), $this->away->getPlaceNrs());
         }
-        return $this->get($side)->getPlaces();
-
+        return $this->get($side)->getPlaceNrs();
     }
 
     /**
-     * @return list<PlaceCombination>
+     * @return list<PlaceNrCombination>
      */
-    public function getAgainstPlaceCombinations(): array {
+    public function getAgainstPlaceNrCombinations(): array {
 
-        $againstPlaceCombinations = [];
-        foreach($this->getPlaces(AgainstSide::Home) as $homePlace) {
-            foreach($this->getPlaces(AgainstSide::Away) as $awayPlace) {
-                array_push($againstPlaceCombinations, new PlaceCombination([$homePlace, $awayPlace]));
+        $againstPlaceNrCombinations = [];
+        foreach($this->getPlaceNrs(AgainstSide::Home) as $homePlaceNr) {
+            foreach($this->getPlaceNrs(AgainstSide::Away) as $awayPlaceNr) {
+                array_push($againstPlaceNrCombinations, new PlaceNrCombination([$homePlaceNr, $awayPlaceNr]));
             }
         }
-        return $againstPlaceCombinations;
+        return $againstPlaceNrCombinations;
     }
 
     /**
-     * @return list<PlaceCombination>
+     * @return list<PlaceNrCombination>
      */
-    public function getWithPlaceCombinations(): array {
+    public function getWithPlaceNrCombinations(): array {
 
-        $withPlaceCombinations = [];
+        $withPlaceNrCombinations = [];
         foreach([AgainstSide::Home, AgainstSide::Away] as $side) {
-            $placeCombination = $this->get($side);
-            if(count($placeCombination->getPlaces()) > 1) {
-                array_push($withPlaceCombinations, $placeCombination);
+            $placeNrCombination = $this->get($side);
+            if(count($placeNrCombination->getPlaceNrs()) > 1) {
+                array_push($withPlaceNrCombinations, $placeNrCombination);
             }
         }
-        return $withPlaceCombinations;
+        return $withPlaceNrCombinations;
     }
 
     public function equals(HomeAway $game): bool

@@ -1,0 +1,81 @@
+<?php
+
+declare(strict_types=1);
+
+namespace old;
+
+use old\GameRounds\AgainstGameRound;
+use Psr\Log\LoggerInterface;
+use SportsHelpers\Output\OutputAbstract;
+use SportsPlanning\Combinations\HomeAway as HomeAwayBase;
+use SportsPlanning\Output\Combinations\HomeAwayOutput as HomeAwayOutput;
+
+final class GameRoundOutput extends OutputAbstract
+{
+    private HomeAwayOutput $homeAwayOutput;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->homeAwayOutput = new HomeAwayOutput($logger);
+        parent::__construct($logger);
+    }
+
+    public function output(
+        AgainstGameRound $gameRound,
+        bool $showGameRoundHeaderLine,
+        string|null $title = null,
+        int|null $max = null,
+        int|null $min = null
+    ): void {
+        if ($title !== null) {
+            $this->logger->info('------ title: ' . $title . ' -------------');
+        }
+//        if( $batch->getNumber() > 2 ) {
+//            return;
+//        }
+        $this->outputHelper($gameRound->getFirst(), $showGameRoundHeaderLine, $min, $max);
+    }
+
+    protected function outputHelper(
+        AgainstGameRound $gameRound,
+        bool $showGameRoundHeaderLine,
+        int|null $min = null,
+        int|null $max = null
+    ): void {
+        if ($min !== null && $gameRound->getNumber() < $min) {
+            $nextGameRound = $gameRound->getNext();
+            if ($nextGameRound !== null) {
+                $this->outputHelper($nextGameRound, $showGameRoundHeaderLine, $max);
+            }
+            return;
+        }
+        if ($max !== null && $gameRound->getNumber() > $max) {
+            return;
+        }
+        if( $showGameRoundHeaderLine) {
+            $this->logger->info('------ gameround ' . $gameRound->getNumber() . ' -------------');
+        }
+        $this->outputHomeAways($gameRound->getHomeAways());
+        $nextGameRound = $gameRound->getNext();
+        if ($nextGameRound !== null) {
+            $this->outputHelper($nextGameRound, $showGameRoundHeaderLine, $max);
+        }
+    }
+
+    /**
+     * @param list<HomeAwayBase> $homeAways
+     * @param AgainstGameRound|null $gameRound
+     * @param string|null $header
+     * @return void
+     */
+    public function outputHomeAways(array $homeAways, AgainstGameRound|null $gameRound = null, string|null $header = null): void
+    {
+        if ($header !== null) {
+            $this->logger->info($header);
+        }
+        $prefix = ''; // $gameRound->getNumber() . ' : ';
+        foreach ($homeAways as $homeAway) {
+            $this->homeAwayOutput->output($homeAway, $gameRound, $prefix);
+        }
+    }
+}

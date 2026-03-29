@@ -58,6 +58,14 @@ final class Poule extends Identifiable
         return array_values($this->places->toArray());
     }
 
+    /**
+     * @return list<int>
+     */
+    public function getPlaceNrs(): array
+    {
+        return array_values(array_map(fn(Place $place): int => $place->getPlaceNr(), $this->places->toArray()));
+    }
+
     public function getPlace(int $number): Place
     {
         foreach ($this->getPlaces() as $place) {
