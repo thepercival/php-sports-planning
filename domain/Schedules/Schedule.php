@@ -12,10 +12,11 @@ use SportsHelpers\Sport\Variant\Against\H2h as AgainstH2h;
 use SportsHelpers\Sport\Variant\AllInOneGame as AllInOneGame;
 use SportsHelpers\Sport\Variant\Single as Single;
 use SportsHelpers\Sport\VariantWithFields;
+use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Identifiable;
 use SportsPlanning\Poule;
 use SportsPlanning\Schedules\ScheduleName as ScheduleName;
-use SportsPlanning\Schedules\ScheduleSport as SportSchedule;
+use SportsPlanning\Schedules\ScheduleSport;
 
 // use SportsHelpers\ScheduleSport\VariantWithPoule;
 
@@ -27,10 +28,10 @@ final class Schedule extends Identifiable implements \Stringable
     protected int $nrOfTimeoutSecondsTried = 0;
 
     /**
-     * @phpstan-var ArrayCollection<int|string, SportSchedule>|PersistentCollection<int|string, SportSchedule>|SportSchedule[]
-     * @psalm-var ArrayCollection<int|string, SportSchedule>
+     * @phpstan-var ArrayCollection<int|string, ScheduleSport>|PersistentCollection<int|string, ScheduleSport>|ScheduleSport[]
+     * @psalm-var ArrayCollection<int|string, ScheduleSport>
      */
-    protected ArrayCollection|PersistentCollection $sportSchedules;
+    protected ArrayCollection|PersistentCollection $scheduleSports;
 
     /**
      * @param int $nrOfPlaces
@@ -39,7 +40,7 @@ final class Schedule extends Identifiable implements \Stringable
     public function __construct(protected int $nrOfPlaces, array $sportVariants)
     {
         $this->sportsConfigName = (string)new ScheduleName($sportVariants);
-        $this->sportSchedules = new ArrayCollection();
+        $this->scheduleSports = new ArrayCollection();
     }
 
     public function getNrOfPlaces(): int
@@ -53,11 +54,11 @@ final class Schedule extends Identifiable implements \Stringable
     }
 
     /**
-     * @return Collection<int|string, SportSchedule>
+     * @return Collection<int|string, ScheduleSport>
      */
-    public function getSportSchedules(): Collection
+    public function getScheduleSports(): Collection
     {
-        return $this->sportSchedules;
+        return $this->scheduleSports;
     }
 
     /**
@@ -66,9 +67,9 @@ final class Schedule extends Identifiable implements \Stringable
     public function createSportVariants(): array
     {
         return array_map(
-            function (SportSchedule $sportSchedule): Single|AgainstH2h|AgainstGpp|AllInOneGame {
-                return $sportSchedule->createVariant();
-            }, array_values($this->sportSchedules->toArray())
+            function (ScheduleSport $scheduleSport): Single|AgainstH2h|AgainstGpp|AllInOneGame {
+                return $scheduleSport->createVariant();
+            }, array_values($this->scheduleSports->toArray())
         );
     }
 
@@ -110,6 +111,21 @@ final class Schedule extends Identifiable implements \Stringable
     public function setNrOfTimeoutSecondsTried(int $nrOfTimeoutSecondsTried): void
     {
         $this->nrOfTimeoutSecondsTried = $nrOfTimeoutSecondsTried;
+    }
+
+    /**
+     * @return list<HomeAway>
+     */
+    public function createHomeAwaysForAgainstSports(): array
+    {
+        $homeAways = [];
+        foreach( $this->getScheduleSports() as $scheduleSport ) {
+            $sportVariant = $scheduleSport->createVariant();
+            if( $sportVariant instanceof AgainstH2h || $sportVariant instanceof AgainstGpp ) {
+                $homeAways = array_merge( $homeAways, $scheduleSport->createHomeAways() );
+            }
+        }
+        return $homeAways;
     }
 
 //    public function getPoule(): Poule {

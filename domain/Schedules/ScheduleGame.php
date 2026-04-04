@@ -10,7 +10,7 @@ use SportsHelpers\Against\AgainstSide;
 use SportsPlanning\Combinations\HomeAway;
 use SportsPlanning\Combinations\PlaceNrCombination;
 use SportsPlanning\Identifiable;
-use SportsPlanning\Schedules\ScheduleSport as SportSchedule;
+use SportsPlanning\Schedules\ScheduleSport;
 
 final class ScheduleGame extends Identifiable
 {
@@ -19,10 +19,10 @@ final class ScheduleGame extends Identifiable
      */
     protected Collection $places;
 
-    public function __construct(protected SportSchedule $sportSchedule, protected int|null $gameRoundNumber = null)
+    public function __construct(protected ScheduleSport $scheduleSport, protected int|null $gameRoundNumber = null)
     {
-        if (!$sportSchedule->getGames()->contains($this)) {
-            $sportSchedule->getGames()->add($this) ;
+        if (!$scheduleSport->getGames()->contains($this)) {
+            $scheduleSport->getGames()->add($this) ;
         }
         $this->places = new ArrayCollection();
     }

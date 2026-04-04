@@ -29,8 +29,8 @@ final class ScheduleSport extends PersistVariant
             $sportVariant->getNrOfH2H(),
             $sportVariant->getNrOfGamesPerPlace()
         );
-        if (!$schedule->getSportSchedules()->contains($this)) {
-            $schedule->getSportSchedules()->add($this);
+        if (!$schedule->getScheduleSports()->contains($this)) {
+            $schedule->getScheduleSports()->add($this);
         }
         $this->games = new ArrayCollection();
     }
@@ -51,6 +51,18 @@ final class ScheduleSport extends PersistVariant
     {
         return $this->games;
     }
+
+    /**
+     * @return list<HomeAway>
+     */
+    public function createHomeAways(): array
+    {
+        return array_values( array_map(function(ScheduleGame $game): HomeAway {
+            return $game->convertToHomeAway();
+        }, $this->getGames()->toArray() ) );
+    }
+
+
     // ArrayCollection $gameRoundGames (home: [1,2], away: [3,4], single: [1,2,3,4,5])
 
 //    public function allPlacesSameNrOfGamesAssignable(): bool

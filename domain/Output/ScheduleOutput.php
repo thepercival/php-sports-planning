@@ -41,15 +41,15 @@ final class ScheduleOutput extends OutputAbstract
             $prefix = '    ';
             $name = new ScheduleName($schedule->createSportVariants());
             $this->logger->info( $prefix . ' schedule => nrOfPlaces: ' . $schedule->getNrOfPlaces() . ' , name: "' . ((string)$name) . '"');
-            foreach ($schedule->getSportSchedules() as $sportSchedule) {
-                if ($sportNumber !== null && $sportNumber !== $sportSchedule->getNumber()) {
+            foreach ($schedule->getScheduleSports() as $scheduleSport) {
+                if ($sportNumber !== null && $sportNumber !== $scheduleSport->getNumber()) {
                     continue;
                 }
                 $this->logger->info(
-                    $prefix . '    sportschedule => sportNr: ' . $sportSchedule->getNumber() .
-                    ' , variant: "' . ((string)$sportSchedule->createVariant()) . '"'
+                    $prefix . '    scheduleSport => sportNr: ' . $scheduleSport->getNumber() .
+                    ' , variant: "' . ((string)$scheduleSport->createVariant()) . '"'
                 );
-                foreach ($sportSchedule->getGames() as $gameRoundGame) {
+                foreach ($scheduleSport->getGames() as $gameRoundGame) {
                     $this->logger->info('            ' . ((string)$gameRoundGame));
                 }
             }
@@ -79,8 +79,8 @@ final class ScheduleOutput extends OutputAbstract
         $sportVariants = $schedule->createSportVariants();
         $assignedCounter = new AssignedCounter($nrOfPlaces, $sportVariants);
         $unequalNrOfGames = 0;
-        foreach ($schedule->getSportSchedules() as $sportSchedule) {
-            $sportVariant = $sportSchedule->createVariant();
+        foreach ($schedule->getScheduleSports() as $scheduleSport) {
+            $sportVariant = $scheduleSport->createVariant();
             if (!($sportVariant instanceof AgainstGpp || $sportVariant instanceof AgainstH2h)) {
                 continue;
             }
@@ -94,7 +94,7 @@ final class ScheduleOutput extends OutputAbstract
             if( $variantWithPoule instanceof AgainstGppWithPoule && !$variantWithPoule->allPlacesSameNrOfGamesAssignable() ){
                 $unequalNrOfGames++;
             }
-            $homeAways = $this->convertGamesToHomeAways(array_values( $sportSchedule->getGames()->toArray()));
+            $homeAways = $this->convertGamesToHomeAways(array_values( $scheduleSport->getGames()->toArray()));
             $assignedCounter->assignHomeAways($homeAways);
         }
         $prefix = '        ';
