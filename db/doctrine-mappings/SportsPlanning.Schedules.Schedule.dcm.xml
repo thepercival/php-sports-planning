@@ -8,7 +8,7 @@
              unique="false"/>
       <field name="nrOfTimeoutSecondsTried" column="nrOfTimeoutSecondsTried" type="smallint" nullable="false"
              unique="false"/>
-      <one-to-many field="sportSchedules" target-entity="SportsPlanning\Schedules\ScheduleSport" mapped-by="schedule">
+      <one-to-many field="scheduleSports" target-entity="SportsPlanning\Schedules\ScheduleSport" mapped-by="schedule">
           <cascade>
               <cascade-persist/>
               <cascade-remove/>

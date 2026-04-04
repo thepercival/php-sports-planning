@@ -2,12 +2,12 @@
 <doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
   <entity name="SportsPlanning\Schedules\ScheduleSport" table="planningSportSchedules">
     <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
-    <many-to-one field="schedule" target-entity="SportsPlanning\Schedules\Schedule" inversed-by="sportSchedules">
+    <many-to-one field="schedule" target-entity="SportsPlanning\Schedules\Schedule" inversed-by="scheduleSports">
       <join-columns>
         <join-column name="scheduleId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>
     </many-to-one>
-    <one-to-many field="games" target-entity="SportsPlanning\Schedules\ScheduleGame" mapped-by="sportSchedule">
+    <one-to-many field="games" target-entity="SportsPlanning\Schedules\ScheduleGame" mapped-by="scheduleSport">
       <cascade>
         <cascade-persist/>
         <cascade-remove/>
